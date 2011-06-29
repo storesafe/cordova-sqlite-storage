@@ -25,7 +25,7 @@
 #import "/usr/include/sqlite3.h"
 
 
-@interface SQLitePlugin : PhoneGapCommand {
+@interface SQLitePlugin : PGPlugin {
     NSString *successCallback;
     NSString *errorCallback;
     NSMutableDictionary *openDBs;
@@ -33,7 +33,7 @@
 
 @property (nonatomic, copy) NSString *successCallback;
 @property (nonatomic, copy) NSString *errorCallback;
-@property (nonatomic, copy) NSMutableDictionary *openDBs;
+@property (nonatomic, retain) NSMutableDictionary *openDBs;
 
 -(void) open:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
 -(void) executeSQL:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
