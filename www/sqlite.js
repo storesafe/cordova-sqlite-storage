@@ -34,8 +34,13 @@ function onSuccess(fileSystem) {
     patchDb (dbPath, 'database_patched');
 }
 
+function deviceready (e) {
+    var dbPatched = window.openDatabase("database_patched", "", "my app db name", 1*1024*1024);
+    startPatchingDb ();
+}
+
 function startPatchingDb () {
     window.localFileSystem.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onSuccess, console.log);
 }
 
-document.addEventListener("deviceready", startPatchingDb, false);
+document.addEventListener("deviceready", deviceready, false);
