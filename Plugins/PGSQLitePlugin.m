@@ -20,15 +20,15 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#import "SQLitePlugin.h"
+#import "PGSQLitePlugin.h"
 #import "JSON.h"
 
-@implementation SQLitePlugin
+@implementation PGSQLitePlugin
 @synthesize successCallback, errorCallback, openDBs;
 
 -(id)initWithWebView:(UIWebView *)theWebView
 {
-    self = (SQLitePlugin*)[super initWithWebView:theWebView];
+    self = (PGSQLitePlugin*)[super initWithWebView:theWebView];
     if (self) {
         openDBs = [NSMutableDictionary dictionaryWithCapacity:0];
         [openDBs retain];
@@ -48,10 +48,10 @@
     self.errorCallback = NULL;
     if (argc > 0) {
         self.successCallback = [arguments objectAtIndex:0];
-    } 
+    }
     if (argc > 1) {
         self.errorCallback = [arguments objectAtIndex:1];
-    }    
+    }
 }
 
 -(void) open: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
@@ -73,7 +73,8 @@
     }
     
     NSValue *dbPointer = [NSValue valueWithPointer:db];
-    [openDBs setObject:dbPointer forKey: dbPath];    
+    [openDBs setObject:dbPointer forKey: dbPath];
+    [self respond:self.successCallback withString: @"Database opened"];
 }
 
 -(void) executeSQL: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
@@ -192,6 +193,11 @@
     }
     sqlite3_close (db);
     [self respond:self.successCallback withString: @""];
+}
+
+-(void)exitApp: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
+{
+   exit (0);
 }
 
 -(void)dealloc

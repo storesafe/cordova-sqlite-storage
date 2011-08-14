@@ -25,7 +25,7 @@
 #import "/usr/include/sqlite3.h"
 
 
-@interface SQLitePlugin : PGPlugin {
+@interface PGSQLitePlugin : PGPlugin {
     NSString *successCallback;
     NSString *errorCallback;
     NSMutableDictionary *openDBs;
@@ -33,10 +33,10 @@
 
 @property (nonatomic, copy) NSString *successCallback;
 @property (nonatomic, copy) NSString *errorCallback;
-@property (nonatomic, retain) NSMutableDictionary *openDBs;
+@property (nonatomic, copy) NSMutableDictionary *openDBs;
 
 -(void) open:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
 -(void) executeSQL:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
 -(void) close: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
-
+-(void) exitApp: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
 @end
