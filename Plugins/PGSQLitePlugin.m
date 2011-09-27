@@ -137,7 +137,7 @@
     const char *sql_stmt = [query UTF8String];
     char *errMsg = NULL;
     sqlite3_stmt *statement;
-    int result, i, column_type;
+    int result, i, column_type, count;
     int previousRowsAffected, nowRowsAffected, diffRowsAffected;
     long long previousInsertId, nowInsertId;
     BOOL keepGoing = YES;
@@ -172,8 +172,9 @@
             case SQLITE_ROW:
                 i = 0;
                 entry = [NSMutableDictionary dictionaryWithCapacity:0];
-                
-                while (i < sqlite3_column_count(statement)) {
+                count = sqlite3_column_count(statement);
+				
+                while (i < count) {
                     column_type = sqlite3_column_type(statement, i);
                     switch (column_type) {
                         case SQLITE_INTEGER:
