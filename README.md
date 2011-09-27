@@ -33,6 +33,8 @@ Added:
   -  callbacks per-statement, even within transaction
   -  somewhat similar api to the webkit/phonegap default
 
+-  lawnchair adapter
+
 Removed:
 
 -  quota limit webkit html5 db patching
@@ -98,3 +100,18 @@ General Usage
         # error callback
     
         console.log "ERROR: #{e.message}"
+
+Lawnchair Adapter Usage
+=======================
+
+Include the following js files in your html:
+
+-  lawnchair.js (you provide)
+-  pgsqlite_plugin.js
+-  lawnchair_pgsqlite_plugin_adapter.js (must come after pgsqlite_plugin.js)
+
+The `name` option will determine the sqlite filename.  In this example, you would be using/creating
+the database at: *Documents/kvstore.sqlite3* (all db's in PGSQLitePlugin are in the Documents folder)
+
+    kvstore = new Lawnchair { name: "kvstore", adapter: PGSQLitePlugin.lawnchair_adapter }, () ->
+      # do stuff
