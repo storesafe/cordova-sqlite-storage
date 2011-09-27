@@ -51,7 +51,7 @@
 -(void) _executeSqlBatch:(NSMutableDictionary*)options;
 -(void) _executeSql:(NSMutableDictionary*)options;
 -(void) close: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
--(void) respond: (id)cb withString: (NSString *) str;
+-(void) respond: (id)cb withString:(NSString *)str withType:(NSString *)type;
 -(id) getDBPath:(id)dbFile;
 
 @end

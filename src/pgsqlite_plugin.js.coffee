@@ -8,14 +8,21 @@ callbacks = {}
 
 counter = 0
 
-fnref = (fn) ->
+cbref = (hash) ->
   f = "cb#{counter+=1}"
-  callbacks[f] = fn
+  callbacks[f] = hash
   f
 
 getOptions = (opts, success, error) ->
-  opts.successCallback = fnref(success) if typeof success == "function"
-  opts.errorCallback = fnref(error) if typeof error == "function"
+  cb = {}
+  has_cbs = false
+  if typeof success == "function"
+    has_cbs = true
+    cb.success = success
+  if typeof error == "function"
+    has_cbs = true
+    cb.error = error
+  opts.callback = cbref(cb) if has_cbs
   opts
   
 class root.PGSQLitePlugin
@@ -35,12 +42,10 @@ class root.PGSQLitePlugin
     @open(@openSuccess, @openError)
   
   # Note: Class method
-  @handleCallback: () ->
-    args = Array::slice.call(arguments)
-    f = args.shift()
-    callbacks[f]?.apply(null, args)
-    callbacks[f] = null
-    delete callbacks[f]
+  @handleCallback: (ref, type, obj) ->
+    callbacks[ref]?[type]?(obj)
+    callbacks[ref] = null
+    delete callbacks[ref]
     return
     
   executeSql: (sql, success, error) ->

@@ -43,9 +43,9 @@
     return self;
 }
 
--(void) respond: (id)cb withString: (NSString *) str {
+-(void) respond: (id)cb withString:(NSString *)str withType:(NSString *)type {
     if (cb != NULL) {
-        NSString* jsString = [NSString stringWithFormat:@"PGSQLitePlugin.handleCallback('%@' , %@);", cb, str ];
+        NSString* jsString = [NSString stringWithFormat:@"PGSQLitePlugin.handleCallback('%@', '%@', %@);", cb, type, str ];
         [self writeJavascript:jsString];
     }
 }
@@ -60,12 +60,11 @@
 
 -(void) open: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
 {
-    NSString *successCallback = [options objectForKey:@"successCallback"];
-    NSString *errorCallback = [options objectForKey:@"errorCallback"];
+    NSString *callback = [options objectForKey:@"callback"];
     NSString *dbPath = [self getDBPath:[options objectForKey:@"path"]];
 
     if (dbPath == NULL) {
-        [self respond:errorCallback withString:@"{ message: 'You must specify database path' }"];
+        [self respond:callback withString:@"{ message: 'You must specify database path' }" withType:@"error"];
         return;
     }
     
@@ -73,13 +72,13 @@
     const char *path = [dbPath UTF8String];
     
     if (sqlite3_open(path, &db) != SQLITE_OK) {
-        [self respond:errorCallback withString:@"{ message: 'Unable to open DB' }"];
+        [self respond:callback withString:@"{ message: 'Unable to open DB' }" withType:@"error"];
         return;
     }
     
     NSValue *dbPointer = [NSValue valueWithPointer:db];
     [openDBs setObject:dbPointer forKey: dbPath];
-    [self respond:successCallback withString: @"{ message: 'Database opened' }"];
+    [self respond:callback withString: @"{ message: 'Database opened' }" withType:@"success"];
 }
 
 -(void) backgroundExecuteSqlBatch: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
@@ -112,24 +111,23 @@
 
 -(void) executeSql: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
 {
-    NSString *successCallback = [options objectForKey:@"successCallback"];
-    NSString *errorCallback = [options objectForKey:@"errorCallback"];
+    NSString *callback = [options objectForKey:@"callback"];
     NSString *dbPath = [self getDBPath:[options objectForKey:@"path"]];
     NSMutableArray *query_parts = [options objectForKey:@"query"];
     NSString *query = [query_parts objectAtIndex:0];
     
     if (dbPath == NULL) {
-        [self respond:errorCallback withString:@"{ message: 'You must specify database path' }"];
+        [self respond:callback withString:@"{ message: 'You must specify database path' }" withType:@"error"];
         return;
     }
     if (query == NULL) {
-        [self respond:errorCallback withString:@"{ message: 'You must specify a query to execute' }"];
+        [self respond:callback withString:@"{ message: 'You must specify a query to execute' }" withType:@"error"];
         return;
     }
     
     NSValue *dbPointer = [openDBs objectForKey:dbPath];
     if (dbPointer == NULL) {
-        [self respond:errorCallback withString:@"{ message: 'No such database, you must open it first' }"];
+        [self respond:callback withString:@"{ message: 'No such database, you must open it first' }" withType:@"error"];
         return;
     }
     sqlite3 *db = [dbPointer pointerValue];
@@ -223,34 +221,33 @@
     }
     
     if (errMsg != NULL) {
-        [self respond:errorCallback withString:[NSString stringWithFormat:@"{ message: 'SQL statement error : %s' }", errMsg]];
+        [self respond:callback withString:[NSString stringWithFormat:@"{ message: 'SQL statement error : %s' }", errMsg] withType:@"error"];
     } else {
         [resultSet setObject:resultRows forKey:@"rows"];
         [resultSet setObject:rowsAffected forKey:@"rowsAffected"];
         if (hasInsertId) {
             [resultSet setObject:insertId forKey:@"insertId"];
         }
-        [self respond:successCallback withString:[resultSet JSONRepresentation]];
+        [self respond:callback withString:[resultSet JSONRepresentation] withType:@"success"];
     }
 }
 
 -(void) close: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
 {
-    NSString *successCallback = [options objectForKey:@"successCallback"];
-    NSString *errorCallback = [options objectForKey:@"errorCallback"];
+    NSString *callback = [options objectForKey:@"callback"];
     NSString *dbPath = [self getDBPath:[options objectForKey:@"path"]];
     if (dbPath == NULL) {
-        [self respond:errorCallback withString:@"{ message: 'You must specify database path' }"];
+        [self respond:callback withString:@"{ message: 'You must specify database path' }" withType:@"error"];
         return;
     }
     
     NSValue *val = [openDBs objectForKey:dbPath];
     sqlite3 *db = [val pointerValue];
     if (db == NULL) {
-        [self respond:errorCallback withString: @"{ message: 'Specified db was not open' }"];
+        [self respond:callback withString: @"{ message: 'Specified db was not open' }" withType:@"error"];
     }
     sqlite3_close (db);
-    [self respond:successCallback withString: @"{ message: 'db closed' }"];
+    [self respond:callback withString: @"{ message: 'db closed' }" withType:@"success"];
 }
 
 -(void)dealloc

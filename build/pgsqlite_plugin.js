@@ -1,20 +1,28 @@
 (function() {
-  var callbacks, counter, fnref, getOptions, root;
+  var callbacks, cbref, counter, getOptions, root;
   root = this;
   callbacks = {};
   counter = 0;
-  fnref = function(fn) {
+  cbref = function(hash) {
     var f;
     f = "cb" + (counter += 1);
-    callbacks[f] = fn;
+    callbacks[f] = hash;
     return f;
   };
   getOptions = function(opts, success, error) {
+    var cb, has_cbs;
+    cb = {};
+    has_cbs = false;
     if (typeof success === "function") {
-      opts.successCallback = fnref(success);
+      has_cbs = true;
+      cb.success = success;
     }
     if (typeof error === "function") {
-      opts.errorCallback = fnref(error);
+      has_cbs = true;
+      cb.error = error;
+    }
+    if (has_cbs) {
+      opts.callback = cbref(cb);
     }
     return opts;
   };
@@ -35,15 +43,15 @@
       });
       this.open(this.openSuccess, this.openError);
     }
-    PGSQLitePlugin.handleCallback = function() {
-      var args, f, _ref;
-      args = Array.prototype.slice.call(arguments);
-      f = args.shift();
-      if ((_ref = callbacks[f]) != null) {
-        _ref.apply(null, args);
+    PGSQLitePlugin.handleCallback = function(ref, type, obj) {
+      var _ref;
+      if ((_ref = callbacks[ref]) != null) {
+        if (typeof _ref[type] === "function") {
+          _ref[type](obj);
+        }
       }
-      callbacks[f] = null;
-      delete callbacks[f];
+      callbacks[ref] = null;
+      delete callbacks[ref];
     };
     PGSQLitePlugin.prototype.executeSql = function(sql, success, error) {
       var opts;
