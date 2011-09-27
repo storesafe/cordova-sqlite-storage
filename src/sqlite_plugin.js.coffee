@@ -9,7 +9,7 @@ callbacks = {}
 counter = 0
 
 fnref = (fn) ->
-  f = "_sqliteplugin#{counter+=1}"
+  f = "cb#{counter+=1}"
   callbacks[f] = fn
   f
 

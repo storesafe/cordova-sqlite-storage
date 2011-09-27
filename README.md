@@ -53,8 +53,8 @@ Installing
 Drag .h and .m files into your project's Plugins folder (in xcode) -- I always
 just have "Create references" as the option selected.
 
-Compile the coffeescript file to javascript WITH the top-level function wrapper
-option (default).
+Take the precompiled javascript file from build/, or compile the coffeescript
+file in src/ to javascript WITH the top-level function wrapper option (default).
 
 Use the resulting javascript file in your HTML.
 
