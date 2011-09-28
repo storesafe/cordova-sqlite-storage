@@ -1,53 +1,9 @@
 Phonegap SQLitePlugin
 =====================
 
-This is Joe Noon's fork of Phonegap-SQLitePlugin
-
-This fork lives at: https://github.com/joenoon/Phonegap-SQLitePlugin
-
-The original lives at: https://github.com/davibe/Phonegap-SQLitePlugin
-
-This fork has largely diverged from the original, and is not a drop-in
-replacement.
-
 DISCLAIMER: 
   
-I'm brand new to objective-c, so there could be problems with my code!
-Please tell me. joenoon@gmail.com
-
-Added:
-
--  obj-c:
-  -  batch execution support
-  -  query parameter binding
-  -  perform after delay so js-objc call doesn't need to wait for response
-  -  callbacks moved out of instance and into options of each method call
-  -  path just takes filename, and path is put in Documents folder
-  -  added rowsAffected, insertId
-  -  success callback response is { insertId: x, rowsAffected: y, rows: z }
-  -  error callback response is { message: x }
-  
--  js (coffeescript):
-  -  new implementation
-  -  first cut transaction support
-  -  callbacks per-statement, even within transaction
-  -  somewhat similar api to the webkit/phonegap default
-
--  lawnchair adapter
-
-Removed:
-
--  quota limit webkit html5 db patching
--  exit from app
--  (I don't think either of these would make it through the approval process)
-
-Other notes:
-
-I played with the idea of batching responses into larger sets of
-writeJavascript on a timer, however there was only a barely noticeable
-performance gain.  So I took it out, not worth it.  However there is a
-massive performance gain by batching on the client-side to minimize
-PhoneGap.exec calls using the transaction support.
+We are brand new to objective-c, so there could be problems with our code!
 
 Installing
 ==========
@@ -75,7 +31,7 @@ Insert this in there:
 General Usage
 =============
 
-(You're using Coffeescript right? Of course you are.)
+## Coffee Script
 
     db = new PGSQLitePlugin("test_native.sqlite3")
     db.executeSql('DROP TABLE IF EXISTS test_table')
@@ -101,6 +57,26 @@ General Usage
     
         console.log "ERROR: #{e.message}"
 
+## Plain Javascript
+
+    var db;
+    db = new PGSQLitePlugin("test_native.sqlite3");
+    db.executeSql('DROP TABLE IF EXISTS test_table');
+    db.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
+    db.transaction(function(tx) {
+      return tx.executeSql(["INSERT INTO test_table (data, data_num) VALUES (?,?)", "test", 100], function(res) {
+        console.log("insertId: " + res.insertId + " -- probably 1");
+        console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
+        return db.executeSql("select count(id) as cnt from test_table;", function(res) {
+          console.log("rows.length: " + res.rows.length + " -- should be 1");
+          return console.log("rows[0].cnt: " + res.rows[0].cnt + " -- should be 1");
+        });
+      }, function(e) {
+        return console.log("ERROR: " + e.message);
+      });
+    });
+
+
 Lawnchair Adapter Usage
 =======================
 
@@ -115,3 +91,13 @@ the database at: *Documents/kvstore.sqlite3* (all db's in PGSQLitePlugin are in 
 
     kvstore = new Lawnchair { name: "kvstore", adapter: PGSQLitePlugin.lawnchair_adapter }, () ->
       # do stuff
+
+
+Other notes from @Joenoon:
+
+I played with the idea of batching responses into larger sets of
+writeJavascript on a timer, however there was only a barely noticeable
+performance gain.  So I took it out, not worth it.  However there is a
+massive performance gain by batching on the client-side to minimize
+PhoneGap.exec calls using the transaction support.
+
