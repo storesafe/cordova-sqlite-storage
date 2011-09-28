@@ -93,7 +93,7 @@ the database at: *Documents/kvstore.sqlite3* (all db's in PGSQLitePlugin are in 
       # do stuff
 
 
-Other notes from @Joenoon:
+### Other notes from @Joenoon:
 
 I played with the idea of batching responses into larger sets of
 writeJavascript on a timer, however there was only a barely noticeable
