@@ -1,8 +1,8 @@
 Phonegap SQLitePlugin
 =====================
 
-DISCLAIMER: 
-  
+DISCLAIMER:
+
 We are brand new to objective-c, so there could be problems with our code!
 
 Installing
@@ -38,23 +38,23 @@ General Usage
     db.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)')
 
     db.transaction (tx) ->
-  
+
       tx.executeSql [ "INSERT INTO test_table (data, data_num) VALUES (?,?)", "test", 100], (res) ->
-    
+
         # success callback
-    
+
         console.log "insertId: #{res.insertId} -- probably 1"
         console.log "rowsAffected: #{res.rowsAffected} -- should be 1"
-    
+
         # check the count (not a part of the transaction)
         db.executeSql "select count(id) as cnt from test_table;", (res) ->
           console.log "rows.length: #{res.rows.length} -- should be 1"
           console.log "rows[0].cnt: #{res.rows[0].cnt} -- should be 1"
-  
+
       , (e) ->
-    
+
         # error callback
-    
+
         console.log "ERROR: #{e.message}"
 
 ## Plain Javascript
@@ -86,12 +86,19 @@ Include the following js files in your html:
 -  pgsqlite_plugin.js
 -  lawnchair_pgsqlite_plugin_adapter.js (must come after pgsqlite_plugin.js)
 
-The `name` option will determine the sqlite filename.  In this example, you would be using/creating
-the database at: *Documents/kvstore.sqlite3* (all db's in PGSQLitePlugin are in the Documents folder)
+
+
+The `name` option will determine the sqlite filename. Optionally, you can change it using the `db` option.
+
+In this example, you would be using/creating the database at: *Documents/kvstore.sqlite3* (all db's in PGSQLitePlugin are in the Documents folder)
 
     kvstore = new Lawnchair { name: "kvstore", adapter: PGSQLitePlugin.lawnchair_adapter }, () ->
       # do stuff
 
+Using the `db` option you can create multiple stores in one sqlite file. (There will be one table per store.)
+
+    recipes = new Lawnchair {db: "cookbook", name: "recipes", ...}
+	ingredients = new Lawnchair {db: "cookbook", name: "ingredients", ...}
 
 ### Other notes from @Joenoon:
 
