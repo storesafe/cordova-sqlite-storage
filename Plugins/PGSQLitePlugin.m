@@ -170,7 +170,7 @@
                             [entry setObject:columnValue forKey:columnName];
                             break;
                         case SQLITE_TEXT:
-                            columnValue = [NSString stringWithFormat:@"%s", sqlite3_column_text(statement, i)];
+                            columnValue = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, i)];
                             columnName = [NSString stringWithFormat:@"%s", sqlite3_column_name(statement, i)];
                             [entry setObject:columnValue forKey:columnName];
                             break;
