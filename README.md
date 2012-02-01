@@ -27,10 +27,11 @@ in PGSQLitePlugin.h file change for PhoneGaps JSONKit.h implementation.
 [/code]
 
 In the Project Build Phases tab, select the "Link Binary with Libraries" dropdown menu and add 2 libraries:
-1. libsqlite3.0.dylib
-2. libsqlite3.dylib
 
-**/ 
+libsqlite3.0.dylib
+libsqlite3.dylib
+
+
 Drag .h and .m files into your project's Plugins folder (in xcode) -- I always
 just have "Create references" as the option selected.
 
