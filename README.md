@@ -7,6 +7,30 @@ We are brand new to objective-c, so there could be problems with our code!
 
 Installing
 ==========
+/** 
+For installing with PhoneGap 1.3.0:
+in PGSQLitePlugin.h file change for PhoneGaps JSONKit.h implementation.
+
+[code]
+#ifdef PHONEGAP_FRAMEWORK
+    #import <PhoneGap/PGPlugin.h>
+    #import <PhoneGap/JSONKit.h>
+    #import <PhoneGap/PhoneGapDelegate.h>
+    #import <PhoneGap/File.h>
+    #import<PhoneGap/FileTransfer.h>
+#else
+    #import "PGPlugin.h"
+    #import "JSON.h"
+    #import "PhoneGapDelegate.h"
+    #import "File.h"
+#endif
+[/code]
+
+In the Project Build Phases tab, select the "Link Binary with Libraries" dropdown menu and add 2 libraries:
+
+libsqlite3.0.dylib
+libsqlite3.dylib
+
 
 Drag .h and .m files into your project's Plugins folder (in xcode) -- I always
 just have "Create references" as the option selected.
