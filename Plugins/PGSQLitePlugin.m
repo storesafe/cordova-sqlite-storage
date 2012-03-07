@@ -178,7 +178,7 @@
                             
                             break;
                         case SQLITE_FLOAT:
-                            columnValue = [NSNumber numberWithFloat: sqlite3_column_int(statement, i)];
+                            columnValue = [NSNumber numberWithFloat: sqlite3_column_double(statement, i)];
                             columnName = [NSString stringWithFormat:@"%s", sqlite3_column_name(statement, i)];
                             [entry setObject:columnValue forKey:columnName];                            
                             break;
