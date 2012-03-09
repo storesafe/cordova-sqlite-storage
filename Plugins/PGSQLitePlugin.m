@@ -165,7 +165,7 @@
                     column_type = sqlite3_column_type(statement, i);
                     switch (column_type) {
                         case SQLITE_INTEGER:
-                            columnValue = [NSNumber numberWithInt: sqlite3_column_int(statement, i)];
+                            columnValue = [NSNumber numberWithDouble: sqlite3_column_double(statement, i)];
                             columnName = [NSString stringWithFormat:@"%s", sqlite3_column_name(statement, i)];
                             [entry setObject:columnValue forKey:columnName];
                             break;
