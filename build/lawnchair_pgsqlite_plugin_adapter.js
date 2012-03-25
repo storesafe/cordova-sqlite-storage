@@ -1,30 +1,37 @@
+
+/*
+     PGSQLitePlugin Lawnchair Adapter
+     (c) 2011 Joe Noon <joenoon@gmail.com>
+     This may be freely distributed under the MIT license.
+*/
+
 (function() {
-  /*
-       PGSQLitePlugin Lawnchair Adapter
-       (c) 2011 Joe Noon <joenoon@gmail.com>
-       This may be freely distributed under the MIT license.
-  */
   var fail, now, pgsqlite_plugin, root;
+
   root = this;
+
   fail = function(e) {
     console.log("Error in PGSQLitePlugin Lawnchair adapter: " + e.message);
   };
+
   now = function() {
     return (new Date()).getTime();
   };
+
   pgsqlite_plugin = {
     valid: function() {
       return !!("PGSQLitePlugin" in root);
     },
     init: function(options, callback) {
-      var cb, sql, success, that;
+      var cb, db, sql, success, that;
       that = this;
       cb = this.fn(this.name, callback);
       sql = "CREATE TABLE IF NOT EXISTS " + this.name + " (id NVARCHAR(32) UNIQUE PRIMARY KEY, value TEXT, timestamp REAL)";
       success = function() {
         cb.call(that, that);
       };
-      this.db = new PGSQLitePlugin("" + this.name + ".sqlite3");
+      db = options.db || this.name;
+      this.db = new PGSQLitePlugin("" + db + ".sqlite3");
       this.db.executeSql(sql, success, fail);
     },
     keys: function(callback) {
@@ -47,9 +54,7 @@
       up = "UPDATE " + this.name + " SET value = ?, timestamp = ? WHERE id = ?";
       success = function() {
         obj.key = id;
-        if (callback) {
-          that.lambda(callback).call(that, obj);
-        }
+        if (callback) that.lambda(callback).call(that, obj);
       };
       val = [now(), id];
       this.exists(obj.key, function(exists) {
@@ -63,18 +68,14 @@
     },
     batch: function(objs, cb) {
       var checkComplete, db, done, exists_sql, exists_success, finalized, ins, keys, marks, results, that, up, updateProgress, x, _i, _len;
-      if (!(objs && objs.length > 0)) {
-        return this;
-      }
+      if (!(objs && objs.length > 0)) return this;
       that = this;
       done = false;
       finalized = false;
       db = this.db;
       results = [];
       checkComplete = function() {
-        if (finalized) {
-          return;
-        }
+        if (finalized) return;
         if (done && cb && results.length === objs.length) {
           finalized = true;
           that.lambda(cb).call(that, results);
@@ -90,10 +91,9 @@
       keys = [];
       for (_i = 0, _len = objs.length; _i < _len; _i++) {
         x = objs[_i];
-        if (x.key) {
-          marks.push("?");
-          keys.push(x.key);
-        }
+        if (!x.key) continue;
+        marks.push("?");
+        keys.push(x.key);
       }
       marks = marks.join(",");
       exists_success = function(res) {
@@ -142,15 +142,11 @@
     },
     get: function(keyOrArray, cb) {
       var is_array, marks, sql, success, that, x;
-      if (!keyOrArray) {
-        return this;
-      }
+      if (!keyOrArray) return this;
       that = this;
       is_array = this.isArray(keyOrArray);
       if (is_array) {
-        if (!(keyOrArray.length > 0)) {
-          return this;
-        }
+        if (!(keyOrArray.length > 0)) return this;
         marks = ((function() {
           var _i, _len, _results;
           _results = [];
@@ -181,12 +177,8 @@
           }
           return _results;
         })();
-        if (!is_array) {
-          r = r[0];
-        }
-        if (cb) {
-          that.lambda(cb).call(that, r);
-        }
+        if (!is_array) r = r[0];
+        if (cb) that.lambda(cb).call(that, r);
       };
       this.db.executeSql(sql, success, fail);
       return this;
@@ -196,18 +188,14 @@
       that = this;
       sql = ["SELECT id FROM " + this.name + " WHERE id = ?", key];
       success = function(res) {
-        if (cb) {
-          that.fn("exists", cb).call(that, res.rows.length > 0);
-        }
+        if (cb) that.fn("exists", cb).call(that, res.rows.length > 0);
       };
       this.db.executeSql(sql, success, fail);
       return this;
     },
     all: function(callback) {
       var cb, sql, success, that;
-      if (!callback) {
-        return this;
-      }
+      if (!callback) return this;
       that = this;
       sql = "SELECT * FROM " + this.name;
       cb = this.fn(this.name, callback);
@@ -235,19 +223,13 @@
     },
     remove: function(keyOrObj, cb) {
       var key, sql, success, that;
-      if (!keyOrObj) {
-        return this;
-      }
+      if (!keyOrObj) return this;
       that = this;
       key = typeof keyOrObj === "string" ? keyOrObj : keyOrObj.key;
-      if (!key) {
-        return this;
-      }
+      if (!key) return this;
       sql = ["DELETE FROM " + this.name + " WHERE id = ?", key];
       success = function() {
-        if (cb) {
-          that.lambda(cb).call(that);
-        }
+        if (cb) that.lambda(cb).call(that);
       };
       this.db.executeSql(sql, success, fail);
       return this;
@@ -258,15 +240,16 @@
       db = this.db;
       sql = "DELETE FROM " + this.name;
       success = function() {
-        if (cb) {
-          that.lambda(cb).call(that);
-        }
+        if (cb) that.lambda(cb).call(that);
         db.executeSql("VACUUM");
       };
       this.db.executeSql(sql, success, fail);
       return this;
     }
   };
+
   PGSQLitePlugin.lawnchair_adapter = pgsqlite_plugin;
+
   Lawnchair.adapter("pgsqlite_plugin", pgsqlite_plugin);
+
 }).call(this);
