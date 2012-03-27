@@ -1,5 +1,5 @@
 ###
-     PGSQLitePlugin Lawnchair Adapter
+     SQLitePlugin Lawnchair Adapter
      (c) 2011 Joe Noon <joenoon@gmail.com>
      This may be freely distributed under the MIT license.
 ###
@@ -7,14 +7,14 @@
 root = this
 
 fail = (e) ->
-  console.log "Error in PGSQLitePlugin Lawnchair adapter: #{e.message}"
+  console.log "Error in SQLitePlugin Lawnchair adapter: #{e.message}"
   return
 
 now = () -> (new Date()).getTime()
 
-pgsqlite_plugin =
+sqlite_plugin =
 
-  valid: () -> !!("PGSQLitePlugin" of root)
+  valid: () -> !!("SQLitePlugin" of root)
 
   init: (options, callback) ->
     that = this
@@ -25,7 +25,7 @@ pgsqlite_plugin =
       return
     # open a connection and create the db if it doesn't exist
     db = options.db || @name
-    @db = new PGSQLitePlugin("#{db}.sqlite3")
+    @db = new SQLitePlugin("#{db}.sqlite3")
     @db.executeSql sql, success, fail
     return
 
@@ -208,5 +208,5 @@ pgsqlite_plugin =
     @db.executeSql sql, success, fail
     this
 
-PGSQLitePlugin.lawnchair_adapter = pgsqlite_plugin
-Lawnchair.adapter "pgsqlite_plugin", pgsqlite_plugin
+SQLitePlugin.lawnchair_adapter = sqlite_plugin
+Lawnchair.adapter "sqlite_plugin", sqlite_plugin

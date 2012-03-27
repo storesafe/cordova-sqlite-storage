@@ -1,5 +1,12 @@
-Phonegap SQLitePlugin
+Cordova SQLitePlugin
 =====================
+
+DISCLAIMER:
+
+Created by  @Joenoon:
+
+Adapted to 1.5 by coomsie
+
 
 DISCLAIMER:
 
@@ -8,37 +15,8 @@ We are brand new to objective-c, so there could be problems with our code!
 Installing
 ==========
 
-PhoneGap 1.3.0
+Cordova (PhoneGap) 1.5.0
 --------------
-
-For installing with PhoneGap 1.3.0:
-in PGSQLitePlugin.h file change for PhoneGaps JSONKit.h implementation.
-
-    #ifdef PHONEGAP_FRAMEWORK
-        #import <PhoneGap/PGPlugin.h>
-        #import <PhoneGap/JSONKit.h>
-        #import <PhoneGap/PhoneGapDelegate.h>
-        #import <PhoneGap/File.h>
-        #import<PhoneGap/FileTransfer.h>
-    #else
-        #import "PGPlugin.h"
-        #import "JSON.h"
-        #import "PhoneGapDelegate.h"
-        #import "File.h"
-    #endif
-
-and in PGSQLitePlugin.m JSONRepresentation must be changed to JSONString:
-
-    --- a/Plugins/PGSQLitePlugin.m
-    +++ b/Plugins/PGSQLitePlugin.m
-    @@ -219,7 +219,7 @@
-             if (hasInsertId) {
-                 [resultSet setObject:insertId forKey:@"insertId"];
-             }
-    -        [self respond:callback withString:[resultSet JSONRepresentation] withType:@"success"];
-    +        [self respond:callback withString:[resultSet JSONString] withType:@"success"];
-         }
-     }
 
 SQLite library
 --------------
@@ -47,7 +25,7 @@ In the Project "Build Phases" tab, select the _first_ "Link Binary with Librarie
 
 **NOTE:** In the "Build Phases" there can be multiple "Link Binary with Libraries" dropdown menus. Please select the first one otherwise it will not work.
 
-PGSQLite Plugin
+SQLite Plugin
 ---------------
 
 Drag .h and .m files into your project's Plugins folder (in xcode) -- I always
@@ -67,15 +45,15 @@ Look for the following to your project's PhoneGap.plist:
 
 Insert this in there:
 
-    <key>PGSQLitePlugin</key>
-    <string>PGSQLitePlugin</string>
+    <key>SQLitePlugin</key>
+    <string>SQLitePlugin</string>
 
 General Usage
 =============
 
 ## Coffee Script
 
-    db = new PGSQLitePlugin("test_native.sqlite3")
+    db = new SQLitePlugin("test_native.sqlite3")
     db.executeSql('DROP TABLE IF EXISTS test_table')
     db.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)')
 
@@ -102,7 +80,7 @@ General Usage
 ## Plain Javascript
 
     var db;
-    db = new PGSQLitePlugin("test_native.sqlite3");
+    db = new SQLitePlugin("test_native.sqlite3");
     db.executeSql('DROP TABLE IF EXISTS test_table');
     db.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
     db.transaction(function(tx) {
@@ -125,16 +103,16 @@ Lawnchair Adapter Usage
 Include the following js files in your html:
 
 -  lawnchair.js (you provide)
--  pgsqlite_plugin.js
--  lawnchair_pgsqlite_plugin_adapter.js (must come after pgsqlite_plugin.js)
+-  sqlite_plugin.js
+-  lawnchair_sqlite_plugin_adapter.js (must come after sqlite_plugin.js)
 
 
 
 The `name` option will determine the sqlite filename. Optionally, you can change it using the `db` option.
 
-In this example, you would be using/creating the database at: *Documents/kvstore.sqlite3* (all db's in PGSQLitePlugin are in the Documents folder)
+In this example, you would be using/creating the database at: *Documents/kvstore.sqlite3* (all db's in SQLitePlugin are in the Documents folder)
 
-    kvstore = new Lawnchair { name: "kvstore", adapter: PGSQLitePlugin.lawnchair_adapter }, () ->
+    kvstore = new Lawnchair { name: "kvstore", adapter: SQLitePlugin.lawnchair_adapter }, () ->
       # do stuff
 
 Using the `db` option you can create multiple stores in one sqlite file. (There will be one table per store.)
@@ -149,4 +127,3 @@ writeJavascript on a timer, however there was only a barely noticeable
 performance gain.  So I took it out, not worth it.  However there is a
 massive performance gain by batching on the client-side to minimize
 PhoneGap.exec calls using the transaction support.
-

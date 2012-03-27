@@ -25,14 +25,14 @@ getOptions = (opts, success, error) ->
   opts.callback = cbref(cb) if has_cbs
   opts
   
-class root.PGSQLitePlugin
+class root.SQLitePlugin
   
   # All instances will interact directly on the prototype openDBs object.
   # One instance that closes a db path will remove it from any other instance's perspective as well.
   openDBs: {}
   
   constructor: (@dbPath, @openSuccess, @openError) ->
-    throw new Error "Cannot create a PGSQLitePlugin instance without a dbPath" unless dbPath
+    throw new Error "Cannot create a SQLitePlugin instance without a dbPath" unless dbPath
     @openSuccess ||= () ->
       console.log "DB opened: #{dbPath}"
       return
@@ -51,11 +51,11 @@ class root.PGSQLitePlugin
   executeSql: (sql, success, error) ->
     throw new Error "Cannot executeSql without a query" unless sql
     opts = getOptions({ query: [].concat(sql || []), path: @dbPath }, success, error)
-    PhoneGap.exec("PGSQLitePlugin.backgroundExecuteSql", opts)
+    Cordova.exec("SQLitePlugin.backgroundExecuteSql", opts)
     return
 
   transaction: (fn, success, error) ->
-    t = new root.PGSQLitePluginTransaction(@dbPath)
+    t = new root.SQLitePluginTransaction(@dbPath)
     fn(t)
     t.complete(success, error)
     
@@ -63,17 +63,17 @@ class root.PGSQLitePlugin
     unless @dbPath of @openDBs
       @openDBs[@dbPath] = true
       opts = getOptions({ path: @dbPath }, success, error)
-      PhoneGap.exec("PGSQLitePlugin.open", opts)
+      Cordova.exec("SQLitePlugin.open", opts)
     return
   
   close: (success, error) ->
     if @dbPath of @openDBs
       delete @openDBs[@dbPath]
       opts = getOptions({ path: @dbPath }, success, error)
-      PhoneGap.exec("PGSQLitePlugin.close", opts)
+      Cordova.exec("SQLitePlugin.close", opts)
     return
 
-class root.PGSQLitePluginTransaction
+class root.SQLitePluginTransaction
   
   constructor: (@dbPath) ->
     @executes = []
@@ -89,7 +89,7 @@ class root.PGSQLitePluginTransaction
     commit_opts = getOptions({ query: [ "COMMIT;" ], path: @dbPath }, success, error)
     executes = [ begin_opts ].concat(@executes).concat([ commit_opts ])
     opts = { executes: executes }
-    PhoneGap.exec("PGSQLitePlugin.backgroundExecuteSqlBatch", opts)
+    Cordova.exec("SQLitePlugin.backgroundExecuteSqlBatch", opts)
     @executes = []
     return
 

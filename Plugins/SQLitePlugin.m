@@ -10,21 +10,21 @@
  */
 
 
-#import "PGSQLitePlugin.h"
+#import "SQLitePlugin.h"
 
-@implementation PGSQLitePlugin
+@implementation SQLitePlugin
 
 @synthesize openDBs;
 @synthesize appDocsPath;
 
--(PGPlugin*) initWithWebView:(UIWebView*)theWebView
+-(CDVPlugin*) initWithWebView:(UIWebView*)theWebView
 {
-    self = (PGSQLitePlugin*)[super initWithWebView:theWebView];
+    self = (SQLitePlugin*)[super initWithWebView:theWebView];
     if (self) {
         openDBs = [NSMutableDictionary dictionaryWithCapacity:0];
         [openDBs retain];
         
-        PGFile* pgFile = [[self appDelegate] getCommandInstance: @"com.phonegap.file"];
+        CDVFile* pgFile = [[self appDelegate] getCommandInstance: @"org.apache.cordova.file"];
         NSString *docs = [pgFile appDocsPath];
         [self setAppDocsPath:docs];
 
@@ -34,7 +34,7 @@
 
 -(void) respond: (id)cb withString:(NSString *)str withType:(NSString *)type {
     if (cb != NULL) {
-        NSString* jsString = [NSString stringWithFormat:@"PGSQLitePlugin.handleCallback('%@', '%@', %@);", cb, type, str ];
+        NSString* jsString = [NSString stringWithFormat:@"SQLitePlugin.handleCallback('%@', '%@', %@);", cb, type, str ];
         [self writeJavascript:jsString];
     }
 }
@@ -208,7 +208,7 @@
                 keepGoing = NO;
         }
     }
-
+    
     sqlite3_finalize (statement);
     
     if (errMsg != NULL) {
@@ -219,7 +219,7 @@
         if (hasInsertId) {
             [resultSet setObject:insertId forKey:@"insertId"];
         }
-        [self respond:callback withString:[resultSet JSONRepresentation] withType:@"success"];
+        [self respond:callback withString:[resultSet JSONString] withType:@"success"];
     }
 }
 

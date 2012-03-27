@@ -1,26 +1,26 @@
 
 /*
-     PGSQLitePlugin Lawnchair Adapter
+     SQLitePlugin Lawnchair Adapter
      (c) 2011 Joe Noon <joenoon@gmail.com>
      This may be freely distributed under the MIT license.
 */
 
 (function() {
-  var fail, now, pgsqlite_plugin, root;
+  var fail, now, sqlite_plugin, root;
 
   root = this;
 
   fail = function(e) {
-    console.log("Error in PGSQLitePlugin Lawnchair adapter: " + e.message);
+    console.log("Error in SQLitePlugin Lawnchair adapter: " + e.message);
   };
 
   now = function() {
     return (new Date()).getTime();
   };
 
-  pgsqlite_plugin = {
+  sqlite_plugin = {
     valid: function() {
-      return !!("PGSQLitePlugin" in root);
+      return !!("SQLitePlugin" in root);
     },
     init: function(options, callback) {
       var cb, db, sql, success, that;
@@ -31,7 +31,7 @@
         cb.call(that, that);
       };
       db = options.db || this.name;
-      this.db = new PGSQLitePlugin("" + db + ".sqlite3");
+      this.db = new SQLitePlugin("" + db + ".sqlite3");
       this.db.executeSql(sql, success, fail);
     },
     keys: function(callback) {
@@ -248,8 +248,8 @@
     }
   };
 
-  PGSQLitePlugin.lawnchair_adapter = pgsqlite_plugin;
+  SQLitePlugin.lawnchair_adapter = sqlite_plugin;
 
-  Lawnchair.adapter("pgsqlite_plugin", pgsqlite_plugin);
+  Lawnchair.adapter("sqlite_plugin", sqlite_plugin);
 
 }).call(this);
