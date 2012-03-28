@@ -53,13 +53,13 @@ var SQLitePlugin = function() {
       callbacks[ref] = null;
       delete callbacks[ref];
     };
-    SQLitePlugin.prototype.executeSql = function(sql, success, error) {
+    SQLitePlugin.prototype.executeSql = function(sql, params, success, error) {
       var opts;
       if (!sql) {
         throw new Error("Cannot executeSql without a query");
       }
       opts = getOptions({
-        query: [].concat(sql || []),
+        query: [sql].concat(params || []),
         path: this.dbPath
       }, success, error);
       Cordova.exec("SQLitePlugin.backgroundExecuteSql", opts);
@@ -97,9 +97,9 @@ var SQLitePlugin = function() {
       this.dbPath = dbPath;
       this.executes = [];
     }
-    SQLitePluginTransaction.prototype.executeSql = function(sql, success, error) {
+    SQLitePluginTransaction.prototype.executeSql = function(sql, params, success, error) {
       this.executes.push(getOptions({
-        query: [].concat(sql || []),
+        query: [sql].concat(params || []),
         path: this.dbPath
       }, success, error));
     };

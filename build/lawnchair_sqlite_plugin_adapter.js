@@ -32,7 +32,7 @@
       };
       db = options.db || this.name;
       this.db = new SQLitePlugin("" + db + ".sqlite3");
-      this.db.executeSql(sql, success, fail);
+      this.db.executeSql(sql, [], success, fail);
     },
     keys: function(callback) {
       var cb, sql, success, that;
@@ -42,7 +42,7 @@
       success = function(res) {
         cb.call(that, res.rows);
       };
-      this.db.executeSql(sql, success, fail);
+      this.db.executeSql(sql, [], success, fail);
       return this;
     },
     save: function(obj, callback) {
@@ -62,7 +62,7 @@
         delete obj.key;
         val.unshift(JSON.stringify(obj));
         sql = exists ? up : ins;
-        db.executeSql([sql].concat(val), success, fail);
+        db.executeSql(sql, val, success, fail);
       });
       return this;
     },
@@ -117,7 +117,7 @@
             sql = obj.key in ids_hash ? up : ins;
             delete obj.key;
             val.unshift(JSON.stringify(obj));
-            t.executeSql([sql].concat(val), success, fail);
+            t.executeSql(sql, val, success, fail);
           };
           for (_k = 0, _len3 = objs.length; _k < _len3; _k++) {
             obj = objs[_k];
@@ -132,7 +132,7 @@
       };
       if (keys.length > 0) {
         exists_sql = ["SELECT id FROM " + this.name + " WHERE id IN (" + marks + ")"].concat(keys);
-        db.executeSql(exists_sql, exists_success);
+        db.executeSql(exists_sql, [], exists_success);
       } else {
         exists_success({
           rows: []
@@ -180,7 +180,7 @@
         if (!is_array) r = r[0];
         if (cb) that.lambda(cb).call(that, r);
       };
-      this.db.executeSql(sql, success, fail);
+      this.db.executeSql(sql, [], success, fail);
       return this;
     },
     exists: function(key, cb) {
@@ -190,7 +190,7 @@
       success = function(res) {
         if (cb) that.fn("exists", cb).call(that, res.rows.length > 0);
       };
-      this.db.executeSql(sql, success, fail);
+      this.db.executeSql(sql, [], success, fail);
       return this;
     },
     all: function(callback) {
@@ -218,7 +218,7 @@
         })();
         cb.call(that, r);
       };
-      this.db.executeSql(sql, success, fail);
+      this.db.executeSql(sql, [], success, fail);
       return this;
     },
     remove: function(keyOrObj, cb) {
@@ -231,7 +231,7 @@
       success = function() {
         if (cb) that.lambda(cb).call(that);
       };
-      this.db.executeSql(sql, success, fail);
+      this.db.executeSql(sql, [], success, fail);
       return this;
     },
     nuke: function(cb) {
@@ -243,7 +243,7 @@
         if (cb) that.lambda(cb).call(that);
         db.executeSql("VACUUM");
       };
-      this.db.executeSql(sql, success, fail);
+        this.db.executeSql(sql, [], success, fail);
       return this;
     }
   };
