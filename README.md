@@ -59,7 +59,7 @@ General Usage
 
     db.transaction (tx) ->
 
-      tx.executeSql [ "INSERT INTO test_table (data, data_num) VALUES (?,?)", "test", 100], (res) ->
+      tx.executeSql "INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], (res) ->
 
         # success callback
 
@@ -67,7 +67,7 @@ General Usage
         console.log "rowsAffected: #{res.rowsAffected} -- should be 1"
 
         # check the count (not a part of the transaction)
-        db.executeSql "select count(id) as cnt from test_table;", (res) ->
+        db.executeSql "select count(id) as cnt from test_table;", [], (res) ->
           console.log "rows.length: #{res.rows.length} -- should be 1"
           console.log "rows[0].cnt: #{res.rows[0].cnt} -- should be 1"
 
