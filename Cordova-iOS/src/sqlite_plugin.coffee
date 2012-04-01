@@ -48,9 +48,9 @@ class root.SQLitePlugin
     delete callbacks[ref]
     return
     
-  executeSql: (sql, params, success, error) ->
+  executeSql: (sql, values, success, error) ->
     throw new Error "Cannot executeSql without a query" unless sql
-    opts = getOptions({ query: [sql].concat(params || []), path: @dbPath }, success, error)
+    opts = getOptions({ query: [sql].concat(values || []), path: @dbPath }, success, error)
     Cordova.exec("SQLitePlugin.backgroundExecuteSql", opts)
     return
 
@@ -77,11 +77,11 @@ class root.SQLitePluginTransaction
   
   constructor: (@dbPath) ->
     @executes = []
-    
-  executeSql: (sql, params, success, error) ->
-    @executes.push getOptions({ query: [sql].concat(params || []), path: @dbPath }, success, error)
+
+  executeSql: (sql, values, success, error) ->
+    @executes.push getOptions({ query: [sql].concat(values || []), path: @dbPath }, success, error)
     return
-  
+
   complete: (success, error) ->
     throw new Error "Transaction already run" if @__completed
     @__completed = true

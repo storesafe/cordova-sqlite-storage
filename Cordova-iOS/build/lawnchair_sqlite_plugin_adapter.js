@@ -1,4 +1,3 @@
-
 /*
      SQLitePlugin Lawnchair Adapter
      (c) 2011 Joe Noon <joenoon@gmail.com>
@@ -6,7 +5,7 @@
 */
 
 (function() {
-  var fail, now, sqlite_plugin, root;
+  var fail, now, root, sqlite_plugin;
 
   root = this;
 
@@ -62,7 +61,7 @@
         delete obj.key;
         val.unshift(JSON.stringify(obj));
         sql = exists ? up : ins;
-        db.executeSql(sql, val, success, fail);
+        db.executeSql(sql, [].concat(val), success, fail);
       });
       return this;
     },
@@ -117,7 +116,7 @@
             sql = obj.key in ids_hash ? up : ins;
             delete obj.key;
             val.unshift(JSON.stringify(obj));
-            t.executeSql(sql, val, success, fail);
+            t.executeSql(sql, [].concat(val), success, fail);
           };
           for (_k = 0, _len3 = objs.length; _k < _len3; _k++) {
             obj = objs[_k];
@@ -131,8 +130,8 @@
         db.transaction(transaction, transaction_success, fail);
       };
       if (keys.length > 0) {
-        exists_sql = ["SELECT id FROM " + this.name + " WHERE id IN (" + marks + ")"].concat(keys);
-        db.executeSql(exists_sql, [], exists_success);
+        exists_sql = "SELECT id FROM " + this.name + " WHERE id IN (" + marks + ")";
+        db.executeSql(exists_sql, [].concat(keys), exists_success);
       } else {
         exists_success({
           rows: []
@@ -156,9 +155,9 @@
           }
           return _results;
         })()).join(",");
-        sql = ["SELECT id, value FROM " + this.name + " WHERE id IN (" + marks + ")"].concat(keyOrArray);
+        sql = "SELECT id, value FROM " + this.name + " WHERE id IN (" + marks + ")";
       } else {
-        sql = ["SELECT id, value FROM " + this.name + " WHERE id = ?"].concat([keyOrArray]);
+        sql = "SELECT id, value FROM " + this.name + " WHERE id = ?";
       }
       success = function(res) {
         var r, row;
@@ -180,17 +179,17 @@
         if (!is_array) r = r[0];
         if (cb) that.lambda(cb).call(that, r);
       };
-      this.db.executeSql(sql, [], success, fail);
+      this.db.executeSql(sql, [].concat(keyOrArray || []), success, fail);
       return this;
     },
     exists: function(key, cb) {
       var sql, success, that;
       that = this;
-      sql = ["SELECT id FROM " + this.name + " WHERE id = ?", key];
+      sql = "SELECT id FROM " + this.name + " WHERE id = ?";
       success = function(res) {
         if (cb) that.fn("exists", cb).call(that, res.rows.length > 0);
       };
-      this.db.executeSql(sql, [], success, fail);
+      this.db.executeSql(sql, [].concat(key), success, fail);
       return this;
     },
     all: function(callback) {
@@ -227,11 +226,11 @@
       that = this;
       key = typeof keyOrObj === "string" ? keyOrObj : keyOrObj.key;
       if (!key) return this;
-      sql = ["DELETE FROM " + this.name + " WHERE id = ?", key];
+      sql = "DELETE FROM " + this.name + " WHERE id = ?";
       success = function() {
         if (cb) that.lambda(cb).call(that);
       };
-      this.db.executeSql(sql, [], success, fail);
+      this.db.executeSql(sql, [].concat(key), success, fail);
       return this;
     },
     nuke: function(cb) {
@@ -243,7 +242,7 @@
         if (cb) that.lambda(cb).call(that);
         db.executeSql("VACUUM");
       };
-        this.db.executeSql(sql, [], success, fail);
+      this.db.executeSql(sql, [], success, fail);
       return this;
     }
   };

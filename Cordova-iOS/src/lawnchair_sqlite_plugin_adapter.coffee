@@ -55,7 +55,7 @@ sqlite_plugin =
       delete obj.key
       val.unshift(JSON.stringify(obj))
       sql = if exists then up else ins
-      db.executeSql sql, val, success, fail
+      db.executeSql sql, [].concat(val), success, fail
       return
     this
 
@@ -111,7 +111,7 @@ sqlite_plugin =
             sql = if obj.key of ids_hash then up else ins
             delete obj.key
             val.unshift(JSON.stringify(obj))
-            t.executeSql sql, val, success, fail
+            t.executeSql sql, [].concat(val), success, fail
             return
         return
 
@@ -125,8 +125,8 @@ sqlite_plugin =
 
     if keys.length > 0
       # the case where there is at least one object with an existing key
-      exists_sql = [ "SELECT id FROM #{@name} WHERE id IN (#{marks})" ].concat(keys)
-      db.executeSql exists_sql, [], exists_success
+      exists_sql = "SELECT id FROM #{@name} WHERE id IN (#{marks})"
+      db.executeSql exists_sql, [].concat(keys), exists_success
     else
       # the case where every object is new, so we don't need to do a select query first
       exists_success({ rows: [] })
@@ -141,9 +141,9 @@ sqlite_plugin =
     if is_array
       return this unless keyOrArray.length > 0
       marks = ("?" for x in keyOrArray).join(",")
-      sql = [ "SELECT id, value FROM #{@name} WHERE id IN (#{marks})" ].concat(keyOrArray)
+      sql = "SELECT id, value FROM #{@name} WHERE id IN (#{marks})"
     else
-      sql = [ "SELECT id, value FROM #{@name} WHERE id = ?" ].concat([ keyOrArray ])
+      sql = "SELECT id, value FROM #{@name} WHERE id = ?"
 
     success = (res) ->
       r = for row in res.rows
@@ -156,16 +156,16 @@ sqlite_plugin =
       that.lambda(cb).call(that, r) if cb
       return
 
-    @db.executeSql sql, [], success, fail
+    @db.executeSql sql, [].concat(keyOrArray || []), success, fail
     this
 
   exists: (key, cb) ->
     that = this
-    sql = [ "SELECT id FROM #{@name} WHERE id = ?", key ]
+    sql = "SELECT id FROM #{@name} WHERE id = ?"
     success = (res) ->
       that.fn("exists", cb).call(that, res.rows.length > 0) if cb
       return
-    @db.executeSql sql, [], success, fail
+    @db.executeSql sql, [].concat(key), success, fail
     this
 
   all: (callback) ->
@@ -189,11 +189,11 @@ sqlite_plugin =
     that = this
     key = if typeof keyOrObj == "string" then keyOrObj else keyOrObj.key
     return this unless key
-    sql = [ "DELETE FROM #{@name} WHERE id = ?", key ]
+    sql = "DELETE FROM #{@name} WHERE id = ?"
     success = () ->
       that.lambda(cb).call(that) if cb
       return
-    @db.executeSql sql, [], success, fail
+    @db.executeSql sql, [].concat(key), success, fail
     this
 
   nuke: (cb) ->

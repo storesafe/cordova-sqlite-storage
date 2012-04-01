@@ -59,11 +59,11 @@
       delete callbacks[ref];
     };
 
-    PGSQLitePlugin.prototype.executeSql = function(sql, success, error) {
+    PGSQLitePlugin.prototype.executeSql = function(sql, values, success, error) {
       var opts;
       if (!sql) throw new Error("Cannot executeSql without a query");
       opts = getOptions({
-        query: [].concat(sql || []),
+        query: [sql].concat(values || []),
         path: this.dbPath
       }, success, error);
       PhoneGap.exec("PGSQLitePlugin.backgroundExecuteSql", opts);
@@ -109,9 +109,9 @@
       this.executes = [];
     }
 
-    PGSQLitePluginTransaction.prototype.executeSql = function(sql, success, error) {
+    PGSQLitePluginTransaction.prototype.executeSql = function(sql, values, success, error) {
       this.executes.push(getOptions({
-        query: [].concat(sql || []),
+        query: [sql].concat(values || []),
         path: this.dbPath
       }, success, error));
     };
