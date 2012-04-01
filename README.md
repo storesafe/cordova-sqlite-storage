@@ -1,5 +1,7 @@
-Cordova SQLitePlugin
-=====================
+Cordova/PhoneGap SQLiteNative plugin
+====================================
+
+Native interface to sqlite in a Cordova/PhoneGap plugin, working to follow the HTML5 Web SQL API as close as possible.
 
 DISCLAIMER:
 
@@ -208,6 +210,12 @@ Using the `db` option you can create multiple stores in one sqlite file. (There 
 
     recipes = new Lawnchair {db: "cookbook", name: "recipes", ...}
 	ingredients = new Lawnchair {db: "cookbook", name: "ingredients", ...}
+
+
+Lawnchair test
+--------------
+
+In the lawnchair-test subdirectory of Cordova-iOS or Legacy-PhoneGap-iPhone you can copy the contents of the www subdirectory into a Cordova/PhoneGap project and see the behavior of the Lawnchair test suite.
 
 ### Other notes from @Joenoon:
 
