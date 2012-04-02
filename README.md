@@ -1,13 +1,15 @@
 Cordova/PhoneGap SQLiteNative plugin
 ====================================
 
-Native interface to sqlite in a Cordova/PhoneGap plugin, working to follow the HTML5 Web SQL API as close as possible.
+Native interface to sqlite in a Cordova/PhoneGap plugin, working to follow the HTML5 Web SQL API as close as possible. **NOTE** that the API is now different from https://github.com/davibe/Phonegap-SQLitePlugin and is still undergoing some changes.
 
 DISCLAIMER:
 
 Created by @Joenoon:
 
 Adapted to 1.5 by @coomsie
+
+API changes by @chbrody
 
 
 DISCLAIMER:
@@ -87,14 +89,14 @@ Insert this in there:
 General Usage
 =============
 
-**NOTE:** in this fork the API is undergoing changes to be closer to the HTML5 Web SQL API.
+**NOTE:** in this fork the API is undergoing changes to be closer to the HTML5 Web SQL API and is expected to change in the near future.
 
 Cordova iOS
 -----------
 
 ## Coffee Script
 
-    db = new SQLitePlugin("test_native.sqlite3")
+    db = new SQLitePlugin("my_sqlite_database.sqlite3")
     db.executeSql('DROP TABLE IF EXISTS test_table')
     db.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)')
 
@@ -120,23 +122,24 @@ Cordova iOS
 
 ## Plain Javascript
 
- var db;
-        db = new SQLitePlugin("my_sqlite_database.sqlite3");
-        
-        db.executeSql('DROP TABLE IF EXISTS test_table');
-        db.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
-        db.transaction(function(tx) {
-                       return tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)",[ "test", 100], function(res) {
-                                            console.log("insertId: " + res.insertId + " -- probably 1");
-                                            console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
-                                            return db.executeSql("select count(id) as cnt from test_table;", [], function(res) {
-                                                                 console.log("rows.length: " + res.rows.length + " -- should be 1");
-                                                                 return console.log("rows[0].cnt: " + res.rows[0].cnt + " -- should be 1");
-                                                                 });
-                                            }, function(e) {
-                                            return console.log("ERROR: " + e.message);
-                                            });
-                       });
+    var db = new SQLitePlugin("my_sqlite_database.sqlite3");
+
+    db.executeSql('DROP TABLE IF EXISTS test_table');
+    db.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
+    db.transaction(function(tx) {
+      return tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(res) {
+        console.log("insertId: " + res.insertId + " -- probably 1");
+        console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
+        return db.executeSql("select count(id) as cnt from test_table;", [], function(res) {
+          console.log("rows.length: " + res.rows.length + " -- should be 1");
+          return console.log("rows[0].cnt: " + res.rows[0].cnt + " -- should be 1");
+        });
+      }, function(e) {
+        return console.log("ERROR: " + e.message);
+      });
+    });
+
+**NOTE:** changes to tx.executeSql() success callback and possibly db.executeSql() callback are expected very soon.
 
 
 Legacy PhoneGap (old version)
@@ -144,13 +147,13 @@ Legacy PhoneGap (old version)
 
 ## Coffee Script
 
-    db = new PGSQLitePlugin("test_native.sqlite3")
+    db = new PGSQLitePlugin("my_sqlite_database.sqlite3")
     db.executeSql('DROP TABLE IF EXISTS test_table')
     db.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)')
 
     db.transaction (tx) ->
 
-      tx.executeSql [ "INSERT INTO test_table (data, data_num) VALUES (?,?)", "test", 100], (res) ->
+      tx.executeSql "INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], (res) ->
 
         # success callback
 
@@ -171,7 +174,7 @@ Legacy PhoneGap (old version)
 ## Plain Javascript
 
     var db;
-    db = new PGSQLitePlugin("test_native.sqlite3");
+    db = new PGSQLitePlugin("my_sqlite_database.sqlite3");
     db.executeSql('DROP TABLE IF EXISTS test_table');
     db.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
     db.transaction(function(tx) {
@@ -187,10 +190,10 @@ Legacy PhoneGap (old version)
       });
     });
 
-## Changes in tx.executeSql success callback
+## Changes in tx.executeSql() success callback
 
         var db;
-        db = new PGSQLitePlugin("test_native.sqlite3");
+        db = new PGSQLitePlugin("my_sqlite_database.sqlite3");
         db.executeSql('DROP TABLE IF EXISTS test_table');
         db.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
         db.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(res) {
