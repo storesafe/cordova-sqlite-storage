@@ -178,7 +178,7 @@ Legacy PhoneGap (old version)
       return tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(res) {
         console.log("insertId: " + res.insertId + " -- probably 1");
         console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
-        return db.executeSql("select count(id) as cnt from test_table;", [] function(res) {
+        return db.executeSql("select count(id) as cnt from test_table;", [], function(res) {
           console.log("rows.length: " + res.rows.length + " -- should be 1");
           return console.log("rows[0].cnt: " + res.rows[0].cnt + " -- should be 1");
         });
