@@ -69,7 +69,7 @@
       PhoneGap.exec("PGSQLitePlugin.backgroundExecuteSql", opts);
     };
 
-    PGSQLitePlugin.prototype.transaction = function(fn, success, error) {
+    PGSQLitePlugin.prototype.transaction = function(fn, error, success) {
       var t;
       t = new root.PGSQLitePluginTransaction(this.dbPath);
       fn(t);
@@ -110,16 +110,49 @@
     }
 
     PGSQLitePluginTransaction.prototype.executeSql = function(sql, values, success, error) {
+      var errorcb, successcb, txself;
+      txself = this;
+      successcb = null;
+      if (success) {
+        successcb = function(execres) {
+          var res, saveres;
+          saveres = execres;
+          res = {
+            rows: {
+              item: function(i) {
+                return saveres.rows[i];
+              },
+              length: saveres.rows.length
+            },
+            rowsAffected: saveres.rowsAffected,
+            insertId: saveres.insertId || null
+          };
+          return success(txself, res);
+        };
+      }
+      errorcb = null;
+      if (error) {
+        errorcb = function(res) {
+          return error(txself, res);
+        };
+      }
       this.executes.push(getOptions({
         query: [sql].concat(values || []),
         path: this.dbPath
-      }, success, error));
+      }, successcb, errorcb));
     };
 
     PGSQLitePluginTransaction.prototype.complete = function(success, error) {
-      var begin_opts, commit_opts, executes, opts;
+      var begin_opts, commit_opts, errorcb, executes, opts, successcb, txself;
       if (this.__completed) throw new Error("Transaction already run");
       this.__completed = true;
+      txself = this;
+      successcb = function(res) {
+        return success(txself, res);
+      };
+      errorcb = function(res) {
+        return error(txself, res);
+      };
       begin_opts = getOptions({
         query: ["BEGIN;"],
         path: this.dbPath
@@ -127,7 +160,7 @@
       commit_opts = getOptions({
         query: ["COMMIT;"],
         path: this.dbPath
-      }, success, error);
+      }, successcb, errorcb);
       executes = [begin_opts].concat(this.executes).concat([commit_opts]);
       opts = {
         executes: executes
