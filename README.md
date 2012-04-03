@@ -61,8 +61,8 @@ In the Project "Build Phases" tab, select the _first_ "Link Binary with Librarie
 
 **NOTE:** In the "Build Phases" there can be multiple "Link Binary with Libraries" dropdown menus. Please select the first one otherwise it will not work.
 
-SQLite Plugin
----------------
+Native SQLite Plugin
+--------------------
 
 Drag .h and .m files into your project's Plugins folder (in xcode) -- I always
 just have "Create references" as the option selected.
@@ -84,19 +84,19 @@ Insert this in there:
     <key>SQLitePlugin</key>
     <string>SQLitePlugin</string>
 
-**NOTE:** for `Legacy-PhoneGap-iPhone` the plugin name is still `PGSQLitePlugin`, expected to be fixed in the near future.
+**NOTE:** this plugin name is expected to be changed in the near future. For `Legacy-PhoneGap-iPhone` the plugin name is still `PGSQLitePlugin`, also expected to be fixed in the near future.
 
 General Usage
 =============
 
-**NOTE:** in this fork the API is undergoing changes to be closer to the HTML5 Web SQL API and is expected to change in the near future.
-
 Cordova iOS
 -----------
 
+**NOTE:** Please use sqliteNative.openDatabase() to open a database, the parameters are different from the old SQLitePlugin() constructor which is now gone. This should a closer resemblance to the HTML5/W3 SQL API.
+
 ## Coffee Script
 
-    db = new SQLitePlugin("my_sqlite_database.sqlite3")
+    db = sqliteNative.openDatabase("my_sqlite_database.sqlite3")
     db.executeSql('DROP TABLE IF EXISTS test_table')
     db.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)')
 
@@ -122,7 +122,7 @@ Cordova iOS
 
 ## Plain Javascript
 
-    var db = new SQLitePlugin("my_sqlite_database.sqlite3");
+    var db = sqliteNative.openDatabase("my_sqlite_database.sqlite3");
 
     db.executeSql('DROP TABLE IF EXISTS test_table');
     db.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
@@ -141,7 +141,7 @@ Cordova iOS
 
 ## Changes in tx.executeSql() success callback
 
-        var db = new SQLitePlugin("my_sqlite_database.sqlite3");
+        var db = sqliteNative.openDatabase("my_sqlite_database.sqlite3");
         db.executeSql('DROP TABLE IF EXISTS test_table');
         db.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
         db.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(res) {
