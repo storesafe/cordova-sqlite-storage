@@ -139,7 +139,21 @@ Cordova iOS
       });
     });
 
-**NOTE:** changes to tx.executeSql() success callback and possibly db.executeSql() callback are expected very soon.
+## Changes in tx.executeSql() success callback
+
+        var db = new SQLitePlugin("my_sqlite_database.sqlite3");
+        db.executeSql('DROP TABLE IF EXISTS test_table');
+        db.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
+        db.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(res) {
+                      console.log("insertId: " + res.insertId + " -- probably 1");
+                      console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
+                      db.transaction(function(tx) {
+                                     return tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
+                                                          console.log("rows.length: " + res.rows.length + " -- should be 1");
+                                                          return console.log("rows.item(0).cnt: " + res.rows.item(0).cnt + " -- should be 1");
+                                                          });
+                                     });
+                      });
 
 
 Legacy PhoneGap (old version)
