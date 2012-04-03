@@ -202,7 +202,7 @@ Legacy PhoneGap (old version)
                       db.transaction(function(tx) {
                                      return tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
                                                           console.log("rows.length: " + res.rows.length + " -- should be 1");
-                                                          return console.log("rows[0].cnt: " + res.rows.item[0].cnt + " -- should be 1");
+                                                          return console.log("rows[0].cnt: " + res.rows.item(0).cnt + " -- should be 1");
                                                           });
                                      });
                       });

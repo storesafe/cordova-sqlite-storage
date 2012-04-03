@@ -54,7 +54,7 @@ class root.SQLitePlugin
     Cordova.exec("SQLitePlugin.backgroundExecuteSql", opts)
     return
 
-  transaction: (fn, success, error) ->
+  transaction: (fn, error, success) ->
     t = new root.SQLitePluginTransaction(@dbPath)
     fn(t)
     t.complete(success, error)
@@ -79,14 +79,36 @@ class root.SQLitePluginTransaction
     @executes = []
 
   executeSql: (sql, values, success, error) ->
-    @executes.push getOptions({ query: [sql].concat(values || []), path: @dbPath }, success, error)
+    txself = @
+    successcb = null
+    if success
+      successcb = (execres) ->
+        saveres = execres
+        res =
+          rows:
+            item: (i) ->
+              saveres.rows[i]
+            length: saveres.rows.length
+          rowsAffected: saveres.rowsAffected
+          insertId: saveres.insertId || null
+        success(txself, res)
+    errorcb = null
+    if error
+      errorcb = (res) ->
+        error(txself, res)
+    @executes.push getOptions({ query: [sql].concat(values || []), path: @dbPath }, successcb, errorcb)
     return
 
   complete: (success, error) ->
     throw new Error "Transaction already run" if @__completed
     @__completed = true
+    txself = @
+    successcb = (res) ->
+      success(txself, res)
+    errorcb = (res) ->
+      error(txself, res)
     begin_opts = getOptions({ query: [ "BEGIN;" ], path: @dbPath })
-    commit_opts = getOptions({ query: [ "COMMIT;" ], path: @dbPath }, success, error)
+    commit_opts = getOptions({ query: [ "COMMIT;" ], path: @dbPath }, successcb, errorcb)
     executes = [ begin_opts ].concat(@executes).concat([ commit_opts ])
     opts = { executes: executes }
     Cordova.exec("SQLitePlugin.backgroundExecuteSqlBatch", opts)

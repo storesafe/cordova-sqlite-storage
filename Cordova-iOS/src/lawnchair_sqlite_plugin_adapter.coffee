@@ -10,6 +10,10 @@ fail = (e) ->
   console.log "Error in SQLitePlugin Lawnchair adapter: #{e.message}"
   return
 
+txfail = (tx, e) ->
+  console.log "Error in SQLitePlugin Lawnchair adapter: #{e.message}"
+  return
+
 now = () -> (new Date()).getTime()
 
 sqlite_plugin =
@@ -103,7 +107,7 @@ sqlite_plugin =
         for obj in objs
           do (obj) ->
             id = obj.key || that.uuid()
-            success = (u) ->
+            success = (tx, u) ->
               obj.key = id
               updateProgress(obj)
               return
@@ -111,7 +115,7 @@ sqlite_plugin =
             sql = if obj.key of ids_hash then up else ins
             delete obj.key
             val.unshift(JSON.stringify(obj))
-            t.executeSql sql, [].concat(val), success, fail
+            t.executeSql sql, [].concat(val), success, txfail
             return
         return
 
@@ -120,7 +124,7 @@ sqlite_plugin =
         checkComplete()
         return
 
-      db.transaction transaction, transaction_success, fail
+      db.transaction transaction, txfail, transaction_success
       return
 
     if keys.length > 0

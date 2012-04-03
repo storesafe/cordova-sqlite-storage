@@ -5,11 +5,15 @@
 */
 
 (function() {
-  var fail, now, root, sqlite_plugin;
+  var fail, now, root, sqlite_plugin, txfail;
 
   root = this;
 
   fail = function(e) {
+    console.log("Error in SQLitePlugin Lawnchair adapter: " + e.message);
+  };
+
+  txfail = function(tx, e) {
     console.log("Error in SQLitePlugin Lawnchair adapter: " + e.message);
   };
 
@@ -108,7 +112,7 @@
           _fn = function(obj) {
             var id, sql, success, val;
             id = obj.key || that.uuid();
-            success = function(u) {
+            success = function(tx, u) {
               obj.key = id;
               updateProgress(obj);
             };
@@ -116,7 +120,7 @@
             sql = obj.key in ids_hash ? up : ins;
             delete obj.key;
             val.unshift(JSON.stringify(obj));
-            t.executeSql(sql, [].concat(val), success, fail);
+            t.executeSql(sql, [].concat(val), success, txfail);
           };
           for (_k = 0, _len3 = objs.length; _k < _len3; _k++) {
             obj = objs[_k];
@@ -127,7 +131,7 @@
           done = true;
           checkComplete();
         };
-        db.transaction(transaction, transaction_success, fail);
+        db.transaction(transaction, txfail, transaction_success);
       };
       if (keys.length > 0) {
         exists_sql = "SELECT id FROM " + this.name + " WHERE id IN (" + marks + ")";
