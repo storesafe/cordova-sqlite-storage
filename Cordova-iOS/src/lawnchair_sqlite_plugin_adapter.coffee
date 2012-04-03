@@ -1,5 +1,5 @@
 ###
-     SQLitePlugin Lawnchair Adapter
+     SQLite native plugin Lawnchair Adapter
      (c) 2011 Joe Noon <joenoon@gmail.com>
      This may be freely distributed under the MIT license.
 ###
@@ -7,18 +7,18 @@
 root = this
 
 fail = (e) ->
-  console.log "Error in SQLitePlugin Lawnchair adapter: #{e.message}"
+  console.log "Error in SQLiteNative Lawnchair adapter: #{e.message}"
   return
 
 txfail = (tx, e) ->
-  console.log "Error in SQLitePlugin Lawnchair adapter: #{e.message}"
+  console.log "Error in SQLiteNative Lawnchair adapter: #{e.message}"
   return
 
 now = () -> (new Date()).getTime()
 
 sqlite_plugin =
 
-  valid: () -> !!("SQLitePlugin" of root)
+  valid: () -> !!("sqliteNative" of root)
 
   init: (options, callback) ->
     that = this
@@ -29,7 +29,7 @@ sqlite_plugin =
       return
     # open a connection and create the db if it doesn't exist
     db = options.db || @name
-    @db = new SQLitePlugin("#{db}.sqlite3")
+    @db = sqliteNative.openDatabase("#{db}.sqlite3")
     @db.executeSql sql, [], success, fail
     return
 
@@ -212,5 +212,5 @@ sqlite_plugin =
     @db.executeSql sql, [], success, fail
     this
 
-SQLitePlugin.lawnchair_adapter = sqlite_plugin
+sqliteNative.lawnchair_adapter = sqlite_plugin
 Lawnchair.adapter "sqlite_plugin", sqlite_plugin

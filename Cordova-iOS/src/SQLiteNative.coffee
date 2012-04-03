@@ -24,9 +24,17 @@ getOptions = (opts, success, error) ->
     cb.error = error
   opts.callback = cbref(cb) if has_cbs
   opts
+
+# XXX TEMP workaround:
+root.SQLitePlugin =
+  handleCallback: (ref, type, obj) ->
+    callbacks[ref]?[type]?(obj)
+    callbacks[ref] = null
+    delete callbacks[ref]
+    return
   
-class root.SQLitePlugin
-  
+class SQLiteNative
+
   # All instances will interact directly on the prototype openDBs object.
   # One instance that closes a db path will remove it from any other instance's perspective as well.
   openDBs: {}
@@ -55,7 +63,7 @@ class root.SQLitePlugin
     return
 
   transaction: (fn, error, success) ->
-    t = new root.SQLitePluginTransaction(@dbPath)
+    t = new SQLitePluginTransaction(@dbPath)
     fn(t)
     t.complete(success, error)
     
@@ -73,7 +81,7 @@ class root.SQLitePlugin
       Cordova.exec("SQLitePlugin.close", opts)
     return
 
-class root.SQLitePluginTransaction
+class SQLitePluginTransaction
   
   constructor: (@dbPath) ->
     @executes = []
@@ -114,4 +122,10 @@ class root.SQLitePluginTransaction
     Cordova.exec("SQLitePlugin.backgroundExecuteSqlBatch", opts)
     @executes = []
     return
+
+root.sqliteNative =
+  # NOTE: the following parameters are ignored but included to match HTML5/W3 spec:
+  # version, displayName, estimatedSize
+  openDatabase: (dbPath, version=null, displayName=null, estimatedSize=0, creationCallback=null, errorCallback=null) ->
+    return new SQLiteNative(dbPath, creationCallback, errorCallback)
 

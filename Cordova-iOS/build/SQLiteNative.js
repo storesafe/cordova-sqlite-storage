@@ -1,5 +1,5 @@
 (function() {
-  var callbacks, cbref, counter, getOptions, root;
+  var SQLiteNative, SQLitePluginTransaction, callbacks, cbref, counter, getOptions, root;
 
   root = this;
 
@@ -30,11 +30,22 @@
     return opts;
   };
 
-  root.SQLitePlugin = (function() {
+  root.SQLitePlugin = {
+    handleCallback: function(ref, type, obj) {
+      var _ref;
+      if ((_ref = callbacks[ref]) != null) {
+        if (typeof _ref[type] === "function") _ref[type](obj);
+      }
+      callbacks[ref] = null;
+      delete callbacks[ref];
+    }
+  };
 
-    SQLitePlugin.prototype.openDBs = {};
+  SQLiteNative = (function() {
 
-    function SQLitePlugin(dbPath, openSuccess, openError) {
+    SQLiteNative.prototype.openDBs = {};
+
+    function SQLiteNative(dbPath, openSuccess, openError) {
       this.dbPath = dbPath;
       this.openSuccess = openSuccess;
       this.openError = openError;
@@ -50,7 +61,7 @@
       this.open(this.openSuccess, this.openError);
     }
 
-    SQLitePlugin.handleCallback = function(ref, type, obj) {
+    SQLiteNative.handleCallback = function(ref, type, obj) {
       var _ref;
       if ((_ref = callbacks[ref]) != null) {
         if (typeof _ref[type] === "function") _ref[type](obj);
@@ -59,7 +70,7 @@
       delete callbacks[ref];
     };
 
-    SQLitePlugin.prototype.executeSql = function(sql, values, success, error) {
+    SQLiteNative.prototype.executeSql = function(sql, values, success, error) {
       var opts;
       if (!sql) throw new Error("Cannot executeSql without a query");
       opts = getOptions({
@@ -69,14 +80,14 @@
       Cordova.exec("SQLitePlugin.backgroundExecuteSql", opts);
     };
 
-    SQLitePlugin.prototype.transaction = function(fn, error, success) {
+    SQLiteNative.prototype.transaction = function(fn, error, success) {
       var t;
-      t = new root.SQLitePluginTransaction(this.dbPath);
+      t = new SQLitePluginTransaction(this.dbPath);
       fn(t);
       return t.complete(success, error);
     };
 
-    SQLitePlugin.prototype.open = function(success, error) {
+    SQLiteNative.prototype.open = function(success, error) {
       var opts;
       if (!(this.dbPath in this.openDBs)) {
         this.openDBs[this.dbPath] = true;
@@ -87,7 +98,7 @@
       }
     };
 
-    SQLitePlugin.prototype.close = function(success, error) {
+    SQLiteNative.prototype.close = function(success, error) {
       var opts;
       if (this.dbPath in this.openDBs) {
         delete this.openDBs[this.dbPath];
@@ -98,11 +109,11 @@
       }
     };
 
-    return SQLitePlugin;
+    return SQLiteNative;
 
   })();
 
-  root.SQLitePluginTransaction = (function() {
+  SQLitePluginTransaction = (function() {
 
     function SQLitePluginTransaction(dbPath) {
       this.dbPath = dbPath;
@@ -172,5 +183,16 @@
     return SQLitePluginTransaction;
 
   })();
+
+  root.sqliteNative = {
+    openDatabase: function(dbPath, version, displayName, estimatedSize, creationCallback, errorCallback) {
+      if (version == null) version = null;
+      if (displayName == null) displayName = null;
+      if (estimatedSize == null) estimatedSize = 0;
+      if (creationCallback == null) creationCallback = null;
+      if (errorCallback == null) errorCallback = null;
+      return new SQLiteNative(dbPath, creationCallback, errorCallback);
+    }
+  };
 
 }).call(this);
