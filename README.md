@@ -9,7 +9,7 @@ Created by @Joenoon:
 
 Adapted to 1.5 by @coomsie
 
-API changes by @chbrody
+API changes and Android version by @chbrody
 
 
 DISCLAIMER:
@@ -89,10 +89,15 @@ Insert this in there:
 General Usage
 =============
 
+Android (DroidGap)
+------------------
+
+I put the information here for the sake of completeness. I have tested the DroidGap SQLitePlugin version on a simulator on PhoneGap 1.1 *ONLY* and do not guarantee what will happen in any other situation. Basically, I copied and adapted the code from storage.js and Storage.java to make a plugin version. I got the versions that were there on October 2011, so it should be OK to use them under the MIT or Apache licenses. Hereby you can take SQLitePlugin.java (it is in the wrong place but it still worked), SQLitePlugin.js, and look at my index.html, register in plugins.xml, and give it your best shot! Fork it and take it over!
+
 Cordova iOS
 -----------
 
-**NOTE:** Please use sqliteNative.openDatabase() to open a database, the parameters are different from the old SQLitePlugin() constructor which is now gone. This should a closer resemblance to the HTML5/W3 SQL API.
+**NOTE:** Please use sqliteNative.openDatabase() to open a database, this will be changed to sqlitePlugin.openDatabase(), the parameters are different from the old SQLitePlugin() constructor which is now gone. This should a closer resemblance to the HTML5/W3 SQL API.
 
 ## Coffee Script
 
