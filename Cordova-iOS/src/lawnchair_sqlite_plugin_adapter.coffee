@@ -7,18 +7,18 @@
 root = this
 
 fail = (e) ->
-  console.log "Error in SQLiteNative Lawnchair adapter: #{e.message}"
+  console.log "Error in SQLitePlugin Lawnchair adapter: #{e.message}"
   return
 
 txfail = (tx, e) ->
-  console.log "Error in SQLiteNative Lawnchair adapter: #{e.message}"
+  console.log "Error in SQLitePlugin Lawnchair adapter: #{e.message}"
   return
 
 now = () -> (new Date()).getTime()
 
 sqlite_plugin =
 
-  valid: () -> !!("sqliteNative" of root)
+  valid: () -> !!("sqlitePlugin" of root)
 
   init: (options, callback) ->
     that = this
@@ -29,7 +29,7 @@ sqlite_plugin =
       return
     # open a connection and create the db if it doesn't exist
     db = options.db || @name
-    @db = sqliteNative.openDatabase("#{db}.sqlite3")
+    @db = sqlitePlugin.openDatabase("#{db}.sqlite3")
     @db.executeSql sql, [], success, fail
     return
 
@@ -212,5 +212,5 @@ sqlite_plugin =
     @db.executeSql sql, [], success, fail
     this
 
-sqliteNative.lawnchair_adapter = sqlite_plugin
+sqlitePlugin.lawnchair_adapter = sqlite_plugin
 Lawnchair.adapter "sqlite_plugin", sqlite_plugin

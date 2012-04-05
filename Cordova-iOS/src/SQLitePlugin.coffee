@@ -123,7 +123,7 @@ class SQLitePluginTransaction
     @executes = []
     return
 
-root.sqliteNative =
+root.sqlitePlugin =
   # NOTE: the following parameters are ignored but included to match HTML5/W3 spec:
   # version, displayName, estimatedSize
   openDatabase: (dbPath, version=null, displayName=null, estimatedSize=0, creationCallback=null, errorCallback=null) ->

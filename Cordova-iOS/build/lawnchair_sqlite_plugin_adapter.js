@@ -10,11 +10,11 @@
   root = this;
 
   fail = function(e) {
-    console.log("Error in SQLiteNative Lawnchair adapter: " + e.message);
+    console.log("Error in SQLitePlugin Lawnchair adapter: " + e.message);
   };
 
   txfail = function(tx, e) {
-    console.log("Error in SQLiteNative Lawnchair adapter: " + e.message);
+    console.log("Error in SQLitePlugin Lawnchair adapter: " + e.message);
   };
 
   now = function() {
@@ -23,7 +23,7 @@
 
   sqlite_plugin = {
     valid: function() {
-      return !!("sqliteNative" in root);
+      return !!("sqlitePlugin" in root);
     },
     init: function(options, callback) {
       var cb, db, sql, success, that;
@@ -34,7 +34,7 @@
         cb.call(that, that);
       };
       db = options.db || this.name;
-      this.db = sqliteNative.openDatabase("" + db + ".sqlite3");
+      this.db = sqlitePlugin.openDatabase("" + db + ".sqlite3");
       this.db.executeSql(sql, [], success, fail);
     },
     keys: function(callback) {
@@ -251,7 +251,7 @@
     }
   };
 
-  sqliteNative.lawnchair_adapter = sqlite_plugin;
+  sqlitePlugin.lawnchair_adapter = sqlite_plugin;
 
   Lawnchair.adapter("sqlite_plugin", sqlite_plugin);
 

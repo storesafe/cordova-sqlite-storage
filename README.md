@@ -1,4 +1,4 @@
-Cordova/PhoneGap SQLiteNative plugin
+Cordova/PhoneGap Native SQLitePlugin
 ====================================
 
 Native interface to sqlite in a Cordova/PhoneGap plugin, working to follow the HTML5 Web SQL API as close as possible. **NOTE** that the API is now different from https://github.com/davibe/Phonegap-SQLitePlugin and is still undergoing some changes.
@@ -84,7 +84,7 @@ Insert this in there:
     <key>SQLitePlugin</key>
     <string>SQLitePlugin</string>
 
-**NOTE:** this plugin name is expected to be changed in the near future. For `Legacy-PhoneGap-iPhone` the plugin name is still `PGSQLitePlugin`, also expected to be fixed in the near future.
+**NOTE:** For `Legacy-PhoneGap-iPhone` the plugin name is `PGSQLitePlugin`, no fix is expected in this project.
 
 General Usage
 =============
@@ -97,11 +97,11 @@ I put the information here for the sake of completeness. I have tested the Droid
 Cordova iOS
 -----------
 
-**NOTE:** Please use sqliteNative.openDatabase() to open a database, this will be changed to sqlitePlugin.openDatabase(), the parameters are different from the old SQLitePlugin() constructor which is now gone. This should a closer resemblance to the HTML5/W3 SQL API.
+**NOTE:** Please use sqlitePlugin.openDatabase() to open a database, this will be changed to sqlitePlugin.openDatabase(), the parameters are different from the old SQLitePlugin() constructor which is now gone. This should a closer resemblance to the HTML5/W3 SQL API.
 
 ## Coffee Script
 
-    db = sqliteNative.openDatabase("my_sqlite_database.sqlite3")
+    db = sqlitePlugin.openDatabase("my_sqlite_database.sqlite3")
     db.executeSql('DROP TABLE IF EXISTS test_table')
     db.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)')
 
@@ -127,7 +127,7 @@ Cordova iOS
 
 ## Plain Javascript
 
-    var db = sqliteNative.openDatabase("my_sqlite_database.sqlite3");
+    var db = sqlitePlugin.openDatabase("my_sqlite_database.sqlite3");
 
     db.executeSql('DROP TABLE IF EXISTS test_table');
     db.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
@@ -146,7 +146,7 @@ Cordova iOS
 
 ## Changes in tx.executeSql() success callback
 
-        var db = sqliteNative.openDatabase("my_sqlite_database.sqlite3");
+        var db = sqlitePlugin.openDatabase("my_sqlite_database.sqlite3");
         db.executeSql('DROP TABLE IF EXISTS test_table');
         db.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
         db.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(res) {

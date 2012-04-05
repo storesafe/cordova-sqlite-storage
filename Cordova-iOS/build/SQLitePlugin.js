@@ -184,7 +184,7 @@
 
   })();
 
-  root.sqliteNative = {
+  root.sqlitePlugin = {
     openDatabase: function(dbPath, version, displayName, estimatedSize, creationCallback, errorCallback) {
       if (version == null) version = null;
       if (displayName == null) displayName = null;
