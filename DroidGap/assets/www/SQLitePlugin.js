@@ -130,6 +130,28 @@ DDB.prototype.fail = function(reason, id) {
     }
 };
 
+var mycreateUUID = function() {
+    return myUUIDcreatePart(4) + '-' +
+        myUUIDcreatePart(2) + '-' +
+        myUUIDcreatePart(2) + '-' +
+        myUUIDcreatePart(2) + '-' +
+        myUUIDcreatePart(6);
+};
+
+myUUIDcreatePart = function(length) {
+    var uuidpart = "";
+    var i, uuidchar;
+    for (i=0; i<length; i++) {
+        uuidchar = parseInt((Math.random() * 256),0).toString(16);
+        if (uuidchar.length === 1) {
+            uuidchar = "0" + uuidchar;
+        }
+        uuidpart += uuidchar;
+    }
+    return uuidpart;
+};
+
+
 /**
  * SQL query object
  * PRIVATE METHOD
@@ -140,7 +162,7 @@ DDB.prototype.fail = function(reason, id) {
 var DDB_Query = function(tx) {
 
     // Set the id of the query
-    this.id = PhoneGap.createUUID();
+    this.id = mycreateUUID();
 
     // Add this query to the queue
     dddb.queryQueue[this.id] = this;
@@ -168,7 +190,7 @@ var DDB_Query = function(tx) {
 var DDB_Tx = function() {
 
     // Set the id of the transaction
-    this.id = PhoneGap.createUUID();
+    this.id = mycreateUUID();
 
     // Callbacks
     this.successCallback = null;
