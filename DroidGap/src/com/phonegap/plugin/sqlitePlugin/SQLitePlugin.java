@@ -5,7 +5,7 @@
  * Copyright (c) 2005-2010, Nitobi Software Inc.
  * Copyright (c) 2010, IBM Corporation
  */
-package com.phonegap.plugin;
+package com.phonegap.plugin.sqlitePlugin;
 
 import org.json.JSONArray;
 import org.json.JSONException;
