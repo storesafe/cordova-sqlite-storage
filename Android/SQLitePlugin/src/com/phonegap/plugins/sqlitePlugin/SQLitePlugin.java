@@ -17,21 +17,12 @@ import android.database.sqlite.*;
 
 import android.util.Log;
 
-/**
- * This class implements the HTML5 database support for Android 1.X devices. It
- * is not used for Android 2.X, since HTML5 database is built in to the browser.
- */
 public class SQLitePlugin extends Plugin {
 
 	// Data Definition Language
-	private static final String ALTER = "alter";
-	private static final String CREATE = "create";
-	private static final String DROP = "drop";
-	private static final String TRUNCATE = "truncate";
-
 	SQLiteDatabase myDb = null; // Database object
-	String path = null; // Database path
-	String dbName = null; // Database name
+	String path 		= null; // Database path
+	String dbName 		= null; // Database name
 
 	/**
 	 * Constructor.
@@ -102,20 +93,6 @@ public class SQLitePlugin extends Plugin {
 				else
 					Log.v("error", "null trans_id");
 			}
-			else if (action.equals("executeSql")) {
-			String[] s = null;
-			if (args.isNull(1)) {
-				s = new String[0];
-			} else {
-				JSONArray a = args.getJSONArray(1);
-				int len = a.length();
-				s = new String[len];
-				for (int i = 0; i < len; i++) {
-					s[i] = a.getString(i);
-				}
-			}
-			this.executeSql(args.getString(0), s, args.getString(2));
-		}
 			return new PluginResult(status, result);
 		} catch (JSONException e) {
 			return new PluginResult(PluginResult.Status.JSON_EXCEPTION);
@@ -195,36 +172,6 @@ public class SQLitePlugin extends Plugin {
 		this.myDb = SQLiteDatabase.openOrCreateDatabase(this.dbName, null);
 	}
 
-	/**
-	 * Execute SQL statement.
-	 *
-	 * @param query
-	 *            The SQL query
-	 * @param params
-	 *            Parameters for the query
-	 * @param tx_id
-	 *            Transaction id
-	 */
-	public void executeSql(String query, String[] params, String tx_id) {
-		try {
-			if (isDDL(query)) {
-				this.myDb.execSQL(query);
-				this.sendJavascript("dddb.completeQuery('" + tx_id + "', '');");
-			}
-			else {
-				Cursor myCursor = this.myDb.rawQuery(query, params);
-				//this.processResults(myCursor, tx_id);
-				myCursor.close();
-			}
-		}
-		catch (SQLiteException ex) {
-			ex.printStackTrace();
-			System.out.println("SQLitePlugin.executeSql(): Error=" +  ex.getMessage());
-		
-			// Send error message back to JavaScript
-			this.sendJavascript("dddb.fail('" + ex.getMessage() + "','" + tx_id + "');");
-		}
-	}
 	public void executeSqlBatch(String[] queryarr, String[][] paramsarr, String[] queryIDs, String tx_id) {
 		try {
 			this.myDb.beginTransaction();
@@ -237,37 +184,22 @@ public class SQLitePlugin extends Plugin {
 				params = paramsarr[i];
 				query_id = queryIDs[i];
 				Cursor myCursor = this.myDb.rawQuery(query, params);
-				this.processResults(myCursor, query_id, tx_id);
+				if(query_id != "")
+					this.processResults(myCursor, query_id, tx_id);
 				myCursor.close();
 			}
 			this.myDb.setTransactionSuccessful();
 		}
 		catch (SQLiteException ex) {
 			ex.printStackTrace();
-			System.out.println("SQLitePlugin.executeSql(): Error=" +  ex.getMessage());
-		
-			// Send error message back to JavaScript
-			//this.sendJavascript("dddb.fail('" + ex.getMessage() + "','" + tx_id + "');");
+			Log.v("executeSqlBatch", "SQLitePlugin.executeSql(): Error=" +  ex.getMessage());
+			this.sendJavascript("SQLitePluginTransaction.txErrorCallback('" + tx_id + "', '"+ex.getMessage()+"');");
 		}
 		finally {
 			this.myDb.endTransaction();
 			Log.v("executeSqlBatch", tx_id);
 			this.sendJavascript("SQLitePluginTransaction.txCompleteCallback('" + tx_id + "');");
 		}
-	}
-
-	/**
-	 * Checks to see the the query is a Data Definintion command
-	 *
-	 * @param query to be executed
-	 * @return true if it is a DDL command, false otherwise
-	 */
-	private boolean isDDL(String query) {
-		String cmd = query.toLowerCase();
-		if (cmd.startsWith(DROP) || cmd.startsWith(CREATE) || cmd.startsWith(ALTER) || cmd.startsWith(TRUNCATE)) {
-			return true;
-		}
-		return false;
 	}
 
 	/**
@@ -309,9 +241,7 @@ public class SQLitePlugin extends Plugin {
 			result = fullresult.toString();
 		}
 
-		// Let JavaScript know that there are no more rows
 		this.sendJavascript(" SQLitePluginTransaction.queryCompleteCallback('" + tx_id + "','" + query_id + "', " + result + ");");
 
 	}
-
 }
