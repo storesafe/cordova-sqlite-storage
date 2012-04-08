@@ -114,7 +114,7 @@
     	if(typeof transId != 'undefined')
     	{
 		    console.log("SQLitePluginTransaction.txCompleteCallback---transId:"+transId);
-		    if(transId && transaction_callback_queue[transId]['success'])
+		    if(transId && transaction_callback_queue[transId] && transaction_callback_queue[transId]['success'])
 		    	transaction_callback_queue[transId]['success']();
 		    
 		    delete transaction_queue[transId];

@@ -186,8 +186,8 @@ public class SQLitePlugin extends Plugin {
 				params = paramsarr[i];
 				query_id = queryIDs[i];
 				Cursor myCursor = this.myDb.rawQuery(query, params);
-				if(query_id != "")
-					this.processResults(myCursor, query_id, tx_id);
+				
+				this.processResults(myCursor, query_id, tx_id);
 				myCursor.close();
 			}
 			this.myDb.setTransactionSuccessful();
@@ -242,8 +242,8 @@ public class SQLitePlugin extends Plugin {
 
 			result = fullresult.toString();
 		}
-
-		this.sendJavascript(" SQLitePluginTransaction.queryCompleteCallback('" + tx_id + "','" + query_id + "', " + result + ");");
+		if(query_id.length() > 0)
+			this.sendJavascript(" SQLitePluginTransaction.queryCompleteCallback('" + tx_id + "','" + query_id + "', " + result + ");");
 
 	}
 }
