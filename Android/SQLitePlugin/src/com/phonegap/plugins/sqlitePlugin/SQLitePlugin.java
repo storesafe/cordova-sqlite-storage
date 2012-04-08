@@ -77,7 +77,7 @@ public class SQLitePlugin extends Plugin {
 					{
 						a 			= args.getJSONObject(i);
 						queries[i] 	= a.getString("query");
-						queryIDs[i] =  a.getString("query_id");
+						queryIDs[i] = a.getString("query_id");
 						trans_id 	= a.getString("trans_id");
 						jsonArr 	= a.getJSONArray("params");
 						paramLen	= jsonArr.length();
@@ -85,6 +85,8 @@ public class SQLitePlugin extends Plugin {
 						
 						for (int j = 0; j < paramLen; j++) {
 							params[i][j] = jsonArr.getString(j);
+							if(params[i][j] == "null")
+								params[i][j] = "";
 						}
 					}
 				}
