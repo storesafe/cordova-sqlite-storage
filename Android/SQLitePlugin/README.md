@@ -1,4 +1,4 @@
 Phonegap SQLitePlugin
 =====================
 
-Do not use yet, this is not ready!!
+This plugin works for me but it is not tested for all use cases so use at your own risk
