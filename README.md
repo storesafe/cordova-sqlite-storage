@@ -94,6 +94,38 @@ Android (DroidGap)
 
 I put the information here for the sake of completeness. I have tested the DroidGap SQLitePlugin version on a simulator on PhoneGap 1.1 *ONLY* and do not guarantee what will happen in any other situation. Basically, I copied and adapted the code from storage.js and Storage.java to make a plugin version. I got the versions that were there on October 2011, so it should be OK to use them under the MIT or Apache licenses. Hereby you can take SQLitePlugin.java (it is in the wrong place but it still worked), SQLitePlugin.js, and look at my index.html, register in plugins.xml, and give it your best shot! Fork it and take it over!
 
+**Update:** I have now tested the Android (DroidGap) SQLitePlugin on Cordova 1.5 on both a simulator and a test mobile, using the Lawnchair testsuite. In addition, I have also adapted a Lawnchair plugin to work for both the iOS and the Android. Here is the sample (in Javascript):
+
+    // Wait for PhoneGap to load
+    //
+    document.addEventListener("deviceready", onDeviceReady, false);
+
+    // PhoneGap is ready
+    //
+    function onDeviceReady() {
+        var db = window.sqlitePlugin.openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
+
+    db.transaction(function(tx) {
+
+    tx.executeSql('DROP TABLE IF EXISTS test_table');
+    tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
+
+
+      return tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
+        //console.log("insertId: " + res.insertId + " -- probably 1");
+        //console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
+
+        tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
+          console.log("rows.length: " + res.rows.length + " -- should be 1");
+          return console.log("rows[0].cnt: " + res.rows.item(0).cnt + " -- should be 1");
+        });
+
+      }, function(e) {
+        return console.log("ERROR: " + e.message);
+      });
+    });
+
+
 Cordova iOS
 -----------
 
@@ -232,6 +264,15 @@ Lawnchair Adapter Usage
 
 **NOTE:** For the Android version see DroidGap/lawnchair-adapter-test, which is using a Lawnchair adapter based on the original WebKit version. The plan is to make this one work for both iOS and Android versions.
 
+Common adapter
+--------------
+
+Please look at the `Lawnchair-adapter` tree that contains a common adapter, working for both Android (DroidGap) and iOS, along with a test-www directory.
+
+
+Legacy: iOS/iPhone only
+-----------------------
+
 Include the following js files in your html:
 
 -  lawnchair.js (you provide)
@@ -253,8 +294,8 @@ Using the `db` option you can create multiple stores in one sqlite file. (There 
 	ingredients = new Lawnchair {db: "cookbook", name: "ingredients", ...}
 
 
-Lawnchair test
---------------
+Legacy Lawnchair test
+---------------------
 
 In the lawnchair-test subdirectory of Cordova-iOS or Legacy-PhoneGap-iPhone you can copy the contents of the www subdirectory into a Cordova/PhoneGap project and see the behavior of the Lawnchair test suite.
 
