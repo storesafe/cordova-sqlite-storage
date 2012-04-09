@@ -73,25 +73,35 @@
 		this.dbPath = dbPath;
 		this.executes = [];
 		this.trans_id = get_unique_id();
+		this.__completed = false;
+		this.__submitted = false;
 		console.log("root.SQLitePluginTransaction - this.trans_id:"+this.trans_id);
 		transaction_queue[this.trans_id] = [];
 		transaction_callback_queue[this.trans_id] = new Object();
 	}
     SQLitePluginTransaction.queryCompleteCallback = function(transId, queryId, result) 
     {
+    	console.log("SQLitePluginTransaction.queryCompleteCallback");
     	var query = null;
 		for (var x in transaction_queue[transId]) 
 		{
 			if(transaction_queue[transId][x]['query_id'] == queryId)
 			{
 				query = transaction_queue[transId][x];
+				if(transaction_queue[transId].length == 1)
+					transaction_queue[transId] = [];
+				else
+					transaction_queue[transId].splice(x, 1);
 				break;
 			}
 		}
-		if(query)
-	      	console.log("SQLitePluginTransaction.completeCallback---query:"+query['query']);
+
+//		if(query)
+//	      	console.log("SQLitePluginTransaction.completeCallback---query:"+query['query']);
 		if(query && query['callback'])
+		{
 			query['callback'](result)
+		}
     }
     SQLitePluginTransaction.queryErrorCallback = function(transId, queryId, result) 
     {
@@ -101,11 +111,15 @@
 			if(transaction_queue[transId][x]['query_id'] == queryId)
 			{
 				query = transaction_queue[transId][x];
+				if(transaction_queue[transId].length == 1)
+					transaction_queue[transId] = [];
+				else
+					transaction_queue[transId].splice(x, 1);
 				break;
 			}
 		}
-		if(query)
-	      	console.log("SQLitePluginTransaction.queryErrorCallback---query:"+query['query']);
+		//if(query)
+	    //  	console.log("SQLitePluginTransaction.queryErrorCallback---query:"+query['query']);
 		if(query && query['err_callback'])
 			query['err_callback'](result)
     }
@@ -113,12 +127,14 @@
     {
     	if(typeof transId != 'undefined')
     	{
-		    console.log("SQLitePluginTransaction.txCompleteCallback---transId:"+transId);
 		    if(transId && transaction_callback_queue[transId] && transaction_callback_queue[transId]['success'])
+		    {
 		    	transaction_callback_queue[transId]['success']();
+		    }
+		    	
 		    
-		    delete transaction_queue[transId];
-		    delete transaction_callback_queue[transId];
+		   // delete transaction_queue[transId];
+		   // delete transaction_callback_queue[transId];
     	}
     	else
     		console.log("SQLitePluginTransaction.txCompleteCallback---transId = NULL");
@@ -130,7 +146,6 @@
 		    console.log("SQLitePluginTransaction.txErrorCallback---transId:"+transId);
 		    if(transId && transaction_callback_queue[transId]['error'])
 		    	transaction_callback_queue[transId]['error'](error);
-		    
 		    delete transaction_queue[transId];
 		    delete transaction_callback_queue[transId];
     	}
@@ -141,20 +156,27 @@
     {
     	var new_query = new Object();;
     	new_query['trans_id'] = trans_id;
-    	if(callback)
+    	//if(callback)
     		new_query['query_id'] = get_unique_id();
-    	else
-    		new_query['query_id'] = "";
+    	//else
+    	//	new_query['query_id'] = "";
     	new_query['query'] = query;
-		if(params)
+    	if(params)
     		new_query['params'] = params;
-		else
-			new_query['params'] = [];
+    	else
+    		new_query['params'] = [];
     	new_query['callback'] = callback;
     	new_query['err_callback'] = err_callback;
     	if(!transaction_queue[trans_id])
     		transaction_queue[trans_id] = [];
     	transaction_queue[trans_id].push(new_query);
+    	if (this.__submitted)
+    	{
+    		console.log("SQLitePluginTransaction.prototype.add_to_transaction ---- transacted submitted already, senting to cordova");
+    		PhoneGap.exec(null, null, "SQLitePlugin", "addToExisingTransaction", [new_query]);
+    		//"Transaction already submitted"
+    		//we need to add this query to the transaction we already submitted to cordova
+    	}
     }
 
 	SQLitePluginTransaction.prototype.executeSql = function(sql, values, success, error) {
@@ -200,26 +222,35 @@
 		console.log("SQLitePluginTransaction.prototype.complete");
 		var begin_opts, commit_opts, errorcb, executes, opts, successcb, txself;
 		if (this.__completed) throw new Error("Transaction already run");
-		this.__completed = true;
+		if (this.__submitted) throw new Error("Transaction already submitted");
+		this.__submitted = true;
 		txself = this;
-		successcb = function() {};
-		if (success) {
-			successcb = function() {
+		//successcb = function() {};
+		//if (success) {
+		successcb = function() 
+		{
+			if(transaction_queue[txself.trans_id].length > 0)
+			{
+				txself.__submitted = false;
+				txself.complete(success, error);
+			}
+			else
+			{
+				this.__completed = true;
 				return success(txself);
-			};
-		}
+			}
+		};
+		//}
 		errorcb = function(res) {};
 		if (error) {
 			errorcb = function(res) {
 				return error(txself, res);
 			};
 		}
-		console.log("complete - this.transaction_queue"+JSON.stringify(transaction_queue[this.trans_id]));
 		transaction_callback_queue[this.trans_id]['success'] = successcb;
 		transaction_callback_queue[this.trans_id]['error'] = errorcb;
 		PhoneGap.exec(null, null, "SQLitePlugin", "executeSqlBatch", transaction_queue[this.trans_id]);
     };
     return SQLitePluginTransaction;
   })();
-
 }).call(this);
