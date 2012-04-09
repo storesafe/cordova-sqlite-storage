@@ -170,13 +170,6 @@
     	if(!transaction_queue[trans_id])
     		transaction_queue[trans_id] = [];
     	transaction_queue[trans_id].push(new_query);
-    	if (this.__submitted)
-    	{
-    		console.log("SQLitePluginTransaction.prototype.add_to_transaction ---- transacted submitted already, senting to cordova");
-    		PhoneGap.exec(null, null, "SQLitePlugin", "addToExisingTransaction", [new_query]);
-    		//"Transaction already submitted"
-    		//we need to add this query to the transaction we already submitted to cordova
-    	}
     }
 
 	SQLitePluginTransaction.prototype.executeSql = function(sql, values, success, error) {
