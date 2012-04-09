@@ -97,7 +97,7 @@ I put the information here for the sake of completeness. I have tested the Droid
 Cordova iOS
 -----------
 
-**NOTE:** Please use sqlitePlugin.openDatabase() to open a database, this will be changed to sqlitePlugin.openDatabase(), the parameters are different from the old SQLitePlugin() constructor which is now gone. This should a closer resemblance to the HTML5/W3 SQL API.
+**NOTE:** Please use sqlitePlugin.openDatabase() to open a database, the parameters are different from the old SQLitePlugin() constructor which is now gone. This should a closer resemblance to the HTML5/W3 SQL API.
 
 ## Coffee Script
 
