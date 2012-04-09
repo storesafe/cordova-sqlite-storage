@@ -230,7 +230,8 @@
 			else
 			{
 				this.__completed = true;
-				return success(txself);
+				if(success)
+					return success(txself);
 			}
 		};
 		//}
