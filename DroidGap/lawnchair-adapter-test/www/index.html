@@ -71,6 +71,8 @@ function start1() {
     document.addEventListener("deviceready", startTests, false);
 }
 
+/**
+
 function init1test() {
 //alert("alert 0");
 }
@@ -82,6 +84,7 @@ function init1test() {
     // PhoneGap is ready
     //
     function onDeviceReady() {
+        //var db = window.sqlitePlugin.openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
         var db = window.my_openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
 
 db.transaction(function(tx) {
@@ -135,6 +138,7 @@ alert("a 7");
     function successCB() {
         alert("success!");
     }
+**/
 
     </script>
 
