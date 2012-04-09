@@ -22,8 +22,8 @@ Lawnchair.adapter('webkit-sqlite', (function () {
     return {
     
         //valid: function() { return !!(window.openDatabase) },
-        valid: function() { return !!(window.my_openDatabase) },
-        //valid: function() { return !!(sqlitePlugin.openDatabase) },
+        //valid: function() { return !!(window.my_openDatabase) },
+        valid: function() { return !!(sqlitePlugin.openDatabase) },
 
         init: function (options, callback) {
             var that   = this
@@ -33,8 +33,9 @@ Lawnchair.adapter('webkit-sqlite', (function () {
             // open a connection and create the db if it doesn't exist 
             //this.db = openDatabase(this.name, '1.0.0', this.name, 65536)
             //this.db = my_openDatabase(this.name, '1.0.0', this.name, 65536)
-            this.db = window.my_openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
+            //this.db = window.my_openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
             //this.db = sqlitePlugin.openDatabase(this.name, '1.0.0', this.name, 65536)
+            this.db = sqlitePlugin.openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
             this.db.transaction(function (t) { 
                 t.executeSql(create, [], win, fail) 
             })

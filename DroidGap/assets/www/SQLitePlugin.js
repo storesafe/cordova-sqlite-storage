@@ -13,6 +13,8 @@
  */
 
 
+// XXX TODO: use function() { ... } () to encapsulate these declarations (except for Java callback)
+
 /**
  * SQL result set object
  * PRIVATE METHOD
@@ -331,8 +333,10 @@ var DDB_openDatabase = function(name, version, display_name, size) {
  * @constructor
  */
 
-window.my_openDatabase = function(name, version, desc, size){
+window.sqlitePlugin = {
+    openDatabase: function(name, version, desc, size) {
         window.dddb = new DDB();
                 return DDB_openDatabase(name, version, desc, size);
         }
+};
 
