@@ -34,8 +34,8 @@ Lawnchair.adapter('webkit-sqlite', (function () {
             //this.db = openDatabase(this.name, '1.0.0', this.name, 65536)
             //this.db = my_openDatabase(this.name, '1.0.0', this.name, 65536)
             //this.db = window.my_openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
-            //this.db = sqlitePlugin.openDatabase(this.name, '1.0.0', this.name, 65536)
-            this.db = sqlitePlugin.openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
+            this.db = sqlitePlugin.openDatabase(this.name, '1.0.0', this.name, 65536)
+            //this.db = sqlitePlugin.openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
             this.db.transaction(function (t) { 
                 t.executeSql(create, [], win, fail) 
             })
