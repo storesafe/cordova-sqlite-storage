@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Lawnchair Spec</title>
+  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no;" />
+	<meta charset="utf-8">
+
+	<link rel="stylesheet" href="lib/qunit.css" type="text/css" media="screen">
+
+	<!-- If your application is targeting iOS BEFORE 4.0 you MUST put json2.js from http://www.JSON.org/json2.js into your www directory and include it here -->
+	<script type="text/javascript" charset="utf-8" src="cordova-1.5.0.js"></script>
+
+    <script src="lib/qunit.js"></script>
+    <script src="lib/json2.js"></script>
+    <script src="lib/lawnchair.js"></script>
+    <script src="SQLitePlugin.js"></script>
+    <script src="Lawnchair-sqlitePlugin.js"></script>
+    <script src="lawnchair-spec.js"></script>
+
+    <script type="text/javascript">
+
+		// autostart seems to be a little eager
+		QUnit.config.autostart = false
+
+		// kill qunit saves
+		try{ sessionStorage.clear(); } catch(e){}
+
+	function onBodyLoad()
+	{		
+		document.addEventListener("deviceready", startTests, false);
+	}
+
+        var store;
+
+        function startTests() {
+
+            // allow restriction of adapter in URL (e.g., ?adapter=ie-userdata)
+            var allowed = /adapter=([-\w]+)/.exec(window.location.href),
+                adapters = Lawnchair.adapters,
+                i;
+
+            if (allowed) {
+                for (i = 0; i < adapters.length; ) {
+                    if (adapters[i].adapter == allowed[1]) {
+                        i++;
+                    } else {
+                        adapters.splice(i, 1)
+                    }
+                }
+
+                if (adapters.length == 0) {
+                    alert("no such adapter: " + allowed[1]);
+                }
+
+                if (!adapters[0].valid()) {
+                    alert("adapter " + allowed[1] + " is not valid in this environment");
+                }
+            }
+
+            // kickup the chair
+            store = new Lawnchair({name:'tests'}, function(){
+                QUnit.start()
+            })
+
+        }
+
+    </script>
+  </head>
+  <body onload="onBodyLoad()">
+	<h1 id="qunit-header">Lawnchair Spec</h1>
+    <h2 id="qunit-banner"></h2>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests"></ol>
+  </body>
+</html>
