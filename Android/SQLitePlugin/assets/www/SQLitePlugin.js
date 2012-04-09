@@ -146,7 +146,10 @@
     	else
     		new_query['query_id'] = "";
     	new_query['query'] = query;
-    	new_query['params'] = params;
+		if(params)
+    		new_query['params'] = params;
+		else
+			new_query['params'] = [];
     	new_query['callback'] = callback;
     	new_query['err_callback'] = err_callback;
     	if(!transaction_queue[trans_id])
