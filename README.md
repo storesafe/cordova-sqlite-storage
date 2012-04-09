@@ -230,6 +230,8 @@ Legacy PhoneGap (old version)
 Lawnchair Adapter Usage
 =======================
 
+**NOTE:** For the Android version see DroidGap/lawnchair-adapter-test, which is using a Lawnchair adapter based on the original WebKit version. The plan is to make this one work for both iOS and Android versions.
+
 Include the following js files in your html:
 
 -  lawnchair.js (you provide)
