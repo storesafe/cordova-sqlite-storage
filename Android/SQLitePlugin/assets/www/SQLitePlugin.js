@@ -218,8 +218,6 @@
 		if (this.__submitted) throw new Error("Transaction already submitted");
 		this.__submitted = true;
 		txself = this;
-		//successcb = function() {};
-		//if (success) {
 		successcb = function() 
 		{
 			if(transaction_queue[txself.trans_id].length > 0)
@@ -234,7 +232,6 @@
 					return success(txself);
 			}
 		};
-		//}
 		errorcb = function(res) {};
 		if (error) {
 			errorcb = function(res) {
