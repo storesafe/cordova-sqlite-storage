@@ -172,5 +172,14 @@
     return SQLitePluginTransaction;
 
   })();
-
+  root.sqlitePlugin = {
+    openDatabase: function(dbPath, version, displayName, estimatedSize, creationCallback, errorCallback) {
+      if (version == null) version = null;
+      if (displayName == null) displayName = null;
+      if (estimatedSize == null) estimatedSize = 0;
+      if (creationCallback == null) creationCallback = null;
+      if (errorCallback == null) errorCallback = null;
+      return new SQLitePlugin(dbPath, creationCallback, errorCallback);
+    }
+  };
 }).call(this);
