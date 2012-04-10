@@ -75,6 +75,7 @@
 		this.trans_id = get_unique_id();
 		this.__completed = false;
 		this.__submitted = false;
+		this.optimization_no_nested_callbacks = false;//if set to true large batches of queries within a transaction will be much faster but you lose the ability to do muiti level nesting of executeSQL callbacks
 		console.log("root.SQLitePluginTransaction - this.trans_id:"+this.trans_id);
 		transaction_queue[this.trans_id] = [];
 		transaction_callback_queue[this.trans_id] = new Object();
@@ -156,10 +157,10 @@
     {
     	var new_query = new Object();;
     	new_query['trans_id'] = trans_id;
-    	//if(callback)
+    	if(callback || !this.optimization_no_nested_callbacks)
     		new_query['query_id'] = get_unique_id();
-    	//else
-    	//	new_query['query_id'] = "";
+    	else if(this.optimization_no_nested_callbacks)
+    		new_query['query_id'] = "";
     	new_query['query'] = query;
     	if(params)
     		new_query['params'] = params;
@@ -220,7 +221,7 @@
 		txself = this;
 		successcb = function() 
 		{
-			if(transaction_queue[txself.trans_id].length > 0)
+			if(transaction_queue[txself.trans_id].length > 0 && !txself.optimization_no_nested_callbacks)
 			{
 				txself.__submitted = false;
 				txself.complete(success, error);
