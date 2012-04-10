@@ -220,7 +220,6 @@ public class SQLitePlugin extends Plugin {
 		if (cur.moveToFirst()) {
 			JSONArray fullresult = new JSONArray();
 			String key = "";
-			String value = "";
 			int colCount = cur.getColumnCount();
 
 			// Build up JSON result object for each row
@@ -229,8 +228,24 @@ public class SQLitePlugin extends Plugin {
 				try {
 					for (int i = 0; i < colCount; ++i) {
 						key = cur.getColumnName(i);
-						value = cur.getString(i);
-						row.put(key, value);
+						switch(cur.getType (i))
+						{
+							case Cursor.FIELD_TYPE_NULL:
+								row.put(key, null);
+								break;
+							case Cursor.FIELD_TYPE_INTEGER:
+								row.put(key, cur.getInt(i));
+								break;
+							case Cursor.FIELD_TYPE_FLOAT:
+								row.put(key, cur.getFloat(i));
+								break;
+							case Cursor.FIELD_TYPE_STRING:
+								row.put(key, cur.getString(i));
+								break;
+							case Cursor.FIELD_TYPE_BLOB:
+								row.put(key, cur.getBlob(i));
+								break;
+						}
 					}
 					fullresult.put(row);
 
