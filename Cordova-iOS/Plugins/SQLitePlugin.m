@@ -24,9 +24,11 @@
         openDBs = [NSMutableDictionary dictionaryWithCapacity:0];
         [openDBs retain];
         
-        CDVFile* pgFile = [[self appDelegate] getCommandInstance: @"org.apache.cordova.file"];
-        NSString *docs = [pgFile appDocsPath];
-        [self setAppDocsPath:docs];
+        //        CDVFile* pgFile = [[self appDelegate] getCommandInstance: @"org.apache.cordova.file"];
+        //        NSString *docs = [pgFile appDocsPath];
+        //        [self setAppDocsPath:docs];
+        // Make Cordova 1.6 compatible
+        [self setAppDocsPath:[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0]];
 
     }
     return self;
