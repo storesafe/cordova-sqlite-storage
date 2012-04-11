@@ -75,7 +75,7 @@
 		this.trans_id = get_unique_id();
 		this.__completed = false;
 		this.__submitted = false;
-		this.optimization_no_nested_callbacks = true;//if set to true large batches of queries within a transaction will be much faster but you lose the ability to do muiti level nesting of executeSQL callbacks
+		this.optimization_no_nested_callbacks = true;//if set to true large batches of queries within a transaction will be much faster but you _MAY_ lose the ability to do deep multi level nesting of executeSQL callbacks
 		console.log("root.SQLitePluginTransaction - this.trans_id:"+this.trans_id);
 		transaction_queue[this.trans_id] = [];
 		transaction_callback_queue[this.trans_id] = new Object();

@@ -271,7 +271,7 @@ test('batch insertion', function(){
 })
 
 test( 'full callback syntax', function() {
-    QUnit.stop(500);
+    QUnit.stop(1500); // timing changed by batch processing improvements
     QUnit.expect(2);
 
     store.batch([{j:'k'}], function() {
@@ -282,7 +282,7 @@ test( 'full callback syntax', function() {
 })
 
 test( 'shorthand callback syntax', function() {
-    QUnit.stop(500);
+    QUnit.stop(1500); // timing changed by batch processing improvements
     QUnit.expect(2);
 
     store.batch([{o:'k'}], 'ok(true, "shorthand syntax callback gets evaled"); same(this, store, "`this` should be scoped to the Lawnchair instance"); QUnit.start();')
@@ -327,7 +327,7 @@ test('get functionality', function() {
 
 test('get batch functionality', function() {
     QUnit.expect(3);
-    QUnit.stop(500);
+    QUnit.stop(1500); // timing changed by batch processing improvements
 
     var t = [{key:'test-get'},{key:'test-get-1'}]
     store.batch(t, function() {
