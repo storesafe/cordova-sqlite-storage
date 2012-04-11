@@ -9,7 +9,8 @@ Created by @Joenoon:
 
 Adapted to 1.5 by @coomsie
 
-API changes and Android version by @chbrody
+API changes by @chbrody
+Android version by @marcucio and @chbrody
 
 
 DISCLAIMER:
@@ -19,7 +20,12 @@ We are brand new to objective-c, so there could be problems with our code!
 Installing
 ==========
 
-**NOTE:** There are now 2 trees: `Cordova-iOS` for Cordova 1.5(+) and `Legacy-PhoneGap-iPhone` for PhoneGap (tested 1.3 and earlier). I am planning to add an Android version in another tree, hopefully in the near future.
+**NOTE:** There are now the following trees:
+
+ - `Cordova-iOS` for Cordova 1.5(+) iOS
+ - `Legacy-PhoneGap-iPhone` for PhoneGap (tested 1.3 and earlier).
+ - `Android`: new version by @marcucio, with improvements for batch transaction processing, testing seems OK
+ - `DroidGap-old`: initial adaptation for Android, expected to go away pretty soon.
 
 Cordova 1.6 (RC)
 ----------------
@@ -108,12 +114,10 @@ Insert this in there:
 General Usage
 =============
 
-Android (DroidGap)
-------------------
+Android
+-------
 
-I put the information here for the sake of completeness. I have tested the DroidGap SQLitePlugin version on a simulator on PhoneGap 1.1 *ONLY* and do not guarantee what will happen in any other situation. Basically, I copied and adapted the code from storage.js and Storage.java to make a plugin version. I got the versions that were there on October 2011, so it should be OK to use them under the MIT or Apache licenses. Hereby you can take SQLitePlugin.java (it is in the wrong place but it still worked), SQLitePlugin.js, and look at my index.html, register in plugins.xml, and give it your best shot! Fork it and take it over!
-
-**Update:** I have now tested the Android (DroidGap) SQLitePlugin on Cordova 1.5 on both a simulator and a test mobile, using the Lawnchair testsuite. In addition, I have also adapted a Lawnchair plugin to work for both the iOS and the Android. Here is the sample (in Javascript):
+Sample in Javascript:
 
     // Wait for PhoneGap to load
     //
@@ -144,6 +148,7 @@ I put the information here for the sake of completeness. I have tested the Droid
       });
     });
 
+Tested OK using the Lawnchair test suite. Old DroidGap version is expected to go away very soon, yes I did repeat myself!
 
 Cordova iOS
 -----------
@@ -281,12 +286,10 @@ Legacy PhoneGap (old version)
 Lawnchair Adapter Usage
 =======================
 
-**NOTE:** For the Android version see DroidGap/lawnchair-adapter-test, which is using a Lawnchair adapter based on the original WebKit version. The plan is to make this one work for both iOS and Android versions.
-
 Common adapter
 --------------
 
-Please look at the `Lawnchair-adapter` tree that contains a common adapter, working for both Android (DroidGap) and iOS, along with a test-www directory.
+Please look at the `Lawnchair-adapter` tree that contains a common adapter, working for both Android and iOS, along with a test-www directory.
 
 
 Legacy: iOS/iPhone only
@@ -317,6 +320,13 @@ Legacy Lawnchair test
 ---------------------
 
 In the lawnchair-test subdirectory of Cordova-iOS or Legacy-PhoneGap-iPhone you can copy the contents of the www subdirectory into a Cordova/PhoneGap project and see the behavior of the Lawnchair test suite.
+
+Extra notes
+-----------
+
+@marcucio has also made some improvements for batching in the iOS version in https://github.com/marcucio/Cordova-Plugins but I do not want to take these until I know it is working OK with multi-level transaction API.
+
+Old baching notes, will go away:
 
 ### Other notes from @Joenoon:
 
