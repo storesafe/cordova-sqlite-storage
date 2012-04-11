@@ -5,7 +5,7 @@
  * Copyright (c) 2005-2010, Nitobi Software Inc.
  * Copyright (c) 2010, IBM Corporation
  */
-package com.phonegap.plugins.sqlitePlugin;
+package com.phonegap.plugin.sqlitePlugin;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -228,6 +228,7 @@ public class SQLitePlugin extends Plugin {
 				try {
 					for (int i = 0; i < colCount; ++i) {
 						key = cur.getColumnName(i);
+						// for old Android SDK remove lines from HERE:
 						if(android.os.Build.VERSION.SDK_INT >= 11)
 						{
 							switch(cur.getType (i))
@@ -249,7 +250,7 @@ public class SQLitePlugin extends Plugin {
 									break;
 							}
 						}
-						else
+						else // to HERE.
 						{
 							row.put(key, cur.getString(i));
 						}
