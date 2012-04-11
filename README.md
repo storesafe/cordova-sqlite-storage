@@ -21,6 +21,25 @@ Installing
 
 **NOTE:** There are now 2 trees: `Cordova-iOS` for Cordova 1.5(+) and `Legacy-PhoneGap-iPhone` for PhoneGap (tested 1.3 and earlier). I am planning to add an Android version in another tree, hopefully in the near future.
 
+Cordova 1.6 (RC)
+----------------
+
+From @mineshaftgap: you have to make the following change to Cordova-iOS/build/SQLitePlugin.js:
+
+    diff --git a/Cordova-iOS/build/SQLitePlugin.js b/Cordova-iOS/build/SQLitePlugin.js
+    index 65cf62f..85649e4 100644
+    --- a/Cordova-iOS/build/SQLitePlugin.js
+    +++ b/Cordova-iOS/build/SQLitePlugin.js
+    @@ -1,6 +1,8 @@
+     (function() {
+       var SQLiteNative, SQLitePluginTransaction, callbacks, cbref, counter, getOptions, root;
+ 
+    +  window.Cordova = window.cordova;
+    +
+       root = this;
+ 
+       callbacks = {};
+
 
 PhoneGap 1.3.0
 --------------
