@@ -1,5 +1,5 @@
-Cordova/PhoneGap Native SQLitePlugin
-====================================
+Cordova/PhoneGap SQLitePlugin
+=============================
 
 Native interface to sqlite in a Cordova/PhoneGap plugin, working to follow the HTML5 Web SQL API as close as possible. **NOTE** that the API is now different from https://github.com/davibe/Phonegap-SQLitePlugin and is still undergoing some changes.
 
@@ -9,13 +9,52 @@ Created by @Joenoon:
 
 Adapted to 1.5 by @coomsie
 
-API changes by @chbrody
+Major improvements for batch processing by @marcucio
+
 Android version by @marcucio and @chbrody
 
+API changes by @chbrody
 
 DISCLAIMER:
 
 We are brand new to objective-c, so there could be problems with our code!
+
+Usage
+=====
+
+The idea is to emulate the HTML5 SQL API as closely as possible. The only major change is to use window.sqlitePlugin.openDatabase() (or sqlitePlugin.openDatabase()) instead of window.openDatabase(). If you see any other major change please report it, it is probably a bug.
+
+Sample in Javascript:
+
+    // Wait for Cordova/PhoneGap to load
+    //
+    document.addEventListener("deviceready", onDeviceReady, false);
+
+    // Cordova/PhoneGap is ready
+    //
+    function onDeviceReady() {
+        var db = window.sqlitePlugin.openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
+
+    db.transaction(function(tx) {
+
+    tx.executeSql('DROP TABLE IF EXISTS test_table');
+    tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
+
+
+      return tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
+        //console.log("insertId: " + res.insertId + " -- probably 1");
+        //console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
+
+        tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
+          console.log("rows.length: " + res.rows.length + " -- should be 1");
+          return console.log("rows[0].cnt: " + res.rows.item(0).cnt + " -- should be 1");
+        });
+
+      }, function(e) {
+        return console.log("ERROR: " + e.message);
+      });
+    });
+    }
 
 Installing
 ==========
@@ -118,41 +157,15 @@ General Usage
 Android
 -------
 
-Sample in Javascript:
-
-    // Wait for PhoneGap to load
-    //
-    document.addEventListener("deviceready", onDeviceReady, false);
-
-    // PhoneGap is ready
-    //
-    function onDeviceReady() {
-        var db = window.sqlitePlugin.openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
-
-    db.transaction(function(tx) {
-
-    tx.executeSql('DROP TABLE IF EXISTS test_table');
-    tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
-
-
-      return tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
-        //console.log("insertId: " + res.insertId + " -- probably 1");
-        //console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
-
-        tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
-          console.log("rows.length: " + res.rows.length + " -- should be 1");
-          return console.log("rows[0].cnt: " + res.rows.item(0).cnt + " -- should be 1");
-        });
-
-      }, function(e) {
-        return console.log("ERROR: " + e.message);
-      });
-    });
-
 Tested OK using the Lawnchair test suite. Old DroidGap version is expected to go away very soon, yes I did repeat myself!
 
-Cordova iOS
------------
+New iOS version
+---------------
+
+Tested OK using the sample above and the Lawnchair test suite. Needs to be ported for Cordova 1.5/1.6+. Old version will go away if there are no major issues.
+
+Cordova iOS (stable version)
+----------------------------
 
 **NOTE:** Please use sqlitePlugin.openDatabase() to open a database, the parameters are different from the old SQLitePlugin() constructor which is now gone. This should a closer resemblance to the HTML5/W3 SQL API.
 
