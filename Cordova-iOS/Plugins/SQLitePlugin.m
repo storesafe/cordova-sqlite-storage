@@ -61,7 +61,9 @@
     
     sqlite3 *db;
     const char *path = [dbPath UTF8String];
-    
+
+    NSLog(@"using dbPath: %@", dbPath);
+
     if (sqlite3_open(path, &db) != SQLITE_OK) {
         [self respond:callback withString:@"{ message: 'Unable to open DB' }" withType:@"error"];
         return;
