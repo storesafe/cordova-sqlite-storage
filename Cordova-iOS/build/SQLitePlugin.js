@@ -1,6 +1,8 @@
 (function() {
   var SQLiteNative, SQLitePluginTransaction, callbacks, cbref, counter, getOptions, root;
 
+  if (!window.Cordova) window.Cordova = window.cordova;
+
   root = this;
 
   callbacks = {};
