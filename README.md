@@ -22,7 +22,8 @@ Installing
 
 **NOTE:** There are now the following trees:
 
- - `Cordova-iOS` for Cordova 1.5(+) iOS
+ - `iOS`: new version by @marcucio, with improvements for batch transaction processing, testing seems OK, **TBD** needs to be ported to Cordova 1.5/1.6
+ - `Cordova-iOS` for Cordova 1.5/1.6 iOS
  - `Legacy-PhoneGap-iPhone` for PhoneGap (tested 1.3 and earlier).
  - `Android`: new version by @marcucio, with improvements for batch transaction processing, testing seems OK
  - `DroidGap-old`: initial adaptation for Android, expected to go away pretty soon.
