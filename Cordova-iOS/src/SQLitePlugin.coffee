@@ -2,6 +2,9 @@
 
 # This file is intended to be compiled by Coffeescript WITH the top-level function wrapper
 
+# Make Cordova 1.6 compatible - now uses lowercase cordova variable
+window.Cordova = window.cordova
+
 root = this
 
 callbacks = {}
