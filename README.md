@@ -9,9 +9,9 @@ Created by @Joenoon:
 
 Adapted to 1.5 by @coomsie
 
-Major improvements for batch processing by @marcucio
-
 Android version by @marcucio and @chbrody
+
+Major improvements for batch processing by @marcucio (Android version)
 
 API changes by @chbrody
 
@@ -61,11 +61,9 @@ Installing
 
 **NOTE:** There are now the following trees:
 
- - `iOS`: new version by @marcucio, with improvements for batch transaction processing, testing seems OK, **TBD** needs to be ported to Cordova 1.5/1.6
  - `Cordova-iOS` for Cordova 1.5/1.6 iOS
- - `Legacy-PhoneGap-iPhone` for PhoneGap (tested 1.3 and earlier).
+ - `iOS-legacy-phonegap` to support new API for PhoneGap 1.4- (cleanups by @marcucio)
  - `Android`: new version by @marcucio, with improvements for batch transaction processing, testing seems OK
- - `DroidGap-old`: initial adaptation for Android, expected to go away pretty soon.
 
 Cordova 1.6 (RC)
 ----------------
@@ -91,7 +89,7 @@ PhoneGap 1.3.0
 --------------
 
 For installing with PhoneGap 1.3.0:
-in PGSQLitePlugin.h file change for PhoneGaps JSONKit.h implementation.
+in iOS-legacy-phonegap/SQLitePlugin.h file change for PhoneGap's JSONKit.h implementation.
 
     #ifdef PHONEGAP_FRAMEWORK
         #import <PhoneGap/PGPlugin.h>
@@ -106,10 +104,8 @@ in PGSQLitePlugin.h file change for PhoneGaps JSONKit.h implementation.
         #import "File.h"
     #endif
 
-and in PGSQLitePlugin.m JSONRepresentation must be changed to JSONString:
+and in iOS-legacy-phonegap/SQLitePlugin.m JSONRepresentation must be changed to JSONString:
 
-    --- a/Plugins/PGSQLitePlugin.m
-    +++ b/Plugins/PGSQLitePlugin.m
     @@ -219,7 +219,7 @@
              if (hasInsertId) {
                  [resultSet setObject:insertId forKey:@"insertId"];
@@ -149,25 +145,13 @@ Insert this in there:
     <key>SQLitePlugin</key>
     <string>SQLitePlugin</string>
 
-**NOTE:** For `Legacy-PhoneGap-iPhone` the plugin name is `PGSQLitePlugin`, no fix is expected in this project.
+Extra Usage
+===========
 
-General Usage
-=============
+Cordova iOS
+-----------
 
-Android
--------
-
-Tested OK using the Lawnchair test suite. Old DroidGap version is expected to go away very soon, yes I did repeat myself!
-
-New iOS version
----------------
-
-Tested OK using the sample above and the Lawnchair test suite. Needs to be ported for Cordova 1.5/1.6+. Old version will go away if there are no major issues.
-
-Cordova iOS (stable version)
-----------------------------
-
-**NOTE:** Please use sqlitePlugin.openDatabase() to open a database, the parameters are different from the old SQLitePlugin() constructor which is now gone. This should a closer resemblance to the HTML5/W3 SQL API.
+**NOTE:** These are from old samples, old API which is hereby deprecated.
 
 ## Coffee Script
 
@@ -231,7 +215,7 @@ Cordova iOS (stable version)
                       });
 
 
-Legacy PhoneGap (old version)
+iOS Legacy PhoneGap
 -----------------------------
 
 ## Coffee Script
@@ -333,14 +317,12 @@ Using the `db` option you can create multiple stores in one sqlite file. (There 
 Legacy Lawnchair test
 ---------------------
 
-In the lawnchair-test subdirectory of Cordova-iOS or Legacy-PhoneGap-iPhone you can copy the contents of the www subdirectory into a Cordova/PhoneGap project and see the behavior of the Lawnchair test suite.
+In the lawnchair-test subdirectory of Cordova-iOS you can copy the contents of the www subdirectory into a Cordova/PhoneGap project and see the behavior of the Lawnchair test suite.
 
 Extra notes
 -----------
 
-@marcucio has also made some improvements for batching in the iOS version in https://github.com/marcucio/Cordova-Plugins but I do not want to take these until I know it is working OK with multi-level transaction API.
-
-Old baching notes, will go away:
+Old baching notes for iOS version:
 
 ### Other notes from @Joenoon:
 
