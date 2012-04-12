@@ -28,8 +28,10 @@
         //        NSString *docs = [pgFile appDocsPath];
         //        [self setAppDocsPath:docs];
         // Make Cordova 1.6 compatible
-        [self setAppDocsPath:[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0]];
-
+        //[self setAppDocsPath:[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0]];
+        NSString *docs = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
+        NSLog(@"Detected docs path: %@", docs);
+        [self setAppDocsPath:docs];
     }
     return self;
 }
