@@ -1,7 +1,0 @@
-Cordova-Plugins
-=====================
-
-This is a repository of the PhoneGap (now called Cordova) plugins I am working on. A few things thing to note:
-
-- iOS plugins are written for PhoneGap 1.4.1 or lower but they should work on 1.5 with a few modifications
-- Android plugins are written for PhoneGap 1.5 or greater
