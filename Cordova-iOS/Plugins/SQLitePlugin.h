@@ -18,8 +18,8 @@
 #import <CORDOVA/CDVFile.h>
 #else
 #import "CDVPlugin.h"
-#import "JSON.h"
-#import "File.h"
+#import "JSONKit.h"
+#import "CDVFile.h"
 #endif
 
 #import "AppDelegate.h"

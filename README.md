@@ -1,23 +1,23 @@
 Cordova/PhoneGap SQLitePlugin
 =============================
 
-Native interface to sqlite in a Cordova/PhoneGap plugin, working to follow the HTML5 Web SQL API as close as possible. **NOTE** that the API is now different from https://github.com/davibe/Phonegap-SQLitePlugin and is still undergoing some changes.
+Native interface to sqlite in a Cordova/PhoneGap plugin, working to follow the HTML5 Web SQL API as close as possible. **NOTE** that the API is now different from https://github.com/davibe/Phonegap-SQLitePlugin.
 
-DISCLAIMER:
+Created by @joenoon and @davibe
 
-Created by @Joenoon:
-
-Adapted to 1.5 by @coomsie
+Adapted to Cordova 1.5+ by @coomsie, Cordova 1.6 bugfix by @mineshaftgap
 
 Android version by @marcucio and @chbrody
 
-Major improvements for batch processing by @marcucio (Android version)
-
 API changes by @chbrody
 
-DISCLAIMER:
+Highlights
+----------
 
-We are brand new to objective-c, so there could be problems with our code!
+ - Keeps sqlite database in a known user data location that will be backed up by iCloud on iOS
+ - Drop-in replacement for HTML5 SQL API, the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
+ - Both Android and iOS versions are designed with batch processing optimizations
+ - Future: API to configure the desired database location
 
 Usage
 =====
@@ -64,26 +64,6 @@ Installing
  - `Cordova-iOS` for Cordova 1.5/1.6 iOS
  - `iOS-legacy-phonegap` to support new API for PhoneGap 1.4- (cleanups by @marcucio)
  - `Android`: new version by @marcucio, with improvements for batch transaction processing, testing seems OK
-
-Cordova 1.6 (RC)
-----------------
-
-From @mineshaftgap: you have to make the following change to Cordova-iOS/build/SQLitePlugin.js:
-
-    diff --git a/Cordova-iOS/build/SQLitePlugin.js b/Cordova-iOS/build/SQLitePlugin.js
-    index 65cf62f..85649e4 100644
-    --- a/Cordova-iOS/build/SQLitePlugin.js
-    +++ b/Cordova-iOS/build/SQLitePlugin.js
-    @@ -1,6 +1,8 @@
-     (function() {
-       var SQLiteNative, SQLitePluginTransaction, callbacks, cbref, counter, getOptions, root;
- 
-    +  window.Cordova = window.cordova;
-    +
-       root = this;
- 
-       callbacks = {};
-
 
 PhoneGap 1.3.0
 --------------
