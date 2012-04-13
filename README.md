@@ -61,7 +61,7 @@ Installing
 
 **NOTE:** There are now the following trees:
 
- - `Cordova-iOS` for Cordova 1.5/1.6 iOS
+ - `iOS` for Cordova 1.5/1.6 iOS
  - `iOS-legacy-phonegap` to support new API for PhoneGap 1.4- (cleanups by @marcucio)
  - `Android`: new version by @marcucio, with improvements for batch transaction processing, testing seems OK
 
@@ -276,9 +276,8 @@ Legacy: iOS/iPhone only
 Include the following js files in your html:
 
 -  lawnchair.js (you provide)
--  sqlite_plugin.js [pgsqlite_plugin.js in Legacy-PhoneGap-iPhone]
--  lawnchair_sqlite_plugin_adapter.js [lawnchair_pgsqlite_plugin_adapter.js] (must come after sqlite_plugin.js [pgsqlite_plugin.js in Legacy-PhoneGap-iPhone])
-
+-  SQLitePlugin.js [pgsqlite_plugin.js in Legacy-PhoneGap-iPhone]
+-  Lawnchair-sqlitePlugin.js (must come after SQLitePlugin.js)
 
 
 The `name` option will determine the sqlite filename. Optionally, you can change it using the `db` option.
@@ -294,17 +293,15 @@ Using the `db` option you can create multiple stores in one sqlite file. (There 
 	ingredients = new Lawnchair {db: "cookbook", name: "ingredients", ...}
 
 
-Legacy Lawnchair test
----------------------
+Legacy iOS Lawnchair test
+-------------------------
 
-In the lawnchair-test subdirectory of Cordova-iOS you can copy the contents of the www subdirectory into a Cordova/PhoneGap project and see the behavior of the Lawnchair test suite.
+*For cleanup this is to be removed*: In the lawnchair-test subdirectory of `iOS` you can copy the contents of the www subdirectory into a Cordova/PhoneGap project and see the behavior of the Lawnchair test suite.
 
 Extra notes
 -----------
 
-Old baching notes for iOS version:
-
-### Other notes from @Joenoon:
+### Other notes from @Joenoon - iOS batching:
 
 I played with the idea of batching responses into larger sets of
 writeJavascript on a timer, however there was only a barely noticeable
