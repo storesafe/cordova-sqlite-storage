@@ -50,8 +50,11 @@ getOptions = (opts, success, error) ->
     opts.callback = cbref(cb) if has_cbs
     opts
 
-class SQLitePlugin
-  constructor: (@dbPath, @openSuccess, @openError) ->
+# Prototype constructor function
+SQLitePlugin = (dbPath, openSuccess, openError) ->
+    @dbPath = dbPath
+    @openSuccess = openSuccess
+    @openError = openError
     throw new Error "Cannot create a SQLitePlugin instance without a dbPath" unless dbPath
     @openSuccess ||= () ->
       console.log "DB opened: #{dbPath}"
@@ -60,6 +63,7 @@ class SQLitePlugin
       console.log e.message
       return
     @open(@openSuccess, @openError)
+    return
 
 # Note: Class member
 # All instances will interact directly on the prototype openDBs object.
@@ -98,6 +102,7 @@ SQLitePlugin::close = (success, error) ->
       Cordova.exec("SQLitePlugin.close", opts)
     return
 
+# Prototype constructor function
 SQLitePluginTransaction = (dbPath) ->
     @dbPath = dbPath
     @executes = []

@@ -48,27 +48,21 @@
     return opts;
   };
 
-  SQLitePlugin = (function() {
-
-    function SQLitePlugin(dbPath, openSuccess, openError) {
-      this.dbPath = dbPath;
-      this.openSuccess = openSuccess;
-      this.openError = openError;
-      if (!dbPath) {
-        throw new Error("Cannot create a SQLitePlugin instance without a dbPath");
-      }
-      this.openSuccess || (this.openSuccess = function() {
-        console.log("DB opened: " + dbPath);
-      });
-      this.openError || (this.openError = function(e) {
-        console.log(e.message);
-      });
-      this.open(this.openSuccess, this.openError);
+  SQLitePlugin = function(dbPath, openSuccess, openError) {
+    this.dbPath = dbPath;
+    this.openSuccess = openSuccess;
+    this.openError = openError;
+    if (!dbPath) {
+      throw new Error("Cannot create a SQLitePlugin instance without a dbPath");
     }
-
-    return SQLitePlugin;
-
-  })();
+    this.openSuccess || (this.openSuccess = function() {
+      console.log("DB opened: " + dbPath);
+    });
+    this.openError || (this.openError = function(e) {
+      console.log(e.message);
+    });
+    this.open(this.openSuccess, this.openError);
+  };
 
   SQLitePlugin.prototype.openDBs = {};
 
