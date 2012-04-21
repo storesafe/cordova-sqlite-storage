@@ -26,34 +26,32 @@ The idea is to emulate the HTML5 SQL API as closely as possible. The only major 
 
 Sample in Javascript:
 
-    // Wait for Cordova/PhoneGap to load
+    // Wait for Cordova to load
     //
     document.addEventListener("deviceready", onDeviceReady, false);
 
-    // Cordova/PhoneGap is ready
+    // Cordova is ready
     //
     function onDeviceReady() {
-        var db = window.sqlitePlugin.openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
+      var db = window.sqlitePlugin.openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
 
-    db.transaction(function(tx) {
+      db.transaction(function(tx) {
+        tx.executeSql('DROP TABLE IF EXISTS test_table');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
 
-    tx.executeSql('DROP TABLE IF EXISTS test_table');
-    tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
+        return tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
+          console.log("insertId: " + res.insertId + " -- probably 1");
+          console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
 
+          tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
+            console.log("res.rows.length: " + res.rows.length + " -- should be 1");
+            return console.log("res.rows.item(0).cnt: " + res.rows.item(0).cnt + " -- should be 1");
+          });
 
-      return tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
-        //console.log("insertId: " + res.insertId + " -- probably 1");
-        //console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
-
-        tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
-          console.log("rows.length: " + res.rows.length + " -- should be 1");
-          return console.log("rows[0].cnt: " + res.rows.item(0).cnt + " -- should be 1");
+        }, function(e) {
+          return console.log("ERROR: " + e.message);
         });
-
-      }, function(e) {
-        return console.log("ERROR: " + e.message);
       });
-    });
     }
 
 Installing
@@ -62,11 +60,13 @@ Installing
 **NOTE:** There are now the following trees:
 
  - `iOS` for Cordova 1.5/1.6 iOS
- - `iOS-legacy-phonegap` to support new API for PhoneGap 1.4- (cleanups by @marcucio)
+ - `iOS-legacy-phonegap` to support new API for PhoneGap 1.4- (cleanups by @marcucio) - **going away**
  - `Android`: new version by @marcucio, with improvements for batch transaction processing, testing seems OK
 
 PhoneGap 1.3.0
 --------------
+
+**GOING AWAY:**
 
 For installing with PhoneGap 1.3.0:
 in iOS-legacy-phonegap/SQLitePlugin.h file change for PhoneGap's JSONKit.h implementation.
@@ -102,8 +102,8 @@ In the Project "Build Phases" tab, select the _first_ "Link Binary with Librarie
 
 **NOTE:** In the "Build Phases" there can be multiple "Link Binary with Libraries" dropdown menus. Please select the first one otherwise it will not work.
 
-Native SQLite Plugin
---------------------
+SQLite Plugin
+-------------
 
 Drag .h and .m files into your project's Plugins folder (in xcode) -- I always
 just have "Create references" as the option selected.
@@ -131,7 +131,7 @@ Extra Usage
 Cordova iOS
 -----------
 
-**NOTE:** These are from old samples, old API which is hereby deprecated.
+**NOTE:** These are from old samples, old API which is hereby deprecated **and going away**.
 
 ## Coffee Script
 
@@ -197,6 +197,8 @@ Cordova iOS
 
 iOS Legacy PhoneGap
 -----------------------------
+
+**GOING AWAY:**
 
 ## Coffee Script
 
@@ -270,8 +272,8 @@ Common adapter
 Please look at the `Lawnchair-adapter` tree that contains a common adapter, working for both Android and iOS, along with a test-www directory.
 
 
-Legacy: iOS/iPhone only
------------------------
+Included files
+--------------
 
 Include the following js files in your html:
 
@@ -279,6 +281,8 @@ Include the following js files in your html:
 -  SQLitePlugin.js [pgsqlite_plugin.js in Legacy-PhoneGap-iPhone]
 -  Lawnchair-sqlitePlugin.js (must come after SQLitePlugin.js)
 
+Sample
+------
 
 The `name` option will determine the sqlite filename. Optionally, you can change it using the `db` option.
 
@@ -292,11 +296,6 @@ Using the `db` option you can create multiple stores in one sqlite file. (There 
     recipes = new Lawnchair {db: "cookbook", name: "recipes", ...}
 	ingredients = new Lawnchair {db: "cookbook", name: "ingredients", ...}
 
-
-Legacy iOS Lawnchair test
--------------------------
-
-*For cleanup this is to be removed*: In the lawnchair-test subdirectory of `iOS` you can copy the contents of the www subdirectory into a Cordova/PhoneGap project and see the behavior of the Lawnchair test suite.
 
 Extra notes
 -----------
