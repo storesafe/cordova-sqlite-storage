@@ -1,6 +1,27 @@
+# SQLitePlugin-orig.coffee
 # Copyright (C) 2011 Joe Noon <joenoon@gmail.com>
-
+#
 # This file is intended to be compiled by Coffeescript WITH the top-level function wrapper
+#
+# NOTE: SQLitePlugin.js is now leading.
+# This file is maintained by @chbrody
+# to make it easier to refactor a common version for both
+# iOS and Android.
+#
+# To regenerate SQLitePlugin.js:
+# coffee -p SQLitePlugin-orig.coffee > SQLitePlugin.js
+# (and try to keep the comments by hand)
+#
+# To convert JavaScript back to CoffeeScript:
+# js2coffee SQLitePlugin.js > SQLitePlugin-new.coffee
+# (will lose the comments)
+#
+# Round-trip (useful to determine what is most relevant for Javascript):
+# coffee -bp SQLitePlugin-orig.coffee > SQLitePlugin2.js
+# js2coffee SQLitePlugin.js > SQLitePlugin2.coffee
+# or:
+# coffee -bp SQLitePlugin-orig.coffee | js2coffee SQLitePlugin.js > SQLitePlugin2.coffee
+
 
 # Make Cordova 1.6 compatible - now uses lowercase cordova variable (conditional)
 if !window.Cordova
@@ -36,13 +57,13 @@ root.SQLitePlugin =
     callbacks[ref] = null
     delete callbacks[ref]
     return
-  
-class SQLiteNative
+
+class SQLitePlugin
 
   # All instances will interact directly on the prototype openDBs object.
   # One instance that closes a db path will remove it from any other instance's perspective as well.
   openDBs: {}
-  
+
   constructor: (@dbPath, @openSuccess, @openError) ->
     throw new Error "Cannot create a SQLitePlugin instance without a dbPath" unless dbPath
     @openSuccess ||= () ->
@@ -52,14 +73,14 @@ class SQLiteNative
       console.log e.message
       return
     @open(@openSuccess, @openError)
-  
+
   # Note: Class method
   @handleCallback: (ref, type, obj) ->
     callbacks[ref]?[type]?(obj)
     callbacks[ref] = null
     delete callbacks[ref]
     return
-    
+
   executeSql: (sql, values, success, error) ->
     throw new Error "Cannot executeSql without a query" unless sql
     opts = getOptions({ query: [sql].concat(values || []), path: @dbPath }, success, error)
@@ -70,14 +91,14 @@ class SQLiteNative
     t = new SQLitePluginTransaction(@dbPath)
     fn(t)
     t.complete(success, error)
-    
+
   open: (success, error) ->
     unless @dbPath of @openDBs
       @openDBs[@dbPath] = true
       opts = getOptions({ path: @dbPath }, success, error)
       Cordova.exec("SQLitePlugin.open", opts)
     return
-  
+
   close: (success, error) ->
     if @dbPath of @openDBs
       delete @openDBs[@dbPath]
@@ -86,7 +107,7 @@ class SQLiteNative
     return
 
 class SQLitePluginTransaction
-  
+
   constructor: (@dbPath) ->
     @executes = []
 
@@ -131,5 +152,5 @@ root.sqlitePlugin =
   # NOTE: the following parameters are ignored but included to match HTML5/W3 spec:
   # version, displayName, estimatedSize
   openDatabase: (dbPath, version=null, displayName=null, estimatedSize=0, creationCallback=null, errorCallback=null) ->
-    return new SQLiteNative(dbPath, creationCallback, errorCallback)
+    return new SQLitePlugin(dbPath, creationCallback, errorCallback)
 
