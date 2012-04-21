@@ -66,20 +66,20 @@
       this.open(this.openSuccess, this.openError);
     }
 
-    SQLitePlugin.prototype.openDBs = {};
-
-    SQLitePlugin.handleCallback = function(ref, type, obj) {
-      var _ref;
-      if ((_ref = callbacks[ref]) != null) {
-        if (typeof _ref[type] === "function") _ref[type](obj);
-      }
-      callbacks[ref] = null;
-      delete callbacks[ref];
-    };
-
     return SQLitePlugin;
 
   })();
+
+  SQLitePlugin.prototype.openDBs = {};
+
+  SQLitePlugin.handleCallback = function(ref, type, obj) {
+    var _ref;
+    if ((_ref = callbacks[ref]) != null) {
+      if (typeof _ref[type] === "function") _ref[type](obj);
+    }
+    callbacks[ref] = null;
+    delete callbacks[ref];
+  };
 
   SQLitePlugin.prototype.executeSql = function(sql, values, success, error) {
     var opts;

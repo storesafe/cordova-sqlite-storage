@@ -25,33 +25,32 @@
 
 # Make Cordova 1.6 compatible - now uses lowercase cordova variable (conditional)
 if !window.Cordova
-  window.Cordova = window.cordova
+    window.Cordova = window.cordova
 
-root = this
+root = @
 
 callbacks = {}
 
 counter = 0
 
 cbref = (hash) ->
-  f = "cb#{counter+=1}"
-  callbacks[f] = hash
-  f
+    f = "cb#{counter+=1}"
+    callbacks[f] = hash
+    f
 
 getOptions = (opts, success, error) ->
-  cb = {}
-  has_cbs = false
-  if typeof success == "function"
-    has_cbs = true
-    cb.success = success
-  if typeof error == "function"
-    has_cbs = true
-    cb.error = error
-  opts.callback = cbref(cb) if has_cbs
-  opts
+    cb = {}
+    has_cbs = false
+    if typeof success == "function"
+      has_cbs = true
+      cb.success = success
+    if typeof error == "function"
+      has_cbs = true
+      cb.error = error
+    opts.callback = cbref(cb) if has_cbs
+    opts
 
 class SQLitePlugin
-
   constructor: (@dbPath, @openSuccess, @openError) ->
     throw new Error "Cannot create a SQLitePlugin instance without a dbPath" unless dbPath
     @openSuccess ||= () ->
@@ -62,13 +61,13 @@ class SQLitePlugin
       return
     @open(@openSuccess, @openError)
 
-  # Note: Class member
-  # All instances will interact directly on the prototype openDBs object.
-  # One instance that closes a db path will remove it from any other instance's perspective as well.
-  openDBs: {}
+# Note: Class member
+# All instances will interact directly on the prototype openDBs object.
+# One instance that closes a db path will remove it from any other instance's perspective as well.
+SQLitePlugin::openDBs = {}
 
-  # Note: Class method
-  @handleCallback: (ref, type, obj) ->
+# Note: Class method (will be exported by a member of root.sqlitePlugin)
+SQLitePlugin.handleCallback = (ref, type, obj) ->
     callbacks[ref]?[type]?(obj)
     callbacks[ref] = null
     delete callbacks[ref]
