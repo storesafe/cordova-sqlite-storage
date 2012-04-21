@@ -38,7 +38,7 @@
 
 -(void) respond: (id)cb withString:(NSString *)str withType:(NSString *)type {
     if (cb != NULL) {
-        NSString* jsString = [NSString stringWithFormat:@"SQLitePlugin.handleCallback('%@', '%@', %@);", cb, type, str ];
+        NSString* jsString = [NSString stringWithFormat:@"sqlitePlugin.handleCallback('%@', '%@', %@);", cb, type, str ];
         [self writeJavascript:jsString];
     }
 }

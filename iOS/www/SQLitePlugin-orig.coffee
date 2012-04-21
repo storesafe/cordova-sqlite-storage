@@ -50,14 +50,6 @@ getOptions = (opts, success, error) ->
   opts.callback = cbref(cb) if has_cbs
   opts
 
-# XXX TEMP workaround:
-root.SQLitePlugin =
-  handleCallback: (ref, type, obj) ->
-    callbacks[ref]?[type]?(obj)
-    callbacks[ref] = null
-    delete callbacks[ref]
-    return
-
 class SQLitePlugin
 
   constructor: (@dbPath, @openSuccess, @openError) ->
@@ -107,10 +99,10 @@ SQLitePlugin::close = (success, error) ->
       Cordova.exec("SQLitePlugin.close", opts)
     return
 
-class SQLitePluginTransaction
-
-  constructor: (@dbPath) ->
+SQLitePluginTransaction = (dbPath) ->
+    @dbPath = dbPath
     @executes = []
+    return
 
 SQLitePluginTransaction::executeSql = (sql, values, success, error) ->
     txself = @
@@ -154,4 +146,7 @@ root.sqlitePlugin =
   # version, displayName, estimatedSize
   openDatabase: (dbPath, version=null, displayName=null, estimatedSize=0, creationCallback=null, errorCallback=null) ->
     return new SQLitePlugin(dbPath, creationCallback, errorCallback)
+
+  # export reference to SQLitePlugin.handleCallback [SQLitePlugin::handleCallback] class method
+  handleCallback: SQLitePlugin.handleCallback
 

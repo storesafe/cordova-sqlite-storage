@@ -48,17 +48,6 @@
     return opts;
   };
 
-  root.SQLitePlugin = {
-    handleCallback: function(ref, type, obj) {
-      var _ref;
-      if ((_ref = callbacks[ref]) != null) {
-        if (typeof _ref[type] === "function") _ref[type](obj);
-      }
-      callbacks[ref] = null;
-      delete callbacks[ref];
-    }
-  };
-
   SQLitePlugin = (function() {
 
     function SQLitePlugin(dbPath, openSuccess, openError) {
@@ -131,16 +120,10 @@
     }
   };
 
-  SQLitePluginTransaction = (function() {
-
-    function SQLitePluginTransaction(dbPath) {
-      this.dbPath = dbPath;
-      this.executes = [];
-    }
-
-    return SQLitePluginTransaction;
-
-  })();
+  SQLitePluginTransaction = function(dbPath) {
+    this.dbPath = dbPath;
+    this.executes = [];
+  };
 
   SQLitePluginTransaction.prototype.executeSql = function(sql, values, success, error) {
     var errorcb, successcb, txself;
@@ -210,7 +193,8 @@
       if (creationCallback == null) creationCallback = null;
       if (errorCallback == null) errorCallback = null;
       return new SQLitePlugin(dbPath, creationCallback, errorCallback);
-    }
+    },
+    handleCallback: SQLitePlugin.handleCallback
   };
 
 }).call(this);
