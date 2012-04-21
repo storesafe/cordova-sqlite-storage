@@ -60,10 +60,6 @@ root.SQLitePlugin =
 
 class SQLitePlugin
 
-  # All instances will interact directly on the prototype openDBs object.
-  # One instance that closes a db path will remove it from any other instance's perspective as well.
-  openDBs: {}
-
   constructor: (@dbPath, @openSuccess, @openError) ->
     throw new Error "Cannot create a SQLitePlugin instance without a dbPath" unless dbPath
     @openSuccess ||= () ->
@@ -74,6 +70,11 @@ class SQLitePlugin
       return
     @open(@openSuccess, @openError)
 
+  # Note: Class member
+  # All instances will interact directly on the prototype openDBs object.
+  # One instance that closes a db path will remove it from any other instance's perspective as well.
+  openDBs: {}
+
   # Note: Class method
   @handleCallback: (ref, type, obj) ->
     callbacks[ref]?[type]?(obj)
@@ -81,25 +82,25 @@ class SQLitePlugin
     delete callbacks[ref]
     return
 
-  executeSql: (sql, values, success, error) ->
+SQLitePlugin::executeSql = (sql, values, success, error) ->
     throw new Error "Cannot executeSql without a query" unless sql
     opts = getOptions({ query: [sql].concat(values || []), path: @dbPath }, success, error)
     Cordova.exec("SQLitePlugin.backgroundExecuteSql", opts)
     return
 
-  transaction: (fn, error, success) ->
+SQLitePlugin::transaction = (fn, error, success) ->
     t = new SQLitePluginTransaction(@dbPath)
     fn(t)
     t.complete(success, error)
 
-  open: (success, error) ->
+SQLitePlugin::open = (success, error) ->
     unless @dbPath of @openDBs
       @openDBs[@dbPath] = true
       opts = getOptions({ path: @dbPath }, success, error)
       Cordova.exec("SQLitePlugin.open", opts)
     return
 
-  close: (success, error) ->
+SQLitePlugin::close = (success, error) ->
     if @dbPath of @openDBs
       delete @openDBs[@dbPath]
       opts = getOptions({ path: @dbPath }, success, error)
@@ -111,7 +112,7 @@ class SQLitePluginTransaction
   constructor: (@dbPath) ->
     @executes = []
 
-  executeSql: (sql, values, success, error) ->
+SQLitePluginTransaction::executeSql = (sql, values, success, error) ->
     txself = @
     successcb = null
     if success
@@ -132,7 +133,7 @@ class SQLitePluginTransaction
     @executes.push getOptions({ query: [sql].concat(values || []), path: @dbPath }, successcb, errorcb)
     return
 
-  complete: (success, error) ->
+SQLitePluginTransaction::complete = (success, error) ->
     throw new Error "Transaction already run" if @__completed
     @__completed = true
     txself = @
