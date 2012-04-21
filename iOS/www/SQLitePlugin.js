@@ -1,3 +1,19 @@
+// SQLitePlugin.js: originally written in CoffeeScript,
+// Copyright (C) 2011 Joe Noon <joenoon@gmail.com>
+//
+// To regenerate from CoffeeScript:
+// coffee -p SQLitePlugin-orig.coffee > SQLitePlugin.js
+// (and try to keep the comments by hand)
+//
+// NOTE: this Javascript version is now leading, however
+// SQLitePlugin-orig.coffee is still maintained by @chbrody
+// to make it easier to refactor a common version for both
+// iOS and Android.
+//
+// To convert back to CoffeeScript:
+// js2coffee SQLitePlugin.js > SQLitePlugin-new.coffee
+// (will lose the comments)
+
 (function() {
   var SQLiteNative, SQLitePluginTransaction, callbacks, cbref, counter, getOptions, root;
 
