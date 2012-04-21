@@ -24,7 +24,10 @@ Usage
 
 The idea is to emulate the HTML5 SQL API as closely as possible. The only major change is to use window.sqlitePlugin.openDatabase() (or sqlitePlugin.openDatabase()) instead of window.openDatabase(). If you see any other major change please report it, it is probably a bug.
 
-Sample in Javascript:
+Sample
+------
+
+This is a pretty strong test: first we create a table and add a single entry, then query the count to check if the item was inserted as expected. Note that a new transaction is created in the middle of the first callback.
 
     // Wait for Cordova to load
     //
@@ -39,20 +42,71 @@ Sample in Javascript:
         tx.executeSql('DROP TABLE IF EXISTS test_table');
         tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
 
-        return tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
+        tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
+          console.log("insertId: " + res.insertId + " -- probably 1");
+          console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
+          db.transaction(function(tx) {
+            tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
+              console.log("res.rows.length: " + res.rows.length + " -- should be 1");
+              console.log("res.rows.item(0).cnt: " + res.rows.item(0).cnt + " -- should be 1");
+            });
+          });
+
+        }, function(e) {
+          console.log("ERROR: " + e.message);
+        });
+      });
+    }
+
+## Sample with transaction-level nesting
+
+**Android version only:** In this case, the same transaction in the first executeSql() callback is being reused to run executeSql() again. This version will only work on the Android version and only if you make the following patch:
+
+    diff --git a/Android/assets/www/SQLitePlugin.js b/Android/assets/www/SQLitePlugin.js
+    index 6349baf..8a3c50f 100755
+    --- a/Android/assets/www/SQLitePlugin.js
+    +++ b/Android/assets/www/SQLitePlugin.js
+    @@ -78,7 +78,7 @@
+     		//this.optimization_no_nested_callbacks: default is true.
+     		//if set to true large batches of queries within a transaction will be much faster but 
+     		//you will lose the ability to do multi level nesting of executeSQL callbacks
+    -		this.optimization_no_nested_callbacks = true;
+    +		this.optimization_no_nested_callbacks = false;
+     		console.log("root.SQLitePluginTransaction - this.trans_id:"+this.trans_id);
+     		transaction_queue[this.trans_id] = [];
+     		transaction_callback_queue[this.trans_id] = new Object();
+
+This case is (currently) not supported by the iOS version
+
+    // Wait for Cordova to load
+    //
+    document.addEventListener("deviceready", onDeviceReady, false);
+
+    // Cordova is ready
+    //
+    function onDeviceReady() {
+      var db = window.sqlitePlugin.openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
+
+      db.transaction(function(tx) {
+        tx.executeSql('DROP TABLE IF EXISTS test_table');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
+
+        tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
           console.log("insertId: " + res.insertId + " -- probably 1");
           console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
 
           tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
             console.log("res.rows.length: " + res.rows.length + " -- should be 1");
-            return console.log("res.rows.item(0).cnt: " + res.rows.item(0).cnt + " -- should be 1");
+            console.log("res.rows.item(0).cnt: " + res.rows.item(0).cnt + " -- should be 1");
           });
 
         }, function(e) {
-          return console.log("ERROR: " + e.message);
+          console.log("ERROR: " + e.message);
         });
       });
     }
+
+This case will also works with Safari (WebKit), assuming you replace window.sqlitePlugin.openDatabase with window.openDatabase.
 
 Installing
 ==========
@@ -60,40 +114,7 @@ Installing
 **NOTE:** There are now the following trees:
 
  - `iOS` for Cordova 1.5/1.6 iOS
- - `iOS-legacy-phonegap` to support new API for PhoneGap 1.4- (cleanups by @marcucio) - **going away**
  - `Android`: new version by @marcucio, with improvements for batch transaction processing, testing seems OK
-
-PhoneGap 1.3.0
---------------
-
-**GOING AWAY:**
-
-For installing with PhoneGap 1.3.0:
-in iOS-legacy-phonegap/SQLitePlugin.h file change for PhoneGap's JSONKit.h implementation.
-
-    #ifdef PHONEGAP_FRAMEWORK
-        #import <PhoneGap/PGPlugin.h>
-        #import <PhoneGap/JSONKit.h>
-        #import <PhoneGap/PhoneGapDelegate.h>
-        #import <PhoneGap/File.h>
-        #import<PhoneGap/FileTransfer.h>
-    #else
-        #import "PGPlugin.h"
-        #import "JSON.h"
-        #import "PhoneGapDelegate.h"
-        #import "File.h"
-    #endif
-
-and in iOS-legacy-phonegap/SQLitePlugin.m JSONRepresentation must be changed to JSONString:
-
-    @@ -219,7 +219,7 @@
-             if (hasInsertId) {
-                 [resultSet setObject:insertId forKey:@"insertId"];
-             }
-    -        [self respond:callback withString:[resultSet JSONRepresentation] withType:@"success"];
-    +        [self respond:callback withString:[resultSet JSONString] withType:@"success"];
-         }
-     }
 
 SQLite library
 --------------
@@ -128,38 +149,9 @@ Insert this in there:
 Extra Usage
 ===========
 
-Cordova iOS
------------
+## iOS
 
-**NOTE:** These are from old samples, old API which is hereby deprecated **and going away**.
-
-## Coffee Script
-
-    db = sqlitePlugin.openDatabase("my_sqlite_database.sqlite3")
-    db.executeSql('DROP TABLE IF EXISTS test_table')
-    db.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)')
-
-    db.transaction (tx) ->
-
-      tx.executeSql "INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], (res) ->
-
-        # success callback
-
-        console.log "insertId: #{res.insertId} -- probably 1"
-        console.log "rowsAffected: #{res.rowsAffected} -- should be 1"
-
-        # check the count (not a part of the transaction)
-        db.executeSql "select count(id) as cnt from test_table;", [], (res) ->
-          console.log "rows.length: #{res.rows.length} -- should be 1"
-          console.log "rows[0].cnt: #{res.rows[0].cnt} -- should be 1"
-
-      , (e) ->
-
-        # error callback
-
-        console.log "ERROR: #{e.message}"
-
-## Plain Javascript
+**NOTE:** This is from an old sample, old API which is hereby deprecated **and going away**.
 
     var db = sqlitePlugin.openDatabase("my_sqlite_database.sqlite3");
 
@@ -178,91 +170,6 @@ Cordova iOS
       });
     });
 
-## Changes in tx.executeSql() success callback
-
-        var db = sqlitePlugin.openDatabase("my_sqlite_database.sqlite3");
-        db.executeSql('DROP TABLE IF EXISTS test_table');
-        db.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
-        db.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(res) {
-                      console.log("insertId: " + res.insertId + " -- probably 1");
-                      console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
-                      db.transaction(function(tx) {
-                                     return tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
-                                                          console.log("rows.length: " + res.rows.length + " -- should be 1");
-                                                          return console.log("rows.item(0).cnt: " + res.rows.item(0).cnt + " -- should be 1");
-                                                          });
-                                     });
-                      });
-
-
-iOS Legacy PhoneGap
------------------------------
-
-**GOING AWAY:**
-
-## Coffee Script
-
-    db = new PGSQLitePlugin("my_sqlite_database.sqlite3")
-    db.executeSql('DROP TABLE IF EXISTS test_table')
-    db.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)')
-
-    db.transaction (tx) ->
-
-      tx.executeSql "INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], (res) ->
-
-        # success callback
-
-        console.log "insertId: #{res.insertId} -- probably 1"
-        console.log "rowsAffected: #{res.rowsAffected} -- should be 1"
-
-        # check the count (not a part of the transaction)
-        db.executeSql "select count(id) as cnt from test_table;", (res) ->
-          console.log "rows.length: #{res.rows.length} -- should be 1"
-          console.log "rows[0].cnt: #{res.rows[0].cnt} -- should be 1"
-
-      , (e) ->
-
-        # error callback
-
-        console.log "ERROR: #{e.message}"
-
-## Plain Javascript
-
-    var db;
-    db = new PGSQLitePlugin("my_sqlite_database.sqlite3");
-    db.executeSql('DROP TABLE IF EXISTS test_table');
-    db.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
-    db.transaction(function(tx) {
-      return tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
-        console.log("insertId: " + res.insertId + " -- probably 1");
-        console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
-        return db.executeSql("select count(id) as cnt from test_table;", [], function(res) {
-          console.log("rows.length: " + res.rows.length + " -- should be 1");
-          return console.log("rows[0].cnt: " + res.rows[0].cnt + " -- should be 1");
-        });
-      }, function(e) {
-        return console.log("ERROR: " + e.message);
-      });
-    });
-
-## Changes in tx.executeSql() success callback
-
-        var db;
-        db = new PGSQLitePlugin("my_sqlite_database.sqlite3");
-        db.executeSql('DROP TABLE IF EXISTS test_table');
-        db.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
-        db.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(res) {
-                      console.log("insertId: " + res.insertId + " -- probably 1");
-                      console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
-                      db.transaction(function(tx) {
-                                     return tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
-                                                          console.log("rows.length: " + res.rows.length + " -- should be 1");
-                                                          return console.log("rows[0].cnt: " + res.rows.item(0).cnt + " -- should be 1");
-                                                          });
-                                     });
-                      });
-
-
 Lawnchair Adapter Usage
 =======================
 
@@ -278,7 +185,7 @@ Included files
 Include the following js files in your html:
 
 -  lawnchair.js (you provide)
--  SQLitePlugin.js [pgsqlite_plugin.js in Legacy-PhoneGap-iPhone]
+-  SQLitePlugin.js
 -  Lawnchair-sqlitePlugin.js (must come after SQLitePlugin.js)
 
 Sample
