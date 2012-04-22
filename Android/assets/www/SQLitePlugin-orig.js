@@ -21,6 +21,7 @@
     		console.log(e.message);
     	});
     	this.open(this.openSuccess, this.openError);
+    	return;
     }
 
     SQLitePlugin.prototype.transaction = function(fn, error, success) 
@@ -51,7 +52,7 @@
 			PhoneGap.exec(null, null, "SQLitePlugin", "close", [this.dbPath]);
 		}
     };
-    return SQLitePlugin;
+    //return SQLitePlugin;
   //})();
 	root.SQLitePlugin = SQLitePlugin;
 	get_unique_id = function()
@@ -83,6 +84,7 @@
 		console.log("root.SQLitePluginTransaction - this.trans_id:"+this.trans_id);
 		transaction_queue[this.trans_id] = [];
 		transaction_callback_queue[this.trans_id] = new Object();
+		return;
 	}
     SQLitePluginTransaction.queryCompleteCallback = function(transId, queryId, result) 
     {
@@ -247,7 +249,7 @@
 		transaction_callback_queue[this.trans_id]['error'] = errorcb;
 		PhoneGap.exec(null, null, "SQLitePlugin", "executeSqlBatch", transaction_queue[this.trans_id]);
     };
-    return SQLitePluginTransaction;
+    //return SQLitePluginTransaction;
   //})();
 	root.SQLitePluginTransaction = SQLitePluginTransaction;
 
