@@ -63,18 +63,18 @@ This is a pretty strong test: first we create a table and add a single entry, th
 **Android version only:** In this case, the same transaction in the first executeSql() callback is being reused to run executeSql() again. This version will only work on the Android version and only if you make the following patch:
 
     diff --git a/Android/assets/www/SQLitePlugin.js b/Android/assets/www/SQLitePlugin.js
-    index 6349baf..8a3c50f 100755
+    index 51761ea..10b7595 100755
     --- a/Android/assets/www/SQLitePlugin.js
     +++ b/Android/assets/www/SQLitePlugin.js
-    @@ -78,7 +78,7 @@
-     		//this.optimization_no_nested_callbacks: default is true.
-     		//if set to true large batches of queries within a transaction will be much faster but 
-     		//you will lose the ability to do multi level nesting of executeSQL callbacks
-    -		this.optimization_no_nested_callbacks = true;
-    +		this.optimization_no_nested_callbacks = false;
-     		console.log("root.SQLitePluginTransaction - this.trans_id:"+this.trans_id);
-     		transaction_queue[this.trans_id] = [];
-     		transaction_callback_queue[this.trans_id] = new Object();
+    @@ -59,7 +59,7 @@
+         this.trans_id = get_unique_id();
+         this.__completed = false;
+         this.__submitted = false;
+    -    this.optimization_no_nested_callbacks = true;
+    +    this.optimization_no_nested_callbacks = false;
+         console.log("SQLitePluginTransaction - this.trans_id:" + this.trans_id);
+         transaction_queue[this.trans_id] = [];
+         transaction_callback_queue[this.trans_id] = new Object();
 
 This case is (currently) not supported by the iOS version
 
