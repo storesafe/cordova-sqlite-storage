@@ -1,4 +1,6 @@
-(->
+do ->
+  root = @
+
   SQLitePlugin = (dbPath, openSuccess, openError) ->
     console.log "SQLitePlugin"
     @dbPath = dbPath
@@ -13,26 +15,11 @@
     )
     @open @openSuccess, @openError
     return
-  SQLitePluginTransaction = (dbPath) ->
-    console.log "root.SQLitePluginTransaction.SQLitePluginTransaction"
-    @dbPath = dbPath
-    @executes = []
-    @trans_id = get_unique_id()
-    @__completed = false
-    @__submitted = false
-    @optimization_no_nested_callbacks = true
-    console.log "root.SQLitePluginTransaction - this.trans_id:" + @trans_id
-    transaction_queue[@trans_id] = []
-    transaction_callback_queue[@trans_id] = new Object()
-    return
-  root = undefined
-  root = this
-  console.log "root.SQLitePlugin"
+
+
   SQLitePlugin::openDBs = {}
   SQLitePlugin::transaction = (fn, error, success) ->
-    console.log "SQLitePlugin.prototype.transaction"
-    t = undefined
-    t = new root.SQLitePluginTransaction(@dbPath)
+    t = new SQLitePluginTransaction(@dbPath)
     fn t
     t.complete success, error
 
@@ -51,7 +38,6 @@
 
       PhoneGap.exec null, null, "SQLitePlugin", "close", [ @dbPath ]
 
-  root.SQLitePlugin = SQLitePlugin
   get_unique_id = ->
     id = new Date().getTime()
     id2 = new Date().getTime()
@@ -59,8 +45,23 @@
     id2 + "000"
 
   transaction_queue = []
-  transaction_callback_queue = new Object()
-  console.log "root.SQLitePluginTransaction"
+  transaction_callback_queue = {}
+
+  SQLitePluginTransaction = (dbPath) ->
+    @dbPath = dbPath
+    @executes = []
+    @trans_id = get_unique_id()
+    @__completed = false
+    @__submitted = false
+    # this.optimization_no_nested_callbacks: default is true.
+    # if set to true large batches of queries within a transaction will be much faster but 
+    # you will lose the ability to do multi level nesting of executeSQL callbacks
+    @optimization_no_nested_callbacks = true
+    console.log "SQLitePluginTransaction - this.trans_id:" + @trans_id
+    transaction_queue[@trans_id] = []
+    transaction_callback_queue[@trans_id] = new Object()
+    return
+
   SQLitePluginTransaction.queryCompleteCallback = (transId, queryId, result) ->
     console.log "SQLitePluginTransaction.queryCompleteCallback"
     query = null
@@ -182,12 +183,10 @@
     transaction_callback_queue[@trans_id]["error"] = errorcb
     PhoneGap.exec null, null, "SQLitePlugin", "executeSqlBatch", transaction_queue[@trans_id]
 
+  # required for callbacks:
   root.SQLitePluginTransaction = SQLitePluginTransaction
-  root.sqlitePlugin = openDatabase: (dbPath, version, displayName, estimatedSize, creationCallback, errorCallback) ->
-    version = null  unless version?
-    displayName = null  unless displayName?
-    estimatedSize = 0  unless estimatedSize?
-    creationCallback = null  unless creationCallback?
-    errorCallback = null  unless errorCallback?
-    new SQLitePlugin(dbPath, creationCallback, errorCallback)
-).call this
+
+  root.sqlitePlugin =
+    openDatabase: (dbPath, version, displayName, estimatedSize, creationCallback, errorCallback) ->
+      new SQLitePlugin(dbPath, creationCallback, errorCallback)
+
