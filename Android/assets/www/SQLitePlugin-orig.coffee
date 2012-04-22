@@ -12,6 +12,7 @@
       console.log e.message
     )
     @open @openSuccess, @openError
+    return
   SQLitePluginTransaction = (dbPath) ->
     console.log "root.SQLitePluginTransaction.SQLitePluginTransaction"
     @dbPath = dbPath
@@ -23,6 +24,7 @@
     console.log "root.SQLitePluginTransaction - this.trans_id:" + @trans_id
     transaction_queue[@trans_id] = []
     transaction_callback_queue[@trans_id] = new Object()
+    return
   root = undefined
   root = this
   console.log "root.SQLitePlugin"
@@ -49,7 +51,6 @@
 
       PhoneGap.exec null, null, "SQLitePlugin", "close", [ @dbPath ]
 
-  return SQLitePlugin
   root.SQLitePlugin = SQLitePlugin
   get_unique_id = ->
     id = new Date().getTime()
@@ -181,7 +182,6 @@
     transaction_callback_queue[@trans_id]["error"] = errorcb
     PhoneGap.exec null, null, "SQLitePlugin", "executeSqlBatch", transaction_queue[@trans_id]
 
-  return SQLitePluginTransaction
   root.SQLitePluginTransaction = SQLitePluginTransaction
   root.sqlitePlugin = openDatabase: (dbPath, version, displayName, estimatedSize, creationCallback, errorCallback) ->
     version = null  unless version?
