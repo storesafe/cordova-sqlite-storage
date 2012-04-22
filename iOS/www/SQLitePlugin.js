@@ -14,24 +14,19 @@
 // js2coffee SQLitePlugin.js > SQLitePlugin-new.coffee
 // (will lose the comments)
 
+if (!window.Cordova) window.Cordova = window.cordova;
+
 (function() {
   var SQLitePlugin, SQLitePluginTransaction, callbacks, cbref, counter, getOptions, root;
-
-  if (!window.Cordova) window.Cordova = window.cordova;
-
   root = this;
-
   callbacks = {};
-
   counter = 0;
-
   cbref = function(hash) {
     var f;
     f = "cb" + (counter += 1);
     callbacks[f] = hash;
     return f;
   };
-
   getOptions = function(opts, success, error) {
     var cb, has_cbs;
     cb = {};
@@ -47,7 +42,6 @@
     if (has_cbs) opts.callback = cbref(cb);
     return opts;
   };
-
   SQLitePlugin = function(dbPath, openSuccess, openError) {
     this.dbPath = dbPath;
     this.openSuccess = openSuccess;
@@ -63,9 +57,7 @@
     });
     this.open(this.openSuccess, this.openError);
   };
-
   SQLitePlugin.prototype.openDBs = {};
-
   SQLitePlugin.handleCallback = function(ref, type, obj) {
     var _ref;
     if ((_ref = callbacks[ref]) != null) {
@@ -74,7 +66,6 @@
     callbacks[ref] = null;
     delete callbacks[ref];
   };
-
   SQLitePlugin.prototype.executeSql = function(sql, values, success, error) {
     var opts;
     if (!sql) throw new Error("Cannot executeSql without a query");
@@ -84,14 +75,12 @@
     }, success, error);
     Cordova.exec("SQLitePlugin.backgroundExecuteSql", opts);
   };
-
   SQLitePlugin.prototype.transaction = function(fn, error, success) {
     var t;
     t = new SQLitePluginTransaction(this.dbPath);
     fn(t);
     return t.complete(success, error);
   };
-
   SQLitePlugin.prototype.open = function(success, error) {
     var opts;
     if (!(this.dbPath in this.openDBs)) {
@@ -102,7 +91,6 @@
       Cordova.exec("SQLitePlugin.open", opts);
     }
   };
-
   SQLitePlugin.prototype.close = function(success, error) {
     var opts;
     if (this.dbPath in this.openDBs) {
@@ -113,12 +101,10 @@
       Cordova.exec("SQLitePlugin.close", opts);
     }
   };
-
   SQLitePluginTransaction = function(dbPath) {
     this.dbPath = dbPath;
     this.executes = [];
   };
-
   SQLitePluginTransaction.prototype.executeSql = function(sql, values, success, error) {
     var errorcb, successcb, txself;
     txself = this;
@@ -151,7 +137,6 @@
       path: this.dbPath
     }, successcb, errorcb));
   };
-
   SQLitePluginTransaction.prototype.complete = function(success, error) {
     var begin_opts, commit_opts, errorcb, executes, opts, successcb, txself;
     if (this.__completed) throw new Error("Transaction already run");
@@ -178,7 +163,6 @@
     Cordova.exec("SQLitePlugin.backgroundExecuteSqlBatch", opts);
     this.executes = [];
   };
-
   root.sqlitePlugin = {
     openDatabase: function(dbPath, version, displayName, estimatedSize, creationCallback, errorCallback) {
       if (version == null) version = null;
@@ -190,5 +174,4 @@
     },
     handleCallback: SQLitePlugin.handleCallback
   };
-
-}).call(this);
+})();
