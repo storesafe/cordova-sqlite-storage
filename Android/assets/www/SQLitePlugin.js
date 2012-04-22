@@ -1,7 +1,7 @@
 (function() {
 	var root;
 	root = this;
-	root.SQLitePlugin = (function() {
+	//root.SQLitePlugin = (function() {
 	console.log("root.SQLitePlugin");
     SQLitePlugin.prototype.openDBs = {};
 
@@ -52,7 +52,8 @@
 		}
     };
     return SQLitePlugin;
-  })();
+  //})();
+	root.SQLitePlugin = SQLitePlugin;
 	get_unique_id = function()
 	{
 		var id = new Date().getTime();
@@ -65,7 +66,7 @@
 	}
 	transaction_queue = [];
 	transaction_callback_queue = new Object();
-	root.SQLitePluginTransaction = (function() {
+	//root.SQLitePluginTransaction = (function() {
 	console.log("root.SQLitePluginTransaction");
 	function SQLitePluginTransaction(dbPath) 
 	{
@@ -247,7 +248,8 @@
 		PhoneGap.exec(null, null, "SQLitePlugin", "executeSqlBatch", transaction_queue[this.trans_id]);
     };
     return SQLitePluginTransaction;
-  })();
+  //})();
+	root.SQLitePluginTransaction = SQLitePluginTransaction;
 
   root.sqlitePlugin = {
     openDatabase: function(dbPath, version, displayName, estimatedSize, creationCallback, errorCallback) {
