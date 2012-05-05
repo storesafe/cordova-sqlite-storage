@@ -42,7 +42,8 @@
             console.log("insertId: " + res.insertId + " -- probably 1");
             console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
 
-            equal(res.rowsAffected, 1, "res rows affected");
+            ok(!!res.insertId, "Valid res.insertId"); /* reproduce issue #18 on Android */
+            equal(res.rowsAffected, 1, "res rows affected"); /* broken in Android version */
 
             db.transaction(function(tx) {
               start(1);
