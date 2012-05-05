@@ -117,6 +117,7 @@ Installing
  - `Android`: new version by @marcucio, with improvements for batch transaction processing, testing seems OK
  - `Lawnchair-adapter`: Lawnchair adaptor for both iOS and Android, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
  - `test-www`: simple testing in `index.html` using qunit 1.5.0
+ - `xtra-DroidGap-test`: old DroidGap version, no improvements for batch processing, simple version to test some fixes before adding to `Android` version
 
 SQLite library
 --------------
