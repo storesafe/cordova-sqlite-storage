@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" href="lib/qunit-1.5.0.css" />
 
-    <script type="text/javascript" charset="utf-8" src="phonegap-1.1.0.js"></script>
+    <script type="text/javascript" charset="utf-8" src="cordova-1.7.0.js"></script>
     <script type="text/javascript" charset="utf-8" src="SQLitePlugin.js"></script>
     <script type="text/javascript" charset="utf-8" src="lib/qunit-1.5.0.js"></script>
 
@@ -24,7 +24,7 @@
 
         ok(!!db, "db object");
 
-        stop(1);
+        stop(4);
 
         db.transaction(function(tx) {
 
@@ -35,12 +35,27 @@
           tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
 
           tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
+            start(1);
+            ok(!!tx, "tx object");
+            ok(!!res, "res object");
+
             console.log("insertId: " + res.insertId + " -- probably 1");
             console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
+
+            equal(res.rowsAffected, 1, "res rows affected");
+
             db.transaction(function(tx) {
+              start(1);
+              ok(!!tx, "second tx object");
+
               tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
+                start(1);
+
                 console.log("res.rows.length: " + res.rows.length + " -- should be 1");
                 console.log("res.rows.item(0).cnt: " + res.rows.item(0).cnt + " -- should be 1");
+
+                equal(res.rows.length, 1, "res rows length");
+                equal(res.rows.item(0).cnt, 1, "select count");
               });
             });
 
@@ -50,6 +65,7 @@
         });
 
       });
+
     }
 
     </script>
