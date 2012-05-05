@@ -24,7 +24,7 @@
 
         ok(!!db, "db object");
 
-        stop(4);
+        stop(6);
 
         db.transaction(function(tx) {
 
@@ -42,8 +42,8 @@
             console.log("insertId: " + res.insertId + " -- probably 1");
             console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
 
-            ok(!!res.insertId, "Valid res.insertId"); /* reproduce issue #18 on Android */
-            equal(res.rowsAffected, 1, "res rows affected"); /* broken in Android version */
+            ok(!!res.insertId, "Valid res.insertId"); /* issue #18 (Android) */
+            equal(res.rowsAffected, 1, "res rows affected"); /* issue #18 (Android) */
 
             db.transaction(function(tx) {
               start(1);
@@ -58,6 +58,23 @@
                 equal(res.rows.length, 1, "res rows length");
                 equal(res.rows.item(0).cnt, 1, "select count");
               });
+
+              tx.executeSql("UPDATE test_table SET data_num = ? WHERE data_num = 100", [101], function(tx, res) {
+                start(1);
+
+                console.log("UPDATE rowsAffected: " + res.rowsAffected + " -- should be 1");
+
+                equal(res.rowsAffected, 1, "UPDATE res rows affected"); /* issue #18 (Android) */
+              });
+
+              tx.executeSql("DELETE FROM test_table WHERE data LIKE 'tes%'", [], function(tx, res) {
+                start(1);
+
+                console.log("DELETE rowsAffected: " + res.rowsAffected + " -- should be 1");
+
+                equal(res.rowsAffected, 1, "DELETE res rows affected"); /* issue #18 (Android) */
+              });
+
             });
 
           }, function(e) {
