@@ -24,7 +24,7 @@
 
         ok(!!db, "db object");
 
-        stop(6);
+        stop(9);
 
         db.transaction(function(tx) {
 
@@ -49,7 +49,7 @@
               start(1);
               ok(!!tx, "second tx object");
 
-              tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
+              tx.executeSql("SELECT count(id) as cnt from test_table;", [], function(tx, res) {
                 start(1);
 
                 console.log("res.rows.length: " + res.rows.length + " -- should be 1");
@@ -57,6 +57,13 @@
 
                 equal(res.rows.length, 1, "res rows length");
                 equal(res.rows.item(0).cnt, 1, "select count");
+              });
+
+              tx.executeSql("SELECT data_num from test_table;", [], function(tx, res) {
+                start(1);
+
+                equal(res.rows.length, 1, "SELECT res rows length");
+                equal(res.rows.item(0).data_num, 100, "SELECT data_num");
               });
 
               tx.executeSql("UPDATE test_table SET data_num = ? WHERE data_num = 100", [101], function(tx, res) {
@@ -67,12 +74,25 @@
                 equal(res.rowsAffected, 1, "UPDATE res rows affected"); /* issue #22 (Android) */
               });
 
+              tx.executeSql("SELECT data_num from test_table;", [], function(tx, res) {
+                start(1);
+
+                equal(res.rows.length, 1, "SELECT res rows length");
+                equal(res.rows.item(0).data_num, 101, "SELECT data_num");
+              });
+
               tx.executeSql("DELETE FROM test_table WHERE data LIKE 'tes%'", [], function(tx, res) {
                 start(1);
 
                 console.log("DELETE rowsAffected: " + res.rowsAffected + " -- should be 1");
 
                 equal(res.rowsAffected, 1, "DELETE res rows affected"); /* issue #22 (Android) */
+              });
+
+              tx.executeSql("SELECT data_num from test_table;", [], function(tx, res) {
+                start(1);
+
+                equal(res.rows.length, 0, "SELECT res rows length");
               });
 
             });
