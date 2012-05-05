@@ -166,8 +166,15 @@ public class SQLitePlugin extends Plugin {
 	 *            Transaction id
 	 */
 	public void executeSql(String query, String[] params, String tx_id) {
+		String cmd = query.toLowerCase();
+
 		try {
-			if (isDDL(query)) {
+			if (cmd.startsWith("insert")) {
+				SQLiteStatement myStatement = this.myDb.compileStatement(query);
+				long insertId = myStatement.executeInsert();
+				this.sendJavascript("dddb.completeQuery('" + tx_id + "', [{'insertId':'" + insertId + 
+					"', 'rowsAffected':'1'}]);");
+			} else if (isDDL(query)) {
 				this.myDb.execSQL(query);
 				this.sendJavascript("dddb.completeQuery('" + tx_id + "', '');");
 			}
@@ -240,9 +247,7 @@ public class SQLitePlugin extends Plugin {
 		}
 
 		// Let JavaScript know that there are no more rows
-		this.sendJavascript("dddb.completeQuery('" + tx_id + "', " + result
-				+ ");");
-
+		this.sendJavascript("dddb.completeQuery('" + tx_id + "', " + result + ");");
 	}
 
 }
