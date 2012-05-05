@@ -1,0 +1,46 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta name="viewport" content="width=320; user-scalable=no" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+
+    <link rel="stylesheet" href="master.css" type="text/css" media="screen" title="no title" charset="utf-8">
+
+    <script type="text/javascript" charset="utf-8" src="phonegap-1.1.0.js"></script>
+    <script type="text/javascript" charset="utf-8" src="SQLitePlugin.js"></script>
+
+    <script>
+
+    document.addEventListener("deviceready", onDeviceReady, false);
+
+    function onDeviceReady() {
+      var db = window.sqlitePlugin.openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
+
+      db.transaction(function(tx) {
+        tx.executeSql('DROP TABLE IF EXISTS test_table');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
+
+        tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
+          console.log("insertId: " + res.insertId + " -- probably 1");
+          console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
+          db.transaction(function(tx) {
+            tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
+              console.log("res.rows.length: " + res.rows.length + " -- should be 1");
+              console.log("res.rows.item(0).cnt: " + res.rows.item(0).cnt + " -- should be 1");
+            });
+          });
+
+        }, function(e) {
+          console.log("ERROR: " + e.message);
+        });
+      });
+    }
+
+    </script>
+
+  </head>
+  <body>
+    <h1>Welcome to PhoneGap!</h1>
+    <h2>this file is located at assets/www/index.html</h2>
+  </body>
+</html>
