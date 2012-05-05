@@ -77,6 +77,12 @@ DDB.prototype.completeQuery = function(id, data) {
                 var r = new DDB_Result();
                 r.rows.resultSet = data;
                 r.rows.length = data.length;
+                if (!!data.length && data.length > 0 && !!data[0].insertId) {
+                  r.insertId = data[0].insertId;
+                }
+                if (!!data.length && data.length > 0 && !!data[0].rowsAffected) {
+                  r.rowsAffected = data[0].rowsAffected;
+                }
                 try {
                     if (typeof query.successCallback === 'function') {
                         query.successCallback(query.tx, r);
