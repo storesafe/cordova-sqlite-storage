@@ -4,19 +4,37 @@
     <meta name="viewport" content="width=320; user-scalable=no" />
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
 
-    <link rel="stylesheet" href="master.css" type="text/css" media="screen" title="no title" charset="utf-8">
+    <title>SQLitePlugin test</title>
+
+    <link rel="stylesheet" href="lib/qunit-1.5.0.css" />
 
     <script type="text/javascript" charset="utf-8" src="phonegap-1.1.0.js"></script>
     <script type="text/javascript" charset="utf-8" src="SQLitePlugin.js"></script>
+    <script type="text/javascript" charset="utf-8" src="lib/qunit-1.5.0.js"></script>
 
     <script>
 
     document.addEventListener("deviceready", onDeviceReady, false);
 
     function onDeviceReady() {
+
+      test( "hello test", function() {
+        ok( 1 == "1", "Passed!" );
+      });
+
+      test( "db transaction test", function() {
+
       var db = window.sqlitePlugin.openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
 
+      ok(!!db, "db object");
+
+      stop(1);
+
       db.transaction(function(tx) {
+
+        start(1);
+        ok(!!tx, "tx object");
+
         tx.executeSql('DROP TABLE IF EXISTS test_table');
         tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
 
@@ -34,13 +52,14 @@
           console.log("ERROR: " + e.message);
         });
       });
+
+      });
     }
 
     </script>
 
   </head>
   <body>
-    <h1>Welcome to PhoneGap!</h1>
-    <h2>this file is located at assets/www/index.html</h2>
+    <div id="qunit"></div>
   </body>
 </html>
