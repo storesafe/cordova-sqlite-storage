@@ -115,6 +115,8 @@ Installing
 
  - `iOS` for Cordova 1.5/1.6 iOS
  - `Android`: new version by @marcucio, with improvements for batch transaction processing, testing seems OK
+ - `Lawnchair-adapter`: Lawnchair adaptor for both iOS and Android, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
+ - `test-www`: simple testing in `index.html` using qunit 1.5.0
 
 SQLite library
 --------------
@@ -145,6 +147,12 @@ Insert this in there:
 
     <key>SQLitePlugin</key>
     <string>SQLitePlugin</string>
+
+# Unit test(s)
+
+For issue #4, unit testing is done in `test-www/index.html`. To run the test(s) yourself please copy `test-www/index.html` along with the `test-www/lib` subdirectory into the `www` directory of your iOS or Android Cordova project and make sure you have SQLitePlugin completely installed (JS, Objective-C or Java, and plugin registered).
+
+In case problems I hope the unit tests can help us to reproduce, demonstrate, and verify the solution of these problems.
 
 Extra Usage
 ===========
