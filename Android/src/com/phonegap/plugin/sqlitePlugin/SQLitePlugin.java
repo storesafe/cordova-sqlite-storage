@@ -10,8 +10,8 @@ package com.phonegap.plugin.sqlitePlugin;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.phonegap.api.Plugin;
-import com.phonegap.api.PluginResult;
+import org.apache.cordova.api.Plugin;
+import org.apache.cordova.api.PluginResult;
 import android.database.Cursor;
 import android.database.sqlite.*;
 
