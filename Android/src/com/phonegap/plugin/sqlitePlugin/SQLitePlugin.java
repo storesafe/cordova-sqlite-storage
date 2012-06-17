@@ -49,7 +49,7 @@ public class SQLitePlugin extends Plugin {
 			// TODO: Do we want to allow a user to do this, since they could get
 			// to other app databases?
 			if (action.equals("setStorage")) {
-				this.setStorage(args.getString(0));
+				this.setStorage(args.getString(0), false);
 			} else if (action.equals("open")) {
 				this.openDatabase(args.getString(0), "1",
 						"database", 5000000);
