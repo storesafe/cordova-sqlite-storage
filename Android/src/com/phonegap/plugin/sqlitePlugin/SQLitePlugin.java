@@ -136,18 +136,26 @@ public class SQLitePlugin extends Plugin {
 	 * For example, application "com.phonegap.demo.Demo" would save its database
 	 * files in "/data/data/com.phonegap.demo/databases/" directory.
 	 *
+	 * When a file is downloaded using a FileTransfer it is placed on the sd 
+	 * memory card. 
+	 * 
 	 * @param appPackage
 	 *            The application package.
+	 * @param preLoaded
+	 * 	      If db was loaded with project or downloaded externally
 	 */
-	public void setStorage(String appPackage) {
-		this.path = "/data/data/" + appPackage + "/databases/";
+	public void setStorage(String appPackage, Boolean preLoaded) {
+		if(preLoaded)
+			this.path = "/data/data/" + appPackage + "/databases/";
+		else
+			this.path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/";
 	}
 
 	/**
 	 * Open database.
 	 *
 	 * @param db
-	 *            The name of the database
+	 *            The name of the database including its extension.
 	 * @param version
 	 *            The version
 	 * @param display_name
@@ -167,10 +175,10 @@ public class SQLitePlugin extends Plugin {
 		if (this.path == null) {
 			Package pack = this.ctx.getClass().getPackage();
 			String appPackage = pack.getName();
-			this.setStorage(appPackage);
+			this.setStorage(appPackage, false);
 		}
 
-		this.dbName = this.path + db + ".db";
+		this.dbName = this.path + db;
 		this.myDb = SQLiteDatabase.openOrCreateDatabase(this.dbName, null);
 	}
 
