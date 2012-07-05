@@ -11,6 +11,10 @@ Android version by @marcucio and @chbrody
 
 API changes by @chbrody
 
+# Project Status
+
+Unfortunately @chbrody will have very little time to support this fork project due to some upcoming professional commitments. This fork will be kept open for bug fixes only. I would like to ask for all bug fixes to be well tested, with unit testing if at all possible, in decent coding style and submitted as pull requests. I have opened [issue #33](https://github.com/chbrody/Cordova-SQLitePlugin/issues/33) for discussion about the future of this project and finding a new home.
+
 Highlights
 ----------
 
