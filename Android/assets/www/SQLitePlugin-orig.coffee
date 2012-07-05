@@ -28,7 +28,7 @@ do ->
     opts = undefined
     unless @dbPath of @openDBs
       @openDBs[@dbPath] = true
-      PhoneGap.exec success, error, "SQLitePlugin", "open", [ @dbPath ]
+      cordova.exec success, error, "SQLitePlugin", "open", [ @dbPath ]
 
   SQLitePlugin::close = (success, error) ->
     console.log "SQLitePlugin.prototype.close"
@@ -36,7 +36,7 @@ do ->
     if @dbPath of @openDBs
       delete @openDBs[@dbPath]
 
-      PhoneGap.exec null, null, "SQLitePlugin", "close", [ @dbPath ]
+      cordova.exec null, null, "SQLitePlugin", "close", [ @dbPath ]
 
   get_unique_id = ->
     id = new Date().getTime()
@@ -181,7 +181,7 @@ do ->
         error txself, res
     transaction_callback_queue[@trans_id]["success"] = successcb
     transaction_callback_queue[@trans_id]["error"] = errorcb
-    PhoneGap.exec null, null, "SQLitePlugin", "executeSqlBatch", transaction_queue[@trans_id]
+    cordova.exec null, null, "SQLitePlugin", "executeSqlBatch", transaction_queue[@trans_id]
 
   # required for callbacks:
   root.SQLitePluginTransaction = SQLitePluginTransaction
