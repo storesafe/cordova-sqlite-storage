@@ -159,7 +159,7 @@ Insert this in there:
 
 ## Android
 
-These installation instructions are based on the Android example project from PhoneGap/Cordova ~2.0.0~ 1.9.0. For your first time please unzip the PhoneGap ~2.0~ 1.9.0 zipball and use the `lib/android/example` subdirectory.
+These installation instructions are based on the Android example project from PhoneGap/Cordova ~~2.0.0~~ 1.9.0. For your first time please unzip the PhoneGap ~~2.0~~ 1.9.0 zipball and use the `lib/android/example` subdirectory.
 
  - Install Android/assets/www/SQLitePlugin.js from this repository into assets/www subdirectory
  - Install Android/src/com/phonegap/plugin/sqlitePlugin/SQLitePlugin.java from this repository into src/com/phonegap/plugin/sqlitePlugin subdirectory
