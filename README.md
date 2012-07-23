@@ -127,15 +127,15 @@ Installing
  - `test-www`: simple testing in `index.html` using qunit 1.5.0
  - `xtra-DroidGap-test`: old DroidGap version, no improvements for batch processing, simple version to test some fixes before adding to `Android` version
 
-SQLite library
---------------
+## iOS
+
+### SQLite library
 
 In the Project "Build Phases" tab, select the _first_ "Link Binary with Libraries" dropdown menu and add the library `libsqlite3.dylib` or `libsqlite3.0.dylib`.
 
 **NOTE:** In the "Build Phases" there can be multiple "Link Binary with Libraries" dropdown menus. Please select the first one otherwise it will not work.
 
-SQLite Plugin
--------------
+### SQLite Plugin
 
 Drag .h and .m files into your project's Plugins folder (in xcode) -- I always
 just have "Create references" as the option selected.
@@ -156,6 +156,31 @@ Insert this in there:
 
     <key>SQLitePlugin</key>
     <string>SQLitePlugin</string>
+
+## Android
+
+These installation instructions are based on the Android example project from PhoneGap/Cordova ~2.0.0~ 1.9.0. For your first time please unzip the PhoneGap ~2.0~ 1.9.0 zipball and use the `lib/android/example` subdirectory.
+
+ - Install Android/assets/www/SQLitePlugin.js from this repository into assets/www subdirectory
+ - Install Android/src/com/phonegap/plugin/sqlitePlugin/SQLitePlugin.java from this repository into src/com/phonegap/plugin/sqlitePlugin subdirectory
+ - Add the plugin element <plugin name="SQLitePlugin" value="com.phonegap.plugin.sqlitePlugin"/> to ~res/xml/config.xml~ res/xml/plugins.xml
+
+Sample change to res/xml/plugins.xml:
+
+    --- plugins.xml.old	2012-07-23 17:29:56.000000000 +0200
+    +++ res/xml/plugins.xml	2012-07-23 17:30:27.000000000 +0200
+    @@ -18,6 +18,7 @@
+            under the License.
+     -->
+     <plugins>
+    +    <plugin name="SQLitePlugin" value="com.phonegap.plugin.SQLitePlugin"/>
+         <plugin name="App" value="org.apache.cordova.App"/>
+         <plugin name="Geolocation" value="org.apache.cordova.GeoBroker"/>
+         <plugin name="Device" value="org.apache.cordova.Device"/>
+
+### Quick test
+
+TBD
 
 # Unit test(s)
 
