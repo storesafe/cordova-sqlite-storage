@@ -11,9 +11,13 @@ Android version by @marcucio and @chbrody
 
 API changes by @chbrody
 
-# Project Status
+## Project Status
 
-Unfortunately @chbrody will have very little time to support this fork project due to some upcoming professional commitments. This fork will be kept open for bug fixes only. I would like to ask for all bug fixes to be well tested, with unit testing if at all possible, in decent coding style and submitted as pull requests. I have opened [issue #33](https://github.com/chbrody/Cordova-SQLitePlugin/issues/33) for discussion about the future of this project and finding a new home.
+This fork will be kept open to concentrate on bug fixing and documentation improvements. Bug fixes in the form of pull requests that are well tested, with unit testing if at all possible, and in decent coding style will be highly appreciated. Due to professional commitments @chbrody cannot guarantee any level of support at this time.
+
+## Project future
+
+See [issue #33](https://github.com/chbrody/Cordova-SQLitePlugin/issues/33): to provide the maximum benefits of customization it should be possible to build with a replacement of the sqlite C library itself, and also make extensions such as SQLCipher possible (#32). This enhancement would solve #22 for all versions of the Android API. @chbrody expects to concentrate on the Android version using the NDK.
 
 Highlights
 ----------

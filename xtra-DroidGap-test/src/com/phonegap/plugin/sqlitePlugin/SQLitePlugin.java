@@ -174,6 +174,10 @@ public class SQLitePlugin extends Plugin {
 				long insertId = myStatement.executeInsert();
 				this.sendJavascript("dddb.completeQuery('" + tx_id + "', [{'insertId':'" + insertId + 
 					"', 'rowsAffected':'1'}]);");
+			} else if (cmd.startsWith("update") || cmd.startsWith("delete")) {
+				SQLiteStatement myStatement = this.myDb.compileStatement(query);
+				int rowsAffected = myStatement.executeUpdateDelete();
+				this.sendJavascript("dddb.completeQuery('" + tx_id + "', [{'rowsAffected':'" + rowsAffected + "'}]);");
 			} else if (isDDL(query)) {
 				this.myDb.execSQL(query);
 				this.sendJavascript("dddb.completeQuery('" + tx_id + "', '');");
