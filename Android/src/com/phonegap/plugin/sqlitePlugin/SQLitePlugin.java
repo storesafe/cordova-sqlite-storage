@@ -12,6 +12,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.apache.cordova.api.Plugin;
 import org.apache.cordova.api.PluginResult;
+
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.*;
 
@@ -145,10 +147,12 @@ public class SQLitePlugin extends Plugin {
 	 * 	      If db was loaded with project or downloaded externally
 	 */
 	public void setStorage(String appPackage, Boolean preLoaded) {
+/**
 		if(preLoaded)
 			this.path = "/data/data/" + appPackage + "/databases/";
 		else
 			this.path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/";
+**/
 	}
 
 	/**
@@ -173,9 +177,12 @@ public class SQLitePlugin extends Plugin {
 
 		// If no database path, generate from application package
 		if (this.path == null) {
+/**
 			Package pack = this.ctx.getClass().getPackage();
 			String appPackage = pack.getName();
 			this.setStorage(appPackage, false);
+**/
+			this.path = this.cordova.getActivity().getApplicationContext().getDir("database", Context.MODE_PRIVATE).getPath();
 		}
 
 		this.dbName = this.path + db;

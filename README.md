@@ -163,7 +163,7 @@ These installation instructions are based on the Android example project from Ph
 
  - Install Android/assets/www/SQLitePlugin.js from this repository into assets/www subdirectory
  - Install Android/src/com/phonegap/plugin/sqlitePlugin/SQLitePlugin.java from this repository into src/com/phonegap/plugin/sqlitePlugin subdirectory
- - Add the plugin element <plugin name="SQLitePlugin" value="com.phonegap.plugin.sqlitePlugin"/> to ~res/xml/config.xml~ res/xml/plugins.xml
+ - Add the plugin element <plugin name="SQLitePlugin" value="com.phonegap.plugin.sqlitePlugin"/> to ~~res/xml/config.xml~~ res/xml/plugins.xml
 
 Sample change to res/xml/plugins.xml:
 
