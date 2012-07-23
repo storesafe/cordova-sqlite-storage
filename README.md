@@ -163,24 +163,61 @@ These installation instructions are based on the Android example project from Ph
 
  - Install Android/assets/www/SQLitePlugin.js from this repository into assets/www subdirectory
  - Install Android/src/com/phonegap/plugin/sqlitePlugin/SQLitePlugin.java from this repository into src/com/phonegap/plugin/sqlitePlugin subdirectory
- - Add the plugin element <plugin name="SQLitePlugin" value="com.phonegap.plugin.sqlitePlugin"/> to ~~res/xml/config.xml~~ res/xml/plugins.xml
+ - Add the plugin element <plugin name="SQLitePlugin" value="com.phonegap.plugin.sqlitePlugin.SQLitePlugin"/> to ~~res/xml/config.xml~~ res/xml/plugins.xml
 
 Sample change to res/xml/plugins.xml:
 
     --- plugins.xml.old	2012-07-23 17:29:56.000000000 +0200
-    +++ res/xml/plugins.xml	2012-07-23 17:30:27.000000000 +0200
+    +++ res/xml/plugins.xml	2012-07-23 22:30:00.000000000 +0200
     @@ -18,6 +18,7 @@
             under the License.
      -->
      <plugins>
-    +    <plugin name="SQLitePlugin" value="com.phonegap.plugin.SQLitePlugin"/>
+    +    <plugin name="SQLitePlugin" value="com.phonegap.plugin.sqlitePlugin.SQLitePlugin"/>
          <plugin name="App" value="org.apache.cordova.App"/>
          <plugin name="Geolocation" value="org.apache.cordova.GeoBroker"/>
          <plugin name="Device" value="org.apache.cordova.Device"/>
 
 ### Quick test
 
-TBD
+Make a change like this to index.html to run a small test program to verify the installation is OK:
+
+    --- index.html.old	2012-07-23 22:05:21.000000000 +0200
+    +++ assets/www/index.html	2012-07-23 22:43:42.000000000 +0200
+    @@ -24,7 +24,32 @@
+         <title>PhoneGap</title>
+           <link rel="stylesheet" href="master.css" type="text/css" media="screen" title="no title">
+           <script type="text/javascript" charset="utf-8" src="cordova-1.9.0.js"></script>
+    -      <script type="text/javascript" charset="utf-8" src="main.js"></script>
+    +      <script type="text/javascript" charset="utf-8" src="SQLitePlugin.js"></script>
+    +
+    +      <script type="text/javascript" charset="utf-8">
+    +      document.addEventListener("deviceready", onDeviceReady, false);
+    +      function onDeviceReady() {
+    +        var db = window.sqlitePlugin.openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
+    +
+    +        db.transaction(function(tx) {
+    +          tx.executeSql('DROP TABLE IF EXISTS test_table');
+    +          tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
+    +
+    +          tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
+    +
+    +          db.transaction(function(tx) {
+    +              tx.executeSql("SELECT data_num from test_table;", [], function(tx, res) {
+    +                console.log("res.rows.length: " + res.rows.length + " -- should be 1");
+    +                alert("res.rows.item(0).data_num: " + res.rows.item(0).data_num + " -- should be 100");
+    +              });
+    +            });
+    +
+    +          }, function(e) {
+    +            console.log("ERROR: " + e.message);
+    +          });
+    +        });
+    +      }
+    +      </script>
+     
+       </head>
+       <body onload="init();" id="stage" class="theme">
 
 # Unit test(s)
 
