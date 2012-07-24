@@ -17,15 +17,19 @@ This fork will be kept open to concentrate on bug fixing and documentation impro
 
 ## Project future
 
-See [issue #33](https://github.com/chbrody/Cordova-SQLitePlugin/issues/33): to provide the maximum benefits of customization it should be possible to build with a replacement of the sqlite C library itself, and also make extensions such as SQLCipher possible (#32). This enhancement would solve #22 for all versions of the Android API. @chbrody expects to concentrate on the Android version using the NDK.
+See [issue #33](https://github.com/chbrody/Cordova-SQLitePlugin/issues/33): to provide the maximum benefits of customization it should be possible to build with a replacement of the sqlite C library itself, and also make extensions such as SQLCipher possible ([#32](https://github.com/chbrody/Cordova-SQLitePlugin/issues/32)). This enhancement would solve [#22](https://github.com/chbrody/Cordova-SQLitePlugin/issues/22) for all versions of the Android API. @chbrody expects to concentrate on the Android version using the NDK.
 
-Highlights
-----------
+## Highlights
 
  - Keeps sqlite database in a known user data location that will be backed up by iCloud on iOS
  - Drop-in replacement for HTML5 SQL API, the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
  - Both Android and iOS versions are designed with batch processing optimizations
  - Future: API to configure the desired database location
+
+## Known limitations
+
+ - Versioning functionality is missing ([#35](https://github.com/chbrody/Cordova-SQLitePlugin/issues/35))
+ - API will block app execution upon large batching (workaround: add application logic to break large batches into smaller batch transactions)
 
 Usage
 =====
