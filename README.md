@@ -167,15 +167,15 @@ These installation instructions are based on the Android example project from Ph
 
  - Install Android/assets/www/SQLitePlugin.js from this repository into assets/www subdirectory
  - Install Android/src/com/phonegap/plugin/sqlitePlugin/SQLitePlugin.java from this repository into src/com/phonegap/plugin/sqlitePlugin subdirectory
- - Add the plugin element <plugin name="SQLitePlugin" value="com.phonegap.plugin.sqlitePlugin.SQLitePlugin"/> to ~~res/xml/config.xml~~ res/xml/plugins.xml
+ - Add the plugin element <plugin name="SQLitePlugin" value="com.phonegap.plugin.sqlitePlugin.SQLitePlugin"/> to res/xml/config.xml for Cordova 2.0+ (res/xml/plugins.xml for Cordova pre-2.0)
 
-Sample change to res/xml/plugins.xml:
+Sample change to res/xml/config.xml:
 
-    --- plugins.xml.old	2012-07-23 17:29:56.000000000 +0200
-    +++ res/xml/plugins.xml	2012-07-23 22:30:00.000000000 +0200
-    @@ -18,6 +18,7 @@
-            under the License.
-     -->
+    --- config.xml.old	2012-07-24 19:44:49.000000000 +0200
+    +++ res/xml/config.xml	2012-07-24 19:39:43.000000000 +0200
+    @@ -32,6 +32,7 @@
+         <log level="DEBUG"/>
+         <preference name="useBrowserHistory" value="false" />
      <plugins>
     +    <plugin name="SQLitePlugin" value="com.phonegap.plugin.sqlitePlugin.SQLitePlugin"/>
          <plugin name="App" value="org.apache.cordova.App"/>
@@ -191,7 +191,7 @@ Make a change like this to index.html to run a small test program to verify the 
     @@ -24,7 +24,32 @@
          <title>PhoneGap</title>
            <link rel="stylesheet" href="master.css" type="text/css" media="screen" title="no title">
-           <script type="text/javascript" charset="utf-8" src="cordova-1.9.0.js"></script>
+           <script type="text/javascript" charset="utf-8" src="cordova-2.0.0.js"></script>
     -      <script type="text/javascript" charset="utf-8" src="main.js"></script>
     +      <script type="text/javascript" charset="utf-8" src="SQLitePlugin.js"></script>
     +
