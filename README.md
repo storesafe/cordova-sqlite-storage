@@ -125,7 +125,7 @@ Installing
 
 **NOTE:** There are now the following trees:
 
- - `iOS` for Cordova 1.5/1.6 iOS
+ - `iOS` for Cordova 1.8 iOS (@chbrody TBD test for Cordova 2.0.0)
  - `Android`: new version by @marcucio, with improvements for batch transaction processing, testing seems OK
  - `Lawnchair-adapter`: Lawnchair adaptor for both iOS and Android, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
  - `test-www`: simple testing in `index.html` using qunit 1.5.0
@@ -163,7 +163,7 @@ Insert this in there:
 
 ## Android
 
-These installation instructions are based on the Android example project from PhoneGap/Cordova ~~2.0.0~~ 1.9.0. For your first time please unzip the PhoneGap ~~2.0~~ 1.9.0 zipball and use the `lib/android/example` subdirectory.
+These installation instructions are based on the Android example project from PhoneGap/Cordova 2.0.0. For your first time please unzip the PhoneGap 2.0 zipball and use the `lib/android/example` subdirectory.
 
  - Install Android/assets/www/SQLitePlugin.js from this repository into assets/www subdirectory
  - Install Android/src/com/phonegap/plugin/sqlitePlugin/SQLitePlugin.java from this repository into src/com/phonegap/plugin/sqlitePlugin subdirectory
