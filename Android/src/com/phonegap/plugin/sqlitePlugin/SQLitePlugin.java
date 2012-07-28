@@ -23,8 +23,6 @@ public class SQLitePlugin extends Plugin {
 
 	// Data Definition Language
 	SQLiteDatabase myDb = null; // Database object
-	//String path 		= null; // Database path
-	//String dbName 		= null; // Database name
 
 	/**
 	 * Constructor.
@@ -48,11 +46,7 @@ public class SQLitePlugin extends Plugin {
 		String result = "";
 
 		try {
-			// TODO: Do we want to allow a user to do this, since they could get
-			// to other app databases?
-			if (action.equals("setStorage")) {
-				this.setStorage(args.getString(0), false);
-			} else if (action.equals("open")) {
+			if (action.equals("open")) {
 				this.openDatabase(args.getString(0), "1",
 						"database", 5000000);
 				//this.openDatabase(args.getString(0), args.getString(1),
@@ -131,31 +125,6 @@ public class SQLitePlugin extends Plugin {
 	// --------------------------------------------------------------------------
 
 	/**
-	 * Set the application package for the database. Each application saves its
-	 * database files in a directory with the application package as part of the
-	 * file name.
-	 *
-	 * For example, application "com.phonegap.demo.Demo" would save its database
-	 * files in "/data/data/com.phonegap.demo/databases/" directory.
-	 *
-	 * When a file is downloaded using a FileTransfer it is placed on the sd 
-	 * memory card. 
-	 * 
-	 * @param appPackage
-	 *            The application package.
-	 * @param preLoaded
-	 * 	      If db was loaded with project or downloaded externally
-	 */
-	public void setStorage(String appPackage, Boolean preLoaded) {
-/**
-		if(preLoaded)
-			this.path = "/data/data/" + appPackage + "/databases/";
-		else
-			this.path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/";
-**/
-	}
-
-	/**
 	 * Open database.
 	 *
 	 * @param db
@@ -174,27 +143,6 @@ public class SQLitePlugin extends Plugin {
 		if (this.myDb != null) {
 			this.myDb.close();
 		}
-
-/**
-		// If no database path, generate from application package
-		if (this.path == null) {
-			Package pack = this.ctx.getClass().getPackage();
-			String appPackage = pack.getName();
-			this.setStorage(appPackage, false);
-			// GONE:
-			//this.path = this.cordova.getActivity().getApplicationContext().getDir("database", Context.MODE_PRIVATE).getPath();
-		}
-**/
-
-		//this.dbName = this.path + db;
-
-		//this.dbName = this.ctx.getDatabasePath(db);
-		//this.myDb = SQLiteDatabase.openOrCreateDatabase(this.dbName, null);
-
-		//this.myDb = this.ctx.openOrCreateDatabase(db + ".db", Context.MODE_PRIVATE, null);
-
-		//File dp = this.ctx.getDatabasePath(db);
-		//this.myDb = SQLiteDatabase.openOrCreateDatabase(this.dbName, null);
 
 		this.myDb = this.cordova.getActivity().getApplicationContext().openOrCreateDatabase(db + ".db", Context.MODE_PRIVATE, null);
 	}
