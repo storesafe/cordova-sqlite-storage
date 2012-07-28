@@ -23,8 +23,8 @@ public class SQLitePlugin extends Plugin {
 
 	// Data Definition Language
 	SQLiteDatabase myDb = null; // Database object
-	String path 		= null; // Database path
-	String dbName 		= null; // Database name
+	//String path 		= null; // Database path
+	//String dbName 		= null; // Database name
 
 	/**
 	 * Constructor.
@@ -175,18 +175,28 @@ public class SQLitePlugin extends Plugin {
 			this.myDb.close();
 		}
 
+/**
 		// If no database path, generate from application package
 		if (this.path == null) {
-/**
 			Package pack = this.ctx.getClass().getPackage();
 			String appPackage = pack.getName();
 			this.setStorage(appPackage, false);
-**/
-			this.path = this.cordova.getActivity().getApplicationContext().getDir("database", Context.MODE_PRIVATE).getPath();
+			// GONE:
+			//this.path = this.cordova.getActivity().getApplicationContext().getDir("database", Context.MODE_PRIVATE).getPath();
 		}
+**/
 
-		this.dbName = this.path + db;
-		this.myDb = SQLiteDatabase.openOrCreateDatabase(this.dbName, null);
+		//this.dbName = this.path + db;
+
+		//this.dbName = this.ctx.getDatabasePath(db);
+		//this.myDb = SQLiteDatabase.openOrCreateDatabase(this.dbName, null);
+
+		//this.myDb = this.ctx.openOrCreateDatabase(db + ".db", Context.MODE_PRIVATE, null);
+
+		//File dp = this.ctx.getDatabasePath(db);
+		//this.myDb = SQLiteDatabase.openOrCreateDatabase(this.dbName, null);
+
+		this.myDb = this.cordova.getActivity().getApplicationContext().openOrCreateDatabase(db + ".db", Context.MODE_PRIVATE, null);
 	}
 
 	public void executeSqlBatch(String[] queryarr, String[][] paramsarr, String[] queryIDs, String tx_id) {
