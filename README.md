@@ -297,3 +297,12 @@ writeJavascript on a timer, however there was only a barely noticeable
 performance gain.  So I took it out, not worth it.  However there is a
 massive performance gain by batching on the client-side to minimize
 PhoneGap.exec calls using the transaction support.
+
+
+### Other notes from @davibe:
+
+I used the plugin to store very large documents (1 or 2 Mb each) and found
+that the main bottleneck was passing data from javascript to native code.
+Running PhoneGap.exec took some seconds while completely blocking my
+application.
+
