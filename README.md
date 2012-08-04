@@ -182,6 +182,12 @@ Sample change to res/xml/config.xml:
          <plugin name="Geolocation" value="org.apache.cordova.GeoBroker"/>
          <plugin name="Device" value="org.apache.cordova.Device"/>
 
+Before building for the first time, you have to update the project with the desired version of the Android SDK with a command like:
+
+    android update project --path $(pwd) --target 15
+
+(assume SDK 15, use the correct desired Android SDK number here)
+
 ### Quick test
 
 Make a change like this to index.html to run a small test program to verify the installation is OK:
