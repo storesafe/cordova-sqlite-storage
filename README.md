@@ -206,8 +206,8 @@ Make a change like this to index.html to run a small test program to verify the 
     +          tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
     +
     +          tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
-    +          console.log("insertId: " + res.insertId + " -- probably 1");
-    +          alert("insertId: " + res.insertId + " -- should be valid"); // reproduce #18/#38
+    +          console.log("insertId: " + res.insertId + " -- probably 1"); // check #18/#38 is fixed
+    +          alert("insertId: " + res.insertId + " -- should be valid");
     +
     +            db.transaction(function(tx) {
     +              tx.executeSql("SELECT data_num from test_table;", [], function(tx, res) {
