@@ -158,10 +158,19 @@ public class SQLitePlugin extends Plugin {
 				query = queryarr[i];
 				params = paramsarr[i];
 				query_id = queryIDs[i];
-				Cursor myCursor = this.myDb.rawQuery(query, params);
-				
-				this.processResults(myCursor, query_id, tx_id);
-				myCursor.close();
+				if (query.toLowerCase().startsWith("insert")) {
+					SQLiteStatement myStatement = this.myDb.compileStatement(query);
+					long insertId = myStatement.executeInsert();
+
+					//String result = "[{'insertId':'" + insertId + "'}]";
+					String result = "{'insertId':'" + insertId + "'}";
+					this.sendJavascript("SQLitePluginTransaction.queryCompleteCallback('" + tx_id + "','" + query_id + "', " + result + ");");
+				} else {
+					Cursor myCursor = this.myDb.rawQuery(query, params);
+
+					this.processResults(myCursor, query_id, tx_id);
+					myCursor.close();
+				}
 			}
 			this.myDb.setTransactionSuccessful();
 		}
