@@ -186,14 +186,15 @@ Sample change to res/xml/config.xml:
 
 Make a change like this to index.html to run a small test program to verify the installation is OK:
 
-    --- index.html.old	2012-07-23 22:05:21.000000000 +0200
-    +++ assets/www/index.html	2012-07-23 22:43:42.000000000 +0200
-    @@ -24,7 +24,32 @@
+    --- index.html.old	2012-08-04 14:40:07.000000000 +0200
+    +++ assets/www/index.html	2012-08-04 14:36:05.000000000 +0200
+    @@ -24,7 +24,35 @@
          <title>PhoneGap</title>
            <link rel="stylesheet" href="master.css" type="text/css" media="screen" title="no title">
            <script type="text/javascript" charset="utf-8" src="cordova-2.0.0.js"></script>
     -      <script type="text/javascript" charset="utf-8" src="main.js"></script>
     +      <script type="text/javascript" charset="utf-8" src="SQLitePlugin.js"></script>
+    +
     +
     +      <script type="text/javascript" charset="utf-8">
     +      document.addEventListener("deviceready", onDeviceReady, false);
@@ -205,8 +206,10 @@ Make a change like this to index.html to run a small test program to verify the 
     +          tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
     +
     +          tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
+    +          console.log("insertId: " + res.insertId + " -- probably 1");
+    +          alert("insertId: " + res.insertId + " -- should be valid"); // reproduce #18/#38
     +
-    +          db.transaction(function(tx) {
+    +            db.transaction(function(tx) {
     +              tx.executeSql("SELECT data_num from test_table;", [], function(tx, res) {
     +                console.log("res.rows.length: " + res.rows.length + " -- should be 1");
     +                alert("res.rows.item(0).data_num: " + res.rows.item(0).data_num + " -- should be 100");
