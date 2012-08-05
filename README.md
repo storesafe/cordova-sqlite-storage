@@ -13,7 +13,7 @@ API changes by @chbrody
 
 ## Announcements
 
- - [Android version tested with SQLCipher for database encryption](mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova.html), working with a few changes to SQLitePlugin.java
+ - [Android version tested with SQLCipher for database encryption](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova.html), working with a few changes to SQLitePlugin.java
 
 ## Project Status
 
