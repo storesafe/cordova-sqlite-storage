@@ -11,6 +11,10 @@ Android version by @marcucio and @chbrody
 
 API changes by @chbrody
 
+## Announcements
+
+ - [Android version tested with SQLCipher for database encryption](mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova.html), working with a few changes to SQLitePlugin.java
+
 ## Project Status
 
 This fork will be kept open to concentrate on bug fixing and documentation improvements. Bug fixes in the form of pull requests that are well tested, with unit testing if at all possible, and in decent coding style will be highly appreciated. Due to professional commitments @chbrody cannot guarantee any level of support at this time.
@@ -24,7 +28,6 @@ See [issue #33](https://github.com/chbrody/Cordova-SQLitePlugin/issues/33): to p
  - Keeps sqlite database in a known user data location that will be backed up by iCloud on iOS
  - Drop-in replacement for HTML5 SQL API, the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
  - Both Android and iOS versions are designed with batch processing optimizations
- - Future: API to configure the desired database location
 
 ## Known limitations
 
