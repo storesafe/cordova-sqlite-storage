@@ -10,6 +10,9 @@ package com.phonegap.plugin.sqlitePlugin;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.lang.Number;
+
 import org.apache.cordova.api.Plugin;
 import org.apache.cordova.api.PluginResult;
 
@@ -56,11 +59,11 @@ public class SQLitePlugin extends Plugin {
 			{
 				String[] 	queries 	= null;
 				String[] 	queryIDs 	= null;
-				String[][] 	params 		= null;
 				String 		trans_id 	= null;
 				JSONObject 	a 			= null;
 				JSONArray 	jsonArr 	= null;
 				int 		paramLen	= 0;
+				JSONArray[] 	jsonparams 	= null;
 				
 				if (args.isNull(0)) {
 					queries = new String[0];
@@ -68,7 +71,8 @@ public class SQLitePlugin extends Plugin {
 					int len = args.length();
 					queries = new String[len];
 					queryIDs = new String[len];
-					params = new String[len][1];
+					jsonparams = new JSONArray[len];
+
 					for (int i = 0; i < len; i++) 
 					{
 						a 			= args.getJSONObject(i);
@@ -77,17 +81,11 @@ public class SQLitePlugin extends Plugin {
 						trans_id 	= a.getString("trans_id");
 						jsonArr 	= a.getJSONArray("params");
 						paramLen	= jsonArr.length();
-						params[i] 	= new String[paramLen];
-						
-						for (int j = 0; j < paramLen; j++) {
-							params[i][j] = jsonArr.getString(j);
-							if(params[i][j] == "null")
-								params[i][j] = "";
-						}
+						jsonparams[i] 	= jsonArr;
 					}
 				}
 				if(trans_id != null)
-					this.executeSqlBatch(queries, params, queryIDs, trans_id);
+					this.executeSqlBatch(queries, jsonparams, queryIDs, trans_id);
 				else
 					Log.v("error", "null trans_id");
 			}
@@ -147,26 +145,43 @@ public class SQLitePlugin extends Plugin {
 		this.myDb = this.cordova.getActivity().getApplicationContext().openOrCreateDatabase(db + ".db", Context.MODE_PRIVATE, null);
 	}
 
-	public void executeSqlBatch(String[] queryarr, String[][] paramsarr, String[] queryIDs, String tx_id) {
+	public void executeSqlBatch(String[] queryarr, JSONArray[] jsonparams, String[] queryIDs, String tx_id) {
 		try {
 			this.myDb.beginTransaction();
 			String query = "";
 			String query_id = "";
-			String[] params;
 			int len = queryarr.length;
 			for (int i = 0; i < len; i++) {
 				query = queryarr[i];
-				params = paramsarr[i];
 				query_id = queryIDs[i];
-				/** issue #18: fix needed to bind the parameters to the SQLiteStatement
-				if (query.toLowerCase().startsWith("insert")) {
+				if (query.toLowerCase().startsWith("insert") && jsonparams != null) {
 					SQLiteStatement myStatement = this.myDb.compileStatement(query);
+					for (int j = 0; j < jsonparams[i].length(); j++) {
+						if (jsonparams[i].get(j) instanceof Float || jsonparams[i].get(j) instanceof Double ) {
+							myStatement.bindDouble(j + 1, jsonparams[i].getDouble(j));
+						} else if (jsonparams[i].get(j) instanceof Number) {
+							myStatement.bindLong(j + 1, jsonparams[i].getLong(j));
+						} else {
+							myStatement.bindString(j + 1, jsonparams[i].getString(j));
+						}
+					}
 					long insertId = myStatement.executeInsert();
 
-					//String result = "[{'insertId':'" + insertId + "'}]";
 					String result = "{'insertId':'" + insertId + "'}";
 					this.sendJavascript("SQLitePluginTransaction.queryCompleteCallback('" + tx_id + "','" + query_id + "', " + result + ");");
-				} else **/ {
+				} else {
+					String[] params = null;
+
+					if (jsonparams != null) {
+						params = new String[jsonparams[i].length()];
+
+						for (int j = 0; j < jsonparams[i].length(); j++) {
+							params[j] = jsonparams[i].getString(j);
+							if(params[j] == "null") // XXX better check
+								params[j] = "";
+						}
+					}
+
 					Cursor myCursor = this.myDb.rawQuery(query, params);
 
 					this.processResults(myCursor, query_id, tx_id);
@@ -176,6 +191,10 @@ public class SQLitePlugin extends Plugin {
 			this.myDb.setTransactionSuccessful();
 		}
 		catch (SQLiteException ex) {
+			ex.printStackTrace();
+			Log.v("executeSqlBatch", "SQLitePlugin.executeSql(): Error=" +  ex.getMessage());
+			this.sendJavascript("SQLitePluginTransaction.txErrorCallback('" + tx_id + "', '"+ex.getMessage()+"');");
+		} catch (JSONException ex) {
 			ex.printStackTrace();
 			Log.v("executeSqlBatch", "SQLitePlugin.executeSql(): Error=" +  ex.getMessage());
 			this.sendJavascript("SQLitePluginTransaction.txErrorCallback('" + tx_id + "', '"+ex.getMessage()+"');");
