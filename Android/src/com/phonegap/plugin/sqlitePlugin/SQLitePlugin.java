@@ -158,6 +158,7 @@ public class SQLitePlugin extends Plugin {
 				query = queryarr[i];
 				params = paramsarr[i];
 				query_id = queryIDs[i];
+				/** issue #18: fix needed to bind the parameters to the SQLiteStatement
 				if (query.toLowerCase().startsWith("insert")) {
 					SQLiteStatement myStatement = this.myDb.compileStatement(query);
 					long insertId = myStatement.executeInsert();
@@ -165,7 +166,7 @@ public class SQLitePlugin extends Plugin {
 					//String result = "[{'insertId':'" + insertId + "'}]";
 					String result = "{'insertId':'" + insertId + "'}";
 					this.sendJavascript("SQLitePluginTransaction.queryCompleteCallback('" + tx_id + "','" + query_id + "', " + result + ");");
-				} else {
+				} else **/ {
 					Cursor myCursor = this.myDb.rawQuery(query, params);
 
 					this.processResults(myCursor, query_id, tx_id);
