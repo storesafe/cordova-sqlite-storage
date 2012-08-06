@@ -12,15 +12,15 @@
 #import <Foundation/Foundation.h>
 #import "sqlite3.h"
 
-#ifdef CORDOVA_FRAMEWORK
+//#ifdef CORDOVA_FRAMEWORK
 #import <CORDOVA/CDVPlugin.h>
 #import <CORDOVA/JSONKit.h>
 #import <CORDOVA/CDVFile.h>
-#else
-#import "CDVPlugin.h"
-#import "JSONKit.h"
-#import "CDVFile.h"
-#endif
+//#else
+//#import "CDVPlugin.h"
+//#import "JSONKit.h"
+//#import "CDVFile.h"
+//#endif
 
 #import "AppDelegate.h"
 
