@@ -13,6 +13,7 @@ API changes by @chbrody
 
 ## Announcements
 
+ - Working for Cordova 2.0, both iOS and Android
  - [Android version tested with SQLCipher for database encryption](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova.html), working with a few changes to SQLitePlugin.java
 
 ## Project Status
@@ -134,7 +135,7 @@ Installing
 
 **NOTE:** There are now the following trees:
 
- - `iOS` for Cordova 1.8 iOS (@chbrody TBD test for Cordova 2.0.0)
+ - `iOS` for Cordova 2.0 iOS
  - `Android`: new version by @marcucio, with improvements for batch transaction processing, testing seems OK
  - `Lawnchair-adapter`: Lawnchair adaptor for both iOS and Android, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
  - `test-www`: simple testing in `index.html` using qunit 1.5.0
