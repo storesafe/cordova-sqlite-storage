@@ -17,7 +17,7 @@ API changes by @chbrody
 
 ## Project Status
 
-This fork will be kept open to concentrate on bug fixing and documentation improvements. Bug fixes in the form of pull requests that are well tested, with unit testing if at all possible, and in decent coding style will be highly appreciated. Due to professional commitments @chbrody cannot guarantee any level of support at this time.
+This fork will be kept open to concentrate on bug fixing and documentation improvements. Bug fixes in the form of pull requests that are well tested, with unit testing if at all possible, and in decent coding style will be highly appreciated.
 
 ## Project future
 
@@ -28,6 +28,12 @@ See [issue #33](https://github.com/chbrody/Cordova-SQLitePlugin/issues/33): to p
  - Keeps sqlite database in a known user data location that will be backed up by iCloud on iOS
  - Drop-in replacement for HTML5 SQL API, the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
  - Both Android and iOS versions are designed with batch processing optimizations
+
+## Apps using Cordova-SQLitePlugin
+
+ - [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/) (iOS and Android)
+
+I would like to gather some more real-world examples, please send to chris.brody@gmail.com and I will post them.
 
 ## Known limitations
 
