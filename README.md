@@ -13,6 +13,7 @@ API changes by @chbrody
 
 ## Announcements
 
+ - [Android version with rebuilding SQLCipher from source](http://mobileapphelp.blogspot.com/2012/08/rebuilding-sqlitesqlcipher-for-android.html)
  - Working for Cordova 2.0, both iOS and Android
  - [Android version tested with SQLCipher for database encryption](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova.html), working with a few changes to SQLitePlugin.java
 
