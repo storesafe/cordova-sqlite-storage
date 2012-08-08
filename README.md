@@ -13,6 +13,7 @@ API changes by @chbrody
 
 ## Announcements
 
+ - [iOS version working with the SQLCipher encryption library](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova-ios.html)
  - [Android version with rebuilding SQLCipher from source](http://mobileapphelp.blogspot.com/2012/08/rebuilding-sqlitesqlcipher-for-android.html)
  - Working for Cordova 2.0, both iOS and Android
  - [Android version tested with SQLCipher for database encryption](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova.html), working with a few changes to SQLitePlugin.java
@@ -41,6 +42,7 @@ I would like to gather some more real-world examples, please send to chris.brody
 
  - Versioning functionality is missing ([#35](https://github.com/chbrody/Cordova-SQLitePlugin/issues/35))
  - API will block app execution upon large batching (workaround: add application logic to break large batches into smaller batch transactions)
+ - `rowsAffected` field in the response to UPDATE and DELETE is not working for the Android version ([#22](https://github.com/chbrody/Cordova-SQLitePlugin/issues/22))
 
 Usage
 =====
@@ -248,6 +250,10 @@ Make a change like this to index.html to run a small test program to verify the 
 For issue #4, unit testing is done in `test-www/index.html`. To run the test(s) yourself please copy `test-www/index.html` along with the `test-www/lib` subdirectory into the `www` directory of your iOS or Android Cordova project and make sure you have SQLitePlugin completely installed (JS, Objective-C or Java, and plugin registered).
 
 In case problems I hope the unit tests can help us to reproduce, demonstrate, and verify the solution of these problems.
+
+# Loading pre-populated database file
+
+From [#10](https://github.com/chbrody/Cordova-SQLitePlugin/issues/10): [excellent directions for the Android version](http://www.raymondcamden.com/index.cfm/2012/7/27/Guest-Blog-Post-Shipping-a-populated-SQLite-DB-with-PhoneGap) have been posted recently, directions needed for iOS version. [General directions for Cordova/PhoneGap](http://gauravstomar.blogspot.com/2011/08/prepopulate-sqlite-in-phonegap.html) had been posted but seems out-of-date and does not specifically apply for this plugin.
 
 Extra Usage
 ===========
