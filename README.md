@@ -174,6 +174,26 @@ Insert this in there:
     <key>SQLitePlugin</key>
     <string>SQLitePlugin</string>
 
+### Cordova pre-2.0
+
+For Cordova pre-2.0 iOS, please make the following patch to iOS/Plugins/SQLitePlugin.h:
+
+    --- iOS/Plugins/SQLitePlugin.h	2012-08-10 08:55:21.000000000 +0200
+    +++ iOS/Plugins/SQLitePlugin.h.old	2012-08-10 08:55:08.000000000 +0200
+    @@ -12,8 +12,13 @@
+     #import <Foundation/Foundation.h>
+     #import "sqlite3.h"
+     
+    +#ifdef CORDOVA_FRAMEWORK
+     #import <CORDOVA/CDVPlugin.h>
+     #import <CORDOVA/JSONKit.h>
+    +#else
+    +#import "CDVPlugin.h"
+    +#import "JSONKit.h"
+    +#endif
+     
+     #import "AppDelegate.h"
+
 ## Android
 
 These installation instructions are based on the Android example project from PhoneGap/Cordova 2.0.0. For your first time please unzip the PhoneGap 2.0 zipball and use the `lib/android/example` subdirectory.
