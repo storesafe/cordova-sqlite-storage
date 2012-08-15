@@ -146,6 +146,8 @@ Installing
 
 ## iOS
 
+**WARNING:** Please make sure that Automatic Reference Counting (ARC) is disabled for your project or you will get a number of build errors.
+
 ### SQLite library
 
 In the Project "Build Phases" tab, select the _first_ "Link Binary with Libraries" dropdown menu and add the library `libsqlite3.dylib` or `libsqlite3.0.dylib`.
@@ -193,6 +195,23 @@ For Cordova pre-2.0 iOS, please make the following patch to iOS/Plugins/SQLitePl
     +#endif
      
      #import "AppDelegate.h"
+
+### Cordova post-2.0
+
+For Cordova post-2.0 iOS, please make the following patch to iOS/Plugins/SQLitePlugin.m due to [Apache Cordova CB-1000](https://issues.apache.org/jira/browse/CB-1000):
+
+    diff --git a/iOS/Plugins/SQLitePlugin.m b/iOS/Plugins/SQLitePlugin.m
+    index 444a78b..6ab2ec4 100644
+    --- a/iOS/Plugins/SQLitePlugin.m
+    +++ b/iOS/Plugins/SQLitePlugin.m
+    @@ -225,7 +225,7 @@
+             if (hasInsertId) {
+                 [resultSet setObject:insertId forKey:@"insertId"];
+             }
+    -        [self respond:callback withString:[resultSet JSONString] withType:@"success"];
+    +        [self respond:callback withString:[resultSet cdvjk_JSONString] withType:@"success"];
+         }
+     }
 
 ## Android
 
