@@ -35,6 +35,7 @@ See [issue #33](https://github.com/chbrody/Cordova-SQLitePlugin/issues/33): to p
 ## Apps using Cordova-SQLitePlugin
 
  - [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/) (iOS and Android)
+ - [Larkwire](http://www.larkwire.com/): Learn bird songs the fun way (iOS, Android version is coming)
 
 I would like to gather some more real-world examples, please send to chris.brody@gmail.com and I will post them.
 
