@@ -225,7 +225,7 @@
         if (hasInsertId) {
             [resultSet setObject:insertId forKey:@"insertId"];
         }
-        [self respond:callback withString:[resultSet JSONString] withType:@"success"];
+        [self respond:callback withString:[resultSet cdvjk_JSONString] withType:@"success"];
     }
 }
 
