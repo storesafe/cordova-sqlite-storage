@@ -214,7 +214,7 @@
                 break;
                 
             default:
-                errMsg = "SQL statement error";
+                errMsg = [[NSString stringWithFormat:@"sqlite3 error code %i", result] UTF8String];
                 keepGoing = NO;
         }
     }

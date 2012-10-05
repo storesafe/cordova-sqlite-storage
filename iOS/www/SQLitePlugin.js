@@ -129,7 +129,7 @@ if (!window.Cordova) window.Cordova = window.cordova;
     this.error = error;
     this.success = success;
     this.executes = [];
-    this.executeSql('BEGIN');
+    this.executeSql('BEGIN', [], null, function(tx, err){ throw new Error("unable to begin transaction: " + err.message) });
   };
   SQLitePluginTransaction.prototype.start = function(){
     try {
@@ -165,7 +165,7 @@ if (!window.Cordova) window.Cordova = window.cordova;
   };
   SQLitePluginTransaction.prototype.handleStatementFailure = function(handler, response) {
     if (!handler){
-      throw new Error("a statement with no error handler failed")
+      throw new Error("a statement with no error handler failed: " + response.message)
     }
     if (handler(this, response)){
       throw new Error("a statement error callback did not return false");
@@ -225,10 +225,10 @@ if (!window.Cordova) window.Cordova = window.cordova;
 	tx.error(txFailure)
       }
     }
-    function failed(err){
+    function failed(tx, err){
       tx.db.startNextTransaction();
       if (tx.error){
-	tx.error("error while trying to roll back: " + err.message)
+	tx.error(new Error("error while trying to roll back: " + err.message))
       }
     }
     this.executeSql('ROLLBACK', [], succeeded, failed);
@@ -245,10 +245,10 @@ if (!window.Cordova) window.Cordova = window.cordova;
 	tx.success()
       }
     }
-    function failed(err){
+    function failed(tx, err){
       tx.db.startNextTransaction();
       if (tx.error){
-	tx.error("error while trying to commit: " + err.message)
+	tx.error(new Error("error while trying to commit: " + err.message))
       }
     }
     this.executeSql('COMMIT', [], succeeded, failed);
