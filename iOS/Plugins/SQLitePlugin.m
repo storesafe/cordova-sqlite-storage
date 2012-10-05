@@ -55,10 +55,18 @@
 {
     NSString *callback = [options objectForKey:@"callback"];
     NSString *dbPath = [self getDBPath:[options objectForKey:@"path"]];
+    NSValue *dbPointer;
 
     if (dbPath == NULL) {
         [self respond:callback withString:@"{ message: 'You must specify database path' }" withType:@"error"];
         return;
+    }
+
+    dbPointer = [openDBs objectForKey:dbPath];
+    if (dbPointer != NULL) {
+      NSLog(@"Reusing existing database connection");
+      [self respond:callback withString: @"{ message: 'Database opened' }" withType:@"success"];
+      return;
     }
     
     sqlite3 *db;
@@ -71,7 +79,7 @@
         return;
     }
     
-    NSValue *dbPointer = [NSValue valueWithPointer:db];
+    dbPointer = [NSValue valueWithPointer:db];
     [openDBs setObject:dbPointer forKey: dbPath];
     [self respond:callback withString: @"{ message: 'Database opened' }" withType:@"success"];
 }
