@@ -68,6 +68,7 @@ if (!window.Cordova) window.Cordova = window.cordova;
     this.open(this.openSuccess, this.openError);
   };
   SQLitePlugin.prototype.openDBs = {};
+  SQLitePlugin.prototype.isSQLitePlugin = true;
   SQLitePlugin.handleCallback = function(ref, type, obj) {
     if (root.sqlitePlugin.DEBUG){
       console.log("handle callback: " + ref + ", " + type + ", " + JSON.stringify(obj));
