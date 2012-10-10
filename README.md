@@ -5,18 +5,18 @@ Native interface to sqlite in a Cordova/PhoneGap plugin, working to follow the H
 
 Created by @joenoon and @davibe
 
-Adapted to Cordova 1.5+ by @coomsie, Cordova 1.6 bugfix by @mineshaftgap
-
 Android version by @marcucio and @chbrody
+
+iOS nested transactions support by @ef4 (Edward Faulkner)
 
 API changes by @chbrody
 
 ## Announcements
 
+ - iOS version working with nested transactions, thanks to Edward Faulkner (@ef4)
+ - Working for Cordova 2.1 iOS
  - [iOS version working with the SQLCipher encryption library](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova-ios.html)
  - [Android version with rebuilding SQLCipher from source](http://mobileapphelp.blogspot.com/2012/08/rebuilding-sqlitesqlcipher-for-android.html)
- - Working for Cordova 2.0, both iOS and Android
- - [Android version tested with SQLCipher for database encryption](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova.html), working with a few changes to SQLitePlugin.java
 
 ## Project Status
 
@@ -44,6 +44,12 @@ I would like to gather some more real-world examples, please send to chris.brody
  - Versioning functionality is missing ([#35](https://github.com/chbrody/Cordova-SQLitePlugin/issues/35))
  - API will block app execution upon large batching (workaround: add application logic to break large batches into smaller batch transactions)
  - `rowsAffected` field in the response to UPDATE and DELETE is not working for the Android version ([#22](https://github.com/chbrody/Cordova-SQLitePlugin/issues/22))
+
+## Other forks
+
+ - iOS enhancements, with extra fixes for console log messages: https://github.com/mineshaftgap/Cordova-SQLitePlugin
+ - iOS nested transactions enhancement from: https://github.com/ef4/Cordova-SQLitePlugin
+ - Original version with old API: https://github.com/davibe/Phonegap-SQLitePlugin
 
 Usage
 =====
@@ -86,7 +92,7 @@ This is a pretty strong test: first we create a table and add a single entry, th
 
 ## Sample with transaction-level nesting
 
-**Android version only:** In this case, the same transaction in the first executeSql() callback is being reused to run executeSql() again. This version will only work on the Android version and only if you make the following patch:
+In this case, the same transaction in the first executeSql() callback is being reused to run executeSql() again. For the Android version please make the following patch:
 
     diff --git a/Android/assets/www/SQLitePlugin.js b/Android/assets/www/SQLitePlugin.js
     index 51761ea..10b7595 100755
@@ -102,7 +108,7 @@ This is a pretty strong test: first we create a table and add a single entry, th
          transaction_queue[this.trans_id] = [];
          transaction_callback_queue[this.trans_id] = new Object();
 
-This case is (currently) not supported by the iOS version
+This case is also supported for iOS due to enhancements by @ef4.
 
     // Wait for Cordova to load
     //
@@ -139,7 +145,7 @@ Installing
 
 **NOTE:** There are now the following trees:
 
- - `iOS` for Cordova 2.0 iOS
+ - `iOS` for Cordova 2.1 iOS
  - `Android`: new version by @marcucio, with improvements for batch transaction processing, testing seems OK
  - `Lawnchair-adapter`: Lawnchair adaptor for both iOS and Android, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
  - `test-www`: simple testing in `index.html` using qunit 1.5.0
@@ -177,9 +183,24 @@ Insert this in there:
     <key>SQLitePlugin</key>
     <string>SQLitePlugin</string>
 
+### Cordova pre-2.1
+
+For Cordova pre-2.1 iOS please make the following change to iOS/Plugins/SQLitePlugin.m:
+
+    --- iOS/Plugins/SQLitePlugin.m	2012-10-10 14:22:05.000000000 +0200
+    +++ iOS/Plugins/SQLitePlugin-old.m	2012-10-10 14:37:32.000000000 +0200
+    @@ -237,7 +237,7 @@
+             if (hasInsertId) {
+                 [resultSet setObject:insertId forKey:@"insertId"];
+             }
+    -        [self respond:callback withString:[resultSet cdvjk_JSONString] withType:@"success"];
+    +        [self respond:callback withString:[resultSet JSONString] withType:@"success"];
+         }
+     }
+
 ### Cordova pre-2.0
 
-For Cordova pre-2.0 iOS, please make the following patch to iOS/Plugins/SQLitePlugin.h:
+In addition, for Cordova pre-2.0 iOS, please make the following patch to iOS/Plugins/SQLitePlugin.h:
 
     --- iOS/Plugins/SQLitePlugin.h	2012-08-10 08:55:21.000000000 +0200
     +++ iOS/Plugins/SQLitePlugin.h.old	2012-08-10 08:55:08.000000000 +0200
