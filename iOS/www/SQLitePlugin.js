@@ -69,7 +69,7 @@ if (!window.Cordova) window.Cordova = window.cordova;
   };
   SQLitePlugin.prototype.openDBs = {};
   SQLitePlugin.prototype.txQueue = [];
-  SQLitePlugin.prototype.isSQLitePlugin = true;
+  SQLitePlugin.prototype.features = { isSQLitePlugin: true };
   SQLitePlugin.handleCallback = function(ref, type, obj) {
     if (root.sqlitePlugin.DEBUG){
       console.log("handle callback: " + ref + ", " + type + ", " + JSON.stringify(obj));
