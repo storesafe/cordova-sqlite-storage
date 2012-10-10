@@ -5,9 +5,9 @@ Native interface to sqlite in a Cordova/PhoneGap plugin, working to follow the H
 
 Created by @joenoon and @davibe
 
-Android version by @marcucio and @chbrody
+Android version by @marcucio and @chbrody, nested transaction callback support by @marcucio
 
-iOS nested transactions support by @ef4 (Edward Faulkner)
+iOS nested transaction callback support by @ef4 (Edward Faulkner)
 
 API changes by @chbrody
 
@@ -92,23 +92,7 @@ This is a pretty strong test: first we create a table and add a single entry, th
 
 ## Sample with transaction-level nesting
 
-In this case, the same transaction in the first executeSql() callback is being reused to run executeSql() again. For the Android version please make the following patch:
-
-    diff --git a/Android/assets/www/SQLitePlugin.js b/Android/assets/www/SQLitePlugin.js
-    index 51761ea..10b7595 100755
-    --- a/Android/assets/www/SQLitePlugin.js
-    +++ b/Android/assets/www/SQLitePlugin.js
-    @@ -59,7 +59,7 @@
-         this.trans_id = get_unique_id();
-         this.__completed = false;
-         this.__submitted = false;
-    -    this.optimization_no_nested_callbacks = true;
-    +    this.optimization_no_nested_callbacks = false;
-         console.log("SQLitePluginTransaction - this.trans_id:" + this.trans_id);
-         transaction_queue[this.trans_id] = [];
-         transaction_callback_queue[this.trans_id] = new Object();
-
-This case is also supported for iOS due to enhancements by @ef4.
+In this case, the same transaction in the first executeSql() callback is being reused to run executeSql() again.
 
     // Wait for Cordova to load
     //
