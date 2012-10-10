@@ -55,10 +55,18 @@
 {
     NSString *callback = [options objectForKey:@"callback"];
     NSString *dbPath = [self getDBPath:[options objectForKey:@"path"]];
+    NSValue *dbPointer;
 
     if (dbPath == NULL) {
         [self respond:callback withString:@"{ message: 'You must specify database path' }" withType:@"error"];
         return;
+    }
+
+    dbPointer = [openDBs objectForKey:dbPath];
+    if (dbPointer != NULL) {
+      NSLog(@"Reusing existing database connection");
+      [self respond:callback withString: @"{ message: 'Database opened' }" withType:@"success"];
+      return;
     }
     
     sqlite3 *db;
@@ -71,7 +79,7 @@
         return;
     }
     
-    NSValue *dbPointer = [NSValue valueWithPointer:db];
+    dbPointer = [NSValue valueWithPointer:db];
     [openDBs setObject:dbPointer forKey: dbPath];
     [self respond:callback withString: @"{ message: 'Database opened' }" withType:@"success"];
 }
@@ -140,7 +148,7 @@
     NSMutableDictionary *entry;
     NSObject *columnValue;
     NSString *columnName;
-    NSString *bindval;
+    NSObject *bindval;
     NSObject *insertId;
     NSObject *rowsAffected;
     
@@ -152,11 +160,15 @@
         errMsg = (char *) sqlite3_errmsg (db);
         keepGoing = NO;
     } else {
-        for (int b = 1; b < query_parts.count; b++) {
-            bindval = [NSString stringWithFormat:@"%@", [query_parts objectAtIndex:b]];
-            sqlite3_bind_text(statement, b, [bindval UTF8String], -1, SQLITE_TRANSIENT);
+      for (int b = 1; b < query_parts.count; b++) {
+        bindval = [query_parts objectAtIndex:b];
+        if ([bindval isEqual:[NSNull null]]){
+          sqlite3_bind_null(statement, b);
+        } else {
+          sqlite3_bind_text(statement, b, [[NSString stringWithFormat:@"%@", bindval] UTF8String], -1, SQLITE_TRANSIENT);
         }
-	}
+      }
+    }
 
     while (keepGoing) {
         result = sqlite3_step (statement);
@@ -210,7 +222,7 @@
                 break;
                 
             default:
-                errMsg = "SQL statement error";
+                errMsg = [[NSString stringWithFormat:@"sqlite3 error code %i", result] UTF8String];
                 keepGoing = NO;
         }
     }
@@ -225,7 +237,7 @@
         if (hasInsertId) {
             [resultSet setObject:insertId forKey:@"insertId"];
         }
-        [self respond:callback withString:[resultSet JSONString] withType:@"success"];
+        [self respond:callback withString:[resultSet cdvjk_JSONString] withType:@"success"];
     }
 }
 
