@@ -13,8 +13,8 @@ API changes by @chbrody
 
 ## Announcements
 
+ - Working for Cordova 2.1 iOS and Android
  - iOS version working with nested transactions, thanks to Edward Faulkner (@ef4)
- - Working for Cordova 2.1 iOS
  - [iOS version working with the SQLCipher encryption library](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova-ios.html)
  - [Android version with rebuilding SQLCipher from source](http://mobileapphelp.blogspot.com/2012/08/rebuilding-sqlitesqlcipher-for-android.html)
 
