@@ -13,6 +13,7 @@ API changes by @chbrody
 
 ## Announcements
 
+ - New [blog posting](http://mobileapphelp.blogspot.com/2012/10/cordova-sqliteplugin-continues-to-show.html) that this Cordova/PhoneGap SQLitePlugin continues to show excellent reliability, compared to the problems described in [CB-1561](https://issues.apache.org/jira/browse/CB-1561) and in [this thread](https://groups.google.com/forum/?fromgroups=#!topic/phonegap/eJTVra33HLo)
  - Working for Cordova 2.1 iOS and Android
  - iOS version working with nested transactions, thanks to Edward Faulkner (@ef4)
  - [iOS version working with the SQLCipher encryption library](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova-ios.html)
