@@ -124,6 +124,13 @@ if (!window.Cordova) window.Cordova = window.cordova;
     }
   };
   SQLitePluginTransaction = function(db, fn, error, success) {
+    if (typeof(fn) != 'function'){
+      // This is consistent with the implementation in Chrome -- it
+      // throws if you pass anything other than a function. This also
+      // prevents us from stalling our txQueue if somebody passes a
+      // false value for fn.
+      throw new Error("transaction expected a function")
+    }
     this.db = db;
     this.fn = fn;
     this.error = error;
