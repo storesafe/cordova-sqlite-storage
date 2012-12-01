@@ -1,5 +1,4 @@
-PhoneGap/Cordova SQLitePlugin
-=============================
+# PhoneGap/Cordova sqlitePlugin - iOS version
 
 Native interface to sqlite in a PhoneGap/Cordova plugin, working to follow the HTML5 Web SQL API as close as possible. **NOTE** that the API is now different from https://github.com/davibe/Phonegap-SQLitePlugin.
 
@@ -7,21 +6,16 @@ Created by @joenoon and @davibe
 
 API changes by @brodyspark (Chris Brody)
 
-Android version by @marcucio and @brodyspark, nested transaction callback support by @marcucio
-
 iOS nested transaction callback support by @ef4 (Edward Faulkner)
 
-License (iOS version): MIT
-License (Android): MIT, Apache
+License: MIT
 
 ## Announcements
 
- - The iOS and Android versions will be split into separate repositories.
+ - The Android version is now split off to [brodyspark / PhoneGap-sqlitePlugin-Android](https://github.com/brodyspark/PhoneGap-sqlitePlugin-Android).
  - New [blog posting](http://mobileapphelp.blogspot.com/2012/10/cordova-sqliteplugin-continues-to-show.html) that this Cordova/PhoneGap SQLitePlugin continues to show excellent reliability, compared to the problems described in [CB-1561](https://issues.apache.org/jira/browse/CB-1561) and in [this thread](https://groups.google.com/forum/?fromgroups=#!topic/phonegap/eJTVra33HLo) and also [this thread](https://groups.google.com/forum/?fromgroups=#!topic/phonegap/Q_jEOSIAxsY)
- - Working for Cordova 2.1 iOS and Android
  - iOS version working with nested transactions, thanks to Edward Faulkner (@ef4)
  - [iOS version working with the SQLCipher encryption library](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova-ios.html)
- - [Android version with rebuilding SQLCipher from source](http://mobileapphelp.blogspot.com/2012/08/rebuilding-sqlitesqlcipher-for-android.html)
 
 ## Project Status
 
@@ -35,12 +29,12 @@ See [issue #33](https://github.com/brodyspark/PhoneGap-sqlitePlugin-iOS/issues/3
 
  - Keeps sqlite database in a known user data location that will be backed up by iCloud on iOS
  - Drop-in replacement for HTML5 SQL API, the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
- - Both Android and iOS versions are designed with batch processing optimizations
+ - batch processing optimizations
 
 ## Apps using PhoneGap/Cordova sqlitePlugin
 
- - [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/) (iOS and Android)
- - [Larkwire](http://www.larkwire.com/): Learn bird songs the fun way (iOS, Android version is coming)
+ - [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/)
+ - [Larkwire](http://www.larkwire.com/): Learn bird songs the fun way
 
 I would like to gather some more real-world examples, please send to chris.brody@gmail.com and I will post them.
 
@@ -48,7 +42,6 @@ I would like to gather some more real-world examples, please send to chris.brody
 
  - Versioning functionality is missing ([#35](https://github.com/brodyspark/PhoneGap-sqlitePlugin-iOS/issues/35))
  - API will block app execution upon large batching (workaround: add application logic to break large batches into smaller batch transactions)
- - `rowsAffected` field in the response to UPDATE and DELETE is not working for the Android version ([#22](https://github.com/brodyspark/PhoneGap-sqlitePlugin-iOS/issues/22))
 
 ## Other forks
 
@@ -135,10 +128,8 @@ Installing
 **NOTE:** There are now the following trees:
 
  - `iOS` for Cordova 2.1 iOS
- - `Android`: new version by @marcucio, with improvements for batch transaction processing, testing seems OK
  - `Lawnchair-adapter`: Lawnchair adaptor for both iOS and Android, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
  - `test-www`: simple testing in `index.html` using qunit 1.5.0
- - `xtra-DroidGap-test`: old DroidGap version, no improvements for batch processing, simple version to test some fixes before adding to `Android` version
 
 ## iOS
 
@@ -211,97 +202,9 @@ In addition, for Cordova pre-2.0 iOS, please make the following patch to iOS/Plu
      
      #import "AppDelegate.h"
 
-### Cordova post-2.0
-
-For Cordova post-2.0 iOS, please make the following patch to iOS/Plugins/SQLitePlugin.m due to [Apache Cordova CB-1000](https://issues.apache.org/jira/browse/CB-1000):
-
-    diff --git a/iOS/Plugins/SQLitePlugin.m b/iOS/Plugins/SQLitePlugin.m
-    index 444a78b..6ab2ec4 100644
-    --- a/iOS/Plugins/SQLitePlugin.m
-    +++ b/iOS/Plugins/SQLitePlugin.m
-    @@ -225,7 +225,7 @@
-             if (hasInsertId) {
-                 [resultSet setObject:insertId forKey:@"insertId"];
-             }
-    -        [self respond:callback withString:[resultSet JSONString] withType:@"success"];
-    +        [self respond:callback withString:[resultSet cdvjk_JSONString] withType:@"success"];
-         }
-     }
-
-## Android
-
-These installation instructions are based on the Android example project from PhoneGap/Cordova 2.0.0. For your first time please unzip the PhoneGap 2.0 zipball and use the `lib/android/example` subdirectory.
-
- - Install Android/assets/www/SQLitePlugin.js from this repository into assets/www subdirectory
- - Install Android/src/com/phonegap/plugin/sqlitePlugin/SQLitePlugin.java from this repository into src/com/phonegap/plugin/sqlitePlugin subdirectory
- - Add the plugin element <plugin name="SQLitePlugin" value="com.phonegap.plugin.sqlitePlugin.SQLitePlugin"/> to res/xml/config.xml for Cordova 2.0+ (res/xml/plugins.xml for Cordova pre-2.0)
-
-Sample change to res/xml/config.xml:
-
-    --- config.xml.old	2012-07-24 19:44:49.000000000 +0200
-    +++ res/xml/config.xml	2012-07-24 19:39:43.000000000 +0200
-    @@ -32,6 +32,7 @@
-         <log level="DEBUG"/>
-         <preference name="useBrowserHistory" value="false" />
-     <plugins>
-    +    <plugin name="SQLitePlugin" value="com.phonegap.plugin.sqlitePlugin.SQLitePlugin"/>
-         <plugin name="App" value="org.apache.cordova.App"/>
-         <plugin name="Geolocation" value="org.apache.cordova.GeoBroker"/>
-         <plugin name="Device" value="org.apache.cordova.Device"/>
-
-Before building for the first time, you have to update the project with the desired version of the Android SDK with a command like:
-
-    android update project --path $(pwd) --target 15
-
-(assume SDK 15, use the correct desired Android SDK number here)
-
-### Quick test
-
-Make a change like this to index.html to run a small test program to verify the installation is OK:
-
-    --- index.html.old	2012-08-04 14:40:07.000000000 +0200
-    +++ assets/www/index.html	2012-08-04 14:36:05.000000000 +0200
-    @@ -24,7 +24,35 @@
-         <title>PhoneGap</title>
-           <link rel="stylesheet" href="master.css" type="text/css" media="screen" title="no title">
-           <script type="text/javascript" charset="utf-8" src="cordova-2.0.0.js"></script>
-    -      <script type="text/javascript" charset="utf-8" src="main.js"></script>
-    +      <script type="text/javascript" charset="utf-8" src="SQLitePlugin.js"></script>
-    +
-    +
-    +      <script type="text/javascript" charset="utf-8">
-    +      document.addEventListener("deviceready", onDeviceReady, false);
-    +      function onDeviceReady() {
-    +        var db = window.sqlitePlugin.openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
-    +
-    +        db.transaction(function(tx) {
-    +          tx.executeSql('DROP TABLE IF EXISTS test_table');
-    +          tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
-    +
-    +          tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
-    +          console.log("insertId: " + res.insertId + " -- probably 1"); // check #18/#38 is fixed
-    +          alert("insertId: " + res.insertId + " -- should be valid");
-    +
-    +            db.transaction(function(tx) {
-    +              tx.executeSql("SELECT data_num from test_table;", [], function(tx, res) {
-    +                console.log("res.rows.length: " + res.rows.length + " -- should be 1");
-    +                alert("res.rows.item(0).data_num: " + res.rows.item(0).data_num + " -- should be 100");
-    +              });
-    +            });
-    +
-    +          }, function(e) {
-    +            console.log("ERROR: " + e.message);
-    +          });
-    +        });
-    +      }
-    +      </script>
-     
-       </head>
-       <body onload="init();" id="stage" class="theme">
-
 # Unit test(s)
 
-For issue #4, unit testing is done in `test-www/index.html`. To run the test(s) yourself please copy `test-www/index.html` along with the `test-www/lib` subdirectory into the `www` directory of your iOS or Android Cordova project and make sure you have SQLitePlugin completely installed (JS, Objective-C or Java, and plugin registered).
+For issue #4, unit testing is done in `test-www/index.html`. To run the test(s) yourself please copy `test-www/index.html` along with the `test-www/lib` subdirectory into the `www` directory of your iOS Cordova project and make sure you have SQLitePlugin completely installed (JS, Objective-C, and plugin registered).
 
 In case problems I hope the unit tests can help us to reproduce, demonstrate, and verify the solution of these problems.
 
@@ -314,7 +217,7 @@ Extra Usage
 
 ## iOS
 
-**NOTE:** This is from an old sample, old API which is hereby deprecated **and going away**.
+**NOTE:** This is from an old sample, old API which ~~is hereby~~ *may be* deprecated ~~**and going away**~~. TBD this can be useful to support PRAGMAs. TBD whether to support db.executeSql() or some other function to support PRAGMAs.
 
     var db = sqlitePlugin.openDatabase("my_sqlite_database.sqlite3");
 
