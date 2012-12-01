@@ -5,11 +5,14 @@ Native interface to sqlite in a PhoneGap/Cordova plugin, working to follow the H
 
 Created by @joenoon and @davibe
 
+API changes by @brodyspark (Chris Brody)
+
 Android version by @marcucio and @brodyspark, nested transaction callback support by @marcucio
 
 iOS nested transaction callback support by @ef4 (Edward Faulkner)
 
-API changes by @brodyspark (Chris Brody)
+License (iOS version): MIT
+License (Android): MIT, Apache
 
 ## Announcements
 
