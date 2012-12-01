@@ -59,7 +59,7 @@
     this.trans_id = get_unique_id();
     this.__completed = false;
     this.__submitted = false;
-    this.optimization_no_nested_callbacks = true;
+    this.optimization_no_nested_callbacks = false;
     console.log("SQLitePluginTransaction - this.trans_id:" + this.trans_id);
     transaction_queue[this.trans_id] = [];
     transaction_callback_queue[this.trans_id] = new Object();
