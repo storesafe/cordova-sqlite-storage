@@ -1,18 +1,19 @@
-Cordova/PhoneGap SQLitePlugin
+PhoneGap/Cordova SQLitePlugin
 =============================
 
-Native interface to sqlite in a Cordova/PhoneGap plugin, working to follow the HTML5 Web SQL API as close as possible. **NOTE** that the API is now different from https://github.com/davibe/Phonegap-SQLitePlugin.
+Native interface to sqlite in a PhoneGap/Cordova plugin, working to follow the HTML5 Web SQL API as close as possible. **NOTE** that the API is now different from https://github.com/davibe/Phonegap-SQLitePlugin.
 
 Created by @joenoon and @davibe
 
-Android version by @marcucio and @chbrody, nested transaction callback support by @marcucio
+Android version by @marcucio and @brodyspark, nested transaction callback support by @marcucio
 
 iOS nested transaction callback support by @ef4 (Edward Faulkner)
 
-API changes by @chbrody
+API changes by @brodyspark (Chris Brody)
 
 ## Announcements
 
+ - The iOS and Android versions will be split into separate repositories.
  - New [blog posting](http://mobileapphelp.blogspot.com/2012/10/cordova-sqliteplugin-continues-to-show.html) that this Cordova/PhoneGap SQLitePlugin continues to show excellent reliability, compared to the problems described in [CB-1561](https://issues.apache.org/jira/browse/CB-1561) and in [this thread](https://groups.google.com/forum/?fromgroups=#!topic/phonegap/eJTVra33HLo) and also [this thread](https://groups.google.com/forum/?fromgroups=#!topic/phonegap/Q_jEOSIAxsY)
  - Working for Cordova 2.1 iOS and Android
  - iOS version working with nested transactions, thanks to Edward Faulkner (@ef4)
@@ -25,7 +26,7 @@ This fork will be kept open to concentrate on bug fixing and documentation impro
 
 ## Project future
 
-See [issue #33](https://github.com/chbrody/Cordova-SQLitePlugin/issues/33): to provide the maximum benefits of customization it should be possible to build with a replacement of the sqlite C library itself, and also make extensions such as SQLCipher possible ([#32](https://github.com/chbrody/Cordova-SQLitePlugin/issues/32)). This enhancement would solve [#22](https://github.com/chbrody/Cordova-SQLitePlugin/issues/22) for all versions of the Android API. @chbrody expects to concentrate on the Android version using the NDK.
+See [issue #33](https://github.com/brodyspark/PhoneGap-sqlitePlugin-iOS/issues/33): to provide the maximum benefits of customization it should be possible to build with a replacement of the sqlite C library itself, and also make extensions such as SQLCipher possible ([#32](https://github.com/brodyspark/PhoneGap-sqlitePlugin-iOS/issues/32)). This enhancement would solve [#22](https://github.com/brodyspark/PhoneGap-sqlitePlugin-iOS/issues/22) for all versions of the Android API. @brodyspark expects to concentrate on the Android version using the NDK.
 
 ## Highlights
 
@@ -33,7 +34,7 @@ See [issue #33](https://github.com/chbrody/Cordova-SQLitePlugin/issues/33): to p
  - Drop-in replacement for HTML5 SQL API, the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
  - Both Android and iOS versions are designed with batch processing optimizations
 
-## Apps using Cordova-SQLitePlugin
+## Apps using PhoneGap/Cordova sqlitePlugin
 
  - [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/) (iOS and Android)
  - [Larkwire](http://www.larkwire.com/): Learn bird songs the fun way (iOS, Android version is coming)
@@ -42,9 +43,9 @@ I would like to gather some more real-world examples, please send to chris.brody
 
 ## Known limitations
 
- - Versioning functionality is missing ([#35](https://github.com/chbrody/Cordova-SQLitePlugin/issues/35))
+ - Versioning functionality is missing ([#35](https://github.com/brodyspark/PhoneGap-sqlitePlugin-iOS/issues/35))
  - API will block app execution upon large batching (workaround: add application logic to break large batches into smaller batch transactions)
- - `rowsAffected` field in the response to UPDATE and DELETE is not working for the Android version ([#22](https://github.com/chbrody/Cordova-SQLitePlugin/issues/22))
+ - `rowsAffected` field in the response to UPDATE and DELETE is not working for the Android version ([#22](https://github.com/brodyspark/PhoneGap-sqlitePlugin-iOS/issues/22))
 
 ## Other forks
 
@@ -303,7 +304,7 @@ In case problems I hope the unit tests can help us to reproduce, demonstrate, an
 
 # Loading pre-populated database file
 
-From [#10](https://github.com/chbrody/Cordova-SQLitePlugin/issues/10): [excellent directions for the Android version](http://www.raymondcamden.com/index.cfm/2012/7/27/Guest-Blog-Post-Shipping-a-populated-SQLite-DB-with-PhoneGap) have been posted recently, directions needed for iOS version. [General directions for Cordova/PhoneGap](http://gauravstomar.blogspot.com/2011/08/prepopulate-sqlite-in-phonegap.html) had been posted but seems out-of-date and does not specifically apply for this plugin.
+From [#10](https://github.com/brodyspark/PhoneGap-sqlitePlugin-iOS/issues/10): [excellent directions for the Android version](http://www.raymondcamden.com/index.cfm/2012/7/27/Guest-Blog-Post-Shipping-a-populated-SQLite-DB-with-PhoneGap) have been posted recently, directions needed for iOS version. [General directions for Cordova/PhoneGap](http://gauravstomar.blogspot.com/2011/08/prepopulate-sqlite-in-phonegap.html) had been posted but seems out-of-date and does not specifically apply for this plugin.
 
 Extra Usage
 ===========
