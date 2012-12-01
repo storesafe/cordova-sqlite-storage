@@ -208,10 +208,6 @@ For issue #4, unit testing is done in `test-www/index.html`. To run the test(s) 
 
 In case problems I hope the unit tests can help us to reproduce, demonstrate, and verify the solution of these problems.
 
-# Loading pre-populated database file
-
-From [#10](https://github.com/brodyspark/PhoneGap-sqlitePlugin-iOS/issues/10): [excellent directions for the Android version](http://www.raymondcamden.com/index.cfm/2012/7/27/Guest-Blog-Post-Shipping-a-populated-SQLite-DB-with-PhoneGap) have been posted recently, directions needed for iOS version. [General directions for Cordova/PhoneGap](http://gauravstomar.blogspot.com/2011/08/prepopulate-sqlite-in-phonegap.html) had been posted but seems out-of-date and does not specifically apply for this plugin.
-
 Extra Usage
 ===========
 
