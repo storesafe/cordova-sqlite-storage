@@ -30,7 +30,7 @@
     opts = void 0;
     if (!(this.dbPath in this.openDBs)) {
       this.openDBs[this.dbPath] = true;
-      return PhoneGap.exec(success, error, "SQLitePlugin", "open", [this.dbPath]);
+      return cordova.exec(success, error, "SQLitePlugin", "open", [this.dbPath]);
     }
   };
   SQLitePlugin.prototype.close = function(success, error) {
@@ -39,7 +39,7 @@
     opts = void 0;
     if (this.dbPath in this.openDBs) {
       delete this.openDBs[this.dbPath];
-      return PhoneGap.exec(null, null, "SQLitePlugin", "close", [this.dbPath]);
+      return cordova.exec(null, null, "SQLitePlugin", "close", [this.dbPath]);
     }
   };
   get_unique_id = function() {
@@ -209,7 +209,7 @@
     }
     transaction_callback_queue[this.trans_id]["success"] = successcb;
     transaction_callback_queue[this.trans_id]["error"] = errorcb;
-    return PhoneGap.exec(null, null, "SQLitePlugin", "executeSqlBatch", transaction_queue[this.trans_id]);
+    return cordova.exec(null, null, "SQLitePlugin", "executeSqlBatch", transaction_queue[this.trans_id]);
   };
   root.SQLitePluginTransaction = SQLitePluginTransaction;
   return root.sqlitePlugin = {
