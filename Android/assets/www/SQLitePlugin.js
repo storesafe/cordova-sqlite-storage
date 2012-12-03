@@ -1,5 +1,5 @@
 (function() {
-  var SQLitePlugin, SQLitePluginTransaction, get_unique_id, root, transaction_callback_queue, transaction_queue;
+  var SQLitePlugin, SQLitePluginCallback, SQLitePluginTransaction, get_unique_id, pcb, root, transaction_callback_queue, transaction_queue;
   root = this;
   SQLitePlugin = function(dbPath, openSuccess, openError) {
     console.log("SQLitePlugin");
@@ -40,6 +40,27 @@
     if (this.dbPath in this.openDBs) {
       delete this.openDBs[this.dbPath];
       return cordova.exec(null, null, "SQLitePlugin", "close", [this.dbPath]);
+    }
+  };
+  pcb = function() {
+    return 1;
+  };
+  SQLitePlugin.prototype.executePragmaStatement = function(statement, success, error) {
+    console.log("SQLitePlugin::executePragmaStatement");
+    pcb = success;
+    cordova.exec((function() {
+      return 1;
+    }), error, "SQLitePlugin", "executePragmaStatement", ["A-1", statement]);
+  };
+  SQLitePluginCallback = {
+    p1: function(id, result) {
+      var mycb;
+      console.log("PRAGMA CB");
+      mycb = pcb;
+      pcb = function() {
+        return 1;
+      };
+      mycb(result);
     }
   };
   get_unique_id = function() {
@@ -212,6 +233,7 @@
     return cordova.exec(null, null, "SQLitePlugin", "executeSqlBatch", transaction_queue[this.trans_id]);
   };
   root.SQLitePluginTransaction = SQLitePluginTransaction;
+  root.SQLitePluginCallback = SQLitePluginCallback;
   return root.sqlitePlugin = {
     openDatabase: function(dbPath, version, displayName, estimatedSize, creationCallback, errorCallback) {
       return new SQLitePlugin(dbPath, creationCallback, errorCallback);

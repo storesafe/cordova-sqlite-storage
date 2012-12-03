@@ -38,6 +38,25 @@ do ->
 
       cordova.exec null, null, "SQLitePlugin", "close", [ @dbPath ]
 
+  pcb = -> 1
+
+  SQLitePlugin::executePragmaStatement = (statement, success, error) ->
+    console.log "SQLitePlugin::executePragmaStatement"
+    pcb = success
+
+    cordova.exec (-> 1), error, "SQLitePlugin", "executePragmaStatement", [ "A-1", statement ]
+    return
+
+  SQLitePluginCallback =
+    p1: (id, result) ->
+      console.log "PRAGMA CB"
+
+      mycb = pcb
+      pcb = -> 1
+      mycb result
+
+      return
+
   get_unique_id = ->
     id = new Date().getTime()
     id2 = new Date().getTime()
@@ -185,6 +204,7 @@ do ->
 
   # required for callbacks:
   root.SQLitePluginTransaction = SQLitePluginTransaction
+  root.SQLitePluginCallback = SQLitePluginCallback
 
   root.sqlitePlugin =
     openDatabase: (dbPath, version, displayName, estimatedSize, creationCallback, errorCallback) ->

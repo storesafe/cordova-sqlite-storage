@@ -8,15 +8,20 @@ Nested transaction callback support by @marcucio
 
 ## Announcements
 
- - The Android version will now be maintained here.
- - [Android version with rebuilding SQLCipher from source](http://mobileapphelp.blogspot.com/2012/08/rebuilding-sqlitesqlcipher-for-android.html)
- - [Android version tested with SQLCipher for database encryption](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova.html), working with a few changes to SQLitePlugin.java
+ - Elementary support for sqlite PRAGMAs has now been added to this version for Android.
+ - The Android version is now maintained in this location.
  
 ## Highlights
 
  - Keeps sqlite database in a user data location that is known and can be reconfigured
  - Drop-in replacement for HTML5 SQL API, the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
  - batch processing optimizations
+
+This sqlitePlugin can also be used with SQLCipher to provide encryption. This was already described on my old blog:
+ - [Android version with rebuilding SQLCipher from source](http://mobileapphelp.blogspot.com/2012/08/rebuilding-sqlitesqlcipher-for-android.html)
+ - [Android version tested with SQLCipher for database encryption](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova.html), working with a few changes to SQLitePlugin.java
+
+I have recently discovered [here](https://guardianproject.info/code/sqlcipher/) that a PRAGMA can also be used to set the encryption key. My next step is to post some updated instructions to my [new blog](http://brodyspark.blogspot.com/).
 
 ## Apps using PhoneGap/Cordova sqlitePlugin (Android version)
 
@@ -35,8 +40,7 @@ Usage
 
 The idea is to emulate the HTML5 SQL API as closely as possible. The only major change is to use window.sqlitePlugin.openDatabase() (or sqlitePlugin.openDatabase()) instead of window.openDatabase(). If you see any other major change please report it, it is probably a bug.
 
-Sample
-------
+# Sample with PRAGMA feature
 
 This is a pretty strong test: first we create a table and add a single entry, then query the count to check if the item was inserted as expected. Note that a new transaction is created in the middle of the first callback.
 
@@ -53,13 +57,21 @@ This is a pretty strong test: first we create a table and add a single entry, th
         tx.executeSql('DROP TABLE IF EXISTS test_table');
         tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
 
+        // demonstrate PRAGMA on Android:
+        db.executePragmaStatement("pragma table_info (test_table);", function(res) {
+          alert("PRAGMA res: " + JSON.stringify(res));
+        });
+
         tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
           console.log("insertId: " + res.insertId + " -- probably 1");
           console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
+          alert("insertId: " + res.insertId + " -- probably 1");
+
           db.transaction(function(tx) {
             tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
               console.log("res.rows.length: " + res.rows.length + " -- should be 1");
               console.log("res.rows.item(0).cnt: " + res.rows.item(0).cnt + " -- should be 1");
+              alert("res.rows.item(0).cnt: " + res.rows.item(0).cnt + " -- should be 1");
             });
           });
 

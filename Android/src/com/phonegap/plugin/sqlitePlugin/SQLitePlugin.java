@@ -55,6 +55,13 @@ public class SQLitePlugin extends Plugin {
 				//this.openDatabase(args.getString(0), args.getString(1),
 				//		args.getString(2), args.getLong(3));
 			} 
+			else if (action.equals("executePragmaStatement")) 
+			{
+				String id = args.getString(0);
+				String query = args.getString(1);
+				Cursor myCursor = this.myDb.rawQuery(query, null);
+				this.processPragmaResults(myCursor, id);
+			} 
 			else if (action.equals("executeSqlBatch")) 
 			{
 				String[] 	queries 	= null;
@@ -230,6 +237,7 @@ public class SQLitePlugin extends Plugin {
 				try {
 					for (int i = 0; i < colCount; ++i) {
 						key = cur.getColumnName(i);
+
 						// for old Android SDK remove lines from HERE:
 						if(android.os.Build.VERSION.SDK_INT >= 11)
 						{
@@ -269,6 +277,67 @@ public class SQLitePlugin extends Plugin {
 		}
 		if(query_id.length() > 0)
 			this.sendJavascript(" SQLitePluginTransaction.queryCompleteCallback('" + tx_id + "','" + query_id + "', " + result + ");");
+
+	}
+
+	public void processPragmaResults(Cursor cur, String id) {
+
+		String result = "[]";
+
+		// If query result has rows
+		if (cur.moveToFirst()) {
+			JSONArray fullresult = new JSONArray();
+			String key = "";
+			int colCount = cur.getColumnCount();
+
+			// Build up JSON result object for each row
+			do {
+				JSONObject row = new JSONObject();
+				try {
+					for (int i = 0; i < colCount; ++i) {
+						key = cur.getColumnName(i);
+
+						// XXX TBD factor out:
+						// for old Android SDK remove lines from HERE:
+						if(android.os.Build.VERSION.SDK_INT >= 11)
+						{
+							switch(cur.getType (i))
+							{
+								case Cursor.FIELD_TYPE_NULL:
+									row.put(key, null);
+									break;
+								case Cursor.FIELD_TYPE_INTEGER:
+									row.put(key, cur.getInt(i));
+									break;
+								case Cursor.FIELD_TYPE_FLOAT:
+									row.put(key, cur.getFloat(i));
+									break;
+								case Cursor.FIELD_TYPE_STRING:
+									row.put(key, cur.getString(i));
+									break;
+								case Cursor.FIELD_TYPE_BLOB:
+									row.put(key, cur.getBlob(i));
+									break;
+							}
+						}
+						else // to HERE.
+						{
+							row.put(key, cur.getString(i));
+						}
+					}
+
+					fullresult.put(row);
+
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+
+			} while (cur.moveToNext());
+
+			result = fullresult.toString();
+		}
+
+		this.sendJavascript(" SQLitePluginCallback.p1('" + id + "', " + result + ");");
 
 	}
 }
