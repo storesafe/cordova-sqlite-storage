@@ -9,7 +9,7 @@ Nested transaction callback support by @marcucio
 ## Announcements
 
  - [Improvements in the form of PRAGMAs & multiple database files (bug fix) for the Android version](http://brodyspark.blogspot.com/2012/12/improvements-to-phonegap-sqliteplugin.html).
- - The Android version is now maintained in this location as [announced here](http://brodyspark.blogspot.com/2012/11/creating-my-first-linkedin-group.html).
+ - The Android version is now maintained in this location as [announced here](http://brodyspark.blogspot.com/2012/12/phonegap-sqliteplugin-for-ios-android.html).
  
 ## Highlights
 
