@@ -54,8 +54,7 @@ Usage
 
 The idea is to emulate the HTML5 SQL API as closely as possible. The only major change is to use window.sqlitePlugin.openDatabase() (or sqlitePlugin.openDatabase()) instead of window.openDatabase(). If you see any other major change please report it, it is probably a bug.
 
-Sample
-------
+# Sample with PRAGMA feature
 
 This is a pretty strong test: first we create a table and add a single entry, then query the count to check if the item was inserted as expected. Note that a new transaction is created in the middle of the first callback.
 
@@ -72,9 +71,15 @@ This is a pretty strong test: first we create a table and add a single entry, th
         tx.executeSql('DROP TABLE IF EXISTS test_table');
         tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
 
+        // demonstrate PRAGMA:
+        db.executePragmaStatement("pragma table_info (test_table);", function(res) {
+          console.log("PRAGMA res: " + JSON.stringify(res));
+        });
+
         tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
           console.log("insertId: " + res.insertId + " -- probably 1");
           console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
+
           db.transaction(function(tx) {
             tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
               console.log("res.rows.length: " + res.rows.length + " -- should be 1");

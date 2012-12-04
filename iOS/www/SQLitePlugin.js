@@ -81,6 +81,19 @@ if (!window.Cordova) window.Cordova = window.cordova;
     callbacks[ref] = null;
     delete callbacks[ref];
   };
+  SQLitePlugin.prototype.executePragmaStatement = function(sql, success, error) {
+    var opts;
+    if (!sql) throw new Error("Cannot executeSql without a query");
+    var cbsave = success;
+    var mysuccesscb = function(res) {
+      cbsave(res.rows);
+    };
+    opts = getOptions({
+      query: [sql],
+      path: this.dbPath
+    }, mysuccesscb, error);
+    exec("SQLitePlugin.backgroundExecuteSql", opts);
+  };
   SQLitePlugin.prototype.executeSql = function(sql, values, success, error) {
     var opts;
     if (!sql) throw new Error("Cannot executeSql without a query");
