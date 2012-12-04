@@ -8,8 +8,8 @@ Nested transaction callback support by @marcucio
 
 ## Announcements
 
- - Elementary support for sqlite PRAGMAs has now been added to this version for Android.
- - The Android version is now maintained in this location.
+ - [Improvements in the form of PRAGMAs & multiple database files (bug fix) for the Android version](http://brodyspark.blogspot.com/2012/12/improvements-to-phonegap-sqliteplugin.html).
+ - The Android version is now maintained in this location as [announced here](http://brodyspark.blogspot.com/2012/11/creating-my-first-linkedin-group.html).
  
 ## Highlights
 
@@ -20,12 +20,12 @@ Nested transaction callback support by @marcucio
 This sqlitePlugin can also be used with SQLCipher to provide encryption. This was already described on my old blog:
  - [Android version with rebuilding SQLCipher from source](http://mobileapphelp.blogspot.com/2012/08/rebuilding-sqlitesqlcipher-for-android.html)
  - [Android version tested with SQLCipher for database encryption](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova.html), working with a few changes to SQLitePlugin.java
-
-I have recently discovered [here](https://guardianproject.info/code/sqlcipher/) that a PRAGMA can also be used to set the encryption key. My next step is to post some updated instructions to my [new blog](http://brodyspark.blogspot.com/).
+Updated instructions will be posted on my [new blog](http://brodyspark.blogspot.com/) sometime in the near future.
 
 ## Apps using PhoneGap/Cordova sqlitePlugin (Android version)
 
  - [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/)
+ - Upcoming (under development): Arbiter disastery recovery app by [LMN Solutions](http://lmnsolutions.com/)
 
 I would like to gather some more real-world examples, please send to chris.brody@gmail.com and I will post them.
 
