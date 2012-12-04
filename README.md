@@ -8,7 +8,7 @@ Nested transaction callback support by @marcucio
 
 ## Announcements
 
- - [Improvements in the form of PRAGMAs & multiple database files (bug fix) for the Android version](http://brodyspark.blogspot.com/2012/12/improvements-to-phonegap-sqliteplugin.html).
+ - [Improvements in the form of PRAGMAs & multiple database files (bug fix)](http://brodyspark.blogspot.com/2012/12/improvements-to-phonegap-sqliteplugin.html).
  - The Android version is now maintained in this location as [announced here](http://brodyspark.blogspot.com/2012/12/phonegap-sqliteplugin-for-ios-android.html).
  
 ## Highlights
@@ -57,7 +57,7 @@ This is a pretty strong test: first we create a table and add a single entry, th
         tx.executeSql('DROP TABLE IF EXISTS test_table');
         tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
 
-        // demonstrate PRAGMA on Android:
+        // demonstrate PRAGMA:
         db.executePragmaStatement("pragma table_info (test_table);", function(res) {
           alert("PRAGMA res: " + JSON.stringify(res));
         });
@@ -152,7 +152,7 @@ Before building for the first time, you have to update the project with the desi
 
 ### Quick test
 
-Make a change like this to index.html to run a small test program to verify the installation is OK:
+Make a change like this to index.html (or use the sample code) verify proper installation:
 
     --- index.html.old	2012-08-04 14:40:07.000000000 +0200
     +++ assets/www/index.html	2012-08-04 14:36:05.000000000 +0200
@@ -202,7 +202,7 @@ In case problems I hope the unit tests can help us to reproduce, demonstrate, an
 
 # Loading pre-populated database file
 
-[excellent directions for the Android version](http://www.raymondcamden.com/index.cfm/2012/7/27/Guest-Blog-Post-Shipping-a-populated-SQLite-DB-with-PhoneGap) have been posted recently, directions needed for iOS version. [General directions for Cordova/PhoneGap](http://gauravstomar.blogspot.com/2011/08/prepopulate-sqlite-in-phonegap.html) had been posted but seems out-of-date and does not specifically apply for this plugin.
+[Excellent directions for the Android version](http://www.raymondcamden.com/index.cfm/2012/7/27/Guest-Blog-Post-Shipping-a-populated-SQLite-DB-with-PhoneGap) have been posted recently, directions needed for iOS version. [General directions for Cordova/PhoneGap](http://gauravstomar.blogspot.com/2011/08/prepopulate-sqlite-in-phonegap.html) had been posted but seems out-of-date and does not specifically apply for this plugin.
 
 # Extra notes from original iOS version
 
