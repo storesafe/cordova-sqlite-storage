@@ -1,6 +1,6 @@
-# PhoneGap/Cordova sqlitePlugin - Android version
+# Cordova/PhoneGap sqlitePlugin - Android version
 
-Native interface to sqlite in a PhoneGap/Cordova plugin, working to follow the HTML5 Web SQL API as close as possible.
+Native interface to sqlite in a Cordova/PhoneGap plugin, working to follow the HTML5 Web SQL API as close as possible.
 
 Extracted from DroidGap by @brodyspark (Chris Brody)
 
@@ -22,7 +22,7 @@ This sqlitePlugin can also be used with SQLCipher to provide encryption. This wa
  - [Android version tested with SQLCipher for database encryption](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova.html), working with a few changes to SQLitePlugin.java
 Updated instructions will be posted on my [new blog](http://brodyspark.blogspot.com/) sometime in the near future.
 
-## Apps using PhoneGap/Cordova sqlitePlugin (Android version)
+## Apps using Cordova/PhoneGap sqlitePlugin (Android version)
 
  - [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/)
  - Upcoming (under development): Arbiter disastery recovery app by [LMN Solutions](http://lmnsolutions.com/)
@@ -125,7 +125,7 @@ This case will also works with Safari (WebKit), assuming you replace window.sqli
 
 ## Android
 
-These installation instructions are based on the Android example project from PhoneGap/Cordova 2.1.0. For your first time please unzip the PhoneGap 2.0 zipball and use the `lib/android/example` subdirectory.
+These installation instructions are based on the Android example project from Cordova/PhoneGap 2.2.0. For your first time please unzip the PhoneGap 2.2 zipball and use the `lib/android/example` subdirectory.
 
  - Install Android/assets/www/SQLitePlugin.js from this repository into assets/www subdirectory
  - Install Android/src/com/phonegap/plugin/sqlitePlugin/SQLitePlugin.java from this repository into src/com/phonegap/plugin/sqlitePlugin subdirectory
