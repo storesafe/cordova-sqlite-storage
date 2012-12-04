@@ -44,7 +44,7 @@ do ->
     console.log "SQLitePlugin::executePragmaStatement"
     pcb = success
 
-    cordova.exec (-> 1), error, "SQLitePlugin", "executePragmaStatement", [ "A-1", statement ]
+    cordova.exec (-> 1), error, "SQLitePlugin", "executePragmaStatement", [ @dbPath, statement ]
     return
 
   SQLitePluginCallback =
@@ -81,6 +81,7 @@ do ->
     transaction_callback_queue[@trans_id] = new Object()
     return
 
+  # XXX FUTURE handle tx CBs under SQLitePluginCallback object:
   SQLitePluginTransaction.queryCompleteCallback = (transId, queryId, result) ->
     console.log "SQLitePluginTransaction.queryCompleteCallback"
     query = null
@@ -198,10 +199,13 @@ do ->
     if error
       errorcb = (res) ->
         error txself, res
+
     transaction_callback_queue[@trans_id]["success"] = successcb
     transaction_callback_queue[@trans_id]["error"] = errorcb
-    cordova.exec null, null, "SQLitePlugin", "executeSqlBatch", transaction_queue[@trans_id]
 
+    cordova.exec null, null, "SQLitePlugin", "executeSqlBatch", [ @dbPath, transaction_queue[@trans_id] ]
+
+  # XXX FUTURE all CBs under SQLitePluginCallback
   # required for callbacks:
   root.SQLitePluginTransaction = SQLitePluginTransaction
   root.SQLitePluginCallback = SQLitePluginCallback

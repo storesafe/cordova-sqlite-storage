@@ -50,7 +50,7 @@
     pcb = success;
     cordova.exec((function() {
       return 1;
-    }), error, "SQLitePlugin", "executePragmaStatement", ["A-1", statement]);
+    }), error, "SQLitePlugin", "executePragmaStatement", [this.dbPath, statement]);
   };
   SQLitePluginCallback = {
     p1: function(id, result) {
@@ -230,7 +230,7 @@
     }
     transaction_callback_queue[this.trans_id]["success"] = successcb;
     transaction_callback_queue[this.trans_id]["error"] = errorcb;
-    return cordova.exec(null, null, "SQLitePlugin", "executeSqlBatch", transaction_queue[this.trans_id]);
+    return cordova.exec(null, null, "SQLitePlugin", "executeSqlBatch", [this.dbPath, transaction_queue[this.trans_id]]);
   };
   root.SQLitePluginTransaction = SQLitePluginTransaction;
   root.SQLitePluginCallback = SQLitePluginCallback;
