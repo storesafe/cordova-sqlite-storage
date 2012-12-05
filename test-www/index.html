@@ -147,6 +147,50 @@
 
       });
 
+      test("pragma & multiple databases", function() {
+        var db = window.sqlitePlugin.openDatabase("DB1", "1.0", "PhoneGap Demo", 200000);
+
+        var db2 = window.sqlitePlugin.openDatabase("DB2", "1.0", "PhoneGap Demo", 200000);
+
+        db.transaction(function(tx) {
+          tx.executeSql('DROP TABLE IF EXISTS test_table');
+          tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)', [], function() {
+            console.log("test_table created");
+          });
+
+          stop();
+          db.executePragmaStatement("pragma table_info (test_table);", function(res) {
+            start();
+            console.log("PRAGMA res: " + JSON.stringify(res));
+          });
+        });
+
+        stop(2);
+        db2.transaction(function(tx) {
+          tx.executeSql('DROP TABLE IF EXISTS tt2');
+          tx.executeSql('CREATE TABLE IF NOT EXISTS tt2 (id2 integer primary key, data2 text, data_num2 integer)', [], function() {
+            console.log("tt2 created");
+          });
+
+          db.executePragmaStatement("pragma table_info (test_table);", function(res) {
+            start();
+            console.log("PRAGMA (db) res: " + JSON.stringify(res));
+            equal(res[0].name, "id", "DB1 table key field name");
+            equal(res[1].name, "data", "DB1 table text field name");
+            equal(res[2].name, "data_num", "DB1 table number field name");
+          });
+
+          db2.executePragmaStatement("pragma table_info (tt2);", function(res) {
+            start();
+            console.log("PRAGMA (tt2) res: " + JSON.stringify(res));
+            equal(res[0].name, "id2", "DB2 table key field name");
+            equal(res[1].name, "data2", "DB2 table text field name");
+            equal(res[2].name, "data_num2", "DB2 table number field name");
+          });
+        });
+
+      });
+
     }
 
     </script>
