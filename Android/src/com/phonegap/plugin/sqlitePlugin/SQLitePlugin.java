@@ -155,9 +155,11 @@ public class SQLitePlugin extends Plugin {
 	 * @param size
 	 *            The size in bytes
 	 */
-	private void openDatabase(String db, String version, String display_name,
-			long size) {
-		SQLiteDatabase myDb = this.cordova.getActivity().getApplicationContext().openOrCreateDatabase(db + ".db", Context.MODE_PRIVATE, null);
+	private void openDatabase(String db, String version, String display_name, long size)
+	{
+		SQLiteDatabase myDb =
+			this.cordova.getActivity().getApplicationContext().openOrCreateDatabase(db + ".db", Context.MODE_PRIVATE, null);
+
 		myDbMap.put(db, myDb);
 	}
 
@@ -165,8 +167,11 @@ public class SQLitePlugin extends Plugin {
 		return myDbMap.get(dbName);
 	}
 
-	private void executeSqlBatch(String dbName, String[] queryarr, JSONArray[] jsonparams, String[] queryIDs, String tx_id) {
-		SQLiteDatabase myDb = this.getDatabase(dbName); // XXX TODO check for null
+	private void executeSqlBatch(String dbName, String[] queryarr, JSONArray[] jsonparams, String[] queryIDs, String tx_id)
+	{
+		SQLiteDatabase myDb = this.getDatabase(dbName);
+
+		if (myDb == null) return;
 
 		try {
 			myDb.beginTransaction();
@@ -192,7 +197,8 @@ public class SQLitePlugin extends Plugin {
 					long insertId = myStatement.executeInsert();
 
 					String result = "{'insertId':'" + insertId + "'}";
-					this.sendJavascript("SQLitePluginTransaction.queryCompleteCallback('" + tx_id + "','" + query_id + "', " + result + ");");
+					this.sendJavascript("SQLitePluginTransaction.queryCompleteCallback('" +
+						tx_id + "','" + query_id + "', " + result + ");");
 				} else {
 					String[] params = null;
 
@@ -200,15 +206,18 @@ public class SQLitePlugin extends Plugin {
 						params = new String[jsonparams[i].length()];
 
 						for (int j = 0; j < jsonparams[i].length(); j++) {
-							params[j] = jsonparams[i].getString(j);
-							if(params[j] == "null") // XXX better check
+							if (jsonparams[i].isNull(j))
 								params[j] = "";
+							else
+								params[j] = jsonparams[i].getString(j);
 						}
 					}
 
 					Cursor myCursor = myDb.rawQuery(query, params);
 
-					this.processResults(myCursor, query_id, tx_id);
+					if(query_id.length() > 0)
+						this.processResults(myCursor, query_id, tx_id);
+
 					myCursor.close();
 				}
 			}
@@ -235,76 +244,41 @@ public class SQLitePlugin extends Plugin {
 	 *
 	 * @param cur
 	 *            Cursor into query results
+	 * @param query_id
+	 *            Query id
 	 * @param tx_id
 	 *            Transaction id
 	 */
 	private void processResults(Cursor cur, String query_id, String tx_id)
 	{
-		String result = "[]";
-		// If query result has rows
+		String result = this.results2string(cur);
 
-		// XXX TODO use results2string() and do test:
-		if (cur.moveToFirst()) {
-			JSONArray fullresult = new JSONArray();
-			String key = "";
-			int colCount = cur.getColumnCount();
-
-			// Build up JSON result object for each row
-			do {
-				JSONObject row = new JSONObject();
-				try {
-					for (int i = 0; i < colCount; ++i) {
-						key = cur.getColumnName(i);
-
-						// for old Android SDK remove lines from HERE:
-						if(android.os.Build.VERSION.SDK_INT >= 11)
-						{
-							switch(cur.getType (i))
-							{
-								case Cursor.FIELD_TYPE_NULL:
-									row.put(key, null);
-									break;
-								case Cursor.FIELD_TYPE_INTEGER:
-									row.put(key, cur.getInt(i));
-									break;
-								case Cursor.FIELD_TYPE_FLOAT:
-									row.put(key, cur.getFloat(i));
-									break;
-								case Cursor.FIELD_TYPE_STRING:
-									row.put(key, cur.getString(i));
-									break;
-								case Cursor.FIELD_TYPE_BLOB:
-									row.put(key, cur.getBlob(i));
-									break;
-							}
-						}
-						else // to HERE.
-						{
-							row.put(key, cur.getString(i));
-						}
-					}
-					fullresult.put(row);
-
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-
-			} while (cur.moveToNext());
-
-			result = fullresult.toString();
-		}
-		if(query_id.length() > 0)
-			this.sendJavascript(" SQLitePluginTransaction.queryCompleteCallback('" + tx_id + "','" + query_id + "', " + result + ");");
-
+		this.sendJavascript("SQLitePluginTransaction.queryCompleteCallback('" +
+			tx_id + "','" + query_id + "', " + result + ");");
 	}
 
+	/**
+	 * Process query results.
+	 *
+	 * @param cur
+	 *            Cursor into query results
+	 * @param id
+	 *            Caller db id
+	 */
 	private void processPragmaResults(Cursor cur, String id)
 	{
 		String result = this.results2string(cur);
 
-		this.sendJavascript(" SQLitePluginCallback.p1('" + id + "', " + result + ");");
+		this.sendJavascript("SQLitePluginCallback.p1('" + id + "', " + result + ");");
 	}
 
+	/**
+	 * Convert results cursor to JSON string.
+	 *
+	 * @param cur
+	 *            Cursor into query results
+	 * @return results in string form
+	 */
 	private String results2string(Cursor cur)
 	{
 		String result = "[]";
