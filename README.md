@@ -28,6 +28,7 @@ See [issue #33](https://github.com/brodyspark/PhoneGap-sqlitePlugin-iOS/issues/3
  - Keeps sqlite database in a known user data location that will be backed up by iCloud on iOS. This [posting on my old blog](http://mobileapphelp.blogspot.com/2012/10/cordova-sqliteplugin-continues-to-show.html) documents that this Cordova/PhoneGap SQLitePlugin continues to show excellent reliability, compared to the problems described in [CB-1561](https://issues.apache.org/jira/browse/CB-1561) and in [this thread](https://groups.google.com/forum/?fromgroups=#!topic/phonegap/eJTVra33HLo) and also [this thread](https://groups.google.com/forum/?fromgroups=#!topic/phonegap/Q_jEOSIAxsY)
  - Drop-in replacement for HTML5 SQL API, the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
  - batch processing optimizations
+ - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
  - From my old blog: [iOS version working with the SQLCipher encryption library](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova-ios.html). Updated instructions will be posted on my [new blog](http://brodyspark.blogspot.com/) sometime in the near future.
 
 ## Apps using Cordova/PhoneGap sqlitePlugin
