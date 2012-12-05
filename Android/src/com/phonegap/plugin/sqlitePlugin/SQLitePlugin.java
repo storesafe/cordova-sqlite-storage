@@ -197,7 +197,7 @@ public class SQLitePlugin extends Plugin {
 					long insertId = myStatement.executeInsert();
 
 					String result = "{'insertId':'" + insertId + "'}";
-					this.sendJavascript("SQLitePluginTransaction.queryCompleteCallback('" +
+					this.sendJavascript("SQLitePluginTransactionCB.queryCompleteCallback('" +
 						tx_id + "','" + query_id + "', " + result + ");");
 				} else {
 					String[] params = null;
@@ -226,16 +226,16 @@ public class SQLitePlugin extends Plugin {
 		catch (SQLiteException ex) {
 			ex.printStackTrace();
 			Log.v("executeSqlBatch", "SQLitePlugin.executeSql(): Error=" +  ex.getMessage());
-			this.sendJavascript("SQLitePluginTransaction.txErrorCallback('" + tx_id + "', '"+ex.getMessage()+"');");
+			this.sendJavascript("SQLitePluginTransactionCB.txErrorCallback('" + tx_id + "', '"+ex.getMessage()+"');");
 		} catch (JSONException ex) {
 			ex.printStackTrace();
 			Log.v("executeSqlBatch", "SQLitePlugin.executeSql(): Error=" +  ex.getMessage());
-			this.sendJavascript("SQLitePluginTransaction.txErrorCallback('" + tx_id + "', '"+ex.getMessage()+"');");
+			this.sendJavascript("SQLitePluginTransactionCB.txErrorCallback('" + tx_id + "', '"+ex.getMessage()+"');");
 		}
 		finally {
 			myDb.endTransaction();
 			Log.v("executeSqlBatch", tx_id);
-			this.sendJavascript("SQLitePluginTransaction.txCompleteCallback('" + tx_id + "');");
+			this.sendJavascript("SQLitePluginTransactionCB.txCompleteCallback('" + tx_id + "');");
 		}
 	}
 
@@ -253,7 +253,7 @@ public class SQLitePlugin extends Plugin {
 	{
 		String result = this.results2string(cur);
 
-		this.sendJavascript("SQLitePluginTransaction.queryCompleteCallback('" +
+		this.sendJavascript("SQLitePluginTransactionCB.queryCompleteCallback('" +
 			tx_id + "','" + query_id + "', " + result + ");");
 	}
 
