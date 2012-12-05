@@ -16,6 +16,7 @@ Nested transaction callback support by @marcucio
  - Keeps sqlite database in a user data location that is known and can be reconfigured
  - Drop-in replacement for HTML5 SQL API, the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
  - batch processing optimizations
+ - No 5MB maximum, for more information: http://www.sqlite.org/limits.html
 
 This sqlitePlugin can also be used with SQLCipher to provide encryption. This was already described on my old blog:
  - [Android version with rebuilding SQLCipher from source](http://mobileapphelp.blogspot.com/2012/08/rebuilding-sqlitesqlcipher-for-android.html)
