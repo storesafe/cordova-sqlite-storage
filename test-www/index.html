@@ -59,11 +59,12 @@
                 equal(res.rows.item(0).cnt, 1, "select count");
               });
 
-              tx.executeSql("SELECT data_num from test_table;", [], function(tx, res) {
+              tx.executeSql("SELECT * from test_table;", [], function(tx, res) {
                 start(1);
 
                 equal(res.rows.length, 1, "SELECT res rows length");
-                equal(res.rows.item(0).data_num, 100, "SELECT data_num");
+                equal(res.rows.item(0).data_num, 100, "SELECT res data_num");
+                equal(res.rows.item(0).data, "test", "SELECT res data");
               });
 
               tx.executeSql("UPDATE test_table SET data_num = ? WHERE data_num = 100", [101], function(tx, res) {
