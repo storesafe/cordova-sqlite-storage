@@ -6,6 +6,8 @@ Extracted from DroidGap by @brodyspark (Chris Brody)
 
 Nested transaction callback support by @marcucio
 
+License for this version: MIT or Apache
+
 ## Announcements
 
  - [Improvements in the form of PRAGMAs & multiple database files (bug fix)](http://brodyspark.blogspot.com/2012/12/improvements-to-phonegap-sqliteplugin.html).
@@ -16,7 +18,7 @@ Nested transaction callback support by @marcucio
  - Keeps sqlite database in a user data location that is known and can be reconfigured
  - Drop-in replacement for HTML5 SQL API, the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
  - batch processing optimizations
- - No 5MB maximum, for more information at: http://www.sqlite.org/limits.html
+ - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
 
 This sqlitePlugin can also be used with SQLCipher to provide encryption. This was already described on my old blog:
  - [Android version with rebuilding SQLCipher from source](http://mobileapphelp.blogspot.com/2012/08/rebuilding-sqlitesqlcipher-for-android.html)
@@ -122,7 +124,7 @@ This case will also works with Safari (WebKit), assuming you replace window.sqli
 
  - `Android`: new version by @marcucio, with improvements for batch transaction processing, testing seems OK
  - `test-www`: simple testing in `index.html` using qunit 1.5.0
- - `xtra-DroidGap-test`: old DroidGap version, no improvements for batch processing, simple version to test some fixes before adding to `Android` version
+ - `xtra-DroidGap-test`: old DroidGap version, no improvements for batch processing, simple version to test some fixes before adding to `Android` version (going away)
 
 ## Android
 
@@ -197,13 +199,15 @@ Make a change like this to index.html (or use the sample code) verify proper ins
 
 # Unit test(s)
 
-For issue #4, unit testing is done in `test-www/index.html`. To run the test(s) yourself please copy `test-www/index.html` along with the `test-www/lib` subdirectory into the `www` directory of your Android Cordova project and make sure you have SQLitePlugin completely installed (JS, Java, and plugin registered).
-
-In case problems I hope the unit tests can help us to reproduce, demonstrate, and verify the solution of these problems.
+Unit testing is done in `test-www/index.html`. To run the test(s) yourself please copy the files from `test-www` (`index.html`, `qunit-1.5.0.js`, & `qunit-1.5.0.css`) into the `www` directory of your Android Cordova project and make sure you have SQLitePlugin completely installed (JS, Java, and plugin registered).
 
 # Loading pre-populated database file
 
 [Excellent directions for the Android version](http://www.raymondcamden.com/index.cfm/2012/7/27/Guest-Blog-Post-Shipping-a-populated-SQLite-DB-with-PhoneGap) have been posted recently, directions needed for iOS version. [General directions for Cordova/PhoneGap](http://gauravstomar.blogspot.com/2011/08/prepopulate-sqlite-in-phonegap.html) had been posted but seems out-of-date and does not specifically apply for this plugin.
+
+# Support
+
+If you have an issue with the plugin the best way to get help is by raising an issue. It is best to make post the simplest code necessary to demonstrate the issue.
 
 # Extra notes from original iOS version
 
@@ -222,4 +226,11 @@ I used the plugin to store very large documents (1 or 2 Mb each) and found
 that the main bottleneck was passing data from javascript to native code.
 Running PhoneGap.exec took some seconds while completely blocking my
 application.
+
+# Contributing
+
+- Testimonials of apps that are using this plugin would be especially helpful.
+- Issue reports can help improve the quality of this plugin.
+- Patches with bug fixes are helpful, especially when submitted with test code.
+- Other enhancements will be considered if they do not increase the complexity of this plugin.
 
