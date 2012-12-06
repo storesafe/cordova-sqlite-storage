@@ -66,7 +66,7 @@ This is a pretty strong test: first we create a table and add a single entry, th
     // Cordova is ready
     //
     function onDeviceReady() {
-      var db = window.sqlitePlugin.openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
+      var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);
 
       db.transaction(function(tx) {
         tx.executeSql('DROP TABLE IF EXISTS test_table');
@@ -105,7 +105,7 @@ In this case, the same transaction in the first executeSql() callback is being r
     // Cordova is ready
     //
     function onDeviceReady() {
-      var db = window.sqlitePlugin.openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
+      var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);
 
       db.transaction(function(tx) {
         tx.executeSql('DROP TABLE IF EXISTS test_table');
