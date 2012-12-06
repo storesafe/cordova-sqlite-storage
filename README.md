@@ -16,7 +16,7 @@ Nested transaction callback support by @marcucio
  - Keeps sqlite database in a user data location that is known and can be reconfigured
  - Drop-in replacement for HTML5 SQL API, the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
  - batch processing optimizations
- - No 5MB maximum, for more information: http://www.sqlite.org/limits.html
+ - No 5MB maximum, for more information at: http://www.sqlite.org/limits.html
 
 This sqlitePlugin can also be used with SQLCipher to provide encryption. This was already described on my old blog:
  - [Android version with rebuilding SQLCipher from source](http://mobileapphelp.blogspot.com/2012/08/rebuilding-sqlitesqlcipher-for-android.html)
@@ -52,7 +52,7 @@ This is a pretty strong test: first we create a table and add a single entry, th
     // Cordova is ready
     //
     function onDeviceReady() {
-      var db = window.sqlitePlugin.openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
+      var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);
 
       db.transaction(function(tx) {
         tx.executeSql('DROP TABLE IF EXISTS test_table');
@@ -93,7 +93,7 @@ In this case, the same transaction in the first executeSql() callback is being r
     // Cordova is ready
     //
     function onDeviceReady() {
-      var db = window.sqlitePlugin.openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
+      var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);
 
       db.transaction(function(tx) {
         tx.executeSql('DROP TABLE IF EXISTS test_table');
@@ -168,7 +168,7 @@ Make a change like this to index.html (or use the sample code) verify proper ins
     +      <script type="text/javascript" charset="utf-8">
     +      document.addEventListener("deviceready", onDeviceReady, false);
     +      function onDeviceReady() {
-    +        var db = window.sqlitePlugin.openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
+    +        var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);
     +
     +        db.transaction(function(tx) {
     +          tx.executeSql('DROP TABLE IF EXISTS test_table');

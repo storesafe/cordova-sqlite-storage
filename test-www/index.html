@@ -20,7 +20,7 @@
 
       test("db transaction test", function() {
 
-        var db = window.sqlitePlugin.openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
+        var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);
 
         ok(!!db, "db object");
 
@@ -107,7 +107,7 @@
 
       test("nested transaction test", function() {
 
-        var db = window.sqlitePlugin.openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
+        var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);
 
         ok(!!db, "db object");
 
@@ -148,9 +148,9 @@
       });
 
       test("pragma & multiple databases", function() {
-        var db = window.sqlitePlugin.openDatabase("DB1", "1.0", "PhoneGap Demo", 200000);
+        var db = window.sqlitePlugin.openDatabase("DB1", "1.0", "Demo", -1);
 
-        var db2 = window.sqlitePlugin.openDatabase("DB2", "1.0", "PhoneGap Demo", 200000);
+        var db2 = window.sqlitePlugin.openDatabase("DB2", "1.0", "Demo", -1);
 
         db.transaction(function(tx) {
           tx.executeSql('DROP TABLE IF EXISTS test_table');
