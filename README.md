@@ -8,7 +8,7 @@ API changes by @brodyspark (Chris Brody)
 
 iOS nested transaction callback support by @ef4 (Edward Faulkner)
 
-License: MIT
+License for this version: MIT
 
 ## Announcements
 
@@ -210,9 +210,7 @@ In addition, for Cordova pre-2.0 iOS, please make the following patch to iOS/Plu
 
 # Unit test(s)
 
-For issue #4, unit testing is done in `test-www/index.html`. To run the test(s) yourself please copy `test-www/index.html` along with the `test-www/lib` subdirectory into the `www` directory of your iOS Cordova project and make sure you have SQLitePlugin completely installed (JS, Objective-C, and plugin registered).
-
-In case problems I hope the unit tests can help us to reproduce, demonstrate, and verify the solution of these problems.
+Unit testing is done in `test-www/index.html`. To run the test(s) yourself please copy the files from `test-www` (`index.html`, `qunit-1.5.0.js`, & `qunit-1.5.0.css`) into the `www` directory of your iOS Cordova project and make sure you have SQLitePlugin completely installed (JS, Objective-C, and plugin registered).
 
 Extra Usage
 ===========
@@ -271,6 +269,9 @@ Using the `db` option you can create multiple stores in one sqlite file. (There 
     recipes = new Lawnchair {db: "cookbook", name: "recipes", ...}
 	ingredients = new Lawnchair {db: "cookbook", name: "ingredients", ...}
 
+# Support
+
+If you have an issue with the plugin the best way to get help is by raising an issue. It is best to make post the simplest code necessary to demonstrate the issue.
 
 Extra notes
 -----------
@@ -290,4 +291,10 @@ I used the plugin to store very large documents (1 or 2 Mb each) and found
 that the main bottleneck was passing data from javascript to native code.
 Running PhoneGap.exec took some seconds while completely blocking my
 application.
+
+# Contributing
+
+- Testimonials of apps that are using this plugin would be especially helpful.
+- Issue reports can help improve the quality of this plugin.
+- Patches with bug fixes are helpful, especially when submitted with test code.
 
