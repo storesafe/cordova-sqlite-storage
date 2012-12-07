@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- meta name="viewport" content="width=device-width, height=device-height, user-scalable=yes, initial-scale=2.0, maximum-scale=4.0, minimum-scale=1.0" / -->
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no;" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+    <!-- ISO-8859-1 -->
+    <title>SQLitePlugin</title>
+    <link rel="stylesheet" href="../../master.css" type="text/css" media="screen"/>
+
+
+    <script type="text/javascript" charset="utf-8" src="cordova-2.2.0.js"></script>
+    <script type="text/javascript" charset="utf-8" src="SqlitePlugin.js"></script>
+
+    <script type="text/javascript" charset="utf-8">
+      var tests = [];
+      function do_next_test()
+      {
+      var nextTest;
+      if(tests.length)
+      nextTest = tests.shift();
+      if(nextTest)
+      nextTest();
+      else
+      {
+      console.log('Test Complete');
+      document.getElementById('res').innerHTML = document.getElementById('res').innerHTML+ "Test Complete";
+      }
+      }
+      function doTestSuccess()
+      {
+      console.log('Test pass');
+      document.getElementById('res').innerHTML = document.getElementById('res').innerHTML + " Pass<br/>";
+        do_next_test();
+        }
+        function doTestError(e)
+        {
+        console.log('Test fail' + e);
+        document.getElementById('res').innerHTML = document.getElementById('res').innerHTML + " Fail<br/>";
+        do_next_test();
+    }
+    //-- Open Tests
+    function testDBOpenSuccess()
+    {
+        console.log('Test Open');
+        document.getElementById('res').innerHTML = document.getElementById('res').innerHTML+ "Testing Open: ";
+        var db_ptr = sqlitePlugin.openDatabase("gid_native.sqlite3", '', '', '', function()
+        	{
+        		if(db_ptr){
+        			db_ptr.close(doTestSuccess, doTestError);
+        		}
+        		else {
+        			doTestError();
+        		}
+        	}, doTestError);	
+    }
+    function testDBOpenError()
+    {
+        console.log('Test Open Error');
+        document.getElementById('res').innerHTML = document.getElementById('res').innerHTML+ "Testing Open Error: ";
+        var db_ptr = sqlitePlugin.openDatabase("", '', '', '', doTestError, doTestSuccess);
+    }
+    //-- Close Tests
+    function testDBCloseSuccess()
+    {
+        console.log('Test Close');
+        document.getElementById('res').innerHTML = document.getElementById('res').innerHTML+ "Testing Close: ";
+        var db_ptr = sqlitePlugin.openDatabase("gid_native.sqlite3", '', '', '', function()
+	        {
+	        	db_ptr.close(doTestSuccess, doTestError);
+	        }, doTestError);	
+    }
+    //-- SQL Tests
+    function testTableCreate() {
+    	var transaction_err = function(trans, e)
+		{
+			console.log('Error: '+e.message);
+			doTestError(e.message);
+		}
+    	var db_ptr = sqlitePlugin.openDatabase("gid_native.sqlite3", '', '', '', function()
+        {
+			try
+			{
+	      db_ptr.transaction(function(tx) 
+				{
+					tx.executeSql(
+						'CREATE TABLE IF NOT EXISTS sql_test (test_id TEXT NOT NULL, test_name TEXT NOT NULL);', 
+						[], 
+						function(){console.log('Callback 1 complete')},
+						transaction_err
+					);
+					tx.executeSql(
+						'INSERT INTO sql_test (test_id, test_name) VALUES (?, ?);', 
+						['1', 'Hi 1'], 
+						function(){console.log('Callback 2 complete')},
+						transaction_err
+					);
+					tx.executeSql(
+						'INSERT INTO sql_test (test_id, test_name) VALUES (?, ?);', 
+						['2', 'Hi 2'], 
+						function(){console.log('Callback 3 complete')},
+						transaction_err
+					);
+					tx.executeSql(
+						'SELECT * FROM sql_test;', 
+						[], 
+						function(tx, result)
+						{
+							console.log('Callback 4 complete result:'+JSON.stringify(result))
+							console.log('Callback 4 length:'+result.rows.length)
+							console.log('Callback 4 first item:'+JSON.stringify(result.rows.item(0)))
+						},
+						transaction_err
+					);
+         tx.executeSql(
+						'DROP table IF EXISTS sql_test;', 
+						[], 
+						function(){console.log('DROP TABLE IF EXISTS complete')},
+						transaction_err
+					);
+
+          
+        }, doTestError, function()
+        {
+        	db_ptr.close(doTestSuccess, doTestError);
+        });
+			}
+			catch(err)
+			{
+				doTestError(err);
+			}
+        }, doTestError);	
+    }
+    function testSqlite() {
+    	document.getElementById('res').innerHTML = '';
+    	tests.push(testDBOpenSuccess);
+    	tests.push(testDBOpenError);
+    	tests.push(testDBCloseSuccess);
+    	tests.push(testTableCreate);
+    	
+    	do_next_test();
+    };
+
+</script>
+
+  </head>
+  <body id="stage" class="theme">
+
+    <h1>Sqlite</h1>
+    <h2>Action</h2>
+    <input type="button" onclick="testSqlite();" value="Test Sqlite"/>
+    <div id="res"></div>
+  </body>
+</html>
