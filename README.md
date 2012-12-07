@@ -1,4 +1,4 @@
-# Cordova/PhoneGap sqlitePlugin - iOS version
+# Cordova/PhoneGap SQLitePlugin - iOS version
 
 Native interface to sqlite in a Cordova/PhoneGap plugin, working to follow the HTML5 Web SQL API as close as possible. **NOTE** that the API is now different from https://github.com/davibe/Phonegap-SQLitePlugin.
 
@@ -13,7 +13,7 @@ License for this version: MIT
 ## Announcements
 
  - [PRAGMA support added](http://brodyspark.blogspot.com/2012/12/improvements-to-phonegap-sqliteplugin.html).
- - The Android version is now split off to [brodyspark / PhoneGap-sqlitePlugin-Android](https://github.com/brodyspark/PhoneGap-sqlitePlugin-Android).
+ - The Android version is now split off to [brodyspark / PhoneGap-SQLitePlugin-Android](https://github.com/brodyspark/PhoneGap-SQLitePlugin-Android).
 
 ## Project Status
 
@@ -21,7 +21,7 @@ This fork will be kept open to concentrate on bug fixing and documentation impro
 
 ## Project future
 
-See [issue #33](https://github.com/brodyspark/PhoneGap-sqlitePlugin-iOS/issues/33): to provide the maximum benefits of customization it should be possible to build with a replacement of the sqlite C library itself, and also make extensions such as SQLCipher possible ([#32](https://github.com/brodyspark/PhoneGap-sqlitePlugin-iOS/issues/32)). This enhancement would solve [#22](https://github.com/brodyspark/PhoneGap-sqlitePlugin-iOS/issues/22) for all versions of the Android API. @brodyspark expects to concentrate on the Android version using the NDK.
+See [issue #33](https://github.com/brodyspark/PhoneGap-SQLitePlugin-iOS/issues/33): to provide the maximum benefits of customization it should be possible to build with a replacement of the sqlite C library itself, and also make extensions such as SQLCipher possible ([#32](https://github.com/brodyspark/PhoneGap-SQLitePlugin-iOS/issues/32)). This enhancement would solve [#22](https://github.com/brodyspark/PhoneGap-SQLitePlugin-iOS/issues/22) for all versions of the Android API. @brodyspark expects to concentrate on the Android version using the NDK.
 
 ## Highlights
 
@@ -31,7 +31,7 @@ See [issue #33](https://github.com/brodyspark/PhoneGap-sqlitePlugin-iOS/issues/3
  - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
  - From my old blog: [iOS version working with the SQLCipher encryption library](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova-ios.html). Updated instructions will be posted on my [new blog](http://brodyspark.blogspot.com/) sometime in the near future.
 
-## Apps using Cordova/PhoneGap sqlitePlugin
+## Apps using Cordova/PhoneGap SQLitePlugin
 
  - [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/)
  - [Larkwire](http://www.larkwire.com/): Learn bird songs the fun way
@@ -40,12 +40,12 @@ I would like to gather some more real-world examples, please send to chris.brody
 
 ## Known limitations
 
- - Versioning functionality is missing ([#35](https://github.com/brodyspark/PhoneGap-sqlitePlugin-iOS/issues/35))
+ - Versioning functionality is missing ([#35](https://github.com/brodyspark/PhoneGap-SQLitePlugin-iOS/issues/35))
  - API will block app execution upon large batching (workaround: add application logic to break large batches into smaller batch transactions)
 
 ## Other forks
 
- - Android version moved to: https://github.com/brodyspark/PhoneGap-sqlitePlugin-Android
+ - Android version moved to: https://github.com/brodyspark/PhoneGap-SQLitePlugin-Android
  - iOS enhancements, with extra fixes for console log messages: https://github.com/mineshaftgap/Cordova-SQLitePlugin
  - iOS nested transactions enhancement from: https://github.com/ef4/Cordova-SQLitePlugin
  - Original version with old API: https://github.com/davibe/Phonegap-SQLitePlugin
@@ -208,14 +208,28 @@ In addition, for Cordova pre-2.0 iOS, please make the following patch to iOS/Plu
      
      #import "AppDelegate.h"
 
+# Support
+
+If you have an issue with the plugin please check the following first:
+- You are using the latest version of the Plugin Javascript & Objective-C source from this repository.
+- You have installed the Javascript & Objective-C correctly.
+- You have included the correct version of the cordova Javascript and SQLitePlugin.js and got the path right.
+- You have registered the plugin properly.
+
+If you still cannot get something to work:
+- Make the simplest test program necessary to reproduce the issue and try again.
+- If it still does not work then please make sure it is prepared to demonstrate the issue including:
+  - it completely self-contained, i.e. it is using no extra libraries beyond cordova & SQLitePlugin.js;
+  - if the issue is with *adding* data to a table, that the test program includes the statements you used to open the database and create the table;
+  - if the issue is with *retrieving* data from a table, that the test program includes the statements you used to open the database, create the table, and enter the data you are trying to retrieve.
+
+Then please raise an issue with the test program included in the description.
+
 # Unit test(s)
 
 Unit testing is done in `test-www/index.html`. To run the test(s) yourself please copy the files from `test-www` (`index.html`, `qunit-1.5.0.js`, & `qunit-1.5.0.css`) into the `www` directory of your iOS Cordova project and make sure you have SQLitePlugin completely installed (JS, Objective-C, and plugin registered).
 
-Extra Usage
-===========
-
-## iOS
+# Extra Usage for this version
 
 **NOTE:** This is from an old sample, old API which is hereby deprecated **and going away**.
 
@@ -261,17 +275,13 @@ The `name` option will determine the sqlite filename. Optionally, you can change
 
 In this example, you would be using/creating the database at: *Documents/kvstore.sqlite3* (all db's in SQLitePlugin are in the Documents folder)
 
-    kvstore = new Lawnchair { name: "kvstore", adapter: SQLitePlugin.lawnchair_adapter }, () ->
+    kvstore = new Lawnchair { name: "kvstore" }, () ->
       # do stuff
 
 Using the `db` option you can create multiple stores in one sqlite file. (There will be one table per store.)
 
     recipes = new Lawnchair {db: "cookbook", name: "recipes", ...}
 	ingredients = new Lawnchair {db: "cookbook", name: "ingredients", ...}
-
-# Support
-
-If you have an issue with the plugin the best way to get help is by raising an issue. It is best to make post the simplest code necessary to demonstrate the issue.
 
 Extra notes
 -----------
