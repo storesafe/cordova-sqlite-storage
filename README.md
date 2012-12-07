@@ -1,4 +1,4 @@
-# Cordova/PhoneGap sqlitePlugin - Android version
+# Cordova/PhoneGap SQLitePlugin - Android version
 
 Native interface to sqlite in a Cordova/PhoneGap plugin, working to follow the HTML5 Web SQL API as close as possible.
 
@@ -20,12 +20,12 @@ License for this version: MIT or Apache
  - batch processing optimizations
  - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
 
-This sqlitePlugin can also be used with SQLCipher to provide encryption. This was already described on my old blog:
+This SQLitePlugin can also be used with SQLCipher to provide encryption. This was already described on my old blog:
  - [Android version with rebuilding SQLCipher from source](http://mobileapphelp.blogspot.com/2012/08/rebuilding-sqlitesqlcipher-for-android.html)
  - [Android version tested with SQLCipher for database encryption](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova.html), working with a few changes to SQLitePlugin.java
 Updated instructions will be posted on my [new blog](http://brodyspark.blogspot.com/) sometime in the near future.
 
-## Apps using Cordova/PhoneGap sqlitePlugin (Android version)
+## Apps using Cordova/PhoneGap SQLitePlugin (Android version)
 
  - [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/)
  - Upcoming (under development): Arbiter disastery recovery app by [LMN Solutions](http://lmnsolutions.com/)
@@ -124,7 +124,6 @@ This case will also works with Safari (WebKit), assuming you replace window.sqli
 
  - `Android`: new version by @marcucio, with improvements for batch transaction processing, testing seems OK
  - `test-www`: simple testing in `index.html` using qunit 1.5.0
- - `xtra-DroidGap-test`: old DroidGap version, no improvements for batch processing, simple version to test some fixes before adding to `Android` version (going away)
 
 ## Android
 
@@ -197,6 +196,23 @@ Make a change like this to index.html (or use the sample code) verify proper ins
        </head>
        <body onload="init();" id="stage" class="theme">
 
+# Support
+
+If you have an issue with the plugin please check the following first:
+- You are using the latest version of the Plugin Javascript & Java source from this repository.
+- You have installed the Javascript & Java correctly.
+- You have included the correct version of the cordova Javascript and SQLitePlugin.js and got the path right.
+- You have registered the plugin properly.
+
+If you still cannot get something to work:
+- Make the simplest test program necessary to reproduce the issue and try again.
+- If it still does not work then please make sure it is prepared to demonstrate the issue including:
+  - it completely self-contained, i.e. it is using no extra libraries beyond cordova & SQLitePlugin.js;
+  - if the issue is with *adding* data to a table, that the test program includes the statements you used to open the database and create the table;
+  - if the issue is with *retrieving* data from a table, that the test program includes the statements you used to open the database, create the table, and enter the data you are trying to retrieve.
+
+Then please raise an issue with the test program included in the description.
+
 # Unit test(s)
 
 Unit testing is done in `test-www/index.html`. To run the test(s) yourself please copy the files from `test-www` (`index.html`, `qunit-1.5.0.js`, & `qunit-1.5.0.css`) into the `www` directory of your Android Cordova project and make sure you have SQLitePlugin completely installed (JS, Java, and plugin registered).
@@ -204,10 +220,6 @@ Unit testing is done in `test-www/index.html`. To run the test(s) yourself pleas
 # Loading pre-populated database file
 
 [Excellent directions for the Android version](http://www.raymondcamden.com/index.cfm/2012/7/27/Guest-Blog-Post-Shipping-a-populated-SQLite-DB-with-PhoneGap) have been posted recently, directions needed for iOS version. [General directions for Cordova/PhoneGap](http://gauravstomar.blogspot.com/2011/08/prepopulate-sqlite-in-phonegap.html) had been posted but seems out-of-date and does not specifically apply for this plugin.
-
-# Support
-
-If you have an issue with the plugin the best way to get help is by raising an issue. It is best to make post the simplest code necessary to demonstrate the issue.
 
 # Extra notes from original iOS version
 
