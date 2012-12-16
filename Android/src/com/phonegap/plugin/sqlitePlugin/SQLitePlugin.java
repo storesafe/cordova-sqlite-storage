@@ -13,8 +13,8 @@ import org.json.JSONObject;
 
 import java.lang.Number;
 
-import org.apache.cordova.api.Plugin;
-import org.apache.cordova.api.PluginResult;
+import org.apache.cordova.api.CordovaPlugin;
+import org.apache.cordova.api.CallbackContext;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -24,7 +24,8 @@ import java.util.HashMap;
 
 import android.util.Log;
 
-public class SQLitePlugin extends Plugin {
+public class SQLitePlugin extends CordovaPlugin
+{
 	/**
 	 * Multiple database map.
 	 */
@@ -44,14 +45,13 @@ public class SQLitePlugin extends Plugin {
 	 *            The action to execute.
 	 * @param args
 	 *            JSONArry of arguments for the plugin.
-	 * @param callbackId
-	 *            The callback id used when calling back into JavaScript.
-	 * @return A PluginResult object with a status and message.
+	 * @param cbc
+	 *            Callback context from Cordova API (not used here)
+	 *
 	 */
-	public PluginResult execute(String action, JSONArray args, String callbackId) {
-		PluginResult.Status status = PluginResult.Status.OK;
-		String result = "";
-
+	@Override
+	public boolean execute(String action, JSONArray args, CallbackContext cbc)
+	{
 		try {
 			if (action.equals("open")) {
 				this.openDatabase(args.getString(0), "1",
@@ -108,36 +108,29 @@ public class SQLitePlugin extends Plugin {
 				else
 					Log.v("error", "null trans_id");
 			}
-			return new PluginResult(status, result);
+
+			return true;
 		} catch (JSONException e) {
-			return new PluginResult(PluginResult.Status.JSON_EXCEPTION);
+			// TODO: signal JSON problem to JS
+
+			return false;
 		}
 	}
 
 	/**
-	 * Identifies if action to be executed returns a value and should be run
-	 * synchronously.
-	 *
-	 * @param action
-	 *            The action to execute
-	 * @return T=returns value
-	 */
-	public boolean isSynch(String action) {
-		return true;
-	}
-
-	/**
+	 * XXX TODO:
 	 * Clean up and close database.
+	 *
 	 */
-	@Override
-	public void onDestroy() {
+	//@Override
+	//public void onDestroy() {
 		/** XXX TODO :
 		if (this.myDb != null) {
 			this.myDb.close();
 			this.myDb = null;
 		}
 		**/
-	}
+	//}
 
 	// --------------------------------------------------------------------------
 	// LOCAL METHODS
@@ -197,7 +190,7 @@ public class SQLitePlugin extends Plugin {
 					long insertId = myStatement.executeInsert();
 
 					String result = "{'insertId':'" + insertId + "'}";
-					this.sendJavascript("SQLitePluginTransactionCB.queryCompleteCallback('" +
+					this.sendJavascriptCB("window.SQLitePluginTransactionCB.queryCompleteCallback('" +
 						tx_id + "','" + query_id + "', " + result + ");");
 				} else {
 					String[] params = null;
@@ -226,16 +219,16 @@ public class SQLitePlugin extends Plugin {
 		catch (SQLiteException ex) {
 			ex.printStackTrace();
 			Log.v("executeSqlBatch", "SQLitePlugin.executeSql(): Error=" +  ex.getMessage());
-			this.sendJavascript("SQLitePluginTransactionCB.txErrorCallback('" + tx_id + "', '"+ex.getMessage()+"');");
+			this.sendJavascriptCB("window.SQLitePluginTransactionCB.txErrorCallback('" + tx_id + "', '"+ex.getMessage()+"');");
 		} catch (JSONException ex) {
 			ex.printStackTrace();
 			Log.v("executeSqlBatch", "SQLitePlugin.executeSql(): Error=" +  ex.getMessage());
-			this.sendJavascript("SQLitePluginTransactionCB.txErrorCallback('" + tx_id + "', '"+ex.getMessage()+"');");
+			this.sendJavascriptCB("window.SQLitePluginTransactionCB.txErrorCallback('" + tx_id + "', '"+ex.getMessage()+"');");
 		}
 		finally {
 			myDb.endTransaction();
 			Log.v("executeSqlBatch", tx_id);
-			this.sendJavascript("SQLitePluginTransactionCB.txCompleteCallback('" + tx_id + "');");
+			this.sendJavascriptCB("window.SQLitePluginTransactionCB.txCompleteCallback('" + tx_id + "');");
 		}
 	}
 
@@ -253,7 +246,7 @@ public class SQLitePlugin extends Plugin {
 	{
 		String result = this.results2string(cur);
 
-		this.sendJavascript("SQLitePluginTransactionCB.queryCompleteCallback('" +
+		this.webView.sendJavascript("window.SQLitePluginTransactionCB.queryCompleteCallback('" +
 			tx_id + "','" + query_id + "', " + result + ");");
 	}
 
@@ -269,7 +262,7 @@ public class SQLitePlugin extends Plugin {
 	{
 		String result = this.results2string(cur);
 
-		this.sendJavascript("SQLitePluginCallback.p1('" + id + "', " + result + ");");
+		this.webView.sendJavascript("window.SQLitePluginCallback.p1('" + id + "', " + result + ");");
 	}
 
 	/**
@@ -336,5 +329,17 @@ public class SQLitePlugin extends Plugin {
 		}
 
 		return result;
+	}
+
+	/**
+	 * Send Javascript callback.
+	 *
+	 * @param cb
+	 *            Javascript callback command to send
+	 *
+	 */
+	private void sendJavascriptCB(String cb)
+	{
+		this.webView.sendJavascript(cb);
 	}
 }
