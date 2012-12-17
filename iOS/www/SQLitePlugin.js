@@ -275,15 +275,34 @@ if (!window.Cordova) window.Cordova = window.cordova;
     this.run();
   };
 
+  SQLiteFactory = {
+    opendb: function() {
+      var dbname, errorcb, first, okcb;
+      if (arguments.length < 1) return null;
+      first = arguments[0];
+      dbname = "DB";
+      okcb = null;
+      errorcb = null;
+      if (first.constructor === String) {
+        dbname = first;
+        if (arguments.length >= 5) {
+          okcb = arguments[4];
+          if (arguments.length > 5) errorcb = arguments[5];
+        }
+      } else {
+        dbname = first['name'];
+        if (arguments.length >= 2) {
+          okcb = arguments[1];
+          if (arguments.length > 2) errorcb = arguments[2];
+        }
+      }
+      return new SQLitePlugin(dbname, okcb, errorcb);
+    }
+  };
+
   root.sqlitePlugin = {
-    openDatabase: function(dbPath, version, displayName, estimatedSize, creationCallback, errorCallback) {
-      if (version == null) version = null;
-      if (displayName == null) displayName = null;
-      if (estimatedSize == null) estimatedSize = 0;
-      if (creationCallback == null) creationCallback = null;
-      if (errorCallback == null) errorCallback = null;
-      return new SQLitePlugin(dbPath, creationCallback, errorCallback);
-    },
+    openDatabase: SQLiteFactory.opendb,
+
     handleCallback: SQLitePlugin.handleCallback
   };
 })();

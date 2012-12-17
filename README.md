@@ -12,6 +12,7 @@ License for this version: MIT
 
 ## Announcements
 
+- New, optional interface to open a database like: `var db = window.sqlitePlugin.openDatabase({name: "DB"});`
 - [PRAGMA support added](http://brodyspark.blogspot.com/2012/12/improvements-to-phonegap-sqliteplugin.html).
 - The Android version is now split off to [brodyspark / PhoneGap-SQLitePlugin-Android](https://github.com/brodyspark/PhoneGap-SQLitePlugin-Android).
 
@@ -25,7 +26,7 @@ See [issue #33](https://github.com/brodyspark/PhoneGap-SQLitePlugin-iOS/issues/3
 
 ## Highlights
 
-- Keeps sqlite database in a known user data location that will be backed up by iCloud on iOS. This [posting on my old blog](http://mobileapphelp.blogspot.com/2012/10/cordova-sqliteplugin-continues-to-show.html) documents that this Cordova/PhoneGap SQLitePlugin continues to show excellent reliability, compared to the problems described in [CB-1561](https://issues.apache.org/jira/browse/CB-1561) and in [this thread](https://groups.google.com/forum/?fromgroups=#!topic/phonegap/eJTVra33HLo) and also [this thread](https://groups.google.com/forum/?fromgroups=#!topic/phonegap/Q_jEOSIAxsY)
+- Keeps sqlite database in a known user data location that will be backed up by iCloud on iOS. This [posting on my old blog](http://mobileapphelp.blogspot.com/2012/10/cordova-sqliteplugin-continues-to-show.html) documents that this Cordova/PhoneGap SQLitePlugin continues to show excellent reliability, compared to the problems described in [CB-1561](https://issues.apache.org/jira/browse/CB-1561), in [this thread](https://groups.google.com/forum/?fromgroups=#!topic/phonegap/eJTVra33HLo), and also [this thread](https://groups.google.com/forum/?fromgroups=#!topic/phonegap/Q_jEOSIAxsY)
 - Drop-in replacement for HTML5 SQL API, the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
 - batch processing optimizations
 - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
@@ -57,6 +58,12 @@ Usage
 
 The idea is to emulate the HTML5 SQL API as closely as possible. The only major change is to use window.sqlitePlugin.openDatabase() (or sqlitePlugin.openDatabase()) instead of window.openDatabase(). If you see any other major change please report it, it is probably a bug.
 
+## Opening a database
+
+There are two options to open a database:
+- Recommended: `var db = window.sqlitePlugin.openDatabase({name: "DB"});`
+- Classical: `var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);`
+
 **NOTE:** Please wait for the "deviceready" event, as in the following example:
 
     // Wait for Cordova to load
@@ -64,7 +71,7 @@ The idea is to emulate the HTML5 SQL API as closely as possible. The only major 
 
     // Cordova is ready
     function onDeviceReady() {
-      var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);
+      var db = window.sqlitePlugin.openDatabase({name: "DB"});
       // ...
     }
 
@@ -77,7 +84,7 @@ This is a pretty strong test: first we create a table and add a single entry, th
 
         // Cordova is ready
         function onDeviceReady() {
-          var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);
+          var db = window.sqlitePlugin.openDatabase({name: "DB"});
 
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
