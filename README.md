@@ -10,37 +10,34 @@ License for this version: MIT or Apache
 
 ## Announcements
 
- - New, optional interface to open a database like:
-
-      var db = window.sqlitePlugin.openDatabase({name: "DB"});
-
- - [Improvements in the form of PRAGMAs & multiple database files (bug fix)](http://brodyspark.blogspot.com/2012/12/improvements-to-phonegap-sqliteplugin.html).
- - The Android version is now maintained in this location as [announced here](http://brodyspark.blogspot.com/2012/12/phonegap-sqliteplugin-for-ios-android.html).
+- New, optional interface to open a database like: `var db = window.sqlitePlugin.openDatabase({name: "DB"});`
+- [Improvements in the form of PRAGMAs & multiple database files (bug fix)](http://brodyspark.blogspot.com/2012/12/improvements-to-phonegap-sqliteplugin.html).
+- The Android version is now maintained in this location as [announced here](http://brodyspark.blogspot.com/2012/12/phonegap-sqliteplugin-for-ios-android.html).
  
 ## Highlights
 
- - Keeps sqlite database in a user data location that is known and can be reconfigured
- - Drop-in replacement for HTML5 SQL API, the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
- - batch processing optimizations
- - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
+- Keeps sqlite database in a user data location that is known and can be reconfigured
+- Drop-in replacement for HTML5 SQL API, the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
+- batch processing optimizations
+- No 5MB maximum, more information at: http://www.sqlite.org/limits.html
 
 This sqlite plugin can also be used with SQLCipher to provide encryption. This was already described on my old blog:
- - [Android version with rebuilding SQLCipher from source](http://mobileapphelp.blogspot.com/2012/08/rebuilding-sqlitesqlcipher-for-android.html)
- - [Android version tested with SQLCipher for database encryption](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova.html), working with a few changes to SQLitePlugin.java
+- [Android version with rebuilding SQLCipher from source](http://mobileapphelp.blogspot.com/2012/08/rebuilding-sqlitesqlcipher-for-android.html)
+- [Android version tested with SQLCipher for database encryption](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova.html), working with a few changes to SQLitePlugin.java
 Updated instructions will be posted on my [new blog](http://brodyspark.blogspot.com/) sometime in the near future.
 
 ## Apps using Cordova/PhoneGap sqlite plugin (Android version)
 
- - [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/)
- - Upcoming (under development): Arbiter disastery recovery app by [LMN Solutions](http://lmnsolutions.com/)
+- [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/)
+- Upcoming (under development): Arbiter disastery recovery app by [LMN Solutions](http://lmnsolutions.com/)
 
 I would like to gather some more real-world examples, please send to chris.brody@gmail.com and I will post them.
 
 ## known limitations
 
- - `rowsAffected` field in the response to UPDATE and DELETE is not working
- - The db version, display name, and size parameter values are not supported and will be ignored.
- - The sqlite plugin will not work before the callback for the "deviceready" event has been fired, as in the following example:
+- `rowsAffected` field in the response to UPDATE and DELETE is not working
+- The db version, display name, and size parameter values are not supported and will be ignored.
+- The sqlite plugin will not work before the callback for the "deviceready" event has been fired, as in the following example:
 
     // Wait for Cordova to load
     document.addEventListener("deviceready", onDeviceReady, false);
@@ -59,87 +56,77 @@ The idea is to emulate the HTML5 SQL API as closely as possible. The only major 
 ## Opening a database
 
 There are two options to open a database:
-
-- Recommended:
-
-      var db = window.sqlitePlugin.openDatabase({name: "DB"});
-
-- Classical:
-
-      var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);
+- Recommended: `var db = window.sqlitePlugin.openDatabase({name: "DB"});`
+- Classical: `var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);`
 
 ## Sample with PRAGMA feature
 
 This is a pretty strong test: first we create a table and add a single entry, then query the count to check if the item was inserted as expected. Note that a new transaction is created in the middle of the first callback.
 
-    // Wait for Cordova to load
-    //
-    document.addEventListener("deviceready", onDeviceReady, false);
+        // Wait for Cordova to load
+        document.addEventListener("deviceready", onDeviceReady, false);
 
-    // Cordova is ready
-    //
-    function onDeviceReady() {
-      var db = window.sqlitePlugin.openDatabase({name: "DB"});
-
-      db.transaction(function(tx) {
-        tx.executeSql('DROP TABLE IF EXISTS test_table');
-        tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
-
-        // demonstrate PRAGMA:
-        db.executePragmaStatement("pragma table_info (test_table);", function(res) {
-          console.log("PRAGMA res: " + JSON.stringify(res));
-        });
-
-        tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
-          console.log("insertId: " + res.insertId + " -- probably 1");
-          console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
-          alert("insertId: " + res.insertId + " -- probably 1");
+        // Cordova is ready
+        function onDeviceReady() {
+          var db = window.sqlitePlugin.openDatabase({name: "DB"});
 
           db.transaction(function(tx) {
-            tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
-              console.log("res.rows.length: " + res.rows.length + " -- should be 1");
-              console.log("res.rows.item(0).cnt: " + res.rows.item(0).cnt + " -- should be 1");
-              alert("res.rows.item(0).cnt: " + res.rows.item(0).cnt + " -- should be 1");
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
+
+            // demonstrate PRAGMA:
+            db.executePragmaStatement("pragma table_info (test_table);", function(res) {
+              console.log("PRAGMA res: " + JSON.stringify(res));
+            });
+
+            tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
+              console.log("insertId: " + res.insertId + " -- probably 1");
+              console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
+              alert("insertId: " + res.insertId + " -- probably 1");
+
+              db.transaction(function(tx) {
+                tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
+                  console.log("res.rows.length: " + res.rows.length + " -- should be 1");
+                  console.log("res.rows.item(0).cnt: " + res.rows.item(0).cnt + " -- should be 1");
+                  alert("res.rows.item(0).cnt: " + res.rows.item(0).cnt + " -- should be 1");
+                });
+              });
+
+            }, function(e) {
+              console.log("ERROR: " + e.message);
             });
           });
-
-        }, function(e) {
-          console.log("ERROR: " + e.message);
-        });
-      });
-    }
+        }
 
 ## Sample with transaction-level nesting
 
 In this case, the same transaction in the first executeSql() callback is being reused to run executeSql() again.
 
-    // Wait for Cordova to load
-    //
-    document.addEventListener("deviceready", onDeviceReady, false);
+        // Wait for Cordova to load
+        document.addEventListener("deviceready", onDeviceReady, false);
 
-    // Cordova is ready
-    //
-    function onDeviceReady() {
-      var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);
+        // Cordova is ready
+        function onDeviceReady() {
+          var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);
 
-      db.transaction(function(tx) {
-        tx.executeSql('DROP TABLE IF EXISTS test_table');
-        tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
 
-        tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
-          console.log("insertId: " + res.insertId + " -- probably 1");
-          console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
+            tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
+              console.log("insertId: " + res.insertId + " -- probably 1");
+              console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
 
-          tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
-            console.log("res.rows.length: " + res.rows.length + " -- should be 1");
-            console.log("res.rows.item(0).cnt: " + res.rows.item(0).cnt + " -- should be 1");
+              tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
+                console.log("res.rows.length: " + res.rows.length + " -- should be 1");
+                console.log("res.rows.item(0).cnt: " + res.rows.item(0).cnt + " -- should be 1");
+              });
+
+            }, function(e) {
+              console.log("ERROR: " + e.message);
+            });
           });
-
-        }, function(e) {
-          console.log("ERROR: " + e.message);
-        });
-      });
-    }
+        }
 
 This case will also works with Safari (WebKit), assuming you replace window.sqlitePlugin.openDatabase with window.openDatabase.
 
@@ -147,10 +134,10 @@ This case will also works with Safari (WebKit), assuming you replace window.sqli
 
 **NOTE:** There are now the following trees:
 
- - `Android`: new version by @marcucio, with improvements for batch transaction processing, testing seems OK
- - `test-www`: simple testing in `index.html` using qunit 1.5.0
+- `Android`: platform-specific code
+- `test-www`: simple testing in `index.html` using qunit 1.5.0
 
-## Android
+## Android platform
 
 These installation instructions are based on the Android example project from Cordova/PhoneGap 2.2.0. For your first time please unzip the PhoneGap 2.2 zipball and use the `lib/android/example` subdirectory.
 
@@ -252,5 +239,6 @@ Unit testing is done in `test-www/index.html`. To run the test(s) yourself pleas
 - Issue reports can help improve the quality of this plugin.
 - Patches with bug fixes are helpful, especially when submitted with test code.
 - Other enhancements will be considered if they do not increase the complexity of this plugin.
-- All contributions may be reused by @brodyspark under another license in the future. Efforts will be taken to give credit to major contributions but will not be guaranteed.
+- All contributions may be reused by @brodyspark under another license in the future. Efforts
+will be taken to give credit to major contributions but will not be guaranteed.
 
