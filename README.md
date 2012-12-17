@@ -12,8 +12,8 @@ License for this version: MIT
 
 ## Announcements
 
- - [PRAGMA support added](http://brodyspark.blogspot.com/2012/12/improvements-to-phonegap-sqliteplugin.html).
- - The Android version is now split off to [brodyspark / PhoneGap-SQLitePlugin-Android](https://github.com/brodyspark/PhoneGap-SQLitePlugin-Android).
+- [PRAGMA support added](http://brodyspark.blogspot.com/2012/12/improvements-to-phonegap-sqliteplugin.html).
+- The Android version is now split off to [brodyspark / PhoneGap-SQLitePlugin-Android](https://github.com/brodyspark/PhoneGap-SQLitePlugin-Android).
 
 ## Project Status
 
@@ -25,119 +25,127 @@ See [issue #33](https://github.com/brodyspark/PhoneGap-SQLitePlugin-iOS/issues/3
 
 ## Highlights
 
- - Keeps sqlite database in a known user data location that will be backed up by iCloud on iOS. This [posting on my old blog](http://mobileapphelp.blogspot.com/2012/10/cordova-sqliteplugin-continues-to-show.html) documents that this Cordova/PhoneGap SQLitePlugin continues to show excellent reliability, compared to the problems described in [CB-1561](https://issues.apache.org/jira/browse/CB-1561) and in [this thread](https://groups.google.com/forum/?fromgroups=#!topic/phonegap/eJTVra33HLo) and also [this thread](https://groups.google.com/forum/?fromgroups=#!topic/phonegap/Q_jEOSIAxsY)
- - Drop-in replacement for HTML5 SQL API, the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
- - batch processing optimizations
- - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
- - From my old blog: [iOS version working with the SQLCipher encryption library](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova-ios.html). Updated instructions will be posted on my [new blog](http://brodyspark.blogspot.com/) sometime in the near future.
+- Keeps sqlite database in a known user data location that will be backed up by iCloud on iOS. This [posting on my old blog](http://mobileapphelp.blogspot.com/2012/10/cordova-sqliteplugin-continues-to-show.html) documents that this Cordova/PhoneGap SQLitePlugin continues to show excellent reliability, compared to the problems described in [CB-1561](https://issues.apache.org/jira/browse/CB-1561) and in [this thread](https://groups.google.com/forum/?fromgroups=#!topic/phonegap/eJTVra33HLo) and also [this thread](https://groups.google.com/forum/?fromgroups=#!topic/phonegap/Q_jEOSIAxsY)
+- Drop-in replacement for HTML5 SQL API, the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
+- batch processing optimizations
+- No 5MB maximum, more information at: http://www.sqlite.org/limits.html
+- From my old blog: [iOS version working with the SQLCipher encryption library](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova-ios.html). Updated instructions will be posted on my [new blog](http://brodyspark.blogspot.com/) sometime in the near future.
 
 ## Apps using Cordova/PhoneGap SQLitePlugin
 
- - [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/)
- - [Larkwire](http://www.larkwire.com/): Learn bird songs the fun way
+- [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/)
+- [Larkwire](http://www.larkwire.com/): Learn bird songs the fun way
 
 I would like to gather some more real-world examples, please send to chris.brody@gmail.com and I will post them.
 
 ## Known limitations
 
- - Versioning functionality is missing ([#35](https://github.com/brodyspark/PhoneGap-SQLitePlugin-iOS/issues/35))
- - API will block app execution upon large batching (workaround: add application logic to break large batches into smaller batch transactions)
+- API will block app execution upon large batching (workaround: add application logic to break large batches into smaller batch transactions)
+- The db version, display name, and size parameter values are not supported and will be ignored.
+- The sqlite plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**.
 
-## Other forks
+## Other versions
 
- - Android version moved to: https://github.com/brodyspark/PhoneGap-SQLitePlugin-Android
- - iOS enhancements, with extra fixes for console log messages: https://github.com/mineshaftgap/Cordova-SQLitePlugin
- - iOS nested transactions enhancement from: https://github.com/ef4/Cordova-SQLitePlugin
- - Original version with old API: https://github.com/davibe/Phonegap-SQLitePlugin
+- Android version moved to: https://github.com/brodyspark/PhoneGap-SQLitePlugin-Android
+- Windows Phone 8+ version: https://github.com/marcucio/Cordova-WP-SqlitePlugin
+- iOS enhancements, with extra fixes for console log messages: https://github.com/mineshaftgap/Cordova-SQLitePlugin
+- iOS nested transactions enhancement from: https://github.com/ef4/Cordova-SQLitePlugin
+- Original iOS version with a different API: https://github.com/davibe/Phonegap-SQLitePlugin
 
 Usage
 =====
 
 The idea is to emulate the HTML5 SQL API as closely as possible. The only major change is to use window.sqlitePlugin.openDatabase() (or sqlitePlugin.openDatabase()) instead of window.openDatabase(). If you see any other major change please report it, it is probably a bug.
 
+**NOTE:** Please wait for the "deviceready" event, as in the following example:
+
+    // Wait for Cordova to load
+    document.addEventListener("deviceready", onDeviceReady, false);
+
+    // Cordova is ready
+    function onDeviceReady() {
+      var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);
+      // ...
+    }
+
 # Sample with PRAGMA feature
 
 This is a pretty strong test: first we create a table and add a single entry, then query the count to check if the item was inserted as expected. Note that a new transaction is created in the middle of the first callback.
 
-    // Wait for Cordova to load
-    //
-    document.addEventListener("deviceready", onDeviceReady, false);
+        // Wait for Cordova to load
+        document.addEventListener("deviceready", onDeviceReady, false);
 
-    // Cordova is ready
-    //
-    function onDeviceReady() {
-      var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);
-
-      db.transaction(function(tx) {
-        tx.executeSql('DROP TABLE IF EXISTS test_table');
-        tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
-
-        // demonstrate PRAGMA:
-        db.executePragmaStatement("pragma table_info (test_table);", function(res) {
-          console.log("PRAGMA res: " + JSON.stringify(res));
-        });
-
-        tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
-          console.log("insertId: " + res.insertId + " -- probably 1");
-          console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
+        // Cordova is ready
+        function onDeviceReady() {
+          var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);
 
           db.transaction(function(tx) {
-            tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
-              console.log("res.rows.length: " + res.rows.length + " -- should be 1");
-              console.log("res.rows.item(0).cnt: " + res.rows.item(0).cnt + " -- should be 1");
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
+
+            // demonstrate PRAGMA:
+            db.executePragmaStatement("pragma table_info (test_table);", function(res) {
+              console.log("PRAGMA res: " + JSON.stringify(res));
+            });
+
+            tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
+              console.log("insertId: " + res.insertId + " -- probably 1");
+              console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
+
+              db.transaction(function(tx) {
+                tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
+                  console.log("res.rows.length: " + res.rows.length + " -- should be 1");
+                  console.log("res.rows.item(0).cnt: " + res.rows.item(0).cnt + " -- should be 1");
+                });
+              });
+
+            }, function(e) {
+              console.log("ERROR: " + e.message);
             });
           });
-
-        }, function(e) {
-          console.log("ERROR: " + e.message);
-        });
-      });
-    }
+        }
 
 ## Sample with transaction-level nesting
 
 In this case, the same transaction in the first executeSql() callback is being reused to run executeSql() again.
 
-    // Wait for Cordova to load
-    //
-    document.addEventListener("deviceready", onDeviceReady, false);
+        // Wait for Cordova to load
+        document.addEventListener("deviceready", onDeviceReady, false);
 
-    // Cordova is ready
-    //
-    function onDeviceReady() {
-      var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);
+        // Cordova is ready
+        function onDeviceReady() {
+          var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);
 
-      db.transaction(function(tx) {
-        tx.executeSql('DROP TABLE IF EXISTS test_table');
-        tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
 
-        tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
-          console.log("insertId: " + res.insertId + " -- probably 1");
-          console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
+            tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
+              console.log("insertId: " + res.insertId + " -- probably 1");
+              console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
 
-          tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
-            console.log("res.rows.length: " + res.rows.length + " -- should be 1");
-            console.log("res.rows.item(0).cnt: " + res.rows.item(0).cnt + " -- should be 1");
+              tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
+                console.log("res.rows.length: " + res.rows.length + " -- should be 1");
+                console.log("res.rows.item(0).cnt: " + res.rows.item(0).cnt + " -- should be 1");
+              });
+
+            }, function(e) {
+              console.log("ERROR: " + e.message);
+            });
           });
-
-        }, function(e) {
-          console.log("ERROR: " + e.message);
-        });
-      });
-    }
+        }
 
 This case will also works with Safari (WebKit), assuming you replace window.sqlitePlugin.openDatabase with window.openDatabase.
 
-Installing
-==========
+# Installing
 
 **NOTE:** There are now the following trees:
 
- - `iOS` for Cordova 2.1 iOS
+ - `iOS`: platform-specific code
  - `Lawnchair-adapter`: Lawnchair adaptor for both iOS and Android, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
  - `test-www`: simple testing in `index.html` using qunit 1.5.0
 
-## iOS
+## iOS platform
 
 ### SQLite library
 
@@ -208,6 +216,11 @@ In addition, for Cordova pre-2.0 iOS, please make the following patch to iOS/Plu
      
      #import "AppDelegate.h"
 
+# Common traps & pitfalls
+
+- The plugin class name starts with "SQL" in capital letters, but in Javascript the `sqlitePlugin` object name starts with "sql" in small letters.
+- Attempting to open a database before receiving the "deviceready" event callback.
+
 # Support
 
 If you have an issue with the plugin please check the following first:
@@ -256,7 +269,7 @@ Lawnchair Adapter Usage
 Common adapter
 --------------
 
-Please look at the `Lawnchair-adapter` tree that contains a common adapter, working for both Android and iOS, along with a test-www directory.
+Please look at the `Lawnchair-adapter` tree that contains a common adapter, which should also work with the Android version, along with a test-www directory.
 
 
 Included files
@@ -307,4 +320,7 @@ application.
 - Testimonials of apps that are using this plugin would be especially helpful.
 - Issue reports can help improve the quality of this plugin.
 - Patches with bug fixes are helpful, especially when submitted with test code.
+- Other enhancements will be considered if they do not increase the complexity of this plugin.
+- All contributions may be reused by @brodyspark under another license in the future. Efforts
+will be taken to give credit for major contributions but it will not be guaranteed.
 
