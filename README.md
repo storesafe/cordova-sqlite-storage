@@ -37,16 +37,7 @@ I would like to gather some more real-world examples, please send to chris.brody
 
 - `rowsAffected` field in the response to UPDATE and DELETE is not working
 - The db version, display name, and size parameter values are not supported and will be ignored.
-- The sqlite plugin will not work before the callback for the "deviceready" event has been fired, as in the following example:
-
-    // Wait for Cordova to load
-    document.addEventListener("deviceready", onDeviceReady, false);
-
-    // Cordova is ready
-    function onDeviceReady() {
-      var db = window.sqlitePlugin.openDatabase({name: "DB"});
-      // ...
-    }
+- The sqlite plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**.
 
 Usage
 =====
@@ -58,6 +49,17 @@ The idea is to emulate the HTML5 SQL API as closely as possible. The only major 
 There are two options to open a database:
 - Recommended: `var db = window.sqlitePlugin.openDatabase({name: "DB"});`
 - Classical: `var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);`
+
+**NOTE:** Please wait for the "deviceready" event, as in the following example:
+
+    // Wait for Cordova to load
+    document.addEventListener("deviceready", onDeviceReady, false);
+
+    // Cordova is ready
+    function onDeviceReady() {
+      var db = window.sqlitePlugin.openDatabase({name: "DB"});
+      // ...
+    }
 
 ## Sample with PRAGMA feature
 
