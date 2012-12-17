@@ -56,14 +56,10 @@ public class SQLitePlugin extends CordovaPlugin
 	{
 		try {
 			if (action.equals("open")) {
-				this.openDatabase(args.getString(0), "1",
-						"database", 5000000);
-				//this.openDatabase(args.getString(0), args.getString(1),
-				//		args.getString(2), args.getLong(3));
+				this.openDatabase(args.getString(0));
 			}
-			// XXX TODO:
 			else if (action.equals("close")) {
-				Log.v("error", "NOT IMPLEMENTED"); // XXX TODO
+				this.closeDatabase(args.getString(0));
 			}
 			else if (action.equals("executePragmaStatement"))
 			{
@@ -139,32 +135,45 @@ public class SQLitePlugin extends CordovaPlugin
 	// --------------------------------------------------------------------------
 
 	/**
-	 * Open database.
+	 * Open a database.
 	 *
-	 * @param db
-	 *            The name of the database including its extension.
-	 * @param version
-	 *            The version
-	 * @param display_name
-	 *            The display name
-	 * @param size
-	 *            The size in bytes
+	 * @param dbName
+	 *            The name of the database-NOT including its extension.
+	 *
 	 */
-	private void openDatabase(String db, String version, String display_name, long size)
+	private void openDatabase(String dbName)
 	{
-		//SQLiteDatabase myDb =
-		//	this.cordova.getActivity().getApplicationContext().openOrCreateDatabase(db + ".db", Context.MODE_PRIVATE, null);
+		if (this.getDatabase(dbName) != null) this.closeDatabase(dbName);
 
-		File dbFile = this.cordova.getActivity().getDatabasePath(db + ".db");
+		File dbFile = this.cordova.getActivity().getDatabasePath(dbName + ".db");
 
 		Log.v("info", "Open sqlite db: " + dbFile.getAbsolutePath());
 
 		SQLiteDatabase myDb = SQLiteDatabase.openOrCreateDatabase(dbFile, null);
 
-		myDbMap.put(db, myDb);
+		myDbMap.put(dbName, myDb);
 	}
 
-	private SQLiteDatabase getDatabase(String dbName) {
+	/**
+	 * Close a database.
+	 *
+	 * @param dbName
+	 *            The name of the database-NOT including its extension.
+	 *
+	 */
+	private void closeDatabase(String dbName)
+	{
+		SQLiteDatabase myDb = this.getDatabase(dbName);
+
+		if (myDb != null)
+		{
+			myDb.close();
+			this.myDbMap.remove(dbName);
+		}
+	}
+
+	private SQLiteDatabase getDatabase(String dbName)
+	{
 		return myDbMap.get(dbName);
 	}
 
