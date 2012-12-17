@@ -34,16 +34,15 @@ I would like to gather some more real-world examples, please send to chris.brody
 
 ## Known limitations
 
- - Versioning functionality is missing
- - API will block app execution upon large batching (workaround: add application logic to break large batches into smaller batch transactions)
  - `rowsAffected` field in the response to UPDATE and DELETE is not working
+ - The db version, display name, and size parameter values are not supported and ignored.
 
 Usage
 =====
 
 The idea is to emulate the HTML5 SQL API as closely as possible. The only major change is to use window.sqlitePlugin.openDatabase() (or sqlitePlugin.openDatabase()) instead of window.openDatabase(). If you see any other major change please report it, it is probably a bug.
 
-# Sample with PRAGMA feature
+## Sample with PRAGMA feature
 
 This is a pretty strong test: first we create a table and add a single entry, then query the count to check if the item was inserted as expected. Note that a new transaction is created in the middle of the first callback.
 
@@ -221,28 +220,11 @@ Unit testing is done in `test-www/index.html`. To run the test(s) yourself pleas
 
 [Excellent directions for the Android version](http://www.raymondcamden.com/index.cfm/2012/7/27/Guest-Blog-Post-Shipping-a-populated-SQLite-DB-with-PhoneGap) have been posted recently, directions needed for iOS version. [General directions for Cordova/PhoneGap](http://gauravstomar.blogspot.com/2011/08/prepopulate-sqlite-in-phonegap.html) had been posted but seems out-of-date and does not specifically apply for this plugin.
 
-# Extra notes from original iOS version
-
-### Other notes from @Joenoon:
-
-I played with the idea of batching responses into larger sets of
-writeJavascript on a timer, however there was only a barely noticeable
-performance gain.  So I took it out, not worth it.  However there is a
-massive performance gain by batching on the client-side to minimize
-PhoneGap.exec calls using the transaction support.
-
-
-### Other notes from @davibe:
-
-I used the plugin to store very large documents (1 or 2 Mb each) and found
-that the main bottleneck was passing data from javascript to native code.
-Running PhoneGap.exec took some seconds while completely blocking my
-application.
-
 # Contributing
 
 - Testimonials of apps that are using this plugin would be especially helpful.
 - Issue reports can help improve the quality of this plugin.
 - Patches with bug fixes are helpful, especially when submitted with test code.
 - Other enhancements will be considered if they do not increase the complexity of this plugin.
+- All contributions may be reused by @brodyspark under another license in the future. Efforts will be taken to give credit to major contributions but will not be guaranteed.
 
