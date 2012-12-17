@@ -1,4 +1,4 @@
-# Cordova/PhoneGap SQLitePlugin - Android version
+# Cordova/PhoneGap sqlite plugin - Android version
 
 Native interface to sqlite in a Cordova/PhoneGap plugin, working to follow the HTML5 Web SQL API as close as possible.
 
@@ -10,6 +10,10 @@ License for this version: MIT or Apache
 
 ## Announcements
 
+ - New, optional interface to open a database like:
+
+      var db = window.sqlitePlugin.openDatabase({name: "DB"});
+
  - [Improvements in the form of PRAGMAs & multiple database files (bug fix)](http://brodyspark.blogspot.com/2012/12/improvements-to-phonegap-sqliteplugin.html).
  - The Android version is now maintained in this location as [announced here](http://brodyspark.blogspot.com/2012/12/phonegap-sqliteplugin-for-ios-android.html).
  
@@ -20,27 +24,49 @@ License for this version: MIT or Apache
  - batch processing optimizations
  - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
 
-This SQLitePlugin can also be used with SQLCipher to provide encryption. This was already described on my old blog:
+This sqlite plugin can also be used with SQLCipher to provide encryption. This was already described on my old blog:
  - [Android version with rebuilding SQLCipher from source](http://mobileapphelp.blogspot.com/2012/08/rebuilding-sqlitesqlcipher-for-android.html)
  - [Android version tested with SQLCipher for database encryption](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova.html), working with a few changes to SQLitePlugin.java
 Updated instructions will be posted on my [new blog](http://brodyspark.blogspot.com/) sometime in the near future.
 
-## Apps using Cordova/PhoneGap SQLitePlugin (Android version)
+## Apps using Cordova/PhoneGap sqlite plugin (Android version)
 
  - [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/)
  - Upcoming (under development): Arbiter disastery recovery app by [LMN Solutions](http://lmnsolutions.com/)
 
 I would like to gather some more real-world examples, please send to chris.brody@gmail.com and I will post them.
 
-## Known limitations
+## known limitations
 
  - `rowsAffected` field in the response to UPDATE and DELETE is not working
- - The db version, display name, and size parameter values are not supported and ignored.
+ - The db version, display name, and size parameter values are not supported and will be ignored.
+ - The sqlite plugin will not work before the callback for the "deviceready" event has been fired, as in the following example:
+
+    // Wait for Cordova to load
+    document.addEventListener("deviceready", onDeviceReady, false);
+
+    // Cordova is ready
+    function onDeviceReady() {
+      var db = window.sqlitePlugin.openDatabase({name: "DB"});
+      // ...
+    }
 
 Usage
 =====
 
-The idea is to emulate the HTML5 SQL API as closely as possible. The only major change is to use window.sqlitePlugin.openDatabase() (or sqlitePlugin.openDatabase()) instead of window.openDatabase(). If you see any other major change please report it, it is probably a bug.
+The idea is to emulate the HTML5 SQL API as closely as possible. The only major change is to use window.sqlitePlugin.openDatabase() (or sqlitePlugin.openDatabase()) instead of window.openDatabase(). If you see any other major change and it is not reported under **known limitations** please report it, it is probably a bug.
+
+## Opening a database
+
+There are two options to open a database:
+
+- Recommended:
+
+      var db = window.sqlitePlugin.openDatabase({name: "DB"});
+
+- Classical:
+
+      var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);
 
 ## Sample with PRAGMA feature
 
@@ -53,7 +79,7 @@ This is a pretty strong test: first we create a table and add a single entry, th
     // Cordova is ready
     //
     function onDeviceReady() {
-      var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);
+      var db = window.sqlitePlugin.openDatabase({name: "DB"});
 
       db.transaction(function(tx) {
         tx.executeSql('DROP TABLE IF EXISTS test_table');
@@ -61,7 +87,7 @@ This is a pretty strong test: first we create a table and add a single entry, th
 
         // demonstrate PRAGMA:
         db.executePragmaStatement("pragma table_info (test_table);", function(res) {
-          alert("PRAGMA res: " + JSON.stringify(res));
+          console.log("PRAGMA res: " + JSON.stringify(res));
         });
 
         tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {

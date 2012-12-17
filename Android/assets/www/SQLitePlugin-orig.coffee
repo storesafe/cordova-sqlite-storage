@@ -221,11 +221,35 @@ do ->
     cordova.exec null, null, "SQLitePlugin", "executeSqlBatch", [ @dbPath, transaction_queue[@trans_id] ]
     return
 
+  SQLiteFactory =
+    opendb: ->
+      if arguments.length < 1 then return null
+
+      first = arguments[0]
+      dbname = "DB"
+      okcb = null
+      errorcb = null
+
+      if first.constructor == String
+        dbname = first
+        if arguments.length >= 5
+          okcb = arguments[4]
+          if arguments.length > 5 then errorcb = arguments[5]
+
+      else
+        dbname = first['name']
+        if arguments.length >= 2
+          okcb = arguments[1]
+          if arguments.length > 2 then errorcb = arguments[2]
+
+      new SQLitePlugin dbname, okcb, errorcb
+
   # Required for callbacks:
   root.SQLitePluginCallback = SQLitePluginCallback
   root.SQLitePluginTransactionCB = SQLitePluginTransactionCB
 
   root.sqlitePlugin =
-    openDatabase: (dbPath, version, displayName, estimatedSize, creationCallback, errorCallback) ->
-      new SQLitePlugin(dbPath, creationCallback, errorCallback)
+    #openDatabase: (dbPath, version, displayName, estimatedSize, creationCallback, errorCallback) ->
+    #  new SQLitePlugin(dbPath, creationCallback, errorCallback)
+    openDatabase: SQLiteFactory.opendb
 

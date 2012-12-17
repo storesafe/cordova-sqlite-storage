@@ -20,7 +20,7 @@
 
       test("db transaction test", function() {
 
-        var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);
+        var db = window.sqlitePlugin.openDatabase({name: "Database"});
 
         ok(!!db, "db object");
 
