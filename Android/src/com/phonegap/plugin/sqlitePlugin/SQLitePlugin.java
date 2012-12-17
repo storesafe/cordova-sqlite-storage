@@ -11,7 +11,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+
 import java.lang.Number;
+
+import java.util.HashMap;
 
 import org.apache.cordova.api.CordovaPlugin;
 import org.apache.cordova.api.CallbackContext;
@@ -19,8 +23,6 @@ import org.apache.cordova.api.CallbackContext;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.*;
-
-import java.util.HashMap;
 
 import android.util.Log;
 
@@ -150,8 +152,14 @@ public class SQLitePlugin extends CordovaPlugin
 	 */
 	private void openDatabase(String db, String version, String display_name, long size)
 	{
-		SQLiteDatabase myDb =
-			this.cordova.getActivity().getApplicationContext().openOrCreateDatabase(db + ".db", Context.MODE_PRIVATE, null);
+		//SQLiteDatabase myDb =
+		//	this.cordova.getActivity().getApplicationContext().openOrCreateDatabase(db + ".db", Context.MODE_PRIVATE, null);
+
+		File dbFile = this.cordova.getActivity().getDatabasePath(db + ".db");
+
+		Log.v("info", "Open sqlite db: " + dbFile.getAbsolutePath());
+
+		SQLiteDatabase myDb = SQLiteDatabase.openOrCreateDatabase(dbFile, null);
 
 		myDbMap.put(db, myDb);
 	}
