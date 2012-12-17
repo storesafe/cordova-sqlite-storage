@@ -33,11 +33,17 @@ Updated instructions will be posted on my [new blog](http://brodyspark.blogspot.
 
 I would like to gather some more real-world examples, please send to chris.brody@gmail.com and I will post them.
 
-## known limitations
+## Known limitations
 
 - `rowsAffected` field in the response to UPDATE and DELETE is not working
 - The db version, display name, and size parameter values are not supported and will be ignored.
 - The sqlite plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**.
+- This version is missing automatic transaction rollback upon failure.
+
+## Other versions
+
+- iOS version: https://github.com/brodyspark/PhoneGap-SQLitePlugin-iOS
+- Windows Phone 8+ version: https://github.com/marcucio/Cordova-WP-SqlitePlugin
 
 Usage
 =====
@@ -130,7 +136,7 @@ In this case, the same transaction in the first executeSql() callback is being r
           });
         }
 
-This case will also works with Safari (WebKit), assuming you replace window.sqlitePlugin.openDatabase with window.openDatabase.
+This case will also works with WebKit, assuming you replace window.sqlitePlugin.openDatabase with window.openDatabase.
 
 # Installing
 
@@ -210,6 +216,11 @@ Make a change like this to index.html (or use the sample code) verify proper ins
        </head>
        <body onload="init();" id="stage" class="theme">
 
+# Common traps & pitfalls
+
+- The plugin class name starts with "SQL" in capital letters, but in Javascript the `sqlitePlugin` object name starts with "sql" in small letters.
+- Attempting to open a database before receiving the "deviceready" event callback.
+
 # Support
 
 If you have an issue with the plugin please check the following first:
@@ -242,5 +253,5 @@ Unit testing is done in `test-www/index.html`. To run the test(s) yourself pleas
 - Patches with bug fixes are helpful, especially when submitted with test code.
 - Other enhancements will be considered if they do not increase the complexity of this plugin.
 - All contributions may be reused by @brodyspark under another license in the future. Efforts
-will be taken to give credit to major contributions but will not be guaranteed.
+will be taken to give credit for major contributions but it will not be guaranteed.
 
