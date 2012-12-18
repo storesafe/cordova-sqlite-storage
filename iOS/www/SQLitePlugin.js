@@ -6,9 +6,7 @@
 // (and try to keep the comments by hand)
 //
 // NOTE: this Javascript version is now leading, however
-// SQLitePlugin-orig.coffee is still maintained by @chbrody
-// to make it easier to refactor a common version for both
-// iOS and Android.
+// SQLitePlugin-orig.coffee is still available for review.
 //
 // To convert back to CoffeeScript:
 // js2coffee SQLitePlugin.js > SQLitePlugin-new.coffee
@@ -28,14 +26,12 @@ if (!window.Cordova) window.Cordova = window.cordova;
     return f;
   };
 
-
   exec = function(s, o){
     if (root.sqlitePlugin.DEBUG){
       console.log(s + ": " + JSON.stringify(o));
     }
     Cordova.exec(s, o);
   };
-
 
   getOptions = function(opts, success, error) {
     var cb, has_cbs;
@@ -52,19 +48,24 @@ if (!window.Cordova) window.Cordova = window.cordova;
     if (has_cbs) opts.callback = cbref(cb);
     return opts;
   };
-  SQLitePlugin = function(dbPath, openSuccess, openError) {
-    this.dbPath = dbPath;
+
+  SQLitePlugin = function(dbargs, openSuccess, openError) {
+    if (!dbargs || !dbargs['name']) {
+      throw new Error("Cannot create a SQLitePlugin instance without a db name");
+    }
+
+    this.dbargs = dbargs;
+    this.dbname = dbargs.name;
+
     this.openSuccess = openSuccess;
     this.openError = openError;
-    if (!dbPath) {
-      throw new Error("Cannot create a SQLitePlugin instance without a dbPath");
-    }
     this.openSuccess || (this.openSuccess = function() {
-      console.log("DB opened: " + dbPath);
+      console.log("DB opened: " + dbname);
     });
     this.openError || (this.openError = function(e) {
       console.log(e.message);
     });
+
     this.open(this.openSuccess, this.openError);
   };
   SQLitePlugin.prototype.openDBs = {};
@@ -90,7 +91,7 @@ if (!window.Cordova) window.Cordova = window.cordova;
     };
     opts = getOptions({
       query: [sql],
-      path: this.dbPath
+      path: this.dbname
     }, mysuccesscb, error);
     exec("SQLitePlugin.backgroundExecuteSql", opts);
   };
@@ -99,7 +100,7 @@ if (!window.Cordova) window.Cordova = window.cordova;
     if (!sql) throw new Error("Cannot executeSql without a query");
     opts = getOptions({
       query: [sql].concat(values || []),
-      path: this.dbPath
+      path: this.dbname
     }, success, error);
     exec("SQLitePlugin.backgroundExecuteSql", opts);
   };
@@ -118,20 +119,18 @@ if (!window.Cordova) window.Cordova = window.cordova;
   };
   SQLitePlugin.prototype.open = function(success, error) {
     var opts;
-    if (!(this.dbPath in this.openDBs)) {
-      this.openDBs[this.dbPath] = true;
-      opts = getOptions({
-        path: this.dbPath
-      }, success, error);
+    if (!(this.dbname in this.openDBs)) {
+      this.openDBs[this.dbname] = true;
+      opts = getOptions(this.dbargs, success, error);
       exec("SQLitePlugin.open", opts);
     }
   };
   SQLitePlugin.prototype.close = function(success, error) {
     var opts;
-    if (this.dbPath in this.openDBs) {
-      delete this.openDBs[this.dbPath];
+    if (this.dbname in this.openDBs) {
+      delete this.openDBs[this.dbname];
       opts = getOptions({
-        path: this.dbPath
+        path: this.dbname
       }, success, error);
       exec("SQLitePlugin.close", opts);
     }
@@ -228,7 +227,7 @@ if (!window.Cordova) window.Cordova = window.cordova;
       var request = batchExecutes[i];
       opts.push(getOptions({
 	query: request.query,
-	path: this.db.dbPath
+	path: this.db.dbname
       }, handlerFor(i, true), handlerFor(i, false)));
     }
 
@@ -277,26 +276,28 @@ if (!window.Cordova) window.Cordova = window.cordova;
 
   SQLiteFactory = {
     opendb: function() {
-      var dbname, errorcb, first, okcb;
+      var errorcb, first, okcb, openargs;
       if (arguments.length < 1) return null;
       first = arguments[0];
-      dbname = "DB";
+      openargs = null;
       okcb = null;
       errorcb = null;
       if (first.constructor === String) {
-        dbname = first;
+        openargs = {
+          name: first
+        };
         if (arguments.length >= 5) {
           okcb = arguments[4];
           if (arguments.length > 5) errorcb = arguments[5];
         }
       } else {
-        dbname = first['name'];
+        openargs = first;
         if (arguments.length >= 2) {
           okcb = arguments[1];
           if (arguments.length > 2) errorcb = arguments[2];
         }
       }
-      return new SQLitePlugin(dbname, okcb, errorcb);
+      return new SQLitePlugin(openargs, okcb, errorcb);
     }
   };
 

@@ -54,15 +54,15 @@
 -(void) open: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
 {
     NSString *callback = [options objectForKey:@"callback"];
-    NSString *dbPath = [self getDBPath:[options objectForKey:@"path"]];
+    NSString *dbname = [self getDBPath:[options objectForKey:@"name"]];
     NSValue *dbPointer;
 
-    if (dbPath == NULL) {
-        [self respond:callback withString:@"{ message: 'You must specify database path' }" withType:@"error"];
+    if (dbname == NULL) {
+        [self respond:callback withString:@"{ message: 'You must specify database name' }" withType:@"error"];
         return;
     }
 
-    dbPointer = [openDBs objectForKey:dbPath];
+    dbPointer = [openDBs objectForKey:dbname];
     if (dbPointer != NULL) {
       NSLog(@"Reusing existing database connection");
       [self respond:callback withString: @"{ message: 'Database opened' }" withType:@"success"];
@@ -70,17 +70,17 @@
     }
     
     sqlite3 *db;
-    const char *path = [dbPath UTF8String];
+    const char *name = [dbname UTF8String];
 
-    NSLog(@"using dbPath: %@", dbPath);
+    NSLog(@"using db name: %@", dbname);
 
-    if (sqlite3_open(path, &db) != SQLITE_OK) {
+    if (sqlite3_open(name, &db) != SQLITE_OK) {
         [self respond:callback withString:@"{ message: 'Unable to open DB' }" withType:@"error"];
         return;
     }
     
     dbPointer = [NSValue valueWithPointer:db];
-    [openDBs setObject:dbPointer forKey: dbPath];
+    [openDBs setObject:dbPointer forKey: dbname];
     [self respond:callback withString: @"{ message: 'Database opened' }" withType:@"success"];
 }
 
