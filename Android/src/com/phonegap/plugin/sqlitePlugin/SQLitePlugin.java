@@ -21,7 +21,9 @@ import org.apache.cordova.api.CordovaPlugin;
 import org.apache.cordova.api.CallbackContext;
 
 import android.content.Context;
+
 import android.database.Cursor;
+
 import android.database.sqlite.*;
 
 import android.util.Log;
@@ -31,13 +33,13 @@ public class SQLitePlugin extends CordovaPlugin
 	/**
 	 * Multiple database map.
 	 */
-	HashMap<String, SQLiteDatabase> myDbMap;
+	HashMap<String, SQLiteDatabase> dbmap;
 
 	/**
 	 * Constructor.
 	 */
 	public SQLitePlugin() {
-		myDbMap = new HashMap<String, SQLiteDatabase>();
+		dbmap = new HashMap<String, SQLiteDatabase>();
 	}
 
 	/**
@@ -45,8 +47,10 @@ public class SQLitePlugin extends CordovaPlugin
 	 *
 	 * @param action
 	 *            The action to execute.
+	 *
 	 * @param args
 	 *            JSONArry of arguments for the plugin.
+	 *
 	 * @param cbc
 	 *            Callback context from Cordova API (not used here)
 	 *
@@ -56,11 +60,10 @@ public class SQLitePlugin extends CordovaPlugin
 	{
 		try {
 			if (action.equals("open")) {
-				//this.openDatabase(args.getString(0));
-
 				JSONObject o = args.getJSONObject(0);
 				String dbname = o.getString("name");
-				this.openDatabase(dbname);
+
+				this.openDatabase(dbname, null);
 			}
 			else if (action.equals("close")) {
 				this.closeDatabase(args.getString(0));
@@ -120,19 +123,18 @@ public class SQLitePlugin extends CordovaPlugin
 	}
 
 	/**
-	 * XXX TODO:
-	 * Clean up and close database.
+	 *
+	 * Clean up and close all open databases.
 	 *
 	 */
-	//@Override
-	//public void onDestroy() {
-		/** XXX TODO :
-		if (this.myDb != null) {
-			this.myDb.close();
-			this.myDb = null;
+	@Override
+	public void onDestroy() {
+		while (!this.dbmap.isEmpty()) {
+			String dbname = this.dbmap.keySet().iterator().next();
+			this.closeDatabase(dbname);
+			this.dbmap.remove(dbname);
 		}
-		**/
-	//}
+	}
 
 	// --------------------------------------------------------------------------
 	// LOCAL METHODS
@@ -141,21 +143,24 @@ public class SQLitePlugin extends CordovaPlugin
 	/**
 	 * Open a database.
 	 *
-	 * @param dbName
+	 * @param dbname
 	 *            The name of the database-NOT including its extension.
 	 *
+	 * @param password
+	 *            The database password or null.
+	 *
 	 */
-	private void openDatabase(String dbName)
+	private void openDatabase(String dbname, String password)
 	{
-		if (this.getDatabase(dbName) != null) this.closeDatabase(dbName);
+		if (this.getDatabase(dbname) != null) this.closeDatabase(dbname);
 
-		File dbFile = this.cordova.getActivity().getDatabasePath(dbName + ".db");
+		File dbfile = this.cordova.getActivity().getDatabasePath(dbname + ".db");
 
-		Log.v("info", "Open sqlite db: " + dbFile.getAbsolutePath());
+		Log.v("info", "Open sqlite db: " + dbfile.getAbsolutePath());
 
-		SQLiteDatabase myDb = SQLiteDatabase.openOrCreateDatabase(dbFile, null);
+		SQLiteDatabase mydb = SQLiteDatabase.openOrCreateDatabase(dbfile, null);
 
-		myDbMap.put(dbName, myDb);
+		dbmap.put(dbname, mydb);
 	}
 
 	/**
@@ -167,28 +172,54 @@ public class SQLitePlugin extends CordovaPlugin
 	 */
 	private void closeDatabase(String dbName)
 	{
-		SQLiteDatabase myDb = this.getDatabase(dbName);
+		SQLiteDatabase mydb = this.getDatabase(dbName);
 
-		if (myDb != null)
+		if (mydb != null)
 		{
-			myDb.close();
-			this.myDbMap.remove(dbName);
+			mydb.close();
+			this.dbmap.remove(dbName);
 		}
 	}
 
-	private SQLiteDatabase getDatabase(String dbName)
+	/**
+	 * Get a database from the db map.
+	 *
+	 * @param dbname
+	 *            The name of the database.
+	 *
+	 */
+	private SQLiteDatabase getDatabase(String dbname)
 	{
-		return myDbMap.get(dbName);
+		return dbmap.get(dbname);
 	}
 
-	private void executeSqlBatch(String dbName, String[] queryarr, JSONArray[] jsonparams, String[] queryIDs, String tx_id)
+	/**
+	 * Executes a batch request and sends the results via sendJavascriptCB().
+	 *
+	 * @param dbname
+	 *            The name of the database.
+	 *
+	 * @param queryarr
+	 *            Array of query strings
+	 *
+	 * @param jsonparams
+	 *            Array of JSON query parameters
+	 *
+	 * @param queryIDs
+	 *            Array of query ids
+	 *
+	 * @param tx_id
+	 *            Transaction id
+	 *
+	 */
+	private void executeSqlBatch(String dbname, String[] queryarr, JSONArray[] jsonparams, String[] queryIDs, String tx_id)
 	{
-		SQLiteDatabase myDb = this.getDatabase(dbName);
+		SQLiteDatabase mydb = this.getDatabase(dbname);
 
-		if (myDb == null) return;
+		if (mydb == null) return;
 
 		try {
-			myDb.beginTransaction();
+			mydb.beginTransaction();
 
 			String query = "";
 			String query_id = "";
@@ -198,7 +229,7 @@ public class SQLitePlugin extends CordovaPlugin
 				query = queryarr[i];
 				query_id = queryIDs[i];
 				if (query.toLowerCase().startsWith("insert") && jsonparams != null) {
-					SQLiteStatement myStatement = myDb.compileStatement(query);
+					SQLiteStatement myStatement = mydb.compileStatement(query);
 					for (int j = 0; j < jsonparams[i].length(); j++) {
 						if (jsonparams[i].get(j) instanceof Float || jsonparams[i].get(j) instanceof Double ) {
 							myStatement.bindDouble(j + 1, jsonparams[i].getDouble(j));
@@ -227,7 +258,7 @@ public class SQLitePlugin extends CordovaPlugin
 						}
 					}
 
-					Cursor myCursor = myDb.rawQuery(query, params);
+					Cursor myCursor = mydb.rawQuery(query, params);
 
 					if(query_id.length() > 0)
 						this.processResults(myCursor, query_id, tx_id);
@@ -235,7 +266,7 @@ public class SQLitePlugin extends CordovaPlugin
 					myCursor.close();
 				}
 			}
-			myDb.setTransactionSuccessful();
+			mydb.setTransactionSuccessful();
 		}
 		catch (SQLiteException ex) {
 			ex.printStackTrace();
@@ -247,7 +278,7 @@ public class SQLitePlugin extends CordovaPlugin
 			this.sendJavascriptCB("window.SQLitePluginTransactionCB.txErrorCallback('" + tx_id + "', '"+ex.getMessage()+"');");
 		}
 		finally {
-			myDb.endTransaction();
+			mydb.endTransaction();
 			Log.v("executeSqlBatch", tx_id);
 			this.sendJavascriptCB("window.SQLitePluginTransactionCB.txCompleteCallback('" + tx_id + "');");
 		}
@@ -258,16 +289,19 @@ public class SQLitePlugin extends CordovaPlugin
 	 *
 	 * @param cur
 	 *            Cursor into query results
+	 *
 	 * @param query_id
 	 *            Query id
+	 *
 	 * @param tx_id
 	 *            Transaction id
+	 *
 	 */
 	private void processResults(Cursor cur, String query_id, String tx_id)
 	{
 		String result = this.results2string(cur);
 
-		this.webView.sendJavascript("window.SQLitePluginTransactionCB.queryCompleteCallback('" +
+		this.sendJavascriptCB("window.SQLitePluginTransactionCB.queryCompleteCallback('" +
 			tx_id + "','" + query_id + "', " + result + ");");
 	}
 
@@ -276,14 +310,16 @@ public class SQLitePlugin extends CordovaPlugin
 	 *
 	 * @param cur
 	 *            Cursor into query results
+	 *
 	 * @param id
 	 *            Caller db id
+	 *
 	 */
 	private void processPragmaResults(Cursor cur, String id)
 	{
 		String result = this.results2string(cur);
 
-		this.webView.sendJavascript("window.SQLitePluginCallback.p1('" + id + "', " + result + ");");
+		this.sendJavascriptCB("window.SQLitePluginCallback.p1('" + id + "', " + result + ");");
 	}
 
 	/**
@@ -291,7 +327,9 @@ public class SQLitePlugin extends CordovaPlugin
 	 *
 	 * @param cur
 	 *            Cursor into query results
+	 *
 	 * @return results in string form
+	 *
 	 */
 	private String results2string(Cursor cur)
 	{
