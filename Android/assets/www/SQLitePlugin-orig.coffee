@@ -1,17 +1,23 @@
 do ->
   root = @
 
-  SQLitePlugin = (dbPath, openSuccess, openError) ->
+  SQLitePlugin = (openargs, openSuccess, openError) ->
     console.log "SQLitePlugin"
-    throw new Error("Cannot create a SQLitePlugin instance without a dbPath")  unless dbPath
 
-    @dbPath = dbPath
+    if !(openargs and openargs['name'])
+      throw new Error("Cannot create a SQLitePlugin instance without a db name")
+
+    dbname = openargs.name
+
+    @openargs = openargs
+    @dbname = dbname
+
     @openSuccess = openSuccess
     @openError = openError
 
     @openSuccess or
       @openSuccess = ->
-        console.log "DB opened: " + dbPath
+        console.log "DB opened: " + dbname
 
     @openError or
       @openError = (e) ->
@@ -23,7 +29,7 @@ do ->
   SQLitePlugin::openDBs = {}
 
   SQLitePlugin::transaction = (fn, error, success) ->
-    t = new SQLitePluginTransaction(@dbPath)
+    t = new SQLitePluginTransaction(@dbname)
     fn t
     t.complete success, error
     return
@@ -31,19 +37,19 @@ do ->
   SQLitePlugin::open = (success, error) ->
     console.log "SQLitePlugin.prototype.open"
 
-    unless @dbPath of @openDBs
-      @openDBs[@dbPath] = true
-      cordova.exec success, error, "SQLitePlugin", "open", [ @dbPath ]
+    unless @dbname of @openDBs
+      @openDBs[@dbname] = true
+      cordova.exec success, error, "SQLitePlugin", "open", [ @openargs ]
 
     return
 
   SQLitePlugin::close = (success, error) ->
     console.log "SQLitePlugin.prototype.close"
 
-    if @dbPath of @openDBs
-      delete @openDBs[@dbPath]
+    if @dbname of @openDBs
+      delete @openDBs[@dbname]
 
-      cordova.exec null, null, "SQLitePlugin", "close", [ @dbPath ]
+      cordova.exec null, null, "SQLitePlugin", "close", [ @dbname ]
 
     return
 
@@ -53,7 +59,7 @@ do ->
     console.log "SQLitePlugin::executePragmaStatement"
     pcb = success
 
-    cordova.exec (-> 1), error, "SQLitePlugin", "executePragmaStatement", [ @dbPath, statement ]
+    cordova.exec (-> 1), error, "SQLitePlugin", "executePragmaStatement", [ @dbname, statement ]
     return
 
   SQLitePluginCallback =
@@ -75,8 +81,8 @@ do ->
   transaction_queue = []
   transaction_callback_queue = {}
 
-  SQLitePluginTransaction = (dbPath) ->
-    @dbPath = dbPath
+  SQLitePluginTransaction = (dbname) ->
+    @dbname = dbname
     @executes = []
     @trans_id = get_unique_id()
     @__completed = false
@@ -218,7 +224,7 @@ do ->
     transaction_callback_queue[@trans_id]["success"] = successcb
     transaction_callback_queue[@trans_id]["error"] = errorcb
 
-    cordova.exec null, null, "SQLitePlugin", "executeSqlBatch", [ @dbPath, transaction_queue[@trans_id] ]
+    cordova.exec null, null, "SQLitePlugin", "executeSqlBatch", [ @dbname, transaction_queue[@trans_id] ]
     return
 
   SQLiteFactory =
@@ -226,30 +232,30 @@ do ->
       if arguments.length < 1 then return null
 
       first = arguments[0]
-      dbname = "DB"
+      openargs = null
       okcb = null
       errorcb = null
 
       if first.constructor == String
-        dbname = first
+        openargs = {name: first}
+
         if arguments.length >= 5
           okcb = arguments[4]
           if arguments.length > 5 then errorcb = arguments[5]
 
       else
-        dbname = first['name']
+        openargs = first
+
         if arguments.length >= 2
           okcb = arguments[1]
           if arguments.length > 2 then errorcb = arguments[2]
 
-      new SQLitePlugin dbname, okcb, errorcb
+      new SQLitePlugin openargs, okcb, errorcb
 
   # Required for callbacks:
   root.SQLitePluginCallback = SQLitePluginCallback
   root.SQLitePluginTransactionCB = SQLitePluginTransactionCB
 
   root.sqlitePlugin =
-    #openDatabase: (dbPath, version, displayName, estimatedSize, creationCallback, errorCallback) ->
-    #  new SQLitePlugin(dbPath, creationCallback, errorCallback)
     openDatabase: SQLiteFactory.opendb
 

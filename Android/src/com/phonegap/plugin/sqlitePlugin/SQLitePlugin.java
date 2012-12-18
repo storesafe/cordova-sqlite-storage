@@ -56,7 +56,11 @@ public class SQLitePlugin extends CordovaPlugin
 	{
 		try {
 			if (action.equals("open")) {
-				this.openDatabase(args.getString(0));
+				//this.openDatabase(args.getString(0));
+
+				JSONObject o = args.getJSONObject(0);
+				String dbname = o.getString("name");
+				this.openDatabase(dbname);
 			}
 			else if (action.equals("close")) {
 				this.closeDatabase(args.getString(0));

@@ -1,16 +1,19 @@
 (function() {
   var SQLiteFactory, SQLitePlugin, SQLitePluginCallback, SQLitePluginTransaction, SQLitePluginTransactionCB, get_unique_id, pcb, root, transaction_callback_queue, transaction_queue;
   root = this;
-  SQLitePlugin = function(dbPath, openSuccess, openError) {
+  SQLitePlugin = function(openargs, openSuccess, openError) {
+    var dbname;
     console.log("SQLitePlugin");
-    if (!dbPath) {
-      throw new Error("Cannot create a SQLitePlugin instance without a dbPath");
+    if (!(openargs && openargs['name'])) {
+      throw new Error("Cannot create a SQLitePlugin instance without a db name");
     }
-    this.dbPath = dbPath;
+    dbname = openargs.name;
+    this.openargs = openargs;
+    this.dbname = dbname;
     this.openSuccess = openSuccess;
     this.openError = openError;
     this.openSuccess || (this.openSuccess = function() {
-      return console.log("DB opened: " + dbPath);
+      return console.log("DB opened: " + dbname);
     });
     this.openError || (this.openError = function(e) {
       return console.log(e.message);
@@ -20,22 +23,22 @@
   SQLitePlugin.prototype.openDBs = {};
   SQLitePlugin.prototype.transaction = function(fn, error, success) {
     var t;
-    t = new SQLitePluginTransaction(this.dbPath);
+    t = new SQLitePluginTransaction(this.dbname);
     fn(t);
     t.complete(success, error);
   };
   SQLitePlugin.prototype.open = function(success, error) {
     console.log("SQLitePlugin.prototype.open");
-    if (!(this.dbPath in this.openDBs)) {
-      this.openDBs[this.dbPath] = true;
-      cordova.exec(success, error, "SQLitePlugin", "open", [this.dbPath]);
+    if (!(this.dbname in this.openDBs)) {
+      this.openDBs[this.dbname] = true;
+      cordova.exec(success, error, "SQLitePlugin", "open", [this.openargs]);
     }
   };
   SQLitePlugin.prototype.close = function(success, error) {
     console.log("SQLitePlugin.prototype.close");
-    if (this.dbPath in this.openDBs) {
-      delete this.openDBs[this.dbPath];
-      cordova.exec(null, null, "SQLitePlugin", "close", [this.dbPath]);
+    if (this.dbname in this.openDBs) {
+      delete this.openDBs[this.dbname];
+      cordova.exec(null, null, "SQLitePlugin", "close", [this.dbname]);
     }
   };
   pcb = function() {
@@ -46,7 +49,7 @@
     pcb = success;
     cordova.exec((function() {
       return 1;
-    }), error, "SQLitePlugin", "executePragmaStatement", [this.dbPath, statement]);
+    }), error, "SQLitePlugin", "executePragmaStatement", [this.dbname, statement]);
   };
   SQLitePluginCallback = {
     p1: function(id, result) {
@@ -70,8 +73,8 @@
   };
   transaction_queue = [];
   transaction_callback_queue = {};
-  SQLitePluginTransaction = function(dbPath) {
-    this.dbPath = dbPath;
+  SQLitePluginTransaction = function(dbname) {
+    this.dbname = dbname;
     this.executes = [];
     this.trans_id = get_unique_id();
     this.__completed = false;
@@ -222,30 +225,32 @@
     }
     transaction_callback_queue[this.trans_id]["success"] = successcb;
     transaction_callback_queue[this.trans_id]["error"] = errorcb;
-    cordova.exec(null, null, "SQLitePlugin", "executeSqlBatch", [this.dbPath, transaction_queue[this.trans_id]]);
+    cordova.exec(null, null, "SQLitePlugin", "executeSqlBatch", [this.dbname, transaction_queue[this.trans_id]]);
   };
   SQLiteFactory = {
     opendb: function() {
-      var dbname, errorcb, first, okcb;
+      var errorcb, first, okcb, openargs;
       if (arguments.length < 1) return null;
       first = arguments[0];
-      dbname = "DB";
+      openargs = null;
       okcb = null;
       errorcb = null;
       if (first.constructor === String) {
-        dbname = first;
+        openargs = {
+          name: first
+        };
         if (arguments.length >= 5) {
           okcb = arguments[4];
           if (arguments.length > 5) errorcb = arguments[5];
         }
       } else {
-        dbname = first['name'];
+        openargs = first;
         if (arguments.length >= 2) {
           okcb = arguments[1];
           if (arguments.length > 2) errorcb = arguments[2];
         }
       }
-      return new SQLitePlugin(dbname, okcb, errorcb);
+      return new SQLitePlugin(openargs, okcb, errorcb);
     }
   };
   root.SQLitePluginCallback = SQLitePluginCallback;
