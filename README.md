@@ -1,6 +1,6 @@
 # Cordova/PhoneGap SQLitePlugin - iOS version
 
-Native interface to sqlite in a Cordova/PhoneGap plugin, working to follow the HTML5 Web SQL API as close as possible. **NOTE** that the API is now different from https://github.com/davibe/Phonegap-SQLitePlugin.
+Native interface to sqlite in a Cordova/PhoneGap plugin, working to follow the HTML5 Web SQL API as close as possible. **NOTE** that the API is now different from [davibe / Phonegap-SQLitePlugin](https://github.com/davibe/Phonegap-SQLitePlugin).
 
 Created by @joenoon and @davibe
 
@@ -12,6 +12,7 @@ License for this version: MIT
 
 ## Announcements
 
+- [New posting about integration with SQLCipher for iOS](http://brodyspark.blogspot.com/2012/12/integrating-sqlcipher-with.html)
 - New, optional interface to open a database like: `var db = window.sqlitePlugin.openDatabase({name: "DB"});`
 - [PRAGMA support added](http://brodyspark.blogspot.com/2012/12/improvements-to-phonegap-sqliteplugin.html).
 - The Android version is now split off to [brodyspark / PhoneGap-SQLitePlugin-Android](https://github.com/brodyspark/PhoneGap-SQLitePlugin-Android).
@@ -20,17 +21,16 @@ License for this version: MIT
 
 This fork will be kept open to concentrate on bug fixing and documentation improvements. Bug fixes in the form of pull requests that are well tested, with unit testing if at all possible, and in decent coding style will be highly appreciated.
 
-## Project future
-
-See [issue #33](https://github.com/brodyspark/PhoneGap-SQLitePlugin-iOS/issues/33): to provide the maximum benefits of customization it should be possible to build with a replacement of the sqlite C library itself, and also make extensions such as SQLCipher possible ([#32](https://github.com/brodyspark/PhoneGap-SQLitePlugin-iOS/issues/32)). This enhancement would solve [#22](https://github.com/brodyspark/PhoneGap-SQLitePlugin-iOS/issues/22) for all versions of the Android API. @brodyspark expects to concentrate on the Android version using the NDK.
-
 ## Highlights
 
-- Keeps sqlite database in a known user data location that will be backed up by iCloud on iOS. This [posting on my old blog](http://mobileapphelp.blogspot.com/2012/10/cordova-sqliteplugin-continues-to-show.html) documents that this Cordova/PhoneGap SQLitePlugin continues to show excellent reliability, compared to the problems described in [CB-1561](https://issues.apache.org/jira/browse/CB-1561), in [this thread](https://groups.google.com/forum/?fromgroups=#!topic/phonegap/eJTVra33HLo), and also [this thread](https://groups.google.com/forum/?fromgroups=#!topic/phonegap/Q_jEOSIAxsY)
-- Drop-in replacement for HTML5 SQL API, the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
-- batch processing optimizations
+As described in [a recent posting](http://brodyspark.blogspot.com/2012/12/cordovaphonegap-sqlite-plugins-offer.html):
+- Keeps sqlite database in a known user data location that will be backed up by iCloud on iOS. This Cordova/PhoneGap SQLitePlugin continues to show excellent reliability, compared to the problems described in [CB-1561](https://issues.apache.org/jira/browse/CB-1561), in [this thread](https://groups.google.com/forum/?fromgroups=#!topic/phonegap/eJTVra33HLo), and also [this thread](https://groups.google.com/forum/?fromgroups=#!topic/phonegap/Q_jEOSIAxsY)
 - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
-- From my old blog: [iOS version working with the SQLCipher encryption library](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova-ios.html). Updated instructions will be posted on my [new blog](http://brodyspark.blogspot.com/) sometime in the near future.
+
+Some other highlights:
+- Drop-in replacement for HTML5 SQL API: the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
+- batch processing optimizations
+- [integration with SQLCipher for iOS](http://brodyspark.blogspot.com/2012/12/integrating-sqlcipher-with.html)
 
 ## Apps using Cordova/PhoneGap SQLitePlugin
 
