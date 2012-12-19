@@ -5,7 +5,7 @@
  * Davide Bertola <dade@dadeb.it>
  * Joe Noon <joenoon@gmail.com>
  *
- * This library is available under the terms of the MIT License (2008). 
+ * This library is available under the terms of the MIT License (2008).
  * See http://opensource.org/licenses/alphabetical for full text.
  */
 
@@ -23,7 +23,7 @@
     if (self) {
         openDBs = [NSMutableDictionary dictionaryWithCapacity:0];
         [openDBs retain];
-        
+
         //        CDVFile* pgFile = [[self appDelegate] getCommandInstance: @"org.apache.cordova.file"];
         //        NSString *docs = [pgFile appDocsPath];
         //        [self setAppDocsPath:docs];
@@ -68,7 +68,7 @@
       [self respond:callback withString: @"{ message: 'Database opened' }" withType:@"success"];
       return;
     }
-    
+
     sqlite3 *db;
     const char *name = [dbname UTF8String];
 
@@ -78,7 +78,7 @@
         [self respond:callback withString:@"{ message: 'Unable to open DB' }" withType:@"error"];
         return;
     }
-    
+
     dbPointer = [NSValue valueWithPointer:db];
     [openDBs setObject:dbPointer forKey: dbname];
     [self respond:callback withString: @"{ message: 'Database opened' }" withType:@"success"];
@@ -118,7 +118,7 @@
     NSString *dbPath = [self getDBPath:[options objectForKey:@"path"]];
     NSMutableArray *query_parts = [options objectForKey:@"query"];
     NSString *query = [query_parts objectAtIndex:0];
-    
+
     if (dbPath == NULL) {
         [self respond:callback withString:@"{ message: 'You must specify database path' }" withType:@"error"];
         return;
@@ -127,14 +127,14 @@
         [self respond:callback withString:@"{ message: 'You must specify a query to execute' }" withType:@"error"];
         return;
     }
-    
+
     NSValue *dbPointer = [openDBs objectForKey:dbPath];
     if (dbPointer == NULL) {
         [self respond:callback withString:@"{ message: 'No such database, you must open it first' }" withType:@"error"];
         return;
     }
     sqlite3 *db = [dbPointer pointerValue];
-    
+
     const char *sql_stmt = [query UTF8String];
     char *errMsg = NULL;
     sqlite3_stmt *statement;
@@ -151,11 +151,11 @@
     NSObject *bindval;
     NSObject *insertId;
     NSObject *rowsAffected;
-    
+
     hasInsertId = NO;
     previousRowsAffected = sqlite3_total_changes(db);
     previousInsertId = sqlite3_last_insert_rowid(db);
-    
+
     if (sqlite3_prepare_v2(db, sql_stmt, -1, &statement, NULL) != SQLITE_OK) {
         errMsg = (char *) sqlite3_errmsg (db);
         keepGoing = NO;
@@ -193,22 +193,22 @@
                             [entry setObject:columnValue forKey:columnName];
                             break;
                         case SQLITE_BLOB:
-                            
+
                             break;
                         case SQLITE_FLOAT:
                             columnValue = [NSNumber numberWithFloat: sqlite3_column_double(statement, i)];
                             columnName = [NSString stringWithFormat:@"%s", sqlite3_column_name(statement, i)];
-                            [entry setObject:columnValue forKey:columnName];                            
+                            [entry setObject:columnValue forKey:columnName];
                             break;
                         case SQLITE_NULL:
                             break;
                     }
                     i++;
-                    
+
                 }
                 [resultRows addObject:entry];
                 break;
-                
+
             case SQLITE_DONE:
                 nowRowsAffected = sqlite3_total_changes(db);
                 diffRowsAffected = nowRowsAffected - previousRowsAffected;
@@ -220,15 +220,15 @@
                 }
                 keepGoing = NO;
                 break;
-                
+
             default:
                 errMsg = [[NSString stringWithFormat:@"sqlite3 error code %i", result] UTF8String];
                 keepGoing = NO;
         }
     }
-    
+
     sqlite3_finalize (statement);
-    
+
     if (errMsg != NULL) {
         [self respond:callback withString:[NSString stringWithFormat:@"{ message: 'SQL statement error : %s' }", errMsg] withType:@"error"];
     } else {
@@ -249,7 +249,7 @@
         [self respond:callback withString:@"{ message: 'You must specify database path' }" withType:@"error"];
         return;
     }
-    
+
     NSValue *val = [openDBs objectForKey:dbPath];
     sqlite3 *db = [val pointerValue];
     if (db == NULL) {
@@ -266,15 +266,15 @@
     NSValue *pointer;
     NSString *key;
     sqlite3 *db;
-    
-    /* close db the user forgot */ 
+
+    /* close db the user forgot */
     for (i=0; i<[keys count]; i++) {
         key = [keys objectAtIndex:i];
         pointer = [openDBs objectForKey:key];
         db = [pointer pointerValue];
         sqlite3_close (db);
     }
-    
+
     [openDBs release];
     [appDocsPath release];
     [super dealloc];
