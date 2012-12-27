@@ -10,6 +10,7 @@ License for this version: MIT or Apache
 
 ## Announcements
 
+- [New posting: using SQLCipher for Android with Cordova/PhoneGap](http://brodyspark.blogspot.com/2012/12/using-sqlcipher-for-android-with.html)
 - New, optional interface to open a database like: `var db = window.sqlitePlugin.openDatabase({name: "DB"});`
 - [Improvements in the form of PRAGMAs & multiple database files (bug fix)](http://brodyspark.blogspot.com/2012/12/improvements-to-phonegap-sqliteplugin.html).
 - The Android version is now maintained in this location as [announced here](http://brodyspark.blogspot.com/2012/12/phonegap-sqliteplugin-for-ios-android.html).
@@ -20,11 +21,7 @@ License for this version: MIT or Apache
 - Drop-in replacement for HTML5 SQL API, the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
 - batch processing optimizations
 - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
-
-This sqlite plugin can also be used with SQLCipher to provide encryption. This was already described on my old blog:
-- [Android version with rebuilding SQLCipher from source](http://mobileapphelp.blogspot.com/2012/08/rebuilding-sqlitesqlcipher-for-android.html)
-- [Android version tested with SQLCipher for database encryption](http://mobileapphelp.blogspot.com/2012/08/trying-sqlcipher-with-cordova.html), working with a few changes to SQLitePlugin.java
-Updated instructions will be posted on my [new blog](http://brodyspark.blogspot.com/) sometime in the near future.
+- Using [SQLCipher for Android](http://sqlcipher.net/sqlcipher-for-android/) for encryption: [new posting](http://brodyspark.blogspot.com/2012/12/using-sqlcipher-for-android-with.html) & [enhancements to SQLCipher db classes for Android](http://brodyspark.blogspot.com/2012/12/enhancements-to-sqlcipher-db-classes.html)
 
 ## Apps using Cordova/PhoneGap sqlite plugin (Android version)
 
