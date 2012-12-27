@@ -60,7 +60,7 @@ if (!window.Cordova) window.Cordova = window.cordova;
     this.openSuccess = openSuccess;
     this.openError = openError;
     this.openSuccess || (this.openSuccess = function() {
-      console.log("DB opened: " + dbname);
+      console.log("DB opened: " + this.dbname);
     });
     this.openError || (this.openError = function(e) {
       console.log(e.message);
