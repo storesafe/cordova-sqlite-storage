@@ -235,6 +235,8 @@ public class SQLitePlugin extends CordovaPlugin
 							myStatement.bindDouble(j + 1, jsonparams[i].getDouble(j));
 						} else if (jsonparams[i].get(j) instanceof Number) {
 							myStatement.bindLong(j + 1, jsonparams[i].getLong(j));
+						} else if (jsonparams[i].isNull(j)) {
+							myStatement.bindNull(j + 1);
 						} else {
 							myStatement.bindString(j + 1, jsonparams[i].getString(j));
 						}
