@@ -178,7 +178,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Community.CsharpSqlite.WinPhone">
-      <HintPath>..\..\csharp-sqlite\Community.CsharpSqlite.WinPhone\obj\Release\Community.CsharpSqlite.WinPhone.dll</HintPath>
+      <HintPath>..\Community.CsharpSqlite.WinPhone\obj\Release\Community.CsharpSqlite.WinPhone.dll</HintPath>
     </Reference>
     <Reference Include="WPCordovaClassLib">
       <HintPath>CordovaLib\WPCordovaClassLib.dll</HintPath>
