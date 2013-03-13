@@ -17,3 +17,7 @@ License for this version: MIT or Apache
 ## Support
 
 If you have an issue with the plugin the best way to get help is by raising an issue. It is best to make post the simplest code necessary to demonstrate the issue.
+
+## Apps using the plugin
+
+http://getitdoneapp.com
