@@ -136,7 +136,7 @@
     sqlite3 *db = [dbPointer pointerValue];
 
     const char *sql_stmt = [query UTF8String];
-    char *errMsg = NULL;
+    const char *errMsg = NULL;
     sqlite3_stmt *statement;
     int result, i, column_type, count;
     int previousRowsAffected, nowRowsAffected, diffRowsAffected;
@@ -157,7 +157,7 @@
     previousInsertId = sqlite3_last_insert_rowid(db);
 
     if (sqlite3_prepare_v2(db, sql_stmt, -1, &statement, NULL) != SQLITE_OK) {
-        errMsg = (char *) sqlite3_errmsg (db);
+        errMsg = /* (char *) */ sqlite3_errmsg (db);
         keepGoing = NO;
     } else {
       for (int b = 1; b < query_parts.count; b++) {
@@ -237,7 +237,7 @@
         if (hasInsertId) {
             [resultSet setObject:insertId forKey:@"insertId"];
         }
-        [self respond:callback withString:[resultSet cdvjk_JSONString] withType:@"success"];
+        [self respond:callback withString:[resultSet JSONString] withType:@"success"];
     }
 }
 
