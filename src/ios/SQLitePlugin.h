@@ -24,15 +24,20 @@
 @property (nonatomic, copy) NSMutableDictionary *openDBs;
 @property (nonatomic, retain) NSString *appDocsPath;
 
--(void) open:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
--(void) backgroundExecuteSqlBatch:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
--(void) backgroundExecuteSql:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
--(void) executeSqlBatch:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
--(void) executeSql:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
--(void) _executeSqlBatch:(NSMutableDictionary*)options;
--(void) _executeSql:(NSMutableDictionary*)options;
+// Open / Close
+-(void) open: (CDVInvokedUrlCommand*)command;
 -(void) close: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
--(void) respond: (id)cb withString:(NSString *)str withType:(NSString *)type;
+
+// Batch processing
+-(void) backgroundExecuteSqlBatch:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
+-(void) executeSqlBatch:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
+-(void) _executeSqlBatch:(NSMutableDictionary*)options;
+
+// Single requests
+-(void) backgroundExecuteSql:(CDVInvokedUrlCommand*)command;
+-(void) executeSql:(CDVInvokedUrlCommand*)command;
+-(void) _executeSql:(CDVInvokedUrlCommand*)command;
+
 -(id) getDBPath:(id)dbFile;
 
 @end

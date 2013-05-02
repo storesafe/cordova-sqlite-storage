@@ -36,13 +36,6 @@
     return self;
 }
 
--(void) respond: (id)cb withString:(NSString *)str withType:(NSString *)type {
-    if (cb != NULL) {
-        NSString* jsString = [NSString stringWithFormat:@"sqlitePlugin.handleCallback('%@', '%@', %@);", cb, type, str ];
-        [self writeJavascript:jsString];
-    }
-}
-
 -(id) getDBPath:(id)dbFile {
     if (dbFile == NULL) {
         return NULL;
@@ -51,37 +44,44 @@
     return dbPath;
 }
 
--(void) open: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
+// -(void) open: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
+// XXX 
+-(void)open: (CDVInvokedUrlCommand*)command
 {
+    CDVPluginResult* pluginResult = nil;
+    NSDictionary *options = [command.arguments objectAtIndex:0];
+
     NSString *callback = [options objectForKey:@"callback"];
     NSString *dbname = [self getDBPath:[options objectForKey:@"name"]];
     NSValue *dbPointer;
 
     if (dbname == NULL) {
-        [self respond:callback withString:@"{ message: 'You must specify database name' }" withType:@"error"];
-        return;
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"You must specify database name"];
+    }
+    else {
+        dbPointer = [openDBs objectForKey:dbname];
+        if (dbPointer != NULL) {
+            NSLog(@"Reusing existing database connection");
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Database opened"];
+        }
+        else {
+            const char *name = [dbname UTF8String];
+            NSLog(@"using db name: %@", dbname);
+            sqlite3 *db;
+
+            if (sqlite3_open(name, &db) != SQLITE_OK) {
+                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unable to open DB"];
+                return;
+            }
+            else {
+                dbPointer = [NSValue valueWithPointer:db];
+                [openDBs setObject: dbPointer forKey: dbname];
+                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Database opened"];
+            }
+        }
     }
 
-    dbPointer = [openDBs objectForKey:dbname];
-    if (dbPointer != NULL) {
-      NSLog(@"Reusing existing database connection");
-      [self respond:callback withString: @"{ message: 'Database opened' }" withType:@"success"];
-      return;
-    }
-
-    sqlite3 *db;
-    const char *name = [dbname UTF8String];
-
-    NSLog(@"using db name: %@", dbname);
-
-    if (sqlite3_open(name, &db) != SQLITE_OK) {
-        [self respond:callback withString:@"{ message: 'Unable to open DB' }" withType:@"error"];
-        return;
-    }
-
-    dbPointer = [NSValue valueWithPointer:db];
-    [openDBs setObject:dbPointer forKey: dbname];
-    [self respond:callback withString: @"{ message: 'Database opened' }" withType:@"success"];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
 }
 
 -(void) backgroundExecuteSqlBatch: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
@@ -89,48 +89,59 @@
     [self performSelector:@selector(_executeSqlBatch:) withObject:options afterDelay:0.001];
 }
 
--(void) backgroundExecuteSql: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
+// -(void) backgroundExecuteSql: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
+-(void) backgroundExecuteSql: (CDVInvokedUrlCommand*)command
 {
-    [self performSelector:@selector(_executeSql:) withObject:options afterDelay:0.001];
+    // [self performSelector:@selector(_executeSql:) withObject:command afterDelay:0.001];
+    [self executeSql:command];
 }
 
 -(void) _executeSqlBatch:(NSMutableDictionary*)options
 {
-    [self executeSqlBatch:NULL withDict:options];
+    // [self executeSqlBatch:NULL withDict:options];
 }
 
--(void) _executeSql:(NSMutableDictionary*)options
+-(void) _executeSql:(CDVInvokedUrlCommand*)command
 {
-    [self executeSql:NULL withDict:options];
+    [self executeSql:command];
 }
 
 -(void) executeSqlBatch: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
 {
+    /*
     NSMutableArray *executes = [options objectForKey:@"executes"];
     for (NSMutableDictionary *dict in executes) {
         [self executeSql:NULL withDict:dict];
     }
+    */
 }
 
--(void) executeSql: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
+-(void) executeSql: (CDVInvokedUrlCommand*)command
 {
+    CDVPluginResult* pluginResult = nil;
+    NSDictionary *options = [command.arguments objectAtIndex:0];
+
     NSString *callback = [options objectForKey:@"callback"];
     NSString *dbPath = [self getDBPath:[options objectForKey:@"path"]];
     NSMutableArray *query_parts = [options objectForKey:@"query"];
     NSString *query = [query_parts objectAtIndex:0];
+    NSLog(@"Execute query: %@", query);
 
     if (dbPath == NULL) {
-        [self respond:callback withString:@"{ message: 'You must specify database path' }" withType:@"error"];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify database path"];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
     if (query == NULL) {
-        [self respond:callback withString:@"{ message: 'You must specify a query to execute' }" withType:@"error"];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify a query to execute"];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
 
     NSValue *dbPointer = [openDBs objectForKey:dbPath];
     if (dbPointer == NULL) {
-        [self respond:callback withString:@"{ message: 'No such database, you must open it first' }" withType:@"error"];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"No such database, you must open it first"];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
     sqlite3 *db = [dbPointer pointerValue];
@@ -230,15 +241,16 @@
     sqlite3_finalize (statement);
 
     if (errMsg != NULL) {
-        [self respond:callback withString:[NSString stringWithFormat:@"{ message: 'SQL statement error : %s' }", errMsg] withType:@"error"];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"SQL statement error : %s", errMsg]];
     } else {
         [resultSet setObject:resultRows forKey:@"rows"];
         [resultSet setObject:rowsAffected forKey:@"rowsAffected"];
         if (hasInsertId) {
             [resultSet setObject:insertId forKey:@"insertId"];
         }
-        [self respond:callback withString:[resultSet JSONString] withType:@"success"];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultSet;
     }
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 -(void) close: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
@@ -246,17 +258,17 @@
     NSString *callback = [options objectForKey:@"callback"];
     NSString *dbPath = [self getDBPath:[options objectForKey:@"path"]];
     if (dbPath == NULL) {
-        [self respond:callback withString:@"{ message: 'You must specify database path' }" withType:@"error"];
+        // XXX [self respond:callback withString:@"{ message: 'You must specify database path' }" withType:@"error"];
         return;
     }
 
     NSValue *val = [openDBs objectForKey:dbPath];
     sqlite3 *db = [val pointerValue];
     if (db == NULL) {
-        [self respond:callback withString: @"{ message: 'Specified db was not open' }" withType:@"error"];
+        // XXX [self respond:callback withString: @"{ message: 'Specified db was not open' }" withType:@"error"];
     }
     sqlite3_close (db);
-    [self respond:callback withString: @"{ message: 'db closed' }" withType:@"success"];
+    /// XXX [self respond:callback withString: @"{ message: 'db closed' }" withType:@"success"];
 }
 
 -(void)dealloc

@@ -15,38 +15,15 @@
 if (!window.Cordova) window.Cordova = window.cordova;
 
 (function() {
-  var SQLitePlugin, SQLitePluginTransaction, callbacks, cbref, counter, getOptions, root, exec;
+  var SQLitePlugin, SQLitePluginTransaction, counter, getOptions, root, exec;
   root = this;
-  callbacks = {};
   counter = 0;
-  cbref = function(hash) {
-    var f;
-    f = "cb" + (counter += 1);
-    callbacks[f] = hash;
-    return f;
-  };
 
-  exec = function(s, o){
+  exec = function(method, options, success, error) {
     if (root.sqlitePlugin.DEBUG){
-      console.log(s + ": " + JSON.stringify(o));
+        console.log('SQLitePlugin.' + method + '(' + JSON.stringify(options) + ')');
     }
-    Cordova.exec(s, o);
-  };
-
-  getOptions = function(opts, success, error) {
-    var cb, has_cbs;
-    cb = {};
-    has_cbs = false;
-    if (typeof success === "function") {
-      has_cbs = true;
-      cb.success = success;
-    }
-    if (typeof error === "function") {
-      has_cbs = true;
-      cb.error = error;
-    }
-    if (has_cbs) opts.callback = cbref(cb);
-    return opts;
+    cordova.exec(success, error, "SQLitePlugin", method, [options]);
   };
 
   SQLitePlugin = function(dbargs, openSuccess, openError) {
@@ -60,7 +37,7 @@ if (!window.Cordova) window.Cordova = window.cordova;
     this.openSuccess = openSuccess;
     this.openError = openError;
     this.openSuccess || (this.openSuccess = function() {
-      console.log("DB opened: " + this.dbname);
+      console.log("DB opened: " + dbargs.dbname);
     });
     this.openError || (this.openError = function(e) {
       console.log(e.message);
@@ -68,42 +45,26 @@ if (!window.Cordova) window.Cordova = window.cordova;
 
     this.open(this.openSuccess, this.openError);
   };
+
   SQLitePlugin.prototype.openDBs = {};
   SQLitePlugin.prototype.txQueue = [];
   SQLitePlugin.prototype.features = { isSQLitePlugin: true };
-  SQLitePlugin.handleCallback = function(ref, type, obj) {
-    if (root.sqlitePlugin.DEBUG){
-      console.log("handle callback: " + ref + ", " + type + ", " + JSON.stringify(obj));
-    }
-    var _ref;
-    if ((_ref = callbacks[ref]) != null) {
-      if (typeof _ref[type] === "function") _ref[type](obj);
-    }
-    callbacks[ref] = null;
-    delete callbacks[ref];
-  };
+
   SQLitePlugin.prototype.executePragmaStatement = function(sql, success, error) {
-    var opts;
     if (!sql) throw new Error("Cannot executeSql without a query");
-    var cbsave = success;
     var mysuccesscb = function(res) {
-      cbsave(res.rows);
+      success(res.rows);
     };
-    opts = getOptions({
-      query: [sql],
-      path: this.dbname
-    }, mysuccesscb, error);
-    exec("SQLitePlugin.backgroundExecuteSql", opts);
+    exec("backgroundExecuteSql", { query: [sql], path: this.dbname }, mysuccesscb, error);
   };
+
   SQLitePlugin.prototype.executeSql = function(sql, values, success, error) {
-    var opts;
     if (!sql) throw new Error("Cannot executeSql without a query");
-    opts = getOptions({
-      query: [sql].concat(values || []),
-      path: this.dbname
-    }, success, error);
-    exec("SQLitePlugin.backgroundExecuteSql", opts);
+    exec("backgroundExecuteSql", { query: [sql].concat(values || []), path: this.dbname }, function (set) {
+        success(JSON.parse(set));
+      }, error);
   };
+
   SQLitePlugin.prototype.transaction = function(fn, error, success) {
     var t = new SQLitePluginTransaction(this, fn, error, success);
     this.txQueue.push(t);
@@ -117,26 +78,23 @@ if (!window.Cordova) window.Cordova = window.cordova;
       this.txQueue[0].start();
     }
   };
+
   SQLitePlugin.prototype.open = function(success, error) {
     var opts;
     if (!(this.dbname in this.openDBs)) {
       this.openDBs[this.dbname] = true;
-      opts = getOptions(this.dbargs, success, error);
-      exec("SQLitePlugin.open", opts);
+      exec("open", this.dbargs, success, error);
     }
   };
   SQLitePlugin.prototype.close = function(success, error) {
-    var opts;
     if (this.dbname in this.openDBs) {
       delete this.openDBs[this.dbname];
-      opts = getOptions({
-        path: this.dbname
-      }, success, error);
-      exec("SQLitePlugin.close", opts);
+      exec("close", { path: this.dbname }, success, error);
     }
   };
+
   SQLitePluginTransaction = function(db, fn, error, success) {
-    if (typeof(fn) != 'function'){
+    if (typeof fn != 'function'){
       // This is consistent with the implementation in Chrome -- it
       // throws if you pass anything other than a function. This also
       // prevents us from stalling our txQueue if somebody passes a
@@ -150,7 +108,7 @@ if (!window.Cordova) window.Cordova = window.cordova;
     this.executes = [];
     this.executeSql('BEGIN', [], null, function(tx, err){ throw new Error("unable to begin transaction: " + err.message) });
   };
-  SQLitePluginTransaction.prototype.start = function(){
+  SQLitePluginTransaction.prototype.start = function() {
     try {
       if (!this.fn) { return }
       this.fn(this);
@@ -161,10 +119,11 @@ if (!window.Cordova) window.Cordova = window.cordova;
       // If "fn" throws, we must report the whole transaction as failed.
       this.db.startNextTransaction();
       if (this.error){
-	this.error(err);
+        this.error(err);
       }
     }
   };
+
   SQLitePluginTransaction.prototype.executeSql = function(sql, values, success, error) {
     this.executes.push({
       query: [sql].concat(values || []),
@@ -226,12 +185,12 @@ if (!window.Cordova) window.Cordova = window.cordova;
     for (var i=0; i<batchExecutes.length; i++){
       var request = batchExecutes[i];
       opts.push(getOptions({
-	query: request.query,
-	path: this.db.dbname
+        query: request.query,
+        path: this.db.dbname
       }, handlerFor(i, true), handlerFor(i, false)));
     }
 
-    exec("SQLitePlugin.backgroundExecuteSqlBatch", {executes: opts});
+    exec("backgroundExecuteSqlBatch", {executes: opts}, null, null);
   };
   SQLitePluginTransaction.prototype.rollBack = function(txFailure) {
     if (this.finalized)
@@ -241,13 +200,13 @@ if (!window.Cordova) window.Cordova = window.cordova;
     function succeeded(){
       tx.db.startNextTransaction();
       if (tx.error){
-	tx.error(txFailure)
+        tx.error(txFailure)
       }
     }
     function failed(tx, err){
       tx.db.startNextTransaction();
       if (tx.error){
-	tx.error(new Error("error while trying to roll back: " + err.message))
+        tx.error(new Error("error while trying to roll back: " + err.message))
       }
     }
     this.executeSql('ROLLBACK', [], succeeded, failed);
@@ -261,13 +220,13 @@ if (!window.Cordova) window.Cordova = window.cordova;
     function succeeded(){
       tx.db.startNextTransaction();
       if (tx.success){
-	tx.success()
+        tx.success()
       }
     }
     function failed(tx, err){
       tx.db.startNextTransaction();
       if (tx.error){
-	tx.error(new Error("error while trying to commit: " + err.message))
+        tx.error(new Error("error while trying to commit: " + err.message))
       }
     }
     this.executeSql('COMMIT', [], succeeded, failed);
@@ -302,8 +261,7 @@ if (!window.Cordova) window.Cordova = window.cordova;
   };
 
   root.sqlitePlugin = {
-    openDatabase: SQLiteFactory.opendb,
-
-    handleCallback: SQLitePlugin.handleCallback
+    openDatabase: SQLiteFactory.opendb
+    // handleCallback: SQLitePlugin.handleCallback
   };
 })();
