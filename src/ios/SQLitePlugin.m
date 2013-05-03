@@ -4,6 +4,7 @@
  * Authors:
  * Davide Bertola <dade@dadeb.it>
  * Joe Noon <joenoon@gmail.com>
+ * Jean-Christophe Hoelt <hoelt@fovea.cc>
  *
  * This library is available under the terms of the MIT License (2008).
  * See http://opensource.org/licenses/alphabetical for full text.
@@ -24,11 +25,6 @@
         openDBs = [NSMutableDictionary dictionaryWithCapacity:0];
         [openDBs retain];
 
-        //        CDVFile* pgFile = [[self appDelegate] getCommandInstance: @"org.apache.cordova.file"];
-        //        NSString *docs = [pgFile appDocsPath];
-        //        [self setAppDocsPath:docs];
-        // Make Cordova 1.6 compatible
-        //[self setAppDocsPath:[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0]];
         NSString *docs = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
         NSLog(@"Detected docs path: %@", docs);
         [self setAppDocsPath:docs];
@@ -44,14 +40,11 @@
     return dbPath;
 }
 
-// -(void) open: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
-// XXX 
 -(void)open: (CDVInvokedUrlCommand*)command
 {
     CDVPluginResult* pluginResult = nil;
-    NSDictionary *options = [command.arguments objectAtIndex:0];
+    NSMutableDictionary *options = [command.arguments objectAtIndex:0];
 
-    NSString *callback = [options objectForKey:@"callback"];
     NSString *dbname = [self getDBPath:[options objectForKey:@"name"]];
     NSValue *dbPointer;
 
@@ -61,12 +54,12 @@
     else {
         dbPointer = [openDBs objectForKey:dbname];
         if (dbPointer != NULL) {
-            NSLog(@"Reusing existing database connection");
+            // NSLog(@"Reusing existing database connection");
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Database opened"];
         }
         else {
             const char *name = [dbname UTF8String];
-            NSLog(@"using db name: %@", dbname);
+            // NSLog(@"using db name: %@", dbname);
             sqlite3 *db;
 
             if (sqlite3_open(name, &db) != SQLITE_OK) {
@@ -81,68 +74,103 @@
         }
     }
 
+    if (sqlite3_threadsafe()) {
+        NSLog(@"Good news: SQLite is thread safe!");
+    }
+    else {
+        NSLog(@"Warning: SQLite is not thread safe.");
+    }
+
     [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
 }
 
--(void) backgroundExecuteSqlBatch: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
+-(void) close: (CDVInvokedUrlCommand*)command
 {
-    [self performSelector:@selector(_executeSqlBatch:) withObject:options afterDelay:0.001];
+    CDVPluginResult* pluginResult = nil;
+    NSMutableDictionary *options = [command.arguments objectAtIndex:0];
+
+    NSString *dbPath = [self getDBPath:[options objectForKey:@"path"]];
+    if (dbPath == NULL) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify database path"];
+    }
+    else {
+        NSValue *val = [openDBs objectForKey:dbPath];
+        sqlite3 *db = [val pointerValue];
+        if (db == NULL) {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Specified db was not open"];
+        }
+        else {
+            sqlite3_close (db);
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"DB closed"];
+        }
+    }
+    [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
 }
 
-// -(void) backgroundExecuteSql: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
+
+-(void) backgroundExecuteSqlBatch: (CDVInvokedUrlCommand*)command
+{
+    [self.commandDelegate runInBackground:^{
+        @synchronized(self) {
+            [self executeSqlBatch: command];
+        }
+    }];
+}
+
+-(void) executeSqlBatch: (CDVInvokedUrlCommand*)command
+{
+    NSMutableDictionary *options = [command.arguments objectAtIndex:0];
+    
+    NSMutableArray *results = [NSMutableArray arrayWithCapacity:0];
+    NSMutableArray *executes = [options objectForKey:@"executes"];
+    int status = CDVCommandStatus_OK;
+
+        for (NSMutableDictionary *dict in executes) {
+            CDVPluginResult *result = [self executeSqlWithDict:dict];
+            if ([result.status intValue] == CDVCommandStatus_ERROR) {
+                status = CDVCommandStatus_ERROR;
+                break;
+            }
+            [results addObject: result.message];
+        }
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:status messageAsArray:results];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 -(void) backgroundExecuteSql: (CDVInvokedUrlCommand*)command
 {
     // [self performSelector:@selector(_executeSql:) withObject:command afterDelay:0.001];
-    [self executeSql:command];
-}
-
--(void) _executeSqlBatch:(NSMutableDictionary*)options
-{
-    // [self executeSqlBatch:NULL withDict:options];
-}
-
--(void) _executeSql:(CDVInvokedUrlCommand*)command
-{
-    [self executeSql:command];
-}
-
--(void) executeSqlBatch: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
-{
-    /*
-    NSMutableArray *executes = [options objectForKey:@"executes"];
-    for (NSMutableDictionary *dict in executes) {
-        [self executeSql:NULL withDict:dict];
-    }
-    */
+    [self.commandDelegate runInBackground:^{
+        @synchronized(self) {
+            [self executeSql:command];
+        }
+    }];
 }
 
 -(void) executeSql: (CDVInvokedUrlCommand*)command
 {
-    CDVPluginResult* pluginResult = nil;
-    NSDictionary *options = [command.arguments objectAtIndex:0];
+    NSMutableDictionary *options = [command.arguments objectAtIndex:0];
+    CDVPluginResult* pluginResult = [self executeSqlWithDict: options];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 
-    NSString *callback = [options objectForKey:@"callback"];
+-(CDVPluginResult*) executeSqlWithDict: (NSMutableDictionary*)options
+{
     NSString *dbPath = [self getDBPath:[options objectForKey:@"path"]];
     NSMutableArray *query_parts = [options objectForKey:@"query"];
     NSString *query = [query_parts objectAtIndex:0];
-    NSLog(@"Execute query: %@", query);
+    // NSLog(@"Execute query: %@", query);
 
     if (dbPath == NULL) {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify database path"];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        return;
+        return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify database path"];
     }
     if (query == NULL) {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify a query to execute"];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        return;
+        return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify a query to execute"];
     }
 
     NSValue *dbPointer = [openDBs objectForKey:dbPath];
     if (dbPointer == NULL) {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"No such database, you must open it first"];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        return;
+        return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"No such database, you must open it first"];
     }
     sqlite3 *db = [dbPointer pointerValue];
 
@@ -241,34 +269,15 @@
     sqlite3_finalize (statement);
 
     if (errMsg != NULL) {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"SQL statement error : %s", errMsg]];
-    } else {
-        [resultSet setObject:resultRows forKey:@"rows"];
-        [resultSet setObject:rowsAffected forKey:@"rowsAffected"];
-        if (hasInsertId) {
-            [resultSet setObject:insertId forKey:@"insertId"];
-        }
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultSet];
-    }
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-}
-
--(void) close: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options
-{
-    NSString *callback = [options objectForKey:@"callback"];
-    NSString *dbPath = [self getDBPath:[options objectForKey:@"path"]];
-    if (dbPath == NULL) {
-        // XXX [self respond:callback withString:@"{ message: 'You must specify database path' }" withType:@"error"];
-        return;
+        return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"SQL statement error : %s", errMsg]];
     }
 
-    NSValue *val = [openDBs objectForKey:dbPath];
-    sqlite3 *db = [val pointerValue];
-    if (db == NULL) {
-        // XXX [self respond:callback withString: @"{ message: 'Specified db was not open' }" withType:@"error"];
+    [resultSet setObject:resultRows forKey:@"rows"];
+    [resultSet setObject:rowsAffected forKey:@"rowsAffected"];
+    if (hasInsertId) {
+        [resultSet setObject:insertId forKey:@"insertId"];
     }
-    sqlite3_close (db);
-    /// XXX [self respond:callback withString: @"{ message: 'db closed' }" withType:@"success"];
+    return [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultSet];
 }
 
 -(void)dealloc

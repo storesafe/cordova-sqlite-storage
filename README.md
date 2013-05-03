@@ -8,6 +8,8 @@ API changes by @brodyspark (Chris Brody)
 
 iOS nested transaction callback support by @ef4 (Edward Faulkner)
 
+Cordova 2.7+ port by @j3k0 (Jean-Christophe Hoelt)
+
 License for this version: MIT
 
 ## Announcements

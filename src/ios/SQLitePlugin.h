@@ -4,6 +4,7 @@
  * Authors:
  * Davide Bertola <dade@dadeb.it>
  * Joe Noon <joenoon@gmail.com>
+ * Jean-Christophe Hoelt <hoelt@fovea.cc>
  *
  * This library is available under the terms of the MIT License (2008).
  * See http://opensource.org/licenses/alphabetical for full text.
@@ -26,17 +27,18 @@
 
 // Open / Close
 -(void) open: (CDVInvokedUrlCommand*)command;
--(void) close: (NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
+-(void) close: (CDVInvokedUrlCommand*)command;
 
-// Batch processing
--(void) backgroundExecuteSqlBatch:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
--(void) executeSqlBatch:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
--(void) _executeSqlBatch:(NSMutableDictionary*)options;
+// Batch processing interface
+-(void) backgroundExecuteSqlBatch: (CDVInvokedUrlCommand*)command;
+-(void) executeSqlBatch: (CDVInvokedUrlCommand*)command;
 
-// Single requests
+// Single requests interface
 -(void) backgroundExecuteSql:(CDVInvokedUrlCommand*)command;
 -(void) executeSql:(CDVInvokedUrlCommand*)command;
--(void) _executeSql:(CDVInvokedUrlCommand*)command;
+
+// Perform the SQL request
+-(CDVPluginResult*) executeSqlWithDict: (NSMutableDictionary*)dict;
 
 -(id) getDBPath:(id)dbFile;
 
