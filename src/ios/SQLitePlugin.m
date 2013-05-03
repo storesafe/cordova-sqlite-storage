@@ -248,7 +248,7 @@
         if (hasInsertId) {
             [resultSet setObject:insertId forKey:@"insertId"];
         }
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultSet;
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultSet];
     }
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }

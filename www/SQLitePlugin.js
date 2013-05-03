@@ -60,9 +60,7 @@ if (!window.Cordova) window.Cordova = window.cordova;
 
   SQLitePlugin.prototype.executeSql = function(sql, values, success, error) {
     if (!sql) throw new Error("Cannot executeSql without a query");
-    exec("backgroundExecuteSql", { query: [sql].concat(values || []), path: this.dbname }, function (set) {
-        success(JSON.parse(set));
-      }, error);
+    exec("backgroundExecuteSql", { query: [sql].concat(values || []), path: this.dbname }, success, error);
   };
 
   SQLitePlugin.prototype.transaction = function(fn, error, success) {
