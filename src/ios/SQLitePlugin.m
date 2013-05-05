@@ -111,20 +111,19 @@
 -(void) backgroundExecuteSqlBatch: (CDVInvokedUrlCommand*)command
 {
     [self.commandDelegate runInBackground:^{
-        @synchronized(self) {
-            [self executeSqlBatch: command];
-        }
+        [self executeSqlBatch: command];
     }];
 }
 
 -(void) executeSqlBatch: (CDVInvokedUrlCommand*)command
 {
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
-    
     NSMutableArray *results = [NSMutableArray arrayWithCapacity:0];
     NSMutableArray *executes = [options objectForKey:@"executes"];
     int status = CDVCommandStatus_OK;
+    CDVPluginResult* pluginResult;
 
+    @synchronized(self) {
         for (NSMutableDictionary *dict in executes) {
             CDVPluginResult *result = [self executeSqlWithDict:dict];
             if ([result.status intValue] == CDVCommandStatus_ERROR) {
@@ -133,24 +132,26 @@
             }
             [results addObject: result.message];
         }
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:status messageAsArray:results];
+        pluginResult = [CDVPluginResult resultWithStatus:status messageAsArray:results];
+    }
+
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 -(void) backgroundExecuteSql: (CDVInvokedUrlCommand*)command
 {
-    // [self performSelector:@selector(_executeSql:) withObject:command afterDelay:0.001];
     [self.commandDelegate runInBackground:^{
-        @synchronized(self) {
-            [self executeSql:command];
-        }
+        [self executeSql:command];
     }];
 }
 
 -(void) executeSql: (CDVInvokedUrlCommand*)command
 {
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
-    CDVPluginResult* pluginResult = [self executeSqlWithDict: options];
+    CDVPluginResult* pluginResult;
+    @synchronized (self) {
+        pluginResult = [self executeSqlWithDict: options];
+    }
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 

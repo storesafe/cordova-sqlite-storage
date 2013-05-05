@@ -63,6 +63,11 @@ if (!window.Cordova) window.Cordova = window.cordova;
     exec("backgroundExecuteSql", { query: [sql].concat(values || []), path: this.dbname }, success, error);
   };
 
+  SQLitePlugin.prototype.executeSqlNow = function(sql, values, success, error) {
+    if (!sql) throw new Error("Cannot executeSql without a query");
+    exec("executeSql", { query: [sql].concat(values || []), path: this.dbname }, success, error);
+  };
+
   SQLitePlugin.prototype.transaction = function(fn, error, success) {
     var t = new SQLitePluginTransaction(this, fn, error, success);
     this.txQueue.push(t);
