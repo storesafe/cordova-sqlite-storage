@@ -228,27 +228,6 @@ Then please post the issue to the [pgsqlite forum](http://groups.google.com/grou
 
 Unit testing is done in `test-www/index.html`. To run the test(s) yourself please copy the files from `test-www` (`index.html`, `qunit-1.5.0.js`, & `qunit-1.5.0.css`) into the `www` directory of your iOS Cordova project and make sure you have SQLitePlugin completely installed (JS, Objective-C, and plugin registered).
 
-# Extra Usage for this version
-
-**NOTE:** This is from an old sample, old API which is hereby deprecated **and going away**.
-
-    var db = sqlitePlugin.openDatabase("my_sqlite_database.sqlite3");
-
-    db.executeSql('DROP TABLE IF EXISTS test_table');
-    db.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
-    db.transaction(function(tx) {
-      return tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(res) {
-        console.log("insertId: " + res.insertId + " -- probably 1");
-        console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
-        return db.executeSql("select count(id) as cnt from test_table;", [], function(res) {
-          console.log("rows.length: " + res.rows.length + " -- should be 1");
-          return console.log("rows[0].cnt: " + res.rows[0].cnt + " -- should be 1");
-        });
-      }, function(e) {
-        return console.log("ERROR: " + e.message);
-      });
-    });
-
 Lawnchair Adapter Usage
 =======================
 
