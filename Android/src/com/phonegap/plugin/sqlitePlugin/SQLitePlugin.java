@@ -20,12 +20,11 @@ import java.util.HashMap;
 import org.apache.cordova.api.CordovaPlugin;
 import org.apache.cordova.api.CallbackContext;
 
-import android.content.Context;
-
 import android.database.Cursor;
 
 import android.database.sqlite.*;
 
+import android.util.Base64;
 import android.util.Log;
 
 public class SQLitePlugin extends CordovaPlugin
@@ -97,7 +96,7 @@ public class SQLitePlugin extends CordovaPlugin
 					queryIDs = new String[len];
 					jsonparams = new JSONArray[len];
 
-					for (int i = 0; i < len; i++) 
+					for (int i = 0; i < len; i++)
 					{
 						a 			= txargs.getJSONObject(i);
 						queries[i] 	= a.getString("query");
@@ -368,7 +367,7 @@ public class SQLitePlugin extends CordovaPlugin
 									row.put(key, cur.getString(i));
 									break;
 								case Cursor.FIELD_TYPE_BLOB:
-									row.put(key, cur.getBlob(i));
+									row.put(key, new String(Base64.encode(cur.getBlob(i), Base64.DEFAULT)));
 									break;
 							}
 						}
