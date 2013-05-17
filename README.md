@@ -10,10 +10,8 @@ License for this version: MIT or Apache
 
 ## Announcements
 
-- [New posting: using SQLCipher for Android with Cordova/PhoneGap](http://brodyspark.blogspot.com/2012/12/using-sqlcipher-for-android-with.html)
+- Forum & community support at: http://groups.google.com/group/pgsqlite
 - New, optional interface to open a database like: `var db = window.sqlitePlugin.openDatabase({name: "DB"});`
-- [Improvements in the form of PRAGMAs & multiple database files (bug fix)](http://brodyspark.blogspot.com/2012/12/improvements-to-phonegap-sqliteplugin.html).
-- The Android version is now maintained in this location as [announced here](http://brodyspark.blogspot.com/2012/12/phonegap-sqliteplugin-for-ios-android.html).
  
 ## Highlights
 
@@ -21,14 +19,12 @@ License for this version: MIT or Apache
 - Drop-in replacement for HTML5 SQL API, the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
 - batch processing optimizations
 - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
-- Using [SQLCipher for Android](http://sqlcipher.net/sqlcipher-for-android/) for encryption: [new posting](http://brodyspark.blogspot.com/2012/12/using-sqlcipher-for-android-with.html) & [enhancements to SQLCipher db classes for Android](http://brodyspark.blogspot.com/2012/12/enhancements-to-sqlcipher-db-classes.html)
+- Using [SQLCipher for Android](http://sqlcipher.net/sqlcipher-for-android/) for encryption: [blog posting](http://brodyspark.blogspot.com/2012/12/using-sqlcipher-for-android-with.html) & [enhancements to SQLCipher db classes for Android](http://brodyspark.blogspot.com/2012/12/enhancements-to-sqlcipher-db-classes.html)
+- [Improvements in the form of PRAGMAs & multiple database files (bug fix)](http://brodyspark.blogspot.com/2012/12/improvements-to-phonegap-sqliteplugin.html).
 
 ## Apps using Cordova/PhoneGap sqlite plugin (Android version)
 
 - [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/)
-- Upcoming (under development): Arbiter disastery recovery app by [LMN Solutions](http://lmnsolutions.com/)
-
-I would like to gather some more real-world examples, please send to chris.brody@gmail.com and I will post them.
 
 ## Known limitations
 
@@ -39,7 +35,7 @@ I would like to gather some more real-world examples, please send to chris.brody
 
 ## Other versions
 
-- iOS version: https://github.com/brodyspark/PhoneGap-SQLitePlugin-iOS
+- iOS version: [pgsqlite / PG-SQLitePlugin-iOS](https://github.com/pgsqlite/PG-SQLitePlugin-iOS)
 - Windows Phone 8+ version: https://github.com/marcucio/Cordova-WP-SqlitePlugin
 
 Usage
@@ -220,6 +216,8 @@ Make a change like this to index.html (or use the sample code) verify proper ins
 
 # Support
 
+Community support is available via the new Google group: http://groups.google.com/group/pgsqlite
+
 If you have an issue with the plugin please check the following first:
 - You are using the latest version of the Plugin Javascript & Java source from this repository.
 - You have installed the Javascript & Java correctly.
@@ -233,7 +231,7 @@ If you still cannot get something to work:
   - if the issue is with *adding* data to a table, that the test program includes the statements you used to open the database and create the table;
   - if the issue is with *retrieving* data from a table, that the test program includes the statements you used to open the database, create the table, and enter the data you are trying to retrieve.
 
-Then please raise an issue with the test program included in the description.
+Then please post the issue with your test program to the [pgsqlite forum](http://groups.google.com/group/pgsqlite).
 
 # Unit test(s)
 
@@ -246,9 +244,8 @@ Unit testing is done in `test-www/index.html`. To run the test(s) yourself pleas
 # Contributing
 
 - Testimonials of apps that are using this plugin would be especially helpful.
-- Issue reports can help improve the quality of this plugin.
+- Reporting issues to the [pgsqlite forum](http://groups.google.com/group/pgsqlite) can help improve the quality of this plugin.
 - Patches with bug fixes are helpful, especially when submitted with test code.
 - Other enhancements will be considered if they do not increase the complexity of this plugin.
-- All contributions may be reused by @brodyspark under another license in the future. Efforts
-will be taken to give credit for major contributions but it will not be guaranteed.
+- All contributions may be reused by [@brodyspark](https://github.com/brodyspark) under another license in the future. Efforts will be taken to give credit for major contributions but it will not be guaranteed.
 
