@@ -8,20 +8,31 @@ API changes by @brodyspark (Chris Brody)
 
 iOS nested transaction callback support by @ef4 (Edward Faulkner)
 
-Cordova 2.7+ port by @j3k0 (Jean-Christophe Hoelt)
+Cordova 2.7+ port with background processing by @j3k0 (Jean-Christophe Hoelt)
 
 License for this version: MIT
 
 ## Announcements
 
-- [New posting about integration with SQLCipher for iOS](http://brodyspark.blogspot.com/2012/12/integrating-sqlcipher-with.html)
+- Significant rewrite by @j3k0 (Jean-Christophe Hoelt) to support background processing
+- Forum & community support at: http://groups.google.com/group/pgsqlite
+- The Android version is moved to [pgsqlite / PG-SQLitePlugin-Android](https://github.com/pgsqlite/PG-SQLitePlugin-Android).
 - New, optional interface to open a database like: `var db = window.sqlitePlugin.openDatabase({name: "DB"});`
-- [PRAGMA support added](http://brodyspark.blogspot.com/2012/12/improvements-to-phonegap-sqliteplugin.html).
-- The Android version is now split off to [brodyspark / PhoneGap-SQLitePlugin-Android](https://github.com/brodyspark/PhoneGap-SQLitePlugin-Android).
 
-## Project Status
+**NOTE:** This version now adds `.db` extension to the database file name to be more consistent with the Android version. If you are updating an existing iOS app that was using the old version at [brodyspark / PhoneGap-SQLitePlugin-iOS](https://github.com/brodyspark/PhoneGap-SQLitePlugin-iOS), please apply the following patch to read the existing database file:
 
-This fork will be kept open to concentrate on bug fixing and documentation improvements. Bug fixes in the form of pull requests that are well tested, with unit testing if at all possible, and in decent coding style will be highly appreciated.
+    --- a/www/SQLitePlugin.js
+    +++ b/www/SQLitePlugin.js
+    @@ -32,8 +32,7 @@ if (!window.Cordova) window.Cordova = window.cordova;
+         }
+     
+         this.dbargs = dbargs;
+    -    this.dbname = dbargs.name + ".db";
+    -    dbargs.name = this.dbname;
+    +    this.dbname = dbargs.name;
+     
+         this.openSuccess = openSuccess;
+         this.openError = openError;
 
 ## Highlights
 
@@ -32,6 +43,7 @@ As described in [a recent posting](http://brodyspark.blogspot.com/2012/12/cordov
 Some other highlights:
 - Drop-in replacement for HTML5 SQL API: the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
 - batch processing optimizations
+- [PRAGMA support](http://brodyspark.blogspot.com/2012/12/improvements-to-phonegap-sqliteplugin.html).
 - [integration with SQLCipher for iOS](http://brodyspark.blogspot.com/2012/12/integrating-sqlcipher-with.html)
 
 ## Apps using Cordova/PhoneGap SQLitePlugin
@@ -39,20 +51,16 @@ Some other highlights:
 - [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/)
 - [Larkwire](http://www.larkwire.com/): Learn bird songs the fun way
 
-I would like to gather some more real-world examples, please send to chris.brody@gmail.com and I will post them.
-
 ## Known limitations
 
-- API will block app execution upon large batching (workaround: add application logic to break large batches into smaller batch transactions)
 - The db version, display name, and size parameter values are not supported and will be ignored.
 - The sqlite plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**.
 
 ## Other versions
 
-- Android version moved to: https://github.com/brodyspark/PhoneGap-SQLitePlugin-Android
+- Android version moved to new location: [pgsqlite / PG-SQLitePlugin-Android](https://github.com/pgsqlite/PG-SQLitePlugin-Android).
 - Windows Phone 8+ version: https://github.com/marcucio/Cordova-WP-SqlitePlugin
 - iOS enhancements, with extra fixes for console log messages: https://github.com/mineshaftgap/Cordova-SQLitePlugin
-- iOS nested transactions enhancement from: https://github.com/ef4/Cordova-SQLitePlugin
 - Original iOS version with a different API: https://github.com/davibe/Phonegap-SQLitePlugin
 
 Usage
@@ -150,9 +158,10 @@ This case will also works with Safari (WebKit), assuming you replace window.sqli
 
 **NOTE:** There are now the following trees:
 
- - `iOS`: platform-specific code
- - `Lawnchair-adapter`: Lawnchair adaptor for both iOS and Android, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
+ - `www`: `SQLitePlugin.js` (platform-specific)
+ - `src/ios`: Objective-C plugin code (platform-specific)
  - `test-www`: simple testing in `index.html` using qunit 1.5.0
+ - `Lawnchair-adapter`: Lawnchair adaptor for both iOS and Android, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
 
 ## iOS platform
 
@@ -172,58 +181,24 @@ file in src/ to javascript WITH the top-level function wrapper option (default).
 
 Use the resulting javascript file in your HTML.
 
-Look for the following to your project's Cordova.plist or PhoneGap.plist:
+Enable the SQLitePlugin in `config.xml`:
 
-    <key>Plugins</key>
-    <dict>
-      ...
-    </dict>
-
-Insert this in there:
-
-    <key>SQLitePlugin</key>
-    <string>SQLitePlugin</string>
+    --- config.xml.old	2013-05-17 13:18:39.000000000 +0200
+    +++ config.xml	2013-05-17 13:18:49.000000000 +0200
+    @@ -39,6 +39,7 @@
+         <content src="index.html" />
+     
+         <plugins>
+    +        <plugin name="SQLitePlugin" value="SQLitePlugin" />
+             <plugin name="Device" value="CDVDevice" />
+             <plugin name="Logger" value="CDVLogger" />
+             <plugin name="Compass" value="CDVLocation" />
 
 ### Dealing with ARC
 
 A project generated by the create script from Cordova should already have the Automatic Reference Counting (ARC) option disabled. However, a project generated by the xcode GUI may have the ARC option enabled and this will cause a number of build problems with the SQLitePlugin.
 
 To disable ARC for the module only (from @LouAlicegary): click on your app name at the top of the left-hand column in the Project Navigator, then click on the app name under "Targets," click on the "Build Phases" tab, and then double-click on the SQLitePlugin.m file under "Compile Sources" and add a "-fno-objc-arc" compiler flag to that entry 
-
-### Cordova pre-2.1
-
-For Cordova pre-2.1 iOS please make the following change to iOS/Plugins/SQLitePlugin.m:
-
-    --- iOS/Plugins/SQLitePlugin.m	2012-10-10 14:22:05.000000000 +0200
-    +++ iOS/Plugins/SQLitePlugin-old.m	2012-10-10 14:37:32.000000000 +0200
-    @@ -237,7 +237,7 @@
-             if (hasInsertId) {
-                 [resultSet setObject:insertId forKey:@"insertId"];
-             }
-    -        [self respond:callback withString:[resultSet cdvjk_JSONString] withType:@"success"];
-    +        [self respond:callback withString:[resultSet JSONString] withType:@"success"];
-         }
-     }
-
-### Cordova pre-2.0
-
-In addition, for Cordova pre-2.0 iOS, please make the following patch to iOS/Plugins/SQLitePlugin.h:
-
-    --- iOS/Plugins/SQLitePlugin.h	2012-08-10 08:55:21.000000000 +0200
-    +++ iOS/Plugins/SQLitePlugin.h.old	2012-08-10 08:55:08.000000000 +0200
-    @@ -12,8 +12,13 @@
-     #import <Foundation/Foundation.h>
-     #import "sqlite3.h"
-     
-    +#ifdef CORDOVA_FRAMEWORK
-     #import <CORDOVA/CDVPlugin.h>
-     #import <CORDOVA/JSONKit.h>
-    +#else
-    +#import "CDVPlugin.h"
-    +#import "JSONKit.h"
-    +#endif
-     
-     #import "AppDelegate.h"
 
 # Common traps & pitfalls
 
@@ -232,11 +207,13 @@ In addition, for Cordova pre-2.0 iOS, please make the following patch to iOS/Plu
 
 # Support
 
+Community support is available via the new Google group: http://groups.google.com/group/pgsqlite
+
 If you have an issue with the plugin please check the following first:
 - You are using the latest version of the Plugin Javascript & Objective-C source from this repository.
 - You have installed the Javascript & Objective-C correctly.
 - You have included the correct version of the cordova Javascript and SQLitePlugin.js and got the path right.
-- You have registered the plugin properly.
+- You have registered the plugin properly in `config.xml`.
 
 If you still cannot get something to work:
 - Make the simplest test program necessary to reproduce the issue and try again.
@@ -245,7 +222,7 @@ If you still cannot get something to work:
   - if the issue is with *adding* data to a table, that the test program includes the statements you used to open the database and create the table;
   - if the issue is with *retrieving* data from a table, that the test program includes the statements you used to open the database, create the table, and enter the data you are trying to retrieve.
 
-Then please raise an issue with the test program included in the description.
+Then please post the issue to the [pgsqlite forum](http://groups.google.com/group/pgsqlite).
 
 # Unit test(s)
 
@@ -305,31 +282,11 @@ Using the `db` option you can create multiple stores in one sqlite file. (There 
     recipes = new Lawnchair {db: "cookbook", name: "recipes", ...}
 	ingredients = new Lawnchair {db: "cookbook", name: "ingredients", ...}
 
-Extra notes
------------
-
-### Other notes from @Joenoon - iOS batching:
-
-I played with the idea of batching responses into larger sets of
-writeJavascript on a timer, however there was only a barely noticeable
-performance gain.  So I took it out, not worth it.  However there is a
-massive performance gain by batching on the client-side to minimize
-PhoneGap.exec calls using the transaction support.
-
-
-### Other notes from @davibe:
-
-I used the plugin to store very large documents (1 or 2 Mb each) and found
-that the main bottleneck was passing data from javascript to native code.
-Running PhoneGap.exec took some seconds while completely blocking my
-application.
-
 # Contributing
 
 - Testimonials of apps that are using this plugin would be especially helpful.
-- Issue reports can help improve the quality of this plugin.
+- Reporting issues to the [pgsqlite forum](http://groups.google.com/group/pgsqlite) can help improve the quality of this plugin.
 - Patches with bug fixes are helpful, especially when submitted with test code.
 - Other enhancements will be considered if they do not increase the complexity of this plugin.
-- All contributions may be reused by @brodyspark under another license in the future. Efforts
-will be taken to give credit for major contributions but it will not be guaranteed.
+- All contributions may be reused by [@brodyspark](https://github.com/brodyspark) under another license in the future. Efforts will be taken to give credit for major contributions but it will not be guaranteed.
 
