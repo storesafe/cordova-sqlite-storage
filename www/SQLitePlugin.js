@@ -32,12 +32,13 @@ if (!window.Cordova) window.Cordova = window.cordova;
     }
 
     this.dbargs = dbargs;
-    this.dbname = dbargs.name;
+    this.dbname = dbargs.name + ".db";
+    dbargs.name = this.dbname;
 
     this.openSuccess = openSuccess;
     this.openError = openError;
     this.openSuccess || (this.openSuccess = function() {
-      console.log("DB opened: " + dbargs.name);
+      console.log("DB opened: " + this.dbname);
     });
     this.openError || (this.openError = function(e) {
       console.log(e.message);
@@ -58,12 +59,14 @@ if (!window.Cordova) window.Cordova = window.cordova;
     exec("backgroundExecuteSql", { query: [sql], path: this.dbname }, mysuccesscb, error);
   };
 
-  SQLitePlugin.prototype.executeSql = function(sql, values, success, error) {
+  // API TBD subect to change:
+  SQLitePlugin.prototype._executeSql = function(sql, values, success, error) {
     if (!sql) throw new Error("Cannot executeSql without a query");
     exec("backgroundExecuteSql", { query: [sql].concat(values || []), path: this.dbname }, success, error);
   };
 
-  SQLitePlugin.prototype.executeSqlNow = function(sql, values, success, error) {
+  // API TBD subect to change:
+  SQLitePlugin.prototype._executeSqlNow = function(sql, values, success, error) {
     if (!sql) throw new Error("Cannot executeSql without a query");
     exec("executeSql", { query: [sql].concat(values || []), path: this.dbname }, success, error);
   };
