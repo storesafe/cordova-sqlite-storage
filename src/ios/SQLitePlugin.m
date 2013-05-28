@@ -6,13 +6,15 @@
  * Joe Noon <joenoon@gmail.com>
  * Jean-Christophe Hoelt <hoelt@fovea.cc>
  *
+ * Embedded public domain LIBB64 encoding routines from http://libb64.sourceforge.net 
+ * - Chris Robertson <oztexan@gmail.com>
+ *
  * This library is available under the terms of the MIT License (2008).
  * See http://opensource.org/licenses/alphabetical for full text.
  */
 
 
 #import "SQLitePlugin.h"
-#import "NSData+Base64.h"
 
 @implementation SQLitePlugin
 
@@ -194,6 +196,7 @@
     NSObject *rowsAffected;
     NSData *nsData;
 
+
     hasInsertId = NO;
     previousRowsAffected = sqlite3_total_changes(db);
     previousInsertId = sqlite3_last_insert_rowid(db);
@@ -235,9 +238,11 @@
                             [entry setObject:columnValue forKey:columnName];
                             break;
                         case SQLITE_BLOB:
-                            nsData = [[NSData alloc] initWithBytes:sqlite3_column_blob(statement, i) length:sqlite3_column_bytes(statement, i)];
-                            columnValue = [nsData base64EncodingWithLineLength:0];
+                            //LIBB64
+                            columnValue = [SQLitePlugin getBlobAsBase64String: sqlite3_column_blob(statement, i)
+                                                        withlength: sqlite3_column_bytes(statement, i) ];
                             columnName = [NSString stringWithFormat:@"%s", sqlite3_column_name(statement, i)];
+                            //LIBB64---END
                             [entry setObject:columnValue forKey:columnName];
                             break;
                         case SQLITE_FLOAT:
@@ -306,5 +311,147 @@
     [appDocsPath release];
     [super dealloc];
 }
+
+//LIBB64
++(id) getBlobAsBase64String:(const char*) blob_chars
+                                    withlength: (int) blob_length
+{
+      LIBB64_base64_encodestate b64state;
+	
+      [SQLitePlugin base64_init_encodestate: &b64state];
+
+      //2* ensures 3 bytes -> 4 Base64 characters + null for NSString init
+			char* code = malloc (2*blob_length*sizeof(char));
+  
+			int codelength;
+      int endlength;
+
+      codelength = [SQLitePlugin base64_encode_block: blob_chars
+                            withlength: blob_length
+                            withoutput: code
+                            withencodestate: &b64state
+                            withlinelength: 0];
+  
+			endlength = [SQLitePlugin base64_encode_blockend: &code[codelength]
+                                withencodestate: &b64state];
+
+      //Adding in a null in order to use initWithUTF8String, expecting null terminated char* string
+      code[codelength+endlength] = '\0';
+
+      NSString* result = [NSString stringWithUTF8String: code];
+
+			free(code);
+  
+      return result;
+}
+
+
++(void) base64_init_encodestate:(LIBB64_base64_encodestate*) state_in
+{
+	state_in->step = step_A;
+	state_in->result = 0;
+	state_in->stepcount = 0;
+}
+
++(char) base64_encode_value: (char) value_in
+{
+	static const char* encoding = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	if (value_in > 63) return '=';
+	return encoding[(int)value_in];
+}
+
++(int) base64_encode_block: (const char*) plaintext_in
+                            withlength: (int) length_in
+                            withoutput: (char*) code_out
+                            withencodestate: (LIBB64_base64_encodestate*) state_in
+                            withlinelength: (int) line_length
+{
+	const char* plainchar = plaintext_in;
+	const char* const plaintextend = plaintext_in + length_in;
+	char* codechar = code_out;
+	char result;
+	char fragment;
+	
+	result = state_in->result;
+	
+	switch (state_in->step)
+	{
+		while (1)
+		{
+	case step_A:
+			if (plainchar == plaintextend)
+			{
+				state_in->result = result;
+				state_in->step = step_A;
+				return codechar - code_out;
+			}
+			fragment = *plainchar++;
+			result = (fragment & 0x0fc) >> 2;
+			*codechar++ = [SQLitePlugin base64_encode_value:result];
+			result = (fragment & 0x003) << 4;
+	case step_B:
+			if (plainchar == plaintextend)
+			{
+				state_in->result = result;
+				state_in->step = step_B;
+				return codechar - code_out;
+			}
+			fragment = *plainchar++;
+			result |= (fragment & 0x0f0) >> 4;
+			*codechar++ = [SQLitePlugin base64_encode_value:result];
+			result = (fragment & 0x00f) << 2;
+	case step_C:
+			if (plainchar == plaintextend)
+			{
+				state_in->result = result;
+				state_in->step = step_C;
+				return codechar - code_out;
+			}
+			fragment = *plainchar++;
+			result |= (fragment & 0x0c0) >> 6;
+			*codechar++ = [SQLitePlugin base64_encode_value:result];
+			result  = (fragment & 0x03f) >> 0;
+			*codechar++ = [SQLitePlugin base64_encode_value:result];
+			
+      if(line_length > 0)
+      {
+        ++(state_in->stepcount);
+        if (state_in->stepcount == line_length/4)
+        {
+          *codechar++ = '\n';
+          state_in->stepcount = 0;
+        }
+      }
+		}
+	}
+	/* control should not reach here */
+	return codechar - code_out;
+}
+
++(int) base64_encode_blockend: (char*) code_out
+                                withencodestate: (LIBB64_base64_encodestate*) state_in
+{
+	char* codechar = code_out;
+	
+	switch (state_in->step)
+	{
+	case step_B:
+		*codechar++ = [SQLitePlugin base64_encode_value:state_in->result];
+		*codechar++ = '=';
+		*codechar++ = '=';
+		break;
+	case step_C:
+		*codechar++ = [SQLitePlugin base64_encode_value:state_in->result];
+		*codechar++ = '=';
+		break;
+	case step_A:
+		break;
+	}
+	*codechar++ = '\n';
+	
+	return codechar - code_out;
+}
+//LIBB64---END
+
 
 @end
