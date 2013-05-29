@@ -21,21 +21,6 @@
 
 #import "AppDelegate.h"
 
-//LIBB64
-typedef enum
-{
-	step_A, step_B, step_C
-} LIBB64_base64_encodestep;
-
-typedef struct
-{
-	LIBB64_base64_encodestep step;
-	char result;
-	int stepcount;
-} LIBB64_base64_encodestate;
-//LIBB64----END
-
-
 @interface SQLitePlugin : CDVPlugin {
     NSMutableDictionary *openDBs;
 }
@@ -62,16 +47,7 @@ typedef struct
 
 // LIBB64
 +(id) getBlobAsBase64String:(const char*) blob_chars
-                                    withlength: (int) blob_length;
-+(void) base64_init_encodestate:(LIBB64_base64_encodestate*) state_in;
-+(char) base64_encode_value: (char) value_in;
-+(int) base64_encode_block: (const char*) plaintext_in
-                            withlength: (int) length_in
-                            withoutput: (char*) code_out
-                            withencodestate: (LIBB64_base64_encodestate*) state_in
-                            withlinelength: (int) line_length;
-+(int) base64_encode_blockend: (char*) code_out
-                                withencodestate: (LIBB64_base64_encodestate*) state_in;
+                            withlength: (int) blob_length;
 // LIBB64---END
 
 @end
