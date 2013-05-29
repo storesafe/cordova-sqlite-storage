@@ -6,6 +6,9 @@
  * Joe Noon <joenoon@gmail.com>
  * Jean-Christophe Hoelt <hoelt@fovea.cc>
  *
+ * Embedded public domain LIBB64 encoding routines from http://libb64.sourceforge.net 
+ * - Chris Robertson <oztexan@gmail.com>
+ *
  * This library is available under the terms of the MIT License (2008).
  * See http://opensource.org/licenses/alphabetical for full text.
  */
@@ -41,5 +44,10 @@
 -(CDVPluginResult*) executeSqlWithDict: (NSMutableDictionary*)dict;
 
 -(id) getDBPath:(id)dbFile;
+
+// LIBB64
++(id) getBlobAsBase64String:(const char*) blob_chars
+                            withlength: (int) blob_length;
+// LIBB64---END
 
 @end
