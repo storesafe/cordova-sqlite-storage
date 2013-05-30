@@ -292,6 +292,22 @@
 	});
       });
 
+      test("all columns should be included in result set (including 'null' columns)", function() {
+        withTestTable(function(db) {
+          stop();
+          db.transaction(function(tx) {
+            tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ["test", null], function(tx, res) {
+              equal(res.rowsAffected, 1, "row inserted");
+              tx.executeSql("select * from test_table", [], function(tx, res) {
+                var row = res.rows.item(0);
+                deepEqual(row, { id: 1, data: "test", data_num: null }, "all columns should be included in result set.");
+                start();
+              });
+            });
+          });
+        });
+      });
+
   }
 
     </script>
