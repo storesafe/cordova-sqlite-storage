@@ -345,34 +345,35 @@ static int base64_encode_blockend(char* code_out,
                 count = sqlite3_column_count(statement);
 				
                 while (i < count) {
+                    columnValue = nil;
+                    columnName = [NSString stringWithFormat:@"%s", sqlite3_column_name(statement, i)];
+                    
                     column_type = sqlite3_column_type(statement, i);
                     switch (column_type) {
                         case SQLITE_INTEGER:
                             columnValue = [NSNumber numberWithDouble: sqlite3_column_double(statement, i)];
-                            columnName = [NSString stringWithFormat:@"%s", sqlite3_column_name(statement, i)];
-                            [entry setObject:columnValue forKey:columnName];
                             break;
                         case SQLITE_TEXT:
                             columnValue = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, i)];
-                            columnName = [NSString stringWithFormat:@"%s", sqlite3_column_name(statement, i)];
-                            [entry setObject:columnValue forKey:columnName];
                             break;
                         case SQLITE_BLOB:
                             //LIBB64
                             columnValue = [SQLitePlugin getBlobAsBase64String: sqlite3_column_blob(statement, i)
                                                         withlength: sqlite3_column_bytes(statement, i) ];
-                            columnName = [NSString stringWithFormat:@"%s", sqlite3_column_name(statement, i)];
                             //LIBB64---END
-                            [entry setObject:columnValue forKey:columnName];
                             break;
                         case SQLITE_FLOAT:
                             columnValue = [NSNumber numberWithFloat: sqlite3_column_double(statement, i)];
-                            columnName = [NSString stringWithFormat:@"%s", sqlite3_column_name(statement, i)];
-                            [entry setObject:columnValue forKey:columnName];
                             break;
                         case SQLITE_NULL:
+                            columnValue = [NSNull null];
                             break;
                     }
+                    
+                    if (columnValue) {
+                        [entry setObject:columnValue forKey:columnName];
+                    }
+                    
                     i++;
 
                 }
