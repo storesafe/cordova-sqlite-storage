@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" href="qunit-1.5.0.css" />
 
-    <script type="text/javascript" charset="utf-8" src="cordova-2.2.0.js"></script>
+    <script type="text/javascript" charset="utf-8" src="cordova-2.7.0.js"></script>
     <script type="text/javascript" charset="utf-8" src="SQLitePlugin.js"></script>
     <script type="text/javascript" charset="utf-8" src="qunit-1.5.0.js"></script>
 
@@ -20,7 +20,7 @@
 
       test( "db transaction test", function() {
 
-        var db = window.sqlitePlugin.openDatabase({name: "DB"});
+        var db = window.sqlitePlugin.openDatabase({name: "DB", execinbg: true});
 
         ok(!!db, "db object");
 
