@@ -313,7 +313,6 @@ static int base64_encode_blockend(char* code_out,
     NSMutableDictionary *entry;
     NSObject *columnValue;
     NSString *columnName;
-    NSObject *bindval;
     NSObject *insertId;
     NSObject *rowsAffected;
 
@@ -325,14 +324,9 @@ static int base64_encode_blockend(char* code_out,
         errMsg = /* (char *) */ sqlite3_errmsg (db);
         keepGoing = NO;
     } else {
-      for (int b = 1; b < query_parts.count; b++) {
-        bindval = [query_parts objectAtIndex:b];
-        if ([bindval isEqual:[NSNull null]]){
-          sqlite3_bind_null(statement, b);
-        } else {
-          sqlite3_bind_text(statement, b, [[NSString stringWithFormat:@"%@", bindval] UTF8String], -1, SQLITE_TRANSIENT);
+        for (int b = 1; b < query_parts.count; b++) {
+            [self bindStatement:statement withArg:[query_parts objectAtIndex:b] atIndex:b];
         }
-      }
     }
 
     while (keepGoing) {
@@ -410,6 +404,27 @@ static int base64_encode_blockend(char* code_out,
         [resultSet setObject:insertId forKey:@"insertId"];
     }
     return [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultSet];
+}
+
+-(void)bindStatement:(sqlite3_stmt *)statement withArg:(NSObject *)arg atIndex:(NSUInteger)argIndex
+{
+    if ([arg isEqual:[NSNull null]]) {
+        sqlite3_bind_null(statement, argIndex);
+    } else if ([arg isKindOfClass:[NSNumber class]]) {
+        NSNumber *numberArg = (NSNumber *)arg;
+        const char *numberType = [numberArg objCType];
+        if (strcmp(numberType, @encode(int)) == 0) {
+            sqlite3_bind_int(statement, argIndex, [numberArg integerValue]);
+        } else if (strcmp(numberType, @encode(long long int)) == 0) {
+            sqlite3_bind_int64(statement, argIndex, [numberArg longLongValue]);
+        } else if (strcmp(numberType, @encode(double)) == 0) {
+            sqlite3_bind_double(statement, argIndex, [numberArg doubleValue]);
+        } else {
+            sqlite3_bind_text(statement, argIndex, [[NSString stringWithFormat:@"%@", arg] UTF8String], -1, SQLITE_TRANSIENT);
+        }
+    } else {
+        sqlite3_bind_text(statement, argIndex, [[NSString stringWithFormat:@"%@", arg] UTF8String], -1, SQLITE_TRANSIENT);
+    }
 }
 
 -(void)dealloc
