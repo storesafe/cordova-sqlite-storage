@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" href="qunit-1.5.0.css" />
 
-    <script type="text/javascript" charset="utf-8" src="cordova-2.2.0.js"></script>
+    <script type="text/javascript" charset="utf-8" src="cordova-2.7.0.js"></script>
     <script type="text/javascript" charset="utf-8" src="SQLitePlugin.js"></script>
     <script type="text/javascript" charset="utf-8" src="qunit-1.5.0.js"></script>
 
@@ -145,6 +145,36 @@
 
         });
 
+      });
+
+      function withTestTable(func){
+        stop();
+
+        var db = window.sqlitePlugin.openDatabase({name: "Database"});
+
+        db.transaction(function(tx) {
+          tx.executeSql('DROP TABLE IF EXISTS test_table');
+          tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
+        }, function(err) { ok(false, err.message) }, function() {
+          start();
+          func(db);
+        });
+      };
+
+      test("all columns should be included in result set (including 'null' columns)", function() {
+        withTestTable(function(db) {
+          stop();
+          db.transaction(function(tx) {
+            tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ["test", null], function(tx, res) {
+              // equal(res.rowsAffected, 1, "row inserted"); // issue with Android version
+              tx.executeSql("select * from test_table", [], function(tx, res) {
+                var row = res.rows.item(0);
+                deepEqual(row, { id: 1, data: "test", data_num: null }, "all columns should be included in result set.");
+                start();
+              });
+            });
+          });
+        });
       });
 
       test("pragma & multiple databases", function() {

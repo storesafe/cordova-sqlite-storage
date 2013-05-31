@@ -355,7 +355,7 @@ public class SQLitePlugin extends CordovaPlugin
 							switch(cur.getType (i))
 							{
 								case Cursor.FIELD_TYPE_NULL:
-									row.put(key, null);
+									row.put(key, JSONObject.NULL);
 									break;
 								case Cursor.FIELD_TYPE_INTEGER:
 									row.put(key, cur.getInt(i));
