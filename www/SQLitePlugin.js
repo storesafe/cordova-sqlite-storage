@@ -204,13 +204,19 @@ if (!window.Cordova) window.Cordova = window.cordova;
       });
     }
 
-    var error = function (results) {
+    var error = function (resultsAndError) {
+        var results = resultsAndError.results;
+        var error = resultsAndError.error;
         var j = 0;
+
         for (; j < results.length; ++j) {
           handleFor(j, true, results[j]);
         }
+
         for (; j < batchExecutes.length; ++j) {
-          handleFor(j, false, {message: 'Request failed: ' + opts[j].query});
+          error.message = 'Request failed: ' + opts[j].query;
+
+          handleFor(j, false, error);
         }
     };
 
