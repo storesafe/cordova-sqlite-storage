@@ -245,19 +245,27 @@ static int base64_encode_blockend(char* code_out,
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
     NSMutableArray *results = [NSMutableArray arrayWithCapacity:0];
     NSMutableArray *executes = [options objectForKey:@"executes"];
-    int status = CDVCommandStatus_OK;
     CDVPluginResult* pluginResult;
+    NSDictionary *error = nil;
 
     @synchronized(self) {
         for (NSMutableDictionary *dict in executes) {
             CDVPluginResult *result = [self executeSqlWithDict:dict];
             if ([result.status intValue] == CDVCommandStatus_ERROR) {
-                status = CDVCommandStatus_ERROR;
+                error = [result message];
                 break;
             }
             [results addObject: result.message];
         }
-        pluginResult = [CDVPluginResult resultWithStatus:status messageAsArray:results];
+
+        if (!error) {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:results];
+        } else {
+            NSMutableDictionary *resultsAndError = [NSMutableDictionary dictionaryWithCapacity:2];
+            [resultsAndError setObject:results forKey:@"results"];
+            [resultsAndError setObject:error forKey:@"error"];
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:resultsAndError];
+        }
     }
 
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -301,7 +309,7 @@ static int base64_encode_blockend(char* code_out,
     sqlite3 *db = [dbPointer pointerValue];
 
     const char *sql_stmt = [query UTF8String];
-    const char *errMsg = NULL;
+    NSDictionary *error = nil;
     sqlite3_stmt *statement;
     int result, i, column_type, count;
     int previousRowsAffected, nowRowsAffected, diffRowsAffected;
@@ -322,7 +330,7 @@ static int base64_encode_blockend(char* code_out,
     previousInsertId = sqlite3_last_insert_rowid(db);
 
     if (sqlite3_prepare_v2(db, sql_stmt, -1, &statement, NULL) != SQLITE_OK) {
-        errMsg = /* (char *) */ sqlite3_errmsg (db);
+        error = [SQLitePlugin captureSQLiteErrorFromDb:db];
         keepGoing = NO;
     } else {
       for (int b = 1; b < query_parts.count; b++) {
@@ -393,15 +401,15 @@ static int base64_encode_blockend(char* code_out,
                 break;
 
             default:
-                errMsg = [[NSString stringWithFormat:@"sqlite3 error code %i", result] UTF8String];
+                error = [SQLitePlugin captureSQLiteErrorFromDb:db];
                 keepGoing = NO;
         }
     }
 
     sqlite3_finalize (statement);
 
-    if (errMsg != NULL) {
-        return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"SQL statement error : %s", errMsg]];
+    if (error) {
+        return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:error];
     }
 
     [resultSet setObject:resultRows forKey:@"rows"];
@@ -431,6 +439,43 @@ static int base64_encode_blockend(char* code_out,
     [openDBs release];
     [appDocsPath release];
     [super dealloc];
+}
+
++(NSDictionary *)captureSQLiteErrorFromDb:(sqlite3 *)db
+{
+    int code = sqlite3_errcode(db);
+    int webSQLCode = [SQLitePlugin mapSQLiteErrorCode:code];
+
+    NSMutableDictionary *error = [NSMutableDictionary dictionaryWithCapacity:4];
+
+    [error setObject:[NSNumber numberWithInt:webSQLCode] forKey:@"code"];
+
+#if INCLUDE_SQLITE_ERROR_INFO
+    int extendedCode = sqlite3_extended_errcode(db);
+    const char *message = sqlite3_errmsg(db);
+
+    [error setObject:[NSNumber numberWithInt:code] forKey:@"sqliteCode"];
+    [error setObject:[NSNumber numberWithInt:extendedCode] forKey:@"sqliteExtendedCode"];
+    [error setObject:[NSString stringWithUTF8String:message] forKey:@"sqliteMessage"];
+#endif
+
+    return error;
+}
+
++(int)mapSQLiteErrorCode:(int)code
+{
+    // map the sqlite error code to
+    // the websql error code
+    switch(code) {
+        case SQLITE_ERROR:
+            return SYNTAX_ERR;
+        case SQLITE_FULL:
+            return QUOTA_ERR;
+        case SQLITE_CONSTRAINT:
+            return CONSTRAINT_ERR;
+        default:
+            return UNKNOWN_ERR;
+    }
 }
 
 +(id) getBlobAsBase64String:(const char*) blob_chars

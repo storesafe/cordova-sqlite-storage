@@ -21,6 +21,18 @@
 
 #import "AppDelegate.h"
 
+enum WebSQLError {
+    UNKNOWN_ERR = 0,
+    DATABASE_ERR = 1,
+    VERSION_ERR = 2,
+    TOO_LARGE_ERR = 3,
+    QUOTA_ERR = 4,
+    SYNTAX_ERR = 5,
+    CONSTRAINT_ERR = 6,
+    TIMEOUT_ERR = 7
+};
+typedef int WebSQLError;
+
 @interface SQLitePlugin : CDVPlugin {
     NSMutableDictionary *openDBs;
 }
@@ -44,6 +56,10 @@
 -(CDVPluginResult*) executeSqlWithDict: (NSMutableDictionary*)dict;
 
 -(id) getDBPath:(id)dbFile;
+
++(NSDictionary *)captureSQLiteErrorFromDb:(sqlite3 *)db;
+
++(int)mapSQLiteErrorCode:(int)code;
 
 // LIBB64
 +(id) getBlobAsBase64String:(const char*) blob_chars
