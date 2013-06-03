@@ -340,19 +340,18 @@
         stop();
         db.transaction(function(tx) {
           tx.executeSql("insert into test_table (data) VALUES (?)", [123], null, function(tx, error) {
-              ok(false, error.message);
-              start();
-            });
+            ok(false, error.message);
+          });
 
-            // This insertion will violate the unique constraint
-            tx.executeSql("insert into test_table (data) VALUES (?)", [123], function(tx, error) {
-              ok(false, error.message);
-              start();
-            }, function(tx, error) {
-              strictEqual(error.code, SQLException.CONSTRAINT_ERR, "error.code === CONSTRAINT_ERR");
-              equal(error.message, "Request failed: insert into test_table (data) VALUES (?),123", "error.message");
-              start();
-            });
+          // This insertion will violate the unique constraint
+          tx.executeSql("insert into test_table (data) VALUES (?)", [123], function(tx, error) {
+            ok(false, error.message);
+            start();
+          }, function(tx, error) {
+            strictEqual(error.code, SQLException.CONSTRAINT_ERR, "error.code === CONSTRAINT_ERR");
+            equal(error.message, "Request failed: insert into test_table (data) VALUES (?),123", "error.message");
+            start();
+          });
         });
       });
 
@@ -361,13 +360,13 @@
         db.transaction(function(tx) {
           // This insertion has a sql syntax error
           tx.executeSql("insert into test_table (data) VALUES ", [123], function(tx, error) {
-              ok(false, error.message);
-              start();
-            }, function(tx, error) {
-              strictEqual(error.code, SQLException.SYNTAX_ERR, "error.code === SYNTAX_ERR");
-              equal(error.message, "Request failed: insert into test_table (data) VALUES ,123", "error.message");
-              start();
-            });
+            ok(false, error.message);
+            start();
+          }, function(tx, error) {
+            strictEqual(error.code, SQLException.SYNTAX_ERR, "error.code === SYNTAX_ERR");
+            equal(error.message, "Request failed: insert into test_table (data) VALUES ,123", "error.message");
+            start();
+          });
         });
       });
 

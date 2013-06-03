@@ -167,8 +167,8 @@ if (!window.Cordova) window.Cordova = window.cordova;
         waiting = batchExecutes.length,
         txFailure,
         tx = this,
-        opts=[];
-    this.executes = [];
+        opts = [];
+        this.executes = [];
 
     // var handlerFor = function (index, didSucceed) {
     var handleFor = function (index, didSucceed, response) {
@@ -206,17 +206,33 @@ if (!window.Cordova) window.Cordova = window.cordova;
 
     var error = function (resultsAndError) {
         var results = resultsAndError.results;
-        var error = resultsAndError.error;
+        var nativeError = resultsAndError.error;
         var j = 0;
 
+        // call the success handlers for statements that succeeded
         for (; j < results.length; ++j) {
           handleFor(j, true, results[j]);
         }
 
-        for (; j < batchExecutes.length; ++j) {
-          error.message = 'Request failed: ' + opts[j].query;
+        if (j < batchExecutes.length) {
+          // only pass along the additional error info to the statement that
+          // caused the failure (the only one the error info applies to);
+          var error = new Error('Request failed: ' + opts[j].query);
+          error.code = nativeError.code;
+          // the following properties are only defined if the plugin
+          // was compiled with INCLUDE_SQLITE_ERROR_INFO
+          error.sqliteCode = nativeError.sqliteCode;
+          error.sqliteExtendedCode = nativeError.sqliteExtendedCode;
+          error.sqliteMessage = nativeError.sqliteMessage;
 
           handleFor(j, false, error);
+          j++;
+        }
+
+        // call the error handler for the remaining statements
+        // (Note: this doesn't adhere to the Web SQL spec...)
+        for (; j < batchExecutes.length; ++j) {
+          handleFor(j, false, new Error('Request failed: ' + opts[j].query));
         }
     };
 
