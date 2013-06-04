@@ -37,7 +37,9 @@ if (!window.Cordova) window.Cordova = window.cordova;
     this.dbname = dbargs.name + ".db";
     dbargs.name = this.dbname;
 
-    this.dbfeatures = { isSQLitePlugin: true };
+    this.dbprop = {
+      isSQLitePlugin: true,
+    };
 
     this.openSuccess = openSuccess;
     this.openError = openError;
