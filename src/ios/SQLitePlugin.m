@@ -67,9 +67,15 @@
                 return;
             }
             else {
-                dbPointer = [NSValue valueWithPointer:db];
-                [openDBs setObject: dbPointer forKey: dbname];
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Database opened"];
+                const char *key = [[options objectForKey:@"key"] UTF8String];
+                if(key != NULL) sqlite3_key(db, key, strlen(key));
+                if(sqlite3_exec(db, (const char*)"SELECT count(*) FROM sqlite_master;", NULL, NULL, NULL) == SQLITE_OK) {
+                    dbPointer = [NSValue valueWithPointer:db];
+                    [openDBs setObject: dbPointer forKey: dbname];
+                    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Database opened"];
+                } else {
+                    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unable to encrypt DB"];
+                }
             }
         }
     }
@@ -105,6 +111,25 @@
         }
     }
     [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
+}
+
+-(void) delete: (CDVInvokedUrlCommand*)command
+{
+    CDVPluginResult* pluginResult = nil;
+    NSMutableDictionary *options = [command.arguments objectAtIndex:0];
+    
+    NSString *dbPath = [self getDBPath:[options objectForKey:@"path"]];
+    if(dbPath==NULL) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify database path"];
+    } else {
+        if([[NSFileManager defaultManager]fileExistsAtPath:dbPath]) {
+            [[NSFileManager defaultManager]removeItemAtPath:dbPath error:nil];
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"DB deleted"];
+        } else {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"The database does not exist on that path"];
+        }
+    }
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 
@@ -160,7 +185,6 @@
     NSString *dbPath = [self getDBPath:[options objectForKey:@"path"]];
     NSMutableArray *query_parts = [options objectForKey:@"query"];
     NSString *query = [query_parts objectAtIndex:0];
-    // NSLog(@"Execute query: %@", query);
 
     if (dbPath == NULL) {
         return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify database path"];

@@ -83,10 +83,14 @@ if (!window.Cordova) window.Cordova = window.cordova;
   };
 
   SQLitePlugin.prototype.open = function(success, error) {
-    var opts;
+    console.log('open db: ' + this.dbname);
+	  var opts;
     if (!(this.dbname in this.openDBs)) {
       this.openDBs[this.dbname] = true;
       exec("open", this.dbargs, success, error);
+    } else {
+    	console.log('found db already open ...');
+    	success();
     }
   };
   SQLitePlugin.prototype.close = function(success, error) {
@@ -94,6 +98,19 @@ if (!window.Cordova) window.Cordova = window.cordova;
       delete this.openDBs[this.dbname];
       exec("close", { path: this.dbname }, success, error);
     }
+  };
+  SQLitePlugin.prototype.closeCrashed = function(success, error) {
+	 if(this.dbname in this.openDBs) {
+		 delete this.openDBs[this.dbname];
+	 }
+	 success();
+  };
+  SQLitePlugin.prototype.terminate = function(success,error) {
+	    console.log('deleting db: ' + this.dbname);
+	    if (this.dbname in this.openDBs) {
+	        delete this.openDBs[this.dbname];
+	        exec("delete", {path: this.dbname},success,error);
+	    }
   };
 
   SQLitePluginTransaction = function(db, fn, error, success) {
@@ -292,10 +309,14 @@ if (!window.Cordova) window.Cordova = window.cordova;
         }
       }
       return new SQLitePlugin(openargs, okcb, errorcb);
+    },
+    deleteDb: function(databaseName, success, error) {
+        exec("delete", { path: databaseName }, success, error);
     }
   };
 
   root.sqlitePlugin = {
-    openDatabase: SQLiteFactory.opendb
+    openDatabase: SQLiteFactory.opendb,
+    deleteDatabase: SQLiteFactory.deleteDb
   };
 })();
