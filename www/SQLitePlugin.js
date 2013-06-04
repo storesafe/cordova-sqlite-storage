@@ -102,13 +102,16 @@ if (!window.Cordova) window.Cordova = window.cordova;
       exec("close", { path: this.dbname }, success, error);
     }
   };
-  SQLitePlugin.prototype.closeCrashed = function(success, error) {
+  // API TBD ??? - subect to change:
+  SQLitePlugin.prototype._closeCrashed = function(success, error) {
 	 if(this.dbname in this.openDBs) {
 		 delete this.openDBs[this.dbname];
 	 }
 	 success();
   };
-  SQLitePlugin.prototype.terminate = function(success,error) {
+  // API TBD ??? - subect to change:
+  SQLitePlugin.prototype._deleteDB =
+  SQLitePlugin.prototype._terminate = function(success,error) {
 	    console.log('deleting db: ' + this.dbname);
 	    if (this.dbname in this.openDBs) {
 	        delete this.openDBs[this.dbname];
