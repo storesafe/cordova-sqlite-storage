@@ -31,9 +31,13 @@ if (!window.Cordova) window.Cordova = window.cordova;
       throw new Error("Cannot create a SQLitePlugin instance without a db name");
     }
 
+    this.isdatabase = true;
+
     this.dbargs = dbargs;
     this.dbname = dbargs.name + ".db";
     dbargs.name = this.dbname;
+
+    this.dbfeatures = { isSQLitePlugin: true };
 
     this.openSuccess = openSuccess;
     this.openError = openError;
@@ -49,7 +53,7 @@ if (!window.Cordova) window.Cordova = window.cordova;
 
   SQLitePlugin.prototype.openDBs = {};
   SQLitePlugin.prototype.txQueue = [];
-  SQLitePlugin.prototype.features = { isSQLitePlugin: true };
+  //SQLitePlugin.prototype.features = { isSQLitePlugin: true };
 
   SQLitePlugin.prototype.executePragmaStatement = function(sql, success, error) {
     if (!sql) throw new Error("Cannot executeSql without a query");
