@@ -43,6 +43,7 @@ typedef int WebSQLError;
 // Open / Close
 -(void) open: (CDVInvokedUrlCommand*)command;
 -(void) close: (CDVInvokedUrlCommand*)command;
+-(void) delete: (CDVInvokedUrlCommand*)command;
 
 // Batch processing interface
 -(void) backgroundExecuteSqlBatch: (CDVInvokedUrlCommand*)command;
