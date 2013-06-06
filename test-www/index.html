@@ -18,7 +18,7 @@
 
     function doTest() {
 
-      test( "db transaction test", function() {
+      test("db transaction test", function() {
 
         var db = window.sqlitePlugin.openDatabase({name: "DB", execinbg: true});
 
@@ -147,149 +147,148 @@
 
       });
 
-      function withTestTable(func){
+      function withTestTable(func) {
         stop();
         var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);
-        db.transaction(function(tx){
+        db.transaction(function(tx) {
           tx.executeSql('DROP TABLE IF EXISTS test_table');
           tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
-        }, function(err){ ok(false, err.message) }, function(){
+        }, function(err) { ok(false, err.message) }, function() {
           start();
           func(db);
         });
       };
 
-      test( "transaction encompasses all callbacks", function() {
-        withTestTable(function(db){
-	  stop();
-          db.transaction(function(tx){
+      test("transaction encompasses all callbacks", function() {
+        withTestTable(function(db) {
+          stop();
+          db.transaction(function(tx) {
             tx.executeSql('INSERT INTO test_table (data, data_num) VALUES (?,?)', ['test', 100], function(tx, res) {
               tx.executeSql("SELECT count(*) as cnt from test_table", [], function(tx, res) {
-		start();
-		equal(res.rows.item(0).cnt, 1, "did insert row");
-		stop();
-		throw new Error("deliberately aborting transaction");
+                start();
+                equal(res.rows.item(0).cnt, 1, "did insert row");
+                stop();
+                throw new Error("deliberately aborting transaction");
               });
             });
-          }, function(error){
+          }, function(error) {
             start();
             equal(error.message, "deliberately aborting transaction");
-	    stop();
-            db.transaction(function(tx){
-              tx.executeSql("select count(*) as cnt from test_table", [], function(tx, res){
-		start();
-		equal(res.rows.item(0).cnt, 0, "final count shows we rolled back");
-	      });
-	    });
-	  }, function(){
-	    start();
-	    ok(false, "transaction succeeded but wasn't supposed to");
-	  });
-	});
-      })
+            stop();
+            db.transaction(function(tx) {
+              tx.executeSql("select count(*) as cnt from test_table", [], function(tx, res) {
+                start();
+                equal(res.rows.item(0).cnt, 0, "final count shows we rolled back");
+              });
+            });
+          }, function() {
+            start();
+            ok(false, "transaction succeeded but wasn't supposed to");
+          });
+        });
+      });
 
-      test( "exception from transaction handler causes failure", function() {
-	withTestTable(function(db){
+      test("exception from transaction handler causes failure", function() {
+        withTestTable(function(db) {
           stop();
-          db.transaction(function(tx){
+          db.transaction(function(tx) {
             throw new Error("boom");
-          }, function(err){
+          }, function(err) {
             start();
             equal(err.message, 'boom');
-          }, function(){
+          }, function() {
             ok(false, "not supposed to succeed");
           });
-	});
+        });
       });
 
-      test( "error handler returning true causes rollback", function() {
-	withTestTable(function(db){
+      test("error handler returning true causes rollback", function() {
+        withTestTable(function(db) {
           stop(2);
-          db.transaction(function(tx){
-            tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ['test', null], function(tx, res){
-	      start();
-	      equal(res.rowsAffected, 1, 'row inserted');
-	      stop();
-	      tx.executeSql("select * from bogustable", [], function(tx, res){
-		start();
-		ok(false, "select statement not supposed to succeed");
-	      }, function(tx, err){
-		start();
-		ok(/bogustable/.test(err.message), "should report bad statement");
-		return true;
-	      });
-	    });
-          }, function(err){
+          db.transaction(function(tx) {
+            tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ['test', null], function(tx, res) {
+              start();
+              equal(res.rowsAffected, 1, 'row inserted');
+              stop();
+              tx.executeSql("select * from bogustable", [], function(tx, res) {
+                start();
+                ok(false, "select statement not supposed to succeed");
+              }, function(tx, err) {
+                start();
+                ok(/bogustable/.test(err.message), "should report bad statement");
+                return true;
+              });
+            });
+          }, function(err) {
             start();
-            equal(err.message, 'a statement error callback did not return false');
-	    stop();
-	    db.transaction(function(tx){
-	      tx.executeSql("select count(*) as cnt from test_table", [], function(tx, res){
-		start();
-		equal(res.rows.item(0).cnt, 0, "should have rolled back");
-	      });
-	    });
-          }, function(){
-	    start();
+            ok(/bogustable/.test(err.message), "should report bad statement");
+            stop();
+            db.transaction(function(tx) {
+              tx.executeSql("select count(*) as cnt from test_table", [], function(tx, res) {
+                start();
+                equal(res.rows.item(0).cnt, 0, "should have rolled back");
+              });
+            });
+          }, function() {
+            start();
             ok(false, "not supposed to succeed");
           });
-	});
+        });
       });
 
-      test( "error handler returning non-true lets transaction continue", function() {
-	withTestTable(function(db){
+      test("error handler returning non-true lets transaction continue", function() {
+        withTestTable(function(db) {
           stop(2);
-          db.transaction(function(tx){
-            tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ['test', null], function(tx, res){
-	      start();
-	      equal(res.rowsAffected, 1, 'row inserted');
-	      stop();
-	      tx.executeSql("select * from bogustable", [], function(tx, res){
-		start();
-		ok(false, "select statement not supposed to succeed");
-	      }, function(tx, err){
-		start();
-		ok(/bogustable/.test(err.message), "should report bad statement");
-	      });
-	    });
-          }, function(err){
+          db.transaction(function(tx) {
+            tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ['test', null], function(tx, res) {
+              start();
+              equal(res.rowsAffected, 1, 'row inserted');
+              stop();
+              tx.executeSql("select * from bogustable", [], function(tx, res) {
+                start();
+                ok(false, "select statement not supposed to succeed");
+              }, function(tx, err) {
+                start();
+                ok(/bogustable/.test(err.message), "should report bad statement");
+              });
+            });
+          }, function(err) {
             start();
-	    ok(false, "transaction was supposed to succeed");
-          }, function(){
-	    db.transaction(function(tx){
-	      tx.executeSql("select count(*) as cnt from test_table", [], function(tx, res){
-		start();
-		equal(res.rows.item(0).cnt, 1, "should have commited");
-	      });
-	    });
-
+            ok(false, "transaction was supposed to succeed");
+          }, function() {
+            db.transaction(function(tx) {
+              tx.executeSql("select count(*) as cnt from test_table", [], function(tx, res) {
+                start();
+                equal(res.rows.item(0).cnt, 1, "should have commited");
+              });
+            });
           });
-	});
+        });
       });
 
-      test( "missing error handler causes rollback", function() {
-	withTestTable(function(db){
+      test("missing error handler causes rollback", function() {
+          withTestTable(function(db) {
           stop();
-          db.transaction(function(tx){
-            tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ['test', null], function(tx, res){
-	      equal(res.rowsAffected, 1, 'row inserted');
-	      tx.executeSql("select * from bogustable", [], function(tx, res){
-		ok(false, "select statement not supposed to succeed");
-	      });
-	    });
-          }, function(err){
-	    ok(/a statement with no error handler failed/.test(err.message), "check error message");
-	    db.transaction(function(tx){
-	      tx.executeSql("select count(*) as cnt from test_table", [], function(tx, res){
-		start();
-		equal(res.rows.item(0).cnt, 0, "should have rolled back");
-	      });
-	    });
-          }, function(){
+          db.transaction(function(tx) {
+            tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ['test', null], function(tx, res) {
+              equal(res.rowsAffected, 1, 'row inserted');
+              tx.executeSql("select * from bogustable", [], function(tx, res) {
+                ok(false, "select statement not supposed to succeed");
+              });
+            });
+          }, function(err) {
+            ok(/bogustable/.test(err.message), "should report bad statement");
+            db.transaction(function(tx) {
+              tx.executeSql("select count(*) as cnt from test_table", [], function(tx, res) {
+                start();
+                equal(res.rows.item(0).cnt, 0, "should have rolled back");
+              });
+            });
+          }, function() {
             start();
-	    ok(false, "transaction was supposed to fail");
+            ok(false, "transaction was supposed to fail");
           });
-	});
+        });
       });
 
       test("all columns should be included in result set (including 'null' columns)", function() {
@@ -314,7 +313,7 @@
         db.transaction(function(tx) {
           tx.executeSql('DROP TABLE IF EXISTS test_table');
           tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data_text, data_int, data_real)');
-        }, function(err){ ok(false, err.message) }, function() {
+        }, function(err) { ok(false, err.message) }, function() {
           db.transaction(function(tx) {
             // create columns with no type affinity
             tx.executeSql("insert into test_table (data_text, data_int, data_real) VALUES (?,?,?)", ["3.14", 314, 3.14], function(tx, res) {
@@ -339,7 +338,7 @@
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
             tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data unique)');
-          }, function(error){
+          }, function(error) {
             ok(false, error.message);
             start();
           }, function() {
@@ -350,7 +349,7 @@
           stop();
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
-          }, function(error){
+          }, function(error) {
             ok(false, error.message);
             start();
           }, function() {
@@ -360,36 +359,50 @@
       });
 
       test("syntax error", function() {
-        stop();
+        stop(2);
         db.transaction(function(tx) {
           // This insertion has a sql syntax error
-          tx.executeSql("insert into test_table (data) VALUES ", [123], function(tx, error) {
-            ok(false, error.message);
+          tx.executeSql("insert into test_table (data) VALUES ", [123], function(tx) {
+            ok(false, "unexpected success");
             start();
           }, function(tx, error) {
             strictEqual(error.code, SQLException.SYNTAX_ERR, "error.code === SYNTAX_ERR");
             equal(error.message, "Request failed: insert into test_table (data) VALUES ,123", "error.message");
             start();
+
+            // We want this error to fail the entire transaction
+            return true;
           });
+        }, function (error) {
+          strictEqual(error.code, SQLException.SYNTAX_ERR, "error.code === SYNTAX_ERR");
+          equal(error.message, "Request failed: insert into test_table (data) VALUES ,123", "error.message");
+          start();
         });
       });
 
       test("constraint violation", function() {
-        stop();
+        stop(2);
         db.transaction(function(tx) {
           tx.executeSql("insert into test_table (data) VALUES (?)", [123], null, function(tx, error) {
             ok(false, error.message);
           });
 
           // This insertion will violate the unique constraint
-          tx.executeSql("insert into test_table (data) VALUES (?)", [123], function(tx, error) {
-            ok(false, error.message);
+          tx.executeSql("insert into test_table (data) VALUES (?)", [123], function(tx) {
+            ok(false, "unexpected success");
             start();
           }, function(tx, error) {
             strictEqual(error.code, SQLException.CONSTRAINT_ERR, "error.code === CONSTRAINT_ERR");
             equal(error.message, "Request failed: insert into test_table (data) VALUES (?),123", "error.message");
             start();
+
+            // We want this error to fail the entire transaction
+            return true;
           });
+        }, function(error) {
+          strictEqual(error.code, SQLException.CONSTRAINT_ERR, "error.code === CONSTRAINT_ERR");
+          equal(error.message, "Request failed: insert into test_table (data) VALUES (?),123", "error.message");
+          start();
         });
       });
 
