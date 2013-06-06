@@ -172,12 +172,9 @@ if (!window.Cordova) window.Cordova = window.cordova;
     handler(this, payload);
   };
 
-  SQLitePluginTransaction.prototype.handleStatementFailure = function(handler, response) {
-    if (!handler){
-      throw new Error("a statement with no error handler failed: " + response.message)
-    }
-    if (handler(this, response)){
-      throw new Error("a statement error callback did not return false");
+  SQLitePluginTransaction.prototype.handleStatementFailure = function(handler, error) {
+    if (!handler || handler(this, error)){
+      throw error;
     }
   };
 

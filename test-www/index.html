@@ -221,7 +221,7 @@
             });
           }, function(err) {
             start();
-            equal(err.message, 'a statement error callback did not return false');
+            ok(/bogustable/.test(err.message), "should report bad statement");
             stop();
             db.transaction(function(tx) {
               tx.executeSql("select count(*) as cnt from test_table", [], function(tx, res) {
@@ -277,7 +277,7 @@
               });
             });
           }, function(err) {
-            ok(/a statement with no error handler failed/.test(err.message), "check error message");
+            ok(/bogustable/.test(err.message), "should report bad statement");
             db.transaction(function(tx) {
               tx.executeSql("select count(*) as cnt from test_table", [], function(tx, res) {
                 start();
@@ -359,36 +359,50 @@
       });
 
       test("syntax error", function() {
-        stop();
+        stop(2);
         db.transaction(function(tx) {
           // This insertion has a sql syntax error
-          tx.executeSql("insert into test_table (data) VALUES ", [123], function(tx, error) {
-            ok(false, error.message);
+          tx.executeSql("insert into test_table (data) VALUES ", [123], function(tx) {
+            ok(false, "unexpected success");
             start();
           }, function(tx, error) {
             strictEqual(error.code, SQLException.SYNTAX_ERR, "error.code === SYNTAX_ERR");
             equal(error.message, "Request failed: insert into test_table (data) VALUES ,123", "error.message");
             start();
+
+            // We want this error to fail the entire transaction
+            return true;
           });
+        }, function (error) {
+          strictEqual(error.code, SQLException.SYNTAX_ERR, "error.code === SYNTAX_ERR");
+          equal(error.message, "Request failed: insert into test_table (data) VALUES ,123", "error.message");
+          start();
         });
       });
 
       test("constraint violation", function() {
-        stop();
+        stop(2);
         db.transaction(function(tx) {
           tx.executeSql("insert into test_table (data) VALUES (?)", [123], null, function(tx, error) {
             ok(false, error.message);
           });
 
           // This insertion will violate the unique constraint
-          tx.executeSql("insert into test_table (data) VALUES (?)", [123], function(tx, error) {
-            ok(false, error.message);
+          tx.executeSql("insert into test_table (data) VALUES (?)", [123], function(tx) {
+            ok(false, "unexpected success");
             start();
           }, function(tx, error) {
             strictEqual(error.code, SQLException.CONSTRAINT_ERR, "error.code === CONSTRAINT_ERR");
             equal(error.message, "Request failed: insert into test_table (data) VALUES (?),123", "error.message");
             start();
+
+            // We want this error to fail the entire transaction
+            return true;
           });
+        }, function(error) {
+          strictEqual(error.code, SQLException.CONSTRAINT_ERR, "error.code === CONSTRAINT_ERR");
+          equal(error.message, "Request failed: insert into test_table (data) VALUES (?),123", "error.message");
+          start();
         });
       });
 
