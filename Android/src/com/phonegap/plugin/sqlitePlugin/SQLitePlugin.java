@@ -32,13 +32,27 @@ public class SQLitePlugin extends CordovaPlugin
 	/**
 	 * Multiple database map.
 	 */
-	HashMap<String, SQLiteDatabase> dbmap;
+	static HashMap<String, SQLiteDatabase> dbmap = null;
+
+	/**
+	 * Get a database from the db map.
+	 *
+	 * @param dbname
+	 *            The name of the database.
+	 *
+	 */
+	public static SQLiteDatabase getDatabase(String dbname)
+	{
+		return dbmap.get(dbname);
+	}
 
 	/**
 	 * Constructor.
 	 */
 	public SQLitePlugin() {
-		dbmap = new HashMap<String, SQLiteDatabase>();
+		if (dbmap == null) {
+			dbmap = new HashMap<String, SQLiteDatabase>();
+		}
 	}
 
 	/**
@@ -72,7 +86,7 @@ public class SQLitePlugin extends CordovaPlugin
 				String dbName = args.getString(0);
 				String query = args.getString(1);
 
-				Cursor myCursor = this.getDatabase(dbName).rawQuery(query, null);
+				Cursor myCursor = getDatabase(dbName).rawQuery(query, null);
 				this.processPragmaResults(myCursor, id);
 			}
 			else if (action.equals("executeSqlBatch"))
@@ -128,10 +142,10 @@ public class SQLitePlugin extends CordovaPlugin
 	 */
 	@Override
 	public void onDestroy() {
-		while (!this.dbmap.isEmpty()) {
-			String dbname = this.dbmap.keySet().iterator().next();
+		while (!dbmap.isEmpty()) {
+			String dbname = dbmap.keySet().iterator().next();
 			this.closeDatabase(dbname);
-			this.dbmap.remove(dbname);
+			dbmap.remove(dbname);
 		}
 	}
 
@@ -151,7 +165,7 @@ public class SQLitePlugin extends CordovaPlugin
 	 */
 	private void openDatabase(String dbname, String password)
 	{
-		if (this.getDatabase(dbname) != null) this.closeDatabase(dbname);
+		if (getDatabase(dbname) != null) this.closeDatabase(dbname);
 
 		File dbfile = this.cordova.getActivity().getDatabasePath(dbname + ".db");
 
@@ -171,25 +185,13 @@ public class SQLitePlugin extends CordovaPlugin
 	 */
 	private void closeDatabase(String dbName)
 	{
-		SQLiteDatabase mydb = this.getDatabase(dbName);
+		SQLiteDatabase mydb = getDatabase(dbName);
 
 		if (mydb != null)
 		{
 			mydb.close();
-			this.dbmap.remove(dbName);
+			dbmap.remove(dbName);
 		}
-	}
-
-	/**
-	 * Get a database from the db map.
-	 *
-	 * @param dbname
-	 *            The name of the database.
-	 *
-	 */
-	private SQLiteDatabase getDatabase(String dbname)
-	{
-		return dbmap.get(dbname);
 	}
 
 	/**
@@ -213,7 +215,7 @@ public class SQLitePlugin extends CordovaPlugin
 	 */
 	private void executeSqlBatch(String dbname, String[] queryarr, JSONArray[] jsonparams, String[] queryIDs, String tx_id)
 	{
-		SQLiteDatabase mydb = this.getDatabase(dbname);
+		SQLiteDatabase mydb = getDatabase(dbname);
 
 		if (mydb == null) return;
 
