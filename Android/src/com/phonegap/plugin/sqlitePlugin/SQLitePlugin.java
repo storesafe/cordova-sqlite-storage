@@ -229,6 +229,7 @@ public class SQLitePlugin extends CordovaPlugin
 				query_id = queryIDs[i];
 				if (query.toLowerCase().startsWith("insert") && jsonparams != null) {
 					SQLiteStatement myStatement = mydb.compileStatement(query);
+
 					for (int j = 0; j < jsonparams[i].length(); j++) {
 						if (jsonparams[i].get(j) instanceof Float || jsonparams[i].get(j) instanceof Double ) {
 							myStatement.bindDouble(j + 1, jsonparams[i].getDouble(j));
@@ -240,14 +241,13 @@ public class SQLitePlugin extends CordovaPlugin
 							myStatement.bindString(j + 1, jsonparams[i].getString(j));
 						}
 					}
+
 					long insertId = myStatement.executeInsert();
 					
-					long rowsAffected = 1;
-					if (insertId == -1) {
-						rowsAffected = 0;
-					}
+					int rowsAffected = (insertId == -1) ? 0 : 1;
 
 					String result = "{'insertId':'" + insertId + "', 'rowsAffected':'" + rowsAffected +"'}";
+
 					this.sendJavascriptCB("window.SQLitePluginTransactionCB.queryCompleteCallback('" +
 						tx_id + "','" + query_id + "', " + result + ");");
 				} else {
