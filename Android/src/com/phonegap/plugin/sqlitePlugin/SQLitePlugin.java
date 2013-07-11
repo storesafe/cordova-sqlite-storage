@@ -241,8 +241,13 @@ public class SQLitePlugin extends CordovaPlugin
 						}
 					}
 					long insertId = myStatement.executeInsert();
+					
+					long rowsAffected = 1;
+					if (insertId == -1) {
+						rowsAffected = 0;
+					}
 
-					String result = "{'insertId':'" + insertId + "'}";
+					String result = "{'insertId':'" + insertId + "', 'rowsAffected':'" + rowsAffected +"'}";
 					this.sendJavascriptCB("window.SQLitePluginTransactionCB.queryCompleteCallback('" +
 						tx_id + "','" + query_id + "', " + result + ");");
 				} else {
