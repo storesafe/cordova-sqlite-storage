@@ -227,6 +227,33 @@ public class SQLitePlugin extends CordovaPlugin
 			for (int i = 0; i < len; i++) {
 				query = queryarr[i];
 				query_id = queryIDs[i];
+
+				/* OPTIONAL changes for new Android SDK from HERE:
+				if (android.os.Build.VERSION.SDK_INT >= 11 &&
+				    (query.toLowerCase().startsWith("update") ||
+				     query.toLowerCase().startsWith("delete")))
+				{
+					SQLiteStatement myStatement = mydb.compileStatement(query);
+
+					if (jsonparams != null) {
+						for (int j = 0; j < jsonparams[i].length(); j++) {
+							if (jsonparams[i].get(j) instanceof Float || jsonparams[i].get(j) instanceof Double ) {
+								myStatement.bindDouble(j + 1, jsonparams[i].getDouble(j));
+							} else if (jsonparams[i].get(j) instanceof Number) {
+								myStatement.bindLong(j + 1, jsonparams[i].getLong(j));
+							} else if (jsonparams[i].isNull(j)) {
+								myStatement.bindNull(j + 1);
+							} else {
+								myStatement.bindString(j + 1, jsonparams[i].getString(j));
+							}
+						}
+					}
+					int rowsAffected = myStatement.executeUpdateDelete();
+
+					String result = "{'rowsAffected':" + rowsAffected + "}";
+					this.sendJavascriptCB("window.SQLitePluginTransactionCB.queryCompleteCallback('" +
+						tx_id + "','" + query_id + "', " + result + ");");
+				} else // to HERE. */
 				if (query.toLowerCase().startsWith("insert") && jsonparams != null) {
 					SQLiteStatement myStatement = mydb.compileStatement(query);
 
