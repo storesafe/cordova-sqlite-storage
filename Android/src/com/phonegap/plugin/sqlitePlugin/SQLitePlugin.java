@@ -228,7 +228,7 @@ public class SQLitePlugin extends CordovaPlugin
 				query = queryarr[i];
 				query_id = queryIDs[i];
 
-				/* OPTIONAL changes for new Android SDK from HERE:
+				// /* OPTIONAL changes for new Android SDK from HERE:
 				if (android.os.Build.VERSION.SDK_INT >= 11 &&
 				    (query.toLowerCase().startsWith("update") ||
 				     query.toLowerCase().startsWith("delete")))
