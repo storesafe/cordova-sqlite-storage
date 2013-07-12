@@ -107,9 +107,21 @@ public class SQLitePlugin extends CordovaPlugin
 						jsonparams[i] 	= jsonArr;
 					}
 				}
-				if(trans_id != null)
-					this.executeSqlBatch(dbName, queries, jsonparams, queryIDs, trans_id);
-				else
+				if(trans_id != null) {
+					//this.executeSqlBatch(dbName, queries, jsonparams, queryIDs, trans_id);
+					final String mydbName = dbName;
+					final String [] myqueries = queries;
+					final JSONArray [] myjsonparams = jsonparams;
+					final String [] myqueryIDs = queryIDs;
+					final String mytrans_id = trans_id;
+					final SQLitePlugin myself = this;
+
+					this.cordova.getThreadPool().execute(new Runnable() {
+						public void run() {
+							myself.executeSqlBatch(mydbName, myqueries, myjsonparams, myqueryIDs, mytrans_id);
+						}
+					});
+				} else
 					Log.v("error", "null trans_id");
 			}
 
@@ -432,6 +444,14 @@ public class SQLitePlugin extends CordovaPlugin
 	 */
 	private void sendJavascriptCB(String cb)
 	{
-		this.webView.sendJavascript(cb);
+		//this.webView.sendJavascript(cb);
+		final String mycb = cb;
+		final SQLitePlugin myself = this;
+
+		this.cordova.getActivity().runOnUiThread(new Runnable() {
+			public void run() {
+				myself.webView.sendJavascript(mycb);
+			}
+		});
 	}
 }
