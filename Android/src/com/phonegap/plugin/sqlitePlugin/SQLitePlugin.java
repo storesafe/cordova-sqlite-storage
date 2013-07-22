@@ -108,19 +108,10 @@ public class SQLitePlugin extends CordovaPlugin
 					}
 				}
 				if(trans_id != null) {
-					//this.executeSqlBatch(dbName, queries, jsonparams, queryIDs, trans_id);
-					final String mydbName = dbName;
-					final String [] myqueries = queries;
-					final JSONArray [] myjsonparams = jsonparams;
-					final String [] myqueryIDs = queryIDs;
-					final String mytrans_id = trans_id;
-					final SQLitePlugin myself = this;
-
-					this.cordova.getThreadPool().execute(new Runnable() {
-						public void run() {
-							myself.executeSqlBatch(mydbName, myqueries, myjsonparams, myqueryIDs, mytrans_id);
-						}
-					});
+					if (false) // XXX FUTURE use parameter
+						this.executeSqlBatchInBackground(dbName, queries, jsonparams, queryIDs, trans_id);
+					else
+						this.executeSqlBatch(dbName, queries, jsonparams, queryIDs, trans_id);
 				} else
 					Log.v("error", "null trans_id");
 			}
@@ -202,6 +193,37 @@ public class SQLitePlugin extends CordovaPlugin
 	private SQLiteDatabase getDatabase(String dbname)
 	{
 		return dbmap.get(dbname);
+	}
+
+	/**
+	 * Executes a batch request IN BACKGROUND THREAD and sends the results via sendJavascriptCB().
+	 *
+	 * @param dbName
+	 *            The name of the database.
+	 *
+	 * @param queryarr
+	 *            Array of query strings
+	 *
+	 * @param jsonparams
+	 *            Array of JSON query parameters
+	 *
+	 * @param queryIDs
+	 *            Array of query ids
+	 *
+	 * @param tx_id
+	 *            Transaction id
+	 *
+	 */
+	private void executeSqlBatchInBackground(final String dbName,
+		final String[] queryarr, final JSONArray[] jsonparams, final String[] queryIDs, final String tx_id)
+	{
+		final SQLitePlugin myself = this;
+
+		this.cordova.getThreadPool().execute(new Runnable() {
+			public void run() {
+				myself.executeSqlBatch(dbName, queryarr, jsonparams, queryIDs, tx_id);
+			}
+		});
 	}
 
 	/**
