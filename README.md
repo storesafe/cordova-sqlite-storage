@@ -135,35 +135,38 @@ This case will also works with WebKit, assuming you replace window.sqlitePlugin.
 
 **NOTE:** There are now the following trees:
 
-- `Android`: platform-specific code
+- `assets`: contains Javascript
+- `src`: Android Java code
 - `test-www`: simple testing in `index.html` using qunit 1.5.0
 
-## Android platform
+## Android platform installation
 
-These installation instructions are based on the Android example project from Cordova/PhoneGap 2.2.0. For your first time please unzip the PhoneGap 2.2 zipball and use the `lib/android/example` subdirectory.
+**NOTE:** Cordova/PhoneGap 3.0 is not supported yet, still upcoming.
 
- - Install Android/assets/www/SQLitePlugin.js from this repository into assets/www subdirectory
- - Install Android/src/com/phonegap/plugin/sqlitePlugin/SQLitePlugin.java from this repository into src/com/phonegap/plugin/sqlitePlugin subdirectory
- - Add the plugin element <plugin name="SQLitePlugin" value="com.phonegap.plugin.sqlitePlugin.SQLitePlugin"/> to res/xml/config.xml for Cordova 2.0+ (res/xml/plugins.xml for Cordova pre-2.0)
+These installation instructions are based on the Android example project from Cordova/PhoneGap 2.7.0. For your first time please unzip the PhoneGap 2.7 zipball and use the `lib/android/example` subdirectory.
+
+ - Install assets/www/SQLitePlugin.js from this repository into assets/www subdirectory
+ - Install org/pgsqlite/SQLitePlugin.java from this repository into src/org/pgsqlite subdirectory
+ - Add the plugin element <plugin name="SQLitePlugin" value="org.pgsqlite.SQLitePlugin"/> to res/xml/config.xml
 
 Sample change to res/xml/config.xml:
 
-    --- config.xml.old	2012-07-24 19:44:49.000000000 +0200
-    +++ res/xml/config.xml	2012-07-24 19:39:43.000000000 +0200
-    @@ -32,6 +32,7 @@
-         <log level="DEBUG"/>
-         <preference name="useBrowserHistory" value="false" />
+    --- config.xml.orig	2013-07-23 13:48:09.000000000 +0200
+    +++ res/xml/config.xml	2013-07-23 13:48:26.000000000 +0200
+    @@ -36,6 +36,7 @@
+         <preference name="useBrowserHistory" value="true" />
+         <preference name="exit-on-suspend" value="false" />
      <plugins>
-    +    <plugin name="SQLitePlugin" value="com.phonegap.plugin.sqlitePlugin.SQLitePlugin"/>
+    +    <plugin name="SQLitePlugin" value="org.pgsqlite.SQLitePlugin"/>
          <plugin name="App" value="org.apache.cordova.App"/>
          <plugin name="Geolocation" value="org.apache.cordova.GeoBroker"/>
          <plugin name="Device" value="org.apache.cordova.Device"/>
 
 Before building for the first time, you have to update the project with the desired version of the Android SDK with a command like:
 
-    android update project --path $(pwd) --target 15
+    android update project --path $(pwd) --target android-17
 
-(assume SDK 15, use the correct desired Android SDK number here)
+(assume Android SDK 17, use the correct desired Android SDK number here)
 
 ### Quick test
 
