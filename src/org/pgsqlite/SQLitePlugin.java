@@ -467,7 +467,19 @@ public class SQLitePlugin extends CordovaPlugin
 	 *            Javascript callback command to send
 	 *
 	 */
-	private void sendJavascriptCB(final String cb)
+	private void sendJavascriptCB(String cb)
+	{
+		this.webView.sendJavascript(cb);
+	}
+
+	/**
+	 * Send Javascript callback on GUI thread.
+	 *
+	 * @param cb
+	 *            Javascript callback command to send
+	 *
+	 */
+	private void sendJavascriptToGuiThread(final String cb)
 	{
 		final SQLitePlugin myself = this;
 
