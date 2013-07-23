@@ -189,7 +189,7 @@
           });
 
           stop();
-          db.executePragmaStatement("pragma table_info (test_table);", function(res) {
+          db.executeSql("pragma table_info (test_table);", [], function(res) {
             start();
             console.log("PRAGMA res: " + JSON.stringify(res));
           });
@@ -202,7 +202,7 @@
             console.log("tt2 created");
           });
 
-          db.executePragmaStatement("pragma table_info (test_table);", function(res) {
+          db.executeSql("pragma table_info (test_table);", [], function(res) {
             start();
             console.log("PRAGMA (db) res: " + JSON.stringify(res));
             equal(res[0].name, "id", "DB1 table key field name");
@@ -210,7 +210,7 @@
             equal(res[2].name, "data_num", "DB1 table number field name");
           });
 
-          db2.executePragmaStatement("pragma table_info (tt2);", function(res) {
+          db2.executeSql("pragma table_info (tt2);", [], function(res) {
             start();
             console.log("PRAGMA (tt2) res: " + JSON.stringify(res));
             equal(res[0].name, "id2", "DB2 table key field name");

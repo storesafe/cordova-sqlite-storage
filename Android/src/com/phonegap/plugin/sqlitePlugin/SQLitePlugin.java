@@ -72,7 +72,23 @@ public class SQLitePlugin extends CordovaPlugin
 				String dbName = args.getString(0);
 				String query = args.getString(1);
 
-				Cursor myCursor = this.getDatabase(dbName).rawQuery(query, null);
+				JSONArray jparams = (args.length() < 3) ? null : args.getJSONArray(2);
+
+				String[] params = null;
+
+				if (jparams != null) {
+					params = new String[jparams.length()];
+
+					for (int j = 0; j < jparams.length(); j++) {
+						if (jparams.isNull(j))
+							params[j] = "";
+						else
+							params[j] = jparams.getString(j);
+					}
+				}
+
+				Cursor myCursor = this.getDatabase(dbName).rawQuery(query, params);
+
 				this.processPragmaResults(myCursor, id);
 			}
 			else if (action.equals("executeSqlBatch"))

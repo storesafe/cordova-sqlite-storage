@@ -76,7 +76,7 @@ This is a pretty strong test: first we create a table and add a single entry, th
             tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
 
             // demonstrate PRAGMA:
-            db.executePragmaStatement("pragma table_info (test_table);", function(res) {
+            db.executeSql("pragma table_info (test_table);", [], function(res) {
               console.log("PRAGMA res: " + JSON.stringify(res));
             });
 

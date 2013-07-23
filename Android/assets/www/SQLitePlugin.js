@@ -20,6 +20,7 @@
     });
     this.open(this.openSuccess, this.openError);
   };
+  SQLitePlugin.prototype.databaseFeatures = { isSQLitePluginDatabase: true };
   SQLitePlugin.prototype.openDBs = {};
   SQLitePlugin.prototype.transaction = function(fn, error, success) {
     var t;
@@ -44,6 +45,14 @@
   pcb = function() {
     return 1;
   };
+  SQLitePlugin.prototype.executeSql = function(statement, params, success, error) {
+    console.log("SQLitePlugin::executeSql[Statement]");
+    pcb = success;
+    cordova.exec((function() {
+      return 1;
+    }), error, "SQLitePlugin", "executePragmaStatement", [this.dbname, statement, params]);
+  };
+  // DEPRECATED AND WILL BE REMOVED:
   SQLitePlugin.prototype.executePragmaStatement = function(statement, success, error) {
     console.log("SQLitePlugin::executePragmaStatement");
     pcb = success;
@@ -51,6 +60,7 @@
       return 1;
     }), error, "SQLitePlugin", "executePragmaStatement", [this.dbname, statement]);
   };
+
   SQLitePluginCallback = {
     p1: function(id, result) {
       var mycb;
@@ -256,6 +266,7 @@
   root.SQLitePluginCallback = SQLitePluginCallback;
   root.SQLitePluginTransactionCB = SQLitePluginTransactionCB;
   return root.sqlitePlugin = {
+    sqliteFeatures: { isSQLitePlugin: true },
     openDatabase: SQLiteFactory.opendb
   };
 })();
