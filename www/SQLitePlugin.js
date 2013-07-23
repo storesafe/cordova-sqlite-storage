@@ -49,8 +49,11 @@ if (!window.Cordova) window.Cordova = window.cordova;
 
   SQLitePlugin.prototype.openDBs = {};
   SQLitePlugin.prototype.txQueue = [];
+  SQLitePlugin.prototype.databaseFeatures = { isSQLitePluginDatabase: true };
+  // DEPRECATED AND WILL BE REMOVED:
   SQLitePlugin.prototype.features = { isSQLitePlugin: true };
 
+  // DEPRECATED AND WILL BE REMOVED:
   SQLitePlugin.prototype.executePragmaStatement = function(sql, success, error) {
     if (!sql) throw new Error("Cannot executeSql without a query");
     var mysuccesscb = function(res) {
@@ -59,14 +62,13 @@ if (!window.Cordova) window.Cordova = window.cordova;
     exec("backgroundExecuteSql", { query: [sql], path: this.dbname }, mysuccesscb, error);
   };
 
-  // API TBD subect to change:
-  SQLitePlugin.prototype._executeSql = function(sql, values, success, error) {
+  SQLitePlugin.prototype.executeSql = function(sql, values, success, error) {
     if (!sql) throw new Error("Cannot executeSql without a query");
     exec("backgroundExecuteSql", { query: [sql].concat(values || []), path: this.dbname }, success, error);
   };
 
   // API TBD subect to change:
-  SQLitePlugin.prototype._executeSqlNow = function(sql, values, success, error) {
+  SQLitePlugin.prototype.$executeSqlNow = function(sql, values, success, error) {
     if (!sql) throw new Error("Cannot executeSql without a query");
     exec("executeSql", { query: [sql].concat(values || []), path: this.dbname }, success, error);
   };
@@ -341,6 +343,7 @@ if (!window.Cordova) window.Cordova = window.cordova;
   };
 
   root.sqlitePlugin = {
+    sqliteFeatures: { isSQLitePlugin: true },
     openDatabase: SQLiteFactory.opendb,
     deleteDatabase: SQLiteFactory.deleteDb
   };
