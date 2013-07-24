@@ -16,7 +16,6 @@
 # coffee -bp SQLitePlugin-orig.coffee | js2coffee SQLitePlugin.js > SQLitePlugin2.coffee
 # (will lose the comments)
 
-
 # Make Cordova 1.6 compatible - now uses lowercase cordova variable (conditional)
 if !window.Cordova
     window.Cordova = window.cordova
@@ -33,6 +32,12 @@ do ->
     callbacks[f] = hash
     f
 
+  exec = (s, o) ->
+    if root.sqlitePlugin.DEBUG
+      console.log s + ": " + JSON.stringify(o)
+    Cordova.exec s, o
+    return
+
   getOptions = (opts, success, error) ->
     cb = {}
     has_cbs = false
@@ -42,19 +47,18 @@ do ->
     if typeof error == "function"
       has_cbs = true
       cb.error = error
-    opts.callback = cbref(cb) if has_cbs
+    if has_cbs then opts.callback = cbref(cb)
     opts
 
   # Prototype constructor function
   SQLitePlugin = (dbPath, openSuccess, openError) ->
+    if !dbPath
+      throw new Error "Cannot create a SQLitePlugin instance without a dbPath"
     @dbPath = dbPath
-    @openSuccess = openSuccess
-    @openError = openError
-    throw new Error "Cannot create a SQLitePlugin instance without a dbPath" unless dbPath
-    @openSuccess ||= () ->
+    @openSuccess = openSuccess || ->
       console.log "DB opened: #{dbPath}"
       return
-    @openError ||= (e) ->
+    @openError = openError || ->
       console.log e.message
       return
     @open(@openSuccess, @openError)
@@ -64,80 +68,184 @@ do ->
   # All instances will interact directly on the prototype openDBs object.
   # One instance that closes a db path will remove it from any other instance's perspective as well.
   SQLitePlugin::openDBs = {}
+  SQLitePlugin::txQueue = []
+  SQLitePlugin::features = isSQLitePlugin: true
 
   # Note: Class method (will be exported by a member of root.sqlitePlugin)
   SQLitePlugin.handleCallback = (ref, type, obj) ->
+    if root.sqlitePlugin.DEBUG
+      console.log "handle callback: " + ref + ", " + type + ", " + JSON.stringify(obj)  
     callbacks[ref]?[type]?(obj)
     callbacks[ref] = null
     delete callbacks[ref]
     return
 
   SQLitePlugin::executeSql = (sql, values, success, error) ->
-    throw new Error "Cannot executeSql without a query" unless sql
+    if !sql
+      throw new Error "Cannot executeSql without a query"
     opts = getOptions({ query: [sql].concat(values || []), path: @dbPath }, success, error)
-    Cordova.exec("SQLitePlugin.backgroundExecuteSql", opts)
+    exec "SQLitePlugin.backgroundExecuteSql", opts
     return
 
   SQLitePlugin::transaction = (fn, error, success) ->
-    t = new SQLitePluginTransaction(@dbPath)
-    fn(t)
-    t.complete(success, error)
+    t = new SQLitePluginTransaction(this, fn, error, success)
+    @txQueue.push t
+    t.start()  if @txQueue.length is 1
+    return
+
+  SQLitePlugin::startNextTransaction = ->
+    @txQueue.shift()
+    @txQueue[0].start()  if @txQueue[0]
+    return
 
   SQLitePlugin::open = (success, error) ->
     unless @dbPath of @openDBs
       @openDBs[@dbPath] = true
       opts = getOptions({ path: @dbPath }, success, error)
-      Cordova.exec("SQLitePlugin.open", opts)
+      exec "SQLitePlugin.open", opts
     return
 
   SQLitePlugin::close = (success, error) ->
     if @dbPath of @openDBs
       delete @openDBs[@dbPath]
+
       opts = getOptions({ path: @dbPath }, success, error)
-      Cordova.exec("SQLitePlugin.close", opts)
+      exec "SQLitePlugin.close", opts
     return
 
-  # Prototype constructor function
-  SQLitePluginTransaction = (dbPath) ->
-    @dbPath = dbPath
+  SQLitePluginTransaction = (db, fn, error, success) ->
+    if typeof(fn) != "function"
+      # This is consistent with the implementation in Chrome -- it
+      # throws if you pass anything other than a function. This also
+      # prevents us from stalling our txQueue if somebody passes a
+      # false value for fn.
+      throw new Error("transaction expected a function")
+    @db = db
+    @fn = fn
+    @error = error
+    @success = success
     @executes = []
+    @executeSql "BEGIN", [], null, (tx, err) ->
+      throw new Error("unable to begin transaction: " + err.message)
+    return
+
+  SQLitePluginTransaction::start = ->
+    try
+      return  unless @fn
+      @fn this
+      @fn = null
+      @run()
+    catch err
+      # If "fn" throws, we must report the whole transaction as failed.
+      @db.startNextTransaction()
+      @error err  if @error
     return
 
   SQLitePluginTransaction::executeSql = (sql, values, success, error) ->
-    txself = @
-    successcb = null
-    if success
-      successcb = (execres) ->
-        saveres = execres
-        res =
-          rows:
-            item: (i) ->
-              saveres.rows[i]
-            length: saveres.rows.length
-          rowsAffected: saveres.rowsAffected
-          insertId: saveres.insertId || null
-        success(txself, res)
-    errorcb = null
-    if error
-      errorcb = (res) ->
-        error(txself, res)
-    @executes.push getOptions({ query: [sql].concat(values || []), path: @dbPath }, successcb, errorcb)
+    @executes.push
+      query: [sql].concat(values or [])
+      success: success
+      error: error
     return
 
-  SQLitePluginTransaction::complete = (success, error) ->
-    throw new Error "Transaction already run" if @__completed
-    @__completed = true
-    txself = @
-    successcb = (res) ->
-      success(txself, res)
-    errorcb = (res) ->
-      error(txself, res)
-    begin_opts = getOptions({ query: [ "BEGIN;" ], path: @dbPath })
-    commit_opts = getOptions({ query: [ "COMMIT;" ], path: @dbPath }, successcb, errorcb)
-    executes = [ begin_opts ].concat(@executes).concat([ commit_opts ])
-    opts = { executes: executes }
-    Cordova.exec("SQLitePlugin.backgroundExecuteSqlBatch", opts)
+  SQLitePluginTransaction::handleStatementSuccess = (handler, response) ->
+    return  unless handler
+    payload =
+      rows:
+        item: (i) ->
+          response.rows[i]
+
+        length: response.rows.length
+
+      rowsAffected: response.rowsAffected
+      insertId: response.insertId or null
+
+    handler this, payload
+
+    return
+
+  SQLitePluginTransaction::handleStatementFailure = (handler, response) ->
+    if !handler
+      throw new Error "a statement with no error handler failed: " + response.message
+    if handler(this, response)
+      throw new Error "a statement error callback did not return false"
+    return
+
+  SQLitePluginTransaction::run = ->
+    txFailure = null
+    opts = []
+    batchExecutes = @executes
+    waiting = batchExecutes.length
     @executes = []
+    tx = this
+
+    handlerFor = (index, didSucceed) ->
+      (response) ->
+        try
+          if didSucceed
+            tx.handleStatementSuccess batchExecutes[index].success, response
+          else
+            tx.handleStatementFailure batchExecutes[index].error, response
+        catch err
+          txFailure = err  unless txFailure
+
+        if --waiting == 0
+          if txFailure
+            tx.rollBack txFailure
+          else if tx.executes.length > 0
+            # new requests have been issued by the callback
+            # handlers, so run another batch.
+            tx.run()
+          else
+            tx.commit()
+
+    i = 0
+
+    while i < batchExecutes.length
+      request = batchExecutes[i]
+      opts.push getOptions(
+        query: request.query
+        path: @db.dbPath
+      , handlerFor(i, true), handlerFor(i, false))
+      i++
+
+    exec "SQLitePlugin.backgroundExecuteSqlBatch",
+      executes: opts
+
+    return
+
+  SQLitePluginTransaction::rollBack = (txFailure) ->
+    if @finalized then return
+    tx = @
+
+    succeeded = ->
+      tx.db.startNextTransaction()
+      if tx.error then tx.error txFailure
+
+    failed = (tx, err) ->
+      tx.db.startNextTransaction()
+      if tx.error then tx.error new Error("error while trying to roll back: " + err.message)
+
+    @finalized = true
+    @executeSql "ROLLBACK", [], succeeded, failed
+    @run()
+    return
+
+  SQLitePluginTransaction::commit = ->
+    if @finalized then return
+    tx = @
+
+    succeeded = ->
+      tx.db.startNextTransaction()
+      if tx.success then tx.success()
+
+    failed = (tx, err) ->
+      tx.db.startNextTransaction()
+      if tx.error then tx.error new Error("error while trying to commit: " + err.message)
+
+    @finalized = true
+    @executeSql "COMMIT", [], succeeded, failed
+    @run()
     return
 
   root.sqlitePlugin =
