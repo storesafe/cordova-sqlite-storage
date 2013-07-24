@@ -1,0 +1,31 @@
+diff --git b/assets/www/SQLitePlugin.js a/assets/www/SQLitePlugin.js
+index b838727..ccc99ac 100755
+--- b/assets/www/SQLitePlugin.js
++++ a/assets/www/SQLitePlugin.js
+@@ -54,6 +54,7 @@
+       return 1;
+     }), error, "SQLitePlugin", "executePragmaStatement", [this.dbname, statement, params]);
+   };
++  // DEPRECATED AND WILL BE REMOVED:
+   SQLitePlugin.prototype.executePragmaStatement = function(statement, success, error) {
+     console.log("SQLitePlugin::executePragmaStatement");
+     pcb = success;
+@@ -61,6 +62,7 @@
+       return 1;
+     }), error, "SQLitePlugin", "executePragmaStatement", [this.dbname, statement]);
+   };
++
+   SQLitePluginCallback = {
+     p1: function(id, result) {
+       var mycb;
+@@ -252,6 +254,10 @@
+     cordova.exec(null, null, "SQLitePlugin", "executeSqlBatch", [this.dbname, transaction_queue[this.trans_id]]);
+   };
+   SQLiteFactory = {
++    // NOTE: this function should NOT be translated from Javascript
++    // back to CoffeeScript by js2coffee.
++    // If this function is edited in Javascript then someone will
++    // have to translate it back to CoffeeScript by hand.
+     opendb: function() {
+       var errorcb, first, okcb, openargs;
+       if (arguments.length < 1) {
