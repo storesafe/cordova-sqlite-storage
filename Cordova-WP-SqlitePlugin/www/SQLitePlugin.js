@@ -273,6 +273,7 @@
 	    errorcb = function(res) {};
 	    if (error) {
 	      errorcb = function(res) {
+	        sqlitePluginRunning = false;
 	        return error(txself, res);
 	      };
 	    }
