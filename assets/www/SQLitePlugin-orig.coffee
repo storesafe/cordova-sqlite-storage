@@ -56,6 +56,7 @@ do ->
 
   pcb = -> 1
 
+  # XXX TBD fix callback(s):
   SQLitePlugin::executeSql = (statement, params, success, error) ->
     console.log "SQLitePlugin::executeSql[Statement]"
     pcb = success

@@ -47,6 +47,8 @@
   pcb = function() {
     return 1;
   };
+
+  // XXX TBD fix callback(s):
   SQLitePlugin.prototype.executeSql = function(statement, params, success, error) {
     console.log("SQLitePlugin::executeSql[Statement]");
     pcb = success;
