@@ -12,8 +12,8 @@
 #import <Foundation/Foundation.h>
 #import "sqlite3.h"
 
-#import <CORDOVA/CDVPlugin.h>
-#import <CORDOVA/JSONKit.h>
+#import <Cordova/CDVPlugin.h>
+#import <Cordova/CDVJSON.h>
 
 #import "AppDelegate.h"
 
