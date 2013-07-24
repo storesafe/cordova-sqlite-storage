@@ -1,8 +1,8 @@
 diff --git b/assets/www/SQLitePlugin.js a/assets/www/SQLitePlugin.js
-index b838727..ce4d464 100755
+index bd29f14..1e27f44 100755
 --- b/assets/www/SQLitePlugin.js
 +++ a/assets/www/SQLitePlugin.js
-@@ -47,6 +47,8 @@
+@@ -48,6 +48,8 @@
    pcb = function() {
      return 1;
    };
@@ -11,7 +11,7 @@ index b838727..ce4d464 100755
    SQLitePlugin.prototype.executeSql = function(statement, params, success, error) {
      console.log("SQLitePlugin::executeSql[Statement]");
      pcb = success;
-@@ -54,6 +56,7 @@
+@@ -55,6 +57,7 @@
        return 1;
      }), error, "SQLitePlugin", "executePragmaStatement", [this.dbname, statement, params]);
    };
@@ -19,7 +19,7 @@ index b838727..ce4d464 100755
    SQLitePlugin.prototype.executePragmaStatement = function(statement, success, error) {
      console.log("SQLitePlugin::executePragmaStatement");
      pcb = success;
-@@ -61,6 +64,7 @@
+@@ -62,6 +65,7 @@
        return 1;
      }), error, "SQLitePlugin", "executePragmaStatement", [this.dbname, statement]);
    };
@@ -27,8 +27,8 @@ index b838727..ce4d464 100755
    SQLitePluginCallback = {
      p1: function(id, result) {
        var mycb;
-@@ -252,6 +256,10 @@
-     cordova.exec(null, null, "SQLitePlugin", "executeSqlBatch", [this.dbname, transaction_queue[this.trans_id]]);
+@@ -253,6 +257,10 @@
+     cordova.exec(null, null, "SQLitePlugin", "executeBatchTransaction", [this.dbname, queryQ[this.trans_id]]);
    };
    SQLiteFactory = {
 +    // NOTE: this function should NOT be translated from Javascript
