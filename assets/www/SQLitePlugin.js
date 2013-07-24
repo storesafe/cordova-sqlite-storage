@@ -1,5 +1,5 @@
 (function() {
-  var SQLiteFactory, SQLitePlugin, SQLitePluginCallback, SQLitePluginTransaction, SQLitePluginTransactionCB, get_unique_id, pcb, root, transaction_callback_queue, transaction_queue;
+  var SQLiteBatchTransaction, SQLiteFactory, SQLitePlugin, SQLitePluginCallback, SQLiteQueryCB, get_unique_id, pcb, queryCBQ, queryQ, root;
   root = this;
   SQLitePlugin = function(openargs, openSuccess, openError) {
     var dbname;
@@ -24,12 +24,13 @@
     isSQLitePluginDatabase: true
   };
   SQLitePlugin.prototype.openDBs = {};
-  SQLitePlugin.prototype.transaction = function(fn, error, success) {
+  SQLitePlugin.prototype.batchTransaction = function(fn, error, success) {
     var t;
-    t = new SQLitePluginTransaction(this.dbname);
+    t = new SQLiteBatchTransaction(this.dbname);
     fn(t);
     t.complete(success, error);
   };
+  SQLitePlugin.prototype.transaction = SQLitePlugin.prototype.batchTransaction;
   SQLitePlugin.prototype.open = function(success, error) {
     console.log("SQLitePlugin.prototype.open");
     if (!(this.dbname in this.openDBs)) {
@@ -85,31 +86,31 @@
     }
     return id2 + "000";
   };
-  transaction_queue = [];
-  transaction_callback_queue = {};
-  SQLitePluginTransaction = function(dbname) {
+  queryQ = [];
+  queryCBQ = {};
+  SQLiteBatchTransaction = function(dbname) {
     this.dbname = dbname;
     this.executes = [];
     this.trans_id = get_unique_id();
     this.__completed = false;
     this.__submitted = false;
     this.optimization_no_nested_callbacks = false;
-    console.log("SQLitePluginTransaction - this.trans_id:" + this.trans_id);
-    transaction_queue[this.trans_id] = [];
-    transaction_callback_queue[this.trans_id] = new Object();
+    console.log("SQLiteBatchTransaction - this.trans_id:" + this.trans_id);
+    queryQ[this.trans_id] = [];
+    queryCBQ[this.trans_id] = new Object();
   };
-  SQLitePluginTransactionCB = {};
-  SQLitePluginTransactionCB.queryCompleteCallback = function(transId, queryId, result) {
+  SQLiteQueryCB = {};
+  SQLiteQueryCB.queryCompleteCallback = function(transId, queryId, result) {
     var query, x;
-    console.log("SQLitePluginTransaction.queryCompleteCallback");
+    console.log("SQLiteBatchTransaction.queryCompleteCallback");
     query = null;
-    for (x in transaction_queue[transId]) {
-      if (transaction_queue[transId][x]["query_id"] === queryId) {
-        query = transaction_queue[transId][x];
-        if (transaction_queue[transId].length === 1) {
-          transaction_queue[transId] = [];
+    for (x in queryQ[transId]) {
+      if (queryQ[transId][x]["query_id"] === queryId) {
+        query = queryQ[transId][x];
+        if (queryQ[transId].length === 1) {
+          queryQ[transId] = [];
         } else {
-          transaction_queue[transId].splice(x, 1);
+          queryQ[transId].splice(x, 1);
         }
         break;
       }
@@ -118,16 +119,16 @@
       query["callback"](result);
     }
   };
-  SQLitePluginTransactionCB.queryErrorCallback = function(transId, queryId, result) {
+  SQLiteQueryCB.queryErrorCallback = function(transId, queryId, result) {
     var query, x;
     query = null;
-    for (x in transaction_queue[transId]) {
-      if (transaction_queue[transId][x]["query_id"] === queryId) {
-        query = transaction_queue[transId][x];
-        if (transaction_queue[transId].length === 1) {
-          transaction_queue[transId] = [];
+    for (x in queryQ[transId]) {
+      if (queryQ[transId][x]["query_id"] === queryId) {
+        query = queryQ[transId][x];
+        if (queryQ[transId].length === 1) {
+          queryQ[transId] = [];
         } else {
-          transaction_queue[transId].splice(x, 1);
+          queryQ[transId].splice(x, 1);
         }
         break;
       }
@@ -136,28 +137,28 @@
       query["err_callback"](result);
     }
   };
-  SQLitePluginTransactionCB.txCompleteCallback = function(transId) {
+  SQLiteQueryCB.txCompleteCallback = function(transId) {
     if (typeof transId !== "undefined") {
-      if (transId && transaction_callback_queue[transId] && transaction_callback_queue[transId]["success"]) {
-        transaction_callback_queue[transId]["success"]();
+      if (transId && queryCBQ[transId] && queryCBQ[transId]["success"]) {
+        queryCBQ[transId]["success"]();
       }
     } else {
-      console.log("SQLitePluginTransaction.txCompleteCallback---transId = NULL");
+      console.log("SQLiteBatchTransaction.txCompleteCallback---transId = NULL");
     }
   };
-  SQLitePluginTransactionCB.txErrorCallback = function(transId, error) {
+  SQLiteQueryCB.txErrorCallback = function(transId, error) {
     if (typeof transId !== "undefined") {
-      console.log("SQLitePluginTransaction.txErrorCallback---transId:" + transId);
-      if (transId && transaction_callback_queue[transId]["error"]) {
-        transaction_callback_queue[transId]["error"](error);
+      console.log("SQLiteBatchTransaction.txErrorCallback---transId:" + transId);
+      if (transId && queryCBQ[transId]["error"]) {
+        queryCBQ[transId]["error"](error);
       }
-      delete transaction_queue[transId];
-      delete transaction_callback_queue[transId];
+      delete queryQ[transId];
+      delete queryCBQ[transId];
     } else {
-      console.log("SQLitePluginTransaction.txErrorCallback---transId = NULL");
+      console.log("SQLiteBatchTransaction.txErrorCallback---transId = NULL");
     }
   };
-  SQLitePluginTransaction.prototype.add_to_transaction = function(trans_id, query, params, callback, err_callback) {
+  SQLiteBatchTransaction.prototype.add_to_transaction = function(trans_id, query, params, callback, err_callback) {
     var new_query;
     new_query = new Object();
     new_query["trans_id"] = trans_id;
@@ -176,14 +177,14 @@
     }
     new_query["callback"] = callback;
     new_query["err_callback"] = err_callback;
-    if (!transaction_queue[trans_id]) {
-      transaction_queue[trans_id] = [];
+    if (!queryQ[trans_id]) {
+      queryQ[trans_id] = [];
     }
-    transaction_queue[trans_id].push(new_query);
+    queryQ[trans_id].push(new_query);
   };
-  SQLitePluginTransaction.prototype.executeSql = function(sql, values, success, error) {
+  SQLiteBatchTransaction.prototype.executeSql = function(sql, values, success, error) {
     var errorcb, successcb, txself;
-    console.log("SQLitePluginTransaction.prototype.executeSql");
+    console.log("SQLiteBatchTransaction.prototype.executeSql");
     errorcb = void 0;
     successcb = void 0;
     txself = void 0;
@@ -221,9 +222,9 @@
     console.log("executeSql - add_to_transaction" + sql);
     this.add_to_transaction(this.trans_id, sql, values, successcb, errorcb);
   };
-  SQLitePluginTransaction.prototype.complete = function(success, error) {
+  SQLiteBatchTransaction.prototype.complete = function(success, error) {
     var errorcb, successcb, txself;
-    console.log("SQLitePluginTransaction.prototype.complete");
+    console.log("SQLiteBatchTransaction.prototype.complete");
     if (this.__completed) {
       throw new Error("Transaction already run");
     }
@@ -233,7 +234,7 @@
     this.__submitted = true;
     txself = this;
     successcb = function() {
-      if (transaction_queue[txself.trans_id].length > 0 && !txself.optimization_no_nested_callbacks) {
+      if (queryQ[txself.trans_id].length > 0 && !txself.optimization_no_nested_callbacks) {
         txself.__submitted = false;
         return txself.complete(success, error);
       } else {
@@ -251,9 +252,9 @@
         return error(txself, res);
       };
     }
-    transaction_callback_queue[this.trans_id]["success"] = successcb;
-    transaction_callback_queue[this.trans_id]["error"] = errorcb;
-    cordova.exec(null, null, "SQLitePlugin", "executeSqlBatch", [this.dbname, transaction_queue[this.trans_id]]);
+    queryCBQ[this.trans_id]["success"] = successcb;
+    queryCBQ[this.trans_id]["error"] = errorcb;
+    cordova.exec(null, null, "SQLitePlugin", "executeBatchTransaction", [this.dbname, queryQ[this.trans_id]]);
   };
   SQLiteFactory = {
     // NOTE: this function should NOT be translated from Javascript
@@ -292,7 +293,7 @@
     }
   };
   root.SQLitePluginCallback = SQLitePluginCallback;
-  root.SQLitePluginTransactionCB = SQLitePluginTransactionCB;
+  root.SQLiteQueryCB = SQLiteQueryCB;
   return root.sqlitePlugin = {
     sqliteFeatures: {
       isSQLitePlugin: true

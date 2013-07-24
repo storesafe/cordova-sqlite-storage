@@ -29,11 +29,13 @@ do ->
   SQLitePlugin::databaseFeatures = isSQLitePluginDatabase: true
   SQLitePlugin::openDBs = {}
 
-  SQLitePlugin::transaction = (fn, error, success) ->
-    t = new SQLitePluginTransaction(@dbname)
+  SQLitePlugin::batchTransaction = (fn, error, success) ->
+    t = new SQLiteBatchTransaction(@dbname)
     fn t
     t.complete success, error
     return
+
+  SQLitePlugin::transaction = SQLitePlugin::batchTransaction
 
   SQLitePlugin::open = (success, error) ->
     console.log "SQLitePlugin.prototype.open"
@@ -87,10 +89,10 @@ do ->
     id2 = new Date().getTime()  while id is id2
     id2 + "000"
 
-  transaction_queue = []
-  transaction_callback_queue = {}
+  queryQ = []
+  queryCBQ = {}
 
-  SQLitePluginTransaction = (dbname) ->
+  SQLiteBatchTransaction = (dbname) ->
     @dbname = dbname
     @executes = []
     @trans_id = get_unique_id()
@@ -100,63 +102,63 @@ do ->
     # if set to true large batches of queries within a transaction will be much faster but 
     # you will lose the ability to do multi level nesting of executeSQL callbacks
     @optimization_no_nested_callbacks = false
-    console.log "SQLitePluginTransaction - this.trans_id:" + @trans_id
-    transaction_queue[@trans_id] = []
-    transaction_callback_queue[@trans_id] = new Object()
+    console.log "SQLiteBatchTransaction - this.trans_id:" + @trans_id
+    queryQ[@trans_id] = []
+    queryCBQ[@trans_id] = new Object()
     return
 
-  SQLitePluginTransactionCB = {}
+  SQLiteQueryCB = {}
 
-  SQLitePluginTransactionCB.queryCompleteCallback = (transId, queryId, result) ->
-    console.log "SQLitePluginTransaction.queryCompleteCallback"
+  SQLiteQueryCB.queryCompleteCallback = (transId, queryId, result) ->
+    console.log "SQLiteBatchTransaction.queryCompleteCallback"
     query = null
-    for x of transaction_queue[transId]
-      if transaction_queue[transId][x]["query_id"] is queryId
-        query = transaction_queue[transId][x]
-        if transaction_queue[transId].length is 1
-          transaction_queue[transId] = []
+    for x of queryQ[transId]
+      if queryQ[transId][x]["query_id"] is queryId
+        query = queryQ[transId][x]
+        if queryQ[transId].length is 1
+          queryQ[transId] = []
         else
-          transaction_queue[transId].splice x, 1
+          queryQ[transId].splice x, 1
         break
 
     if query and query["callback"]
       query["callback"] result
     return
 
-  SQLitePluginTransactionCB.queryErrorCallback = (transId, queryId, result) ->
+  SQLiteQueryCB.queryErrorCallback = (transId, queryId, result) ->
     query = null
-    for x of transaction_queue[transId]
-      if transaction_queue[transId][x]["query_id"] is queryId
-        query = transaction_queue[transId][x]
-        if transaction_queue[transId].length is 1
-          transaction_queue[transId] = []
+    for x of queryQ[transId]
+      if queryQ[transId][x]["query_id"] is queryId
+        query = queryQ[transId][x]
+        if queryQ[transId].length is 1
+          queryQ[transId] = []
         else
-          transaction_queue[transId].splice x, 1
+          queryQ[transId].splice x, 1
         break
 
     if query and query["err_callback"]
       query["err_callback"] result
     return
 
-  SQLitePluginTransactionCB.txCompleteCallback = (transId) ->
+  SQLiteQueryCB.txCompleteCallback = (transId) ->
     if typeof transId isnt "undefined"
-      transaction_callback_queue[transId]["success"]()  if transId and transaction_callback_queue[transId] and transaction_callback_queue[transId]["success"]
+      queryCBQ[transId]["success"]()  if transId and queryCBQ[transId] and queryCBQ[transId]["success"]
     else
-      console.log "SQLitePluginTransaction.txCompleteCallback---transId = NULL"
+      console.log "SQLiteBatchTransaction.txCompleteCallback---transId = NULL"
     return
 
-  SQLitePluginTransactionCB.txErrorCallback = (transId, error) ->
+  SQLiteQueryCB.txErrorCallback = (transId, error) ->
     if typeof transId isnt "undefined"
-      console.log "SQLitePluginTransaction.txErrorCallback---transId:" + transId
-      transaction_callback_queue[transId]["error"] error  if transId and transaction_callback_queue[transId]["error"]
-      delete transaction_queue[transId]
+      console.log "SQLiteBatchTransaction.txErrorCallback---transId:" + transId
+      queryCBQ[transId]["error"] error  if transId and queryCBQ[transId]["error"]
+      delete queryQ[transId]
 
-      delete transaction_callback_queue[transId]
+      delete queryCBQ[transId]
     else
-      console.log "SQLitePluginTransaction.txErrorCallback---transId = NULL"
+      console.log "SQLiteBatchTransaction.txErrorCallback---transId = NULL"
     return
 
-  SQLitePluginTransaction::add_to_transaction = (trans_id, query, params, callback, err_callback) ->
+  SQLiteBatchTransaction::add_to_transaction = (trans_id, query, params, callback, err_callback) ->
     new_query = new Object()
     new_query["trans_id"] = trans_id
 
@@ -176,12 +178,12 @@ do ->
     new_query["callback"] = callback
     new_query["err_callback"] = err_callback
 
-    transaction_queue[trans_id] = []  unless transaction_queue[trans_id]
-    transaction_queue[trans_id].push new_query
+    queryQ[trans_id] = []  unless queryQ[trans_id]
+    queryQ[trans_id].push new_query
     return
 
-  SQLitePluginTransaction::executeSql = (sql, values, success, error) ->
-    console.log "SQLitePluginTransaction.prototype.executeSql"
+  SQLiteBatchTransaction::executeSql = (sql, values, success, error) ->
+    console.log "SQLiteBatchTransaction.prototype.executeSql"
     errorcb = undefined
     successcb = undefined
     txself = undefined
@@ -217,8 +219,8 @@ do ->
 
     return
 
-  SQLitePluginTransaction::complete = (success, error) ->
-    console.log "SQLitePluginTransaction.prototype.complete"
+  SQLiteBatchTransaction::complete = (success, error) ->
+    console.log "SQLiteBatchTransaction.prototype.complete"
 
     throw new Error("Transaction already run")  if @__completed
     throw new Error("Transaction already submitted")  if @__submitted
@@ -227,7 +229,7 @@ do ->
     txself = this
 
     successcb = ->
-      if transaction_queue[txself.trans_id].length > 0 and not txself.optimization_no_nested_callbacks
+      if queryQ[txself.trans_id].length > 0 and not txself.optimization_no_nested_callbacks
         txself.__submitted = false
         txself.complete success, error
       else
@@ -240,10 +242,10 @@ do ->
       errorcb = (res) ->
         error txself, res
 
-    transaction_callback_queue[@trans_id]["success"] = successcb
-    transaction_callback_queue[@trans_id]["error"] = errorcb
+    queryCBQ[@trans_id]["success"] = successcb
+    queryCBQ[@trans_id]["error"] = errorcb
 
-    cordova.exec null, null, "SQLitePlugin", "executeSqlBatch", [ @dbname, transaction_queue[@trans_id] ]
+    cordova.exec null, null, "SQLitePlugin", "executeBatchTransaction", [ @dbname, queryQ[@trans_id] ]
     return
 
   SQLiteFactory =
@@ -277,7 +279,7 @@ do ->
 
   # Required for callbacks:
   root.SQLitePluginCallback = SQLitePluginCallback
-  root.SQLitePluginTransactionCB = SQLitePluginTransactionCB
+  root.SQLiteQueryCB = SQLiteQueryCB
 
   root.sqlitePlugin =
     sqliteFeatures:

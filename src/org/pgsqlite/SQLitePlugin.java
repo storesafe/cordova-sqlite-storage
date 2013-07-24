@@ -102,7 +102,7 @@ public class SQLitePlugin extends CordovaPlugin
 
 				this.sendJavascriptCB("window.SQLitePluginCallback.p1('" + id + "', " + result + ");");
 			}
-			else if (action.equals("executeSqlBatch") || action.equals("backgroundExecuteSqlBatch"))
+			else if (action.equals("executeSqlBatch") || action.equals("executeBatchTransaction") || action.equals("backgroundExecuteSqlBatch"))
 			{
 				String[] 	queries 	= null;
 				String[] 	queryIDs 	= null;
@@ -135,10 +135,12 @@ public class SQLitePlugin extends CordovaPlugin
 					}
 				}
 				if(trans_id != null) {
+					boolean ex = action.equals("executeBatchTransaction");
+
 					if (action.equals("backgroundExecuteSqlBatch"))
-						this.executeSqlBatchInBackground(dbName, queries, jsonparams, queryIDs, trans_id);
+						this.executeSqlBatchInBackground(dbName, queries, jsonparams, queryIDs, trans_id, ex);
 					else
-						this.executeSqlBatch(dbName, queries, jsonparams, queryIDs, trans_id);
+						this.executeSqlBatch(dbName, queries, jsonparams, queryIDs, trans_id, ex);
 				} else
 					Log.v("error", "null trans_id");
 			}
@@ -242,13 +244,13 @@ public class SQLitePlugin extends CordovaPlugin
 	 *
 	 */
 	private void executeSqlBatchInBackground(final String dbName,
-		final String[] queryarr, final JSONArray[] jsonparams, final String[] queryIDs, final String tx_id)
+		final String[] queryarr, final JSONArray[] jsonparams, final String[] queryIDs, final String tx_id, final boolean ex)
 	{
 		final SQLitePlugin myself = this;
 
 		this.cordova.getThreadPool().execute(new Runnable() {
 			public void run() {
-				myself.executeSqlBatch(dbName, queryarr, jsonparams, queryIDs, tx_id);
+				myself.executeSqlBatch(dbName, queryarr, jsonparams, queryIDs, tx_id, ex);
 			}
 		});
 	}
@@ -272,7 +274,7 @@ public class SQLitePlugin extends CordovaPlugin
 	 *            Transaction id
 	 *
 	 */
-	private void executeSqlBatch(String dbname, String[] queryarr, JSONArray[] jsonparams, String[] queryIDs, String tx_id)
+	private void executeSqlBatch(String dbname, String[] queryarr, JSONArray[] jsonparams, String[] queryIDs, String tx_id, boolean exc)
 	{
 		SQLiteDatabase mydb = this.getDatabase(dbname);
 
@@ -280,7 +282,7 @@ public class SQLitePlugin extends CordovaPlugin
 
 		try {
 			/* BEGIN (exclusive): */
-			{
+			if (exc) {
 				mydb.beginTransaction();
 			}
 
@@ -363,32 +365,32 @@ public class SQLitePlugin extends CordovaPlugin
 				}
 
 				if (query_result.length() > 0) {
-					this.sendJavascriptCB("window.SQLitePluginTransactionCB.queryCompleteCallback('" +
+					this.sendJavascriptCB("window.SQLiteQueryCB.queryCompleteCallback('" +
 						tx_id + "','" + query_id + "', " + query_result + ");");
 				}
 			}
 
 			/* Mark for COMMIT: */
-			{
+			if (exc) {
 				mydb.setTransactionSuccessful();
 			}
 		}
 		catch (SQLiteException ex) {
 			ex.printStackTrace();
 			Log.v("executeSqlBatch", "SQLitePlugin.executeSql(): Error=" +  ex.getMessage());
-			this.sendJavascriptCB("window.SQLitePluginTransactionCB.txErrorCallback('" + tx_id + "', '"+ex.getMessage()+"');");
+			this.sendJavascriptCB("window.SQLiteQueryCB.txErrorCallback('" + tx_id + "', '"+ex.getMessage()+"');");
 		} catch (JSONException ex) {
 			ex.printStackTrace();
 			Log.v("executeSqlBatch", "SQLitePlugin.executeSql(): Error=" +  ex.getMessage());
-			this.sendJavascriptCB("window.SQLitePluginTransactionCB.txErrorCallback('" + tx_id + "', '"+ex.getMessage()+"');");
+			this.sendJavascriptCB("window.SQLiteQueryCB.txErrorCallback('" + tx_id + "', '"+ex.getMessage()+"');");
 		}
 		finally {
 			/* COMMIT or ROLLBACK: */
-			{
+			if (exc) {
 				mydb.endTransaction();
 			}
 			Log.v("executeSqlBatch", tx_id);
-			this.sendJavascriptCB("window.SQLitePluginTransactionCB.txCompleteCallback('" + tx_id + "');");
+			this.sendJavascriptCB("window.SQLiteQueryCB.txCompleteCallback('" + tx_id + "');");
 		}
 	}
 
