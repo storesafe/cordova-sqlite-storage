@@ -26,6 +26,7 @@ do ->
     @open @openSuccess, @openError
     return
 
+  SQLitePlugin::databaseFeatures = isSQLitePluginDatabase: true
   SQLitePlugin::openDBs = {}
 
   SQLitePlugin::transaction = (fn, error, success) ->
@@ -55,6 +56,13 @@ do ->
 
   pcb = -> 1
 
+  SQLitePlugin::executeSql = (statement, params, success, error) ->
+    console.log "SQLitePlugin::executeSql[Statement]"
+    pcb = success
+    cordova.exec (-> 1), error, "SQLitePlugin", "executePragmaStatement", [@dbname, statement, params]
+    return
+  
+  # DEPRECATED AND WILL BE REMOVED:
   SQLitePlugin::executePragmaStatement = (statement, success, error) ->
     console.log "SQLitePlugin::executePragmaStatement"
     pcb = success
@@ -109,7 +117,10 @@ do ->
         else
           transaction_queue[transId].splice x, 1
         break
-    query["callback"] result  if query and query["callback"]
+
+    if query and query["callback"]
+      query["callback"] result
+    return
 
   SQLitePluginTransactionCB.queryErrorCallback = (transId, queryId, result) ->
     query = null
@@ -121,16 +132,20 @@ do ->
         else
           transaction_queue[transId].splice x, 1
         break
-    query["err_callback"] result  if query and query["err_callback"]
+
+    if query and query["err_callback"]
+      query["err_callback"] result
+    return
 
   SQLitePluginTransactionCB.txCompleteCallback = (transId) ->
-    unless typeof transId is "undefined"
+    if typeof transId isnt "undefined"
       transaction_callback_queue[transId]["success"]()  if transId and transaction_callback_queue[transId] and transaction_callback_queue[transId]["success"]
     else
       console.log "SQLitePluginTransaction.txCompleteCallback---transId = NULL"
+    return
 
   SQLitePluginTransactionCB.txErrorCallback = (transId, error) ->
-    unless typeof transId is "undefined"
+    if typeof transId isnt "undefined"
       console.log "SQLitePluginTransaction.txErrorCallback---transId:" + transId
       transaction_callback_queue[transId]["error"] error  if transId and transaction_callback_queue[transId]["error"]
       delete transaction_queue[transId]
@@ -138,6 +153,7 @@ do ->
       delete transaction_callback_queue[transId]
     else
       console.log "SQLitePluginTransaction.txErrorCallback---transId = NULL"
+    return
 
   SQLitePluginTransaction::add_to_transaction = (trans_id, query, params, callback, err_callback) ->
     new_query = new Object()
@@ -145,7 +161,9 @@ do ->
 
     if callback or not @optimization_no_nested_callbacks
       new_query["query_id"] = get_unique_id()
-    else new_query["query_id"] = ""  if @optimization_no_nested_callbacks
+    else
+      if @optimization_no_nested_callbacks
+        new_query["query_id"] = ""
 
     new_query["query"] = query
 
@@ -228,6 +246,10 @@ do ->
     return
 
   SQLiteFactory =
+    # NOTE: this function should NOT be translated from Javascript
+    # back to CoffeeScript by js2coffee.
+    # If this function is edited in Javascript then someone will
+    # have to translate it back to CoffeeScript by hand.
     opendb: ->
       if arguments.length < 1 then return null
 
@@ -257,5 +279,8 @@ do ->
   root.SQLitePluginTransactionCB = SQLitePluginTransactionCB
 
   root.sqlitePlugin =
+    sqliteFeatures:
+      isSQLitePlugin: true
+
     openDatabase: SQLiteFactory.opendb
 

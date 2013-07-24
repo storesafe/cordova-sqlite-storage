@@ -20,7 +20,9 @@
     });
     this.open(this.openSuccess, this.openError);
   };
-  SQLitePlugin.prototype.databaseFeatures = { isSQLitePluginDatabase: true };
+  SQLitePlugin.prototype.databaseFeatures = {
+    isSQLitePluginDatabase: true
+  };
   SQLitePlugin.prototype.openDBs = {};
   SQLitePlugin.prototype.transaction = function(fn, error, success) {
     var t;
@@ -110,7 +112,9 @@
         break;
       }
     }
-    if (query && query["callback"]) return query["callback"](result);
+    if (query && query["callback"]) {
+      query["callback"](result);
+    }
   };
   SQLitePluginTransactionCB.queryErrorCallback = function(transId, queryId, result) {
     var query, x;
@@ -126,15 +130,17 @@
         break;
       }
     }
-    if (query && query["err_callback"]) return query["err_callback"](result);
+    if (query && query["err_callback"]) {
+      query["err_callback"](result);
+    }
   };
   SQLitePluginTransactionCB.txCompleteCallback = function(transId) {
     if (typeof transId !== "undefined") {
       if (transId && transaction_callback_queue[transId] && transaction_callback_queue[transId]["success"]) {
-        return transaction_callback_queue[transId]["success"]();
+        transaction_callback_queue[transId]["success"]();
       }
     } else {
-      return console.log("SQLitePluginTransaction.txCompleteCallback---transId = NULL");
+      console.log("SQLitePluginTransaction.txCompleteCallback---transId = NULL");
     }
   };
   SQLitePluginTransactionCB.txErrorCallback = function(transId, error) {
@@ -144,9 +150,9 @@
         transaction_callback_queue[transId]["error"](error);
       }
       delete transaction_queue[transId];
-      return delete transaction_callback_queue[transId];
+      delete transaction_callback_queue[transId];
     } else {
-      return console.log("SQLitePluginTransaction.txErrorCallback---transId = NULL");
+      console.log("SQLitePluginTransaction.txErrorCallback---transId = NULL");
     }
   };
   SQLitePluginTransaction.prototype.add_to_transaction = function(trans_id, query, params, callback, err_callback) {
@@ -156,7 +162,9 @@
     if (callback || !this.optimization_no_nested_callbacks) {
       new_query["query_id"] = get_unique_id();
     } else {
-      if (this.optimization_no_nested_callbacks) new_query["query_id"] = "";
+      if (this.optimization_no_nested_callbacks) {
+        new_query["query_id"] = "";
+      }
     }
     new_query["query"] = query;
     if (params) {
@@ -166,7 +174,9 @@
     }
     new_query["callback"] = callback;
     new_query["err_callback"] = err_callback;
-    if (!transaction_queue[trans_id]) transaction_queue[trans_id] = [];
+    if (!transaction_queue[trans_id]) {
+      transaction_queue[trans_id] = [];
+    }
     transaction_queue[trans_id].push(new_query);
   };
   SQLitePluginTransaction.prototype.executeSql = function(sql, values, success, error) {
@@ -212,8 +222,12 @@
   SQLitePluginTransaction.prototype.complete = function(success, error) {
     var errorcb, successcb, txself;
     console.log("SQLitePluginTransaction.prototype.complete");
-    if (this.__completed) throw new Error("Transaction already run");
-    if (this.__submitted) throw new Error("Transaction already submitted");
+    if (this.__completed) {
+      throw new Error("Transaction already run");
+    }
+    if (this.__submitted) {
+      throw new Error("Transaction already submitted");
+    }
     this.__submitted = true;
     txself = this;
     successcb = function() {
@@ -222,7 +236,9 @@
         return txself.complete(success, error);
       } else {
         this.__completed = true;
-        if (success) return success(txself);
+        if (success) {
+          return success(txself);
+        }
       }
     };
     errorcb = function(res) {
@@ -238,9 +254,15 @@
     cordova.exec(null, null, "SQLitePlugin", "executeSqlBatch", [this.dbname, transaction_queue[this.trans_id]]);
   };
   SQLiteFactory = {
+    // NOTE: this function should NOT be translated from Javascript
+    // back to CoffeeScript by js2coffee.
+    // If this function is edited in Javascript then someone will
+    // have to translate it back to CoffeeScript by hand.
     opendb: function() {
       var errorcb, first, okcb, openargs;
-      if (arguments.length < 1) return null;
+      if (arguments.length < 1) {
+        return null;
+      }
       first = arguments[0];
       openargs = null;
       okcb = null;
@@ -251,13 +273,17 @@
         };
         if (arguments.length >= 5) {
           okcb = arguments[4];
-          if (arguments.length > 5) errorcb = arguments[5];
+          if (arguments.length > 5) {
+            errorcb = arguments[5];
+          }
         }
       } else {
         openargs = first;
         if (arguments.length >= 2) {
           okcb = arguments[1];
-          if (arguments.length > 2) errorcb = arguments[2];
+          if (arguments.length > 2) {
+            errorcb = arguments[2];
+          }
         }
       }
       return new SQLitePlugin(openargs, okcb, errorcb);
@@ -266,7 +292,9 @@
   root.SQLitePluginCallback = SQLitePluginCallback;
   root.SQLitePluginTransactionCB = SQLitePluginTransactionCB;
   return root.sqlitePlugin = {
-    sqliteFeatures: { isSQLitePlugin: true },
+    sqliteFeatures: {
+      isSQLitePlugin: true
+    },
     openDatabase: SQLiteFactory.opendb
   };
 })();
