@@ -66,6 +66,8 @@ public class SQLitePlugin extends CordovaPlugin
 	@Override
 	public boolean execute(String action, JSONArray args, CallbackContext cbc)
 	{
+		//Log.v("SQLitePlugin", "execute " + action);
+
 		try {
 			if (action.equals("open")) {
 				JSONObject o = args.getJSONObject(0);
@@ -276,6 +278,8 @@ public class SQLitePlugin extends CordovaPlugin
 	 */
 	private void executeSqlBatch(String dbname, String[] queryarr, JSONArray[] jsonparams, String[] queryIDs, String tx_id, boolean exc)
 	{
+		//Log.v("SQLitePlugin", "execute sql batch");
+
 		SQLiteDatabase mydb = this.getDatabase(dbname);
 
 		if (mydb == null) return;
@@ -358,7 +362,8 @@ public class SQLitePlugin extends CordovaPlugin
 					Cursor myCursor = mydb.rawQuery(query, params);
 
 					if (query_id.length() > 0) {
-						query_result = this.getResultFromQuery(myCursor);
+						//query_result = this.getResultFromQuery(myCursor);
+						query_result = "{ 'rows': " + this.getResultFromQuery(myCursor) + "}";
 					}
 
 					myCursor.close();

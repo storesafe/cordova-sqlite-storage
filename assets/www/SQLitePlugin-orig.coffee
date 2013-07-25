@@ -29,17 +29,32 @@ do ->
   SQLitePlugin::databaseFeatures = isSQLitePluginDatabase: true
   SQLitePlugin::openDBs = {}
 
+  # OLD SQLite(Batch)Transaction mechanism:
   SQLitePlugin::batchTransaction = (fn, error, success) ->
     t = new SQLiteBatchTransaction(@dbname)
     fn t
     t.complete success, error
     return
 
-  SQLitePlugin::transaction = SQLitePlugin::batchTransaction
+  SQLitePlugin::txQ = []
+
+  #SQLitePlugin::transaction = SQLitePlugin::batchTransaction
+
+  # Using NEW SQLitePluginTransaction mechanism:
+  SQLitePlugin::transaction = (fn, error, success) ->
+    t = new SQLitePluginTransaction(this, fn, error, success)
+    @txQ.push t
+    if @txQ.length is 1
+      t.start()
+    return
+
+  SQLitePlugin::startNextTransaction = ->
+    @txQ.shift()
+    if @txQ[0]
+      @txQ[0].start()
+    return
 
   SQLitePlugin::open = (success, error) ->
-    console.log "SQLitePlugin.prototype.open"
-
     unless @dbname of @openDBs
       @openDBs[@dbname] = true
       cordova.exec success, error, "SQLitePlugin", "open", [ @openargs ]
@@ -83,7 +98,11 @@ do ->
 
       return
 
-  get_unique_id = ->
+  uid = 1000
+
+  get_unique_id = -> ++uid
+
+  get_unique_id$old = ->
     id = new Date().getTime()
     id2 = new Date().getTime()
     id2 = new Date().getTime()  while id is id2
@@ -92,6 +111,7 @@ do ->
   queryQ = []
   queryCBQ = {}
 
+  # XXX OLD mechanism:
   SQLiteBatchTransaction = (dbname) ->
     @dbname = dbname
     @executes = []
@@ -248,6 +268,217 @@ do ->
     cordova.exec null, null, "SQLitePlugin", "executeBatchTransaction", [ @dbname, queryQ[@trans_id] ]
     return
 
+  # NEW mechanism:
+
+  trcbq = {}
+
+  SQLitePluginTransaction = (db, fn, error, success) ->
+    @trid = get_unique_id()
+    trcbq[@trid] = {}
+    if typeof(fn) != "function"
+      # This is consistent with the implementation in Chrome -- it
+      # throws if you pass anything other than a function. This also
+      # prevents us from stalling our txQueue if somebody passes a
+      # false value for fn.
+      throw new Error("transaction expected a function")
+    @db = db
+    @fn = fn
+    @error = error
+    @success = success
+    @executes = []
+    @executeSql "BEGIN", [], null, (tx, err) ->
+      throw new Error("unable to begin transaction: " + err.message)
+    return
+
+  SQLiteTransactionCB = {}
+
+  SQLiteTransactionCB.queryCompleteCallback = (transId, queryId, result) ->
+    #console.log "SQLiteTransactionCB.queryCompleteCallback"
+
+    t = trcbq[transId]
+
+    if t
+      q = t[queryId]
+
+      if q
+        if q["success"]
+          q["success"] result
+
+        # ???:
+        delete trcbq[transId][queryId]
+
+    return
+
+  SQLiteTransactionCB.queryErrorCallback = (transId, queryId, result) ->
+    #console.log "query errror cb trid " + transId + " qid " + queryId
+
+    t = trcbq[transId]
+
+    if t
+      q = t[queryId]
+
+      if q
+        if q["error"]
+          q["error"] result
+
+        # ???:
+        delete trcbq[transId][queryId]
+
+    return
+
+  # ???:
+  SQLiteTransactionCB.txCompleteCallback = (transId) ->
+    return
+
+  # ???:
+  SQLiteTransactionCB.txErrorCallback = (transId, error) ->
+    return
+
+  SQLitePluginTransaction::start = ->
+    try
+      return  unless @fn
+      @fn this
+      @fn = null
+      @run()
+    catch err
+      # If "fn" throws, we must report the whole transaction as failed.
+      @db.startNextTransaction()
+      if @error
+        @error err
+    return
+
+  SQLitePluginTransaction::executeSql = (sql, values, success, error) ->
+    #console.log "SQLitePluginTransaction::executeSql"
+    qid = get_unique_id()
+
+    @executes.push
+      #query: [sql].concat(values or [])
+      success: success
+      error: error
+      qid: qid
+
+      sql: sql
+      params: values
+
+    return
+
+  SQLitePluginTransaction::handleStatementSuccess = (handler, response) ->
+    if !handler
+      return
+
+    rows = response.rows || []
+    payload =
+      rows:
+        item: (i) ->
+          rows[i]
+
+        length: rows.length
+
+      rowsAffected: response.rowsAffected or 0
+      insertId: response.insertId or undefined
+
+    handler this, payload
+
+    return
+
+  SQLitePluginTransaction::handleStatementFailure = (handler, response) ->
+    if !handler
+      throw new Error "a statement with no error handler failed: " + response.message
+    if handler(this, response)
+      throw new Error "a statement error callback did not return false"
+    return
+
+  SQLitePluginTransaction::run = ->
+    #console.log "SQLitePluginTransaction::run"
+    txFailure = null
+
+    tropts = []
+    batchExecutes = @executes
+    waiting = batchExecutes.length
+    @executes = []
+    tx = this
+
+    handlerFor = (index, didSucceed) ->
+      (response) ->
+        try
+          if didSucceed
+            tx.handleStatementSuccess batchExecutes[index].success, response
+          else
+            tx.handleStatementFailure batchExecutes[index].error, response
+        catch err
+          txFailure = err  unless txFailure
+
+        if --waiting == 0
+          if txFailure
+            tx.rollBack txFailure
+          else if tx.executes.length > 0
+            # new requests have been issued by the callback
+            # handlers, so run another batch.
+            tx.run()
+          else
+            tx.commit()
+
+    i = 0
+
+    while i < batchExecutes.length
+      request = batchExecutes[i]
+
+      qid = request.qid
+
+      trcbq[@trid][qid] =
+        success: handlerFor(i, true)
+        error: handlerFor(i, false)
+
+      tropts.push
+        trans_id: @trid
+        query_id: qid
+        query: request.sql
+        params: request.params || []
+
+      i++
+
+    cordova.exec null, null, "SQLitePlugin", "executeSqlBatch", [ @db.dbname, tropts ]
+
+    return
+
+  SQLitePluginTransaction::rollBack = (txFailure) ->
+    if @finalized then return
+    tx = @
+
+    succeeded = ->
+      delete trcbq[@trid]
+      tx.db.startNextTransaction()
+      if tx.error then tx.error txFailure
+
+    failed = (tx, err) ->
+      delete trcbq[@trid]
+      tx.db.startNextTransaction()
+      if tx.error then tx.error new Error("error while trying to roll back: " + err.message)
+
+    @finalized = true
+    @executeSql "ROLLBACK", [], succeeded, failed
+    @run()
+    return
+
+  SQLitePluginTransaction::commit = ->
+    if @finalized then return
+    tx = @
+
+    succeeded = ->
+      delete trcbq[@trid]
+      tx.db.startNextTransaction()
+      if tx.success then tx.success()
+
+    failed = (tx, err) ->
+      delete trcbq[@trid]
+      tx.db.startNextTransaction()
+      if tx.error then tx.error new Error("error while trying to commit: " + err.message)
+
+    @finalized = true
+    @executeSql "COMMIT", [], succeeded, failed
+    @run()
+    return
+
   SQLiteFactory =
     # NOTE: this function should NOT be translated from Javascript
     # back to CoffeeScript by js2coffee.
@@ -279,7 +510,8 @@ do ->
 
   # Required for callbacks:
   root.SQLitePluginCallback = SQLitePluginCallback
-  root.SQLiteQueryCB = SQLiteQueryCB
+  #root.SQLiteQueryCB = SQLiteQueryCB
+  root.SQLiteQueryCB = SQLiteTransactionCB
 
   root.sqlitePlugin =
     sqliteFeatures:
