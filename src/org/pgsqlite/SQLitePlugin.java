@@ -278,24 +278,18 @@ public class SQLitePlugin extends CordovaPlugin
 	 */
 	private void executeSqlBatch(String dbname, String[] queryarr, JSONArray[] jsonparams, String[] queryIDs, String tx_id, /* TODO GONE: */ boolean exc)
 	{
-		//Log.v("SQLitePlugin", "execute sql batch");
-
 		SQLiteDatabase mydb = this.getDatabase(dbname);
 
 		if (mydb == null) return;
 
-		try {
-			/* XXX GONE: BEGIN (exclusive):
-			if (exc) {
-				mydb.beginTransaction();
-			}
-			**/
+		//try {
 
 			String query = "";
 			String query_id = "";
 			int len = queryarr.length;
 
-			for (int i = 0; i < len; i++) {
+		for (int i = 0; i < len; i++) {
+			try {
 				query = queryarr[i];
 				query_id = queryIDs[i];
 
@@ -374,14 +368,15 @@ public class SQLitePlugin extends CordovaPlugin
 					this.sendJavascriptCB("window.SQLiteQueryCB.queryCompleteCallback('" +
 						tx_id + "','" + query_id + "', " + query_result + ");");
 				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				Log.v("executeSqlBatch", "SQLitePlugin.executeSql[Batch](): Error=" +  ex.getMessage());
+				this.sendJavascriptCB("window.SQLiteQueryCB.queryErrorCallback('" +
+					tx_id + "','" + query_id + "', '" + ex.getMessage() + "');");
 			}
 
-			/* XXX GONE: Mark for COMMIT:
-			if (exc) {
-				mydb.setTransactionSuccessful();
-			}
-			**/
 		}
+		/** XXX GONE:
 		catch (SQLiteException ex) {
 			ex.printStackTrace();
 			Log.v("executeSqlBatch", "SQLitePlugin.executeSql(): Error=" +  ex.getMessage());
@@ -392,14 +387,10 @@ public class SQLitePlugin extends CordovaPlugin
 			this.sendJavascriptCB("window.SQLiteQueryCB.txErrorCallback('" + tx_id + "', '"+ex.getMessage()+"');");
 		}
 		finally {
-			/* XXX GONE: COMMIT or ROLLBACK:
-			if (exc) {
-				mydb.endTransaction();
-			}
-			**/
 			Log.v("executeSqlBatch", tx_id);
 			this.sendJavascriptCB("window.SQLiteQueryCB.txCompleteCallback('" + tx_id + "');");
 		}
+		**/
 	}
 
 	/**
