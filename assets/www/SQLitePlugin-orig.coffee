@@ -94,6 +94,9 @@ do ->
 
   trcbq = {}
 
+  # TBD ???:
+  #batchcbmap = {}
+
   SQLitePluginTransaction = (db, fn, error, success) ->
     @trid = get_unique_id()
     trcbq[@trid] = {}
@@ -112,11 +115,37 @@ do ->
       throw new Error("unable to begin transaction: " + err.message)
     return
 
-  SQLiteTransactionCB = {}
+  #SQLiteTransactionCB = {}
+  SQLiteTransactionCB =
+    batchCompleteCallback: (trid, result) ->
+      console.log "SQLiteTransactionCB.batchCompleteCallback tid #{trid} result #{JSON.stringify result}"
 
+      for r in result
+        type = r.type
+        qid = r.qid
+        res = r.result
+
+        t = trcbq[trid]
+
+        if t
+          q = t[qid]
+
+          if q
+            if q[type]
+              q[type] res
+
+            # ???:
+            delete trcbq[trid][qid]
+
+      return
+
+  # XXX OLD & TBD GONE:
   SQLiteTransactionCB.queryCompleteCallback = (transId, queryId, result) ->
     #console.log "SQLiteTransactionCB.queryCompleteCallback"
 
+  # XXX OLD & GONE:
+  ###
+  SQLiteTransactionCB.queryCompleteCallback = (transId, queryId, result) ->
     t = trcbq[transId]
 
     if t
@@ -130,10 +159,15 @@ do ->
         delete trcbq[transId][queryId]
 
     return
+  ###
 
+  # XXX OLD & TBD GONE:
   SQLiteTransactionCB.queryErrorCallback = (transId, queryId, result) ->
     #console.log "query errror cb trid " + transId + " qid " + queryId
 
+  # XXX OLD & GONE:
+  ###
+  SQLiteTransactionCB.queryErrorCallback = (transId, queryId, result) ->
     t = trcbq[transId]
 
     if t
@@ -147,14 +181,17 @@ do ->
         delete trcbq[transId][queryId]
 
     return
+  ###
 
-  # ???:
+  # XXX GONE:
+  ###
   SQLiteTransactionCB.txCompleteCallback = (transId) ->
     return
 
-  # ???:
+  # XXX GONE:
   SQLiteTransactionCB.txErrorCallback = (transId, error) ->
     return
+  ###
 
   SQLitePluginTransaction::start = ->
     try
@@ -219,6 +256,9 @@ do ->
     waiting = batchExecutes.length
     @executes = []
     tx = this
+
+    # TBD ???:
+    #batchid = get_unique_id()
 
     handlerFor = (index, didSucceed) ->
       (response) ->
@@ -334,6 +374,7 @@ do ->
   root.SQLitePluginCallback = SQLitePluginCallback
   #root.SQLiteQueryCB = SQLiteQueryCB
   root.SQLiteQueryCB = SQLiteTransactionCB
+  root.SQLiteTransactionCB = SQLiteTransactionCB
 
   root.sqlitePlugin =
     sqliteFeatures:

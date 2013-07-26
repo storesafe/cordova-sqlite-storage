@@ -104,35 +104,73 @@
       throw new Error("unable to begin transaction: " + err.message);
     });
   };
-  SQLiteTransactionCB = {};
-  SQLiteTransactionCB.queryCompleteCallback = function(transId, queryId, result) {
-    var q, t;
-    t = trcbq[transId];
-    if (t) {
-      q = t[queryId];
-      if (q) {
-        if (q["success"]) {
-          q["success"](result);
+  SQLiteTransactionCB = {
+    batchCompleteCallback: function(trid, result) {
+      var q, qid, r, res, t, type, _i, _len;
+      console.log("SQLiteTransactionCB.batchCompleteCallback tid " + trid + " result " + (JSON.stringify(result)));
+      for (_i = 0, _len = result.length; _i < _len; _i++) {
+        r = result[_i];
+        type = r.type;
+        qid = r.qid;
+        res = r.result;
+        t = trcbq[trid];
+        if (t) {
+          q = t[qid];
+          if (q) {
+            if (q[type]) {
+              q[type](res);
+            }
+            delete trcbq[trid][qid];
+          }
         }
-        delete trcbq[transId][queryId];
       }
     }
   };
-  SQLiteTransactionCB.queryErrorCallback = function(transId, queryId, result) {
-    var q, t;
-    t = trcbq[transId];
-    if (t) {
-      q = t[queryId];
-      if (q) {
-        if (q["error"]) {
-          q["error"](result);
-        }
-        delete trcbq[transId][queryId];
-      }
-    }
-  };
-  SQLiteTransactionCB.txCompleteCallback = function(transId) {};
-  SQLiteTransactionCB.txErrorCallback = function(transId, error) {};
+  SQLiteTransactionCB.queryCompleteCallback = function(transId, queryId, result) {};
+  /*
+    SQLiteTransactionCB.queryCompleteCallback = (transId, queryId, result) ->
+      t = trcbq[transId]
+  
+      if t
+        q = t[queryId]
+  
+        if q
+          if q["success"]
+            q["success"] result
+  
+          # ???:
+          delete trcbq[transId][queryId]
+  
+      return
+  */
+
+  SQLiteTransactionCB.queryErrorCallback = function(transId, queryId, result) {};
+  /*
+    SQLiteTransactionCB.queryErrorCallback = (transId, queryId, result) ->
+      t = trcbq[transId]
+  
+      if t
+        q = t[queryId]
+  
+        if q
+          if q["error"]
+            q["error"] result
+  
+          # ???:
+          delete trcbq[transId][queryId]
+  
+      return
+  */
+
+  /*
+    SQLiteTransactionCB.txCompleteCallback = (transId) ->
+      return
+  
+    # XXX GONE:
+    SQLiteTransactionCB.txErrorCallback = (transId, error) ->
+      return
+  */
+
   SQLitePluginTransaction.prototype.start = function() {
     try {
       if (!this.fn) {
@@ -321,6 +359,7 @@
   };
   root.SQLitePluginCallback = SQLitePluginCallback;
   root.SQLiteQueryCB = SQLiteTransactionCB;
+  root.SQLiteTransactionCB = SQLiteTransactionCB;
   return root.sqlitePlugin = {
     sqliteFeatures: {
       isSQLitePlugin: true
