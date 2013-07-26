@@ -105,9 +105,9 @@
     });
   };
   SQLiteTransactionCB = {
-    batchCompleteCallback: function(cbResult) {
+    batchSuccessCallback: function(cbResult) {
       var q, qid, r, res, result, t, trid, type, _i, _len;
-      console.log("SQLiteTransactionCB.batchCompleteCallback cbResult " + (JSON.stringify(cbResult)));
+      console.log("SQLiteTransactionCB.batchSuccessCallback cbResult " + (JSON.stringify(cbResult)));
       trid = cbResult.trid;
       result = cbResult.result;
       for (_i = 0, _len = result.length; _i < _len; _i++) {
@@ -228,7 +228,7 @@
       });
       i++;
     }
-    cordova.exec(null, null, "SQLitePlugin", "executeSqlBatch", [this.db.dbname, tropts]);
+    cordova.exec(SQLiteTransactionCB.batchSuccessCallback, null, "SQLitePlugin", "executeSqlBatch", [this.db.dbname, tropts]);
   };
   SQLitePluginTransaction.prototype.rollBack = function(txFailure) {
     var failed, succeeded, tx;
@@ -315,7 +315,6 @@
     }
   };
   root.SQLitePluginCallback = SQLitePluginCallback;
-  root.SQLiteTransactionCB = SQLiteTransactionCB;
   return root.sqlitePlugin = {
     sqliteFeatures: {
       isSQLitePlugin: true

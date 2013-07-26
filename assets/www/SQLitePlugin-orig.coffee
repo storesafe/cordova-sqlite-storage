@@ -116,8 +116,8 @@ do ->
     return
 
   SQLiteTransactionCB =
-    batchCompleteCallback: (cbResult) ->
-      console.log "SQLiteTransactionCB.batchCompleteCallback cbResult #{JSON.stringify cbResult}"
+    batchSuccessCallback: (cbResult) ->
+      console.log "SQLiteTransactionCB.batchSuccessCallback cbResult #{JSON.stringify cbResult}"
 
       trid = cbResult.trid
       result = cbResult.result
@@ -247,7 +247,7 @@ do ->
 
       i++
 
-    cordova.exec null, null, "SQLitePlugin", "executeSqlBatch", [ @db.dbname, tropts ]
+    cordova.exec SQLiteTransactionCB.batchSuccessCallback, null, "SQLitePlugin", "executeSqlBatch", [ @db.dbname, tropts ]
 
     return
 
@@ -320,7 +320,6 @@ do ->
 
   # Required for callbacks:
   root.SQLitePluginCallback = SQLitePluginCallback
-  root.SQLiteTransactionCB = SQLiteTransactionCB
 
   root.sqlitePlugin =
     sqliteFeatures:

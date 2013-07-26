@@ -60,7 +60,7 @@ public class SQLitePlugin extends CordovaPlugin
 	 *            JSONArry of arguments for the plugin.
 	 *
 	 * @param cbc
-	 *            Callback context from Cordova API (not used here)
+	 *            Callback context from Cordova API
 	 *
 	 */
 	@Override
@@ -138,9 +138,9 @@ public class SQLitePlugin extends CordovaPlugin
 					boolean ex = action.equals("executeBatchTransaction");
 
 					if (action.equals("backgroundExecuteSqlBatch"))
-						this.executeSqlBatchInBackground(dbName, queries, jsonparams, queryIDs, trans_id, ex);
+						this.executeSqlBatchInBackground(dbName, queries, jsonparams, queryIDs, trans_id, cbc);
 					else
-						this.executeSqlBatch(dbName, queries, jsonparams, queryIDs, trans_id, ex);
+						this.executeSqlBatch(dbName, queries, jsonparams, queryIDs, trans_id, cbc);
 				} else
 					Log.v("error", "null trans_id");
 			}
@@ -242,15 +242,18 @@ public class SQLitePlugin extends CordovaPlugin
 	 * @param tx_id
 	 *            Transaction id
 	 *
+	 * @param cbc
+	 *            Callback context from Cordova API
+	 *
 	 */
 	private void executeSqlBatchInBackground(final String dbName,
-		final String[] queryarr, final JSONArray[] jsonparams, final String[] queryIDs, final String tx_id, final boolean ex)
+		final String[] queryarr, final JSONArray[] jsonparams, final String[] queryIDs, final String tx_id, final CallbackContext cbc)
 	{
 		final SQLitePlugin myself = this;
 
 		this.cordova.getThreadPool().execute(new Runnable() {
 			public void run() {
-				myself.executeSqlBatch(dbName, queryarr, jsonparams, queryIDs, tx_id, ex);
+				myself.executeSqlBatch(dbName, queryarr, jsonparams, queryIDs, tx_id, cbc);
 			}
 		});
 	}
@@ -270,11 +273,11 @@ public class SQLitePlugin extends CordovaPlugin
 	 * @param queryIDs
 	 *            Array of query ids
 	 *
-	 * @param tx_id
-	 *            Transaction id
+	 * @param cbc
+	 *            Callback context from Cordova API
 	 *
 	 */
-	private void executeSqlBatch(String dbname, String[] queryarr, JSONArray[] jsonparams, String[] queryIDs, String tx_id, /* TODO GONE: */ boolean exc)
+	private void executeSqlBatch(String dbname, String[] queryarr, JSONArray[] jsonparams, String[] queryIDs, String tx_id, CallbackContext cbc)
 	{
 		SQLiteDatabase mydb = this.getDatabase(dbname);
 
@@ -407,7 +410,7 @@ public class SQLitePlugin extends CordovaPlugin
 			// TODO what to do?
 		}
 
-		this.sendJavascriptCB("window.SQLiteTransactionCB.batchCompleteCallback(" + cbr.toString() + ");");
+		cbc.success(cbr);
 	}
 
 	/**
