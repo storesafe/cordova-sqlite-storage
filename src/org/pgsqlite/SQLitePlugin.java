@@ -294,9 +294,6 @@ public class SQLitePlugin extends CordovaPlugin
 
 			try {
 				query = queryarr[i];
-				//query_id = queryIDs[i];
-
-				String query_result = "";
 
 				// /* OPTIONAL changes for new Android SDK from HERE:
 				if (android.os.Build.VERSION.SDK_INT >= 11 &&
@@ -321,8 +318,6 @@ public class SQLitePlugin extends CordovaPlugin
 
 					int rowsAffected = myStatement.executeUpdateDelete();
 
-					query_result = "{'rowsAffected':" + rowsAffected + "}";
-
 					queryResult = new JSONObject();
 					queryResult.put("rowsAffected", rowsAffected);
 				} else // to HERE. */
@@ -345,8 +340,6 @@ public class SQLitePlugin extends CordovaPlugin
 					
 					int rowsAffected = (insertId == -1) ? 0 : 1;
 
-					query_result = "{'insertId':'" + insertId + "', 'rowsAffected':'" + rowsAffected +"'}";
-
 					queryResult = new JSONObject();
 					queryResult.put("insertId", insertId);
 					queryResult.put("rowsAffected", rowsAffected);
@@ -367,26 +360,15 @@ public class SQLitePlugin extends CordovaPlugin
 					Cursor myCursor = mydb.rawQuery(query, params);
 
 					if (query_id.length() > 0) {
-						//query_result = this.getRowsResultFromQuery(myCursor).toString();
 						queryResult = this.getRowsResultFromQuery(myCursor);
-						query_result = queryResult.toString();
 					}
 
 					myCursor.close();
 				}
-
-				if (query_result.length() > 0) {
-					this.sendJavascriptCB("window.SQLiteQueryCB.queryCompleteCallback('" +
-						tx_id + "','" + query_id + "', " + query_result + ");");
-
-				}
 			} catch (Exception ex) {
 				ex.printStackTrace();
-				Log.v("executeSqlBatch", "SQLitePlugin.executeSql[Batch](): Error=" +  ex.getMessage());
-				this.sendJavascriptCB("window.SQLiteQueryCB.queryErrorCallback('" +
-					tx_id + "','" + query_id + "', '" + ex.getMessage() + "');");
-
 				errorMessage = ex.getMessage();
+				Log.v("executeSqlBatch", "SQLitePlugin.executeSql[Batch](): Error=" +  errorMessage);
 			}
 
 			try {
@@ -414,9 +396,18 @@ public class SQLitePlugin extends CordovaPlugin
 			}
 		}
 
-		String br = batchResults.toString();
+		JSONObject cbr = new JSONObject();
 
-		this.sendJavascriptCB("window.SQLiteTransactionCB.batchCompleteCallback('" + tx_id + "', " + br + ");");
+		try {
+			cbr.put("trid", tx_id);
+			cbr.put("result", batchResults);
+		} catch (JSONException ex) {
+			ex.printStackTrace();
+			Log.v("executeSqlBatch", "SQLitePlugin.executeSql[Batch](): Error=" +  ex.getMessage());
+			// TODO what to do?
+		}
+
+		this.sendJavascriptCB("window.SQLiteTransactionCB.batchCompleteCallback(" + cbr.toString() + ");");
 	}
 
 	/**

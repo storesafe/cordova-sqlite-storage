@@ -105,9 +105,11 @@
     });
   };
   SQLiteTransactionCB = {
-    batchCompleteCallback: function(trid, result) {
-      var q, qid, r, res, t, type, _i, _len;
-      console.log("SQLiteTransactionCB.batchCompleteCallback tid " + trid + " result " + (JSON.stringify(result)));
+    batchCompleteCallback: function(cbResult) {
+      var q, qid, r, res, result, t, trid, type, _i, _len;
+      console.log("SQLiteTransactionCB.batchCompleteCallback cbResult " + (JSON.stringify(cbResult)));
+      trid = cbResult.trid;
+      result = cbResult.result;
       for (_i = 0, _len = result.length; _i < _len; _i++) {
         r = result[_i];
         type = r.type;
@@ -126,51 +128,6 @@
       }
     }
   };
-  SQLiteTransactionCB.queryCompleteCallback = function(transId, queryId, result) {};
-  /*
-    SQLiteTransactionCB.queryCompleteCallback = (transId, queryId, result) ->
-      t = trcbq[transId]
-  
-      if t
-        q = t[queryId]
-  
-        if q
-          if q["success"]
-            q["success"] result
-  
-          # ???:
-          delete trcbq[transId][queryId]
-  
-      return
-  */
-
-  SQLiteTransactionCB.queryErrorCallback = function(transId, queryId, result) {};
-  /*
-    SQLiteTransactionCB.queryErrorCallback = (transId, queryId, result) ->
-      t = trcbq[transId]
-  
-      if t
-        q = t[queryId]
-  
-        if q
-          if q["error"]
-            q["error"] result
-  
-          # ???:
-          delete trcbq[transId][queryId]
-  
-      return
-  */
-
-  /*
-    SQLiteTransactionCB.txCompleteCallback = (transId) ->
-      return
-  
-    # XXX GONE:
-    SQLiteTransactionCB.txErrorCallback = (transId, error) ->
-      return
-  */
-
   SQLitePluginTransaction.prototype.start = function() {
     try {
       if (!this.fn) {
@@ -358,7 +315,6 @@
     }
   };
   root.SQLitePluginCallback = SQLitePluginCallback;
-  root.SQLiteQueryCB = SQLiteTransactionCB;
   root.SQLiteTransactionCB = SQLiteTransactionCB;
   return root.sqlitePlugin = {
     sqliteFeatures: {

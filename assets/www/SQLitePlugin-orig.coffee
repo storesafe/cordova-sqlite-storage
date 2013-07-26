@@ -115,10 +115,12 @@ do ->
       throw new Error("unable to begin transaction: " + err.message)
     return
 
-  #SQLiteTransactionCB = {}
   SQLiteTransactionCB =
-    batchCompleteCallback: (trid, result) ->
-      console.log "SQLiteTransactionCB.batchCompleteCallback tid #{trid} result #{JSON.stringify result}"
+    batchCompleteCallback: (cbResult) ->
+      console.log "SQLiteTransactionCB.batchCompleteCallback cbResult #{JSON.stringify cbResult}"
+
+      trid = cbResult.trid
+      result = cbResult.result
 
       for r in result
         type = r.type
@@ -138,60 +140,6 @@ do ->
             delete trcbq[trid][qid]
 
       return
-
-  # XXX OLD & TBD GONE:
-  SQLiteTransactionCB.queryCompleteCallback = (transId, queryId, result) ->
-    #console.log "SQLiteTransactionCB.queryCompleteCallback"
-
-  # XXX OLD & GONE:
-  ###
-  SQLiteTransactionCB.queryCompleteCallback = (transId, queryId, result) ->
-    t = trcbq[transId]
-
-    if t
-      q = t[queryId]
-
-      if q
-        if q["success"]
-          q["success"] result
-
-        # ???:
-        delete trcbq[transId][queryId]
-
-    return
-  ###
-
-  # XXX OLD & TBD GONE:
-  SQLiteTransactionCB.queryErrorCallback = (transId, queryId, result) ->
-    #console.log "query errror cb trid " + transId + " qid " + queryId
-
-  # XXX OLD & GONE:
-  ###
-  SQLiteTransactionCB.queryErrorCallback = (transId, queryId, result) ->
-    t = trcbq[transId]
-
-    if t
-      q = t[queryId]
-
-      if q
-        if q["error"]
-          q["error"] result
-
-        # ???:
-        delete trcbq[transId][queryId]
-
-    return
-  ###
-
-  # XXX GONE:
-  ###
-  SQLiteTransactionCB.txCompleteCallback = (transId) ->
-    return
-
-  # XXX GONE:
-  SQLiteTransactionCB.txErrorCallback = (transId, error) ->
-    return
-  ###
 
   SQLitePluginTransaction::start = ->
     try
@@ -372,8 +320,6 @@ do ->
 
   # Required for callbacks:
   root.SQLitePluginCallback = SQLitePluginCallback
-  #root.SQLiteQueryCB = SQLiteQueryCB
-  root.SQLiteQueryCB = SQLiteTransactionCB
   root.SQLiteTransactionCB = SQLiteTransactionCB
 
   root.sqlitePlugin =
