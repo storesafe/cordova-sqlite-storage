@@ -1,5 +1,5 @@
 (function() {
-  var SQLiteFactory, SQLitePlugin, SQLitePluginCallback, SQLitePluginTransaction, SQLiteTransactionCB, get_unique_id, pcb, root, trcbq, uid;
+  var SQLiteFactory, SQLitePlugin, SQLitePluginCallback, SQLitePluginTransaction, get_unique_id, pcb, root, uid;
   root = this;
   SQLitePlugin = function(openargs, openSuccess, openError) {
     var dbname;
@@ -88,10 +88,8 @@
   get_unique_id = function() {
     return ++uid;
   };
-  trcbq = {};
   SQLitePluginTransaction = function(db, fn, error, success) {
     this.trid = get_unique_id();
-    trcbq[this.trid] = {};
     if (typeof fn !== "function") {
       throw new Error("transaction expected a function");
     }
@@ -103,30 +101,6 @@
     this.executeSql("BEGIN", [], null, function(tx, err) {
       throw new Error("unable to begin transaction: " + err.message);
     });
-  };
-  SQLiteTransactionCB = {
-    batchSuccessCallback: function(cbResult) {
-      var q, qid, r, res, result, t, trid, type, _i, _len;
-      console.log("SQLiteTransactionCB.batchSuccessCallback cbResult " + (JSON.stringify(cbResult)));
-      trid = cbResult.trid;
-      result = cbResult.result;
-      for (_i = 0, _len = result.length; _i < _len; _i++) {
-        r = result[_i];
-        type = r.type;
-        qid = r.qid;
-        res = r.result;
-        t = trcbq[trid];
-        if (t) {
-          q = t[qid];
-          if (q) {
-            if (q[type]) {
-              q[type](res);
-            }
-            delete trcbq[trid][qid];
-          }
-        }
-      }
-    }
   };
   SQLitePluginTransaction.prototype.start = function() {
     try {
@@ -181,7 +155,7 @@
     }
   };
   SQLitePluginTransaction.prototype.run = function() {
-    var batchExecutes, handlerFor, i, qid, request, tropts, tx, txFailure, waiting;
+    var batchExecutes, handlerFor, i, mycb, mycbmap, qid, request, tropts, tx, txFailure, waiting;
     txFailure = null;
     tropts = [];
     batchExecutes = this.executes;
@@ -213,10 +187,11 @@
       };
     };
     i = 0;
+    mycbmap = {};
     while (i < batchExecutes.length) {
       request = batchExecutes[i];
       qid = request.qid;
-      trcbq[this.trid][qid] = {
+      mycbmap[qid] = {
         success: handlerFor(i, true),
         error: handlerFor(i, false)
       };
@@ -228,7 +203,24 @@
       });
       i++;
     }
-    cordova.exec(SQLiteTransactionCB.batchSuccessCallback, null, "SQLitePlugin", "executeSqlBatch", [this.db.dbname, tropts]);
+    mycb = function(cbResult) {
+      var q, r, res, result, type, _i, _len;
+      console.log("mycb cbResult " + (JSON.stringify(cbResult)));
+      result = cbResult.result;
+      for (_i = 0, _len = result.length; _i < _len; _i++) {
+        r = result[_i];
+        type = r.type;
+        qid = r.qid;
+        res = r.result;
+        q = mycbmap[qid];
+        if (q) {
+          if (q[type]) {
+            q[type](res);
+          }
+        }
+      }
+    };
+    cordova.exec(mycb, null, "SQLitePlugin", "executeSqlBatch", [this.db.dbname, tropts]);
   };
   SQLitePluginTransaction.prototype.rollBack = function(txFailure) {
     var failed, succeeded, tx;
@@ -237,14 +229,12 @@
     }
     tx = this;
     succeeded = function() {
-      delete trcbq[this.trid];
       tx.db.startNextTransaction();
       if (tx.error) {
         return tx.error(txFailure);
       }
     };
     failed = function(tx, err) {
-      delete trcbq[this.trid];
       tx.db.startNextTransaction();
       if (tx.error) {
         return tx.error(new Error("error while trying to roll back: " + err.message));
@@ -261,14 +251,12 @@
     }
     tx = this;
     succeeded = function() {
-      delete trcbq[this.trid];
       tx.db.startNextTransaction();
       if (tx.success) {
         return tx.success();
       }
     };
     failed = function(tx, err) {
-      delete trcbq[this.trid];
       tx.db.startNextTransaction();
       if (tx.error) {
         return tx.error(new Error("error while trying to commit: " + err.message));
