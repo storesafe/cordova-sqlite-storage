@@ -77,7 +77,7 @@ do ->
     return
 
   ###
-  # DEPRECATED AND WILL BE REMOVED:
+  DEPRECATED AND WILL BE REMOVED:
   ###
   SQLitePlugin::executePragmaStatement = (statement, success, error) ->
     console.log "SQLitePlugin::executePragmaStatement"
@@ -112,10 +112,10 @@ do ->
 
     if typeof(fn) != "function"
       ###
-      # This is consistent with the implementation in Chrome -- it
-      # throws if you pass anything other than a function. This also
-      # prevents us from stalling our txQueue if somebody passes a
-      # false value for fn.
+      This is consistent with the implementation in Chrome -- it
+      throws if you pass anything other than a function. This also
+      prevents us from stalling our txQueue if somebody passes a
+      false value for fn.
       ###
       throw new Error("transaction expected a function")
 
@@ -134,12 +134,15 @@ do ->
 
   SQLitePluginTransaction::start = ->
     try
-      return  unless @fn
+      unless @fn
+        return
       @fn this
       @fn = null
       @run()
     catch err
-      # If "fn" throws, we must report the whole transaction as failed.
+      ###
+      If "fn" throws, we must report the whole transaction as failed.
+      ###
       @db.startNextTransaction()
       if @error
         @error err
@@ -208,8 +211,8 @@ do ->
             tx.abort txFailure
           else if tx.executes.length > 0
             ###
-            # new requests have been issued by the callback
-            # handlers, so run another batch.
+            new requests have been issued by the callback
+            handlers, so run another batch.
             ###
             tx.run()
           else
@@ -304,10 +307,10 @@ do ->
 
   SQLiteFactory =
     ###
-    # NOTE: this function should NOT be translated from Javascript
-    # back to CoffeeScript by js2coffee.
-    # If this function is edited in Javascript then someone will
-    # have to translate it back to CoffeeScript by hand.
+    NOTE: this function should NOT be translated from Javascript
+    back to CoffeeScript by js2coffee.
+    If this function is edited in Javascript then someone will
+    have to translate it back to CoffeeScript by hand.
     ###
     opendb: ->
       if arguments.length < 1 then return null

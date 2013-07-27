@@ -74,7 +74,7 @@
     this.addTransaction(new SQLitePluginTransaction(this, myfn, myerror, mysuccess, false));
   };
   /*
-    # DEPRECATED AND WILL BE REMOVED:
+    DEPRECATED AND WILL BE REMOVED:
   */
 
   SQLitePlugin.prototype.executePragmaStatement = function(statement, success, error) {
@@ -111,10 +111,10 @@
     this.trid = get_unique_id();
     if (typeof fn !== "function") {
       /*
-            # This is consistent with the implementation in Chrome -- it
-            # throws if you pass anything other than a function. This also
-            # prevents us from stalling our txQueue if somebody passes a
-            # false value for fn.
+            This is consistent with the implementation in Chrome -- it
+            throws if you pass anything other than a function. This also
+            prevents us from stalling our txQueue if somebody passes a
+            false value for fn.
       */
 
       throw new Error("transaction expected a function");
@@ -140,6 +140,10 @@
       this.fn = null;
       this.run();
     } catch (err) {
+      /*
+            If "fn" throws, we must report the whole transaction as failed.
+      */
+
       this.db.startNextTransaction();
       if (this.error) {
         this.error(err);
@@ -209,8 +213,8 @@
             return tx.abort(txFailure);
           } else if (tx.executes.length > 0) {
             /*
-                        # new requests have been issued by the callback
-                        # handlers, so run another batch.
+                        new requests have been issued by the callback
+                        handlers, so run another batch.
             */
 
             return tx.run();
@@ -310,10 +314,10 @@
   };
   SQLiteFactory = {
     /*
-        # NOTE: this function should NOT be translated from Javascript
-        # back to CoffeeScript by js2coffee.
-        # If this function is edited in Javascript then someone will
-        # have to translate it back to CoffeeScript by hand.
+        NOTE: this function should NOT be translated from Javascript
+        back to CoffeeScript by js2coffee.
+        If this function is edited in Javascript then someone will
+        have to translate it back to CoffeeScript by hand.
     */
 
     opendb: function() {
