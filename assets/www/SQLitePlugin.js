@@ -25,13 +25,14 @@
   };
   SQLitePlugin.prototype.openDBs = {};
   SQLitePlugin.prototype.txQ = [];
-  SQLitePlugin.prototype.transaction = function(fn, error, success) {
-    var t;
-    t = new SQLitePluginTransaction(this, fn, error, success);
+  SQLitePlugin.prototype.addTransaction = function(t) {
     this.txQ.push(t);
     if (this.txQ.length === 1) {
       t.start();
     }
+  };
+  SQLitePlugin.prototype.transaction = function(fn, error, success) {
+    this.addTransaction(new SQLitePluginTransaction(this, fn, error, success, true));
   };
   SQLitePlugin.prototype.startNextTransaction = function() {
     this.txQ.shift();
@@ -55,16 +56,27 @@
   pcb = function() {
     return 1;
   };
-
-  // XXX TBD fix callback(s):
   SQLitePlugin.prototype.executeSql = function(statement, params, success, error) {
-    console.log("SQLitePlugin::executeSql[Statement]");
-    pcb = success;
-    cordova.exec((function() {
-      return 1;
-    }), error, "SQLitePlugin", "executePragmaStatement", [this.dbname, statement, params]);
+    var myerror, myfn, mysuccess;
+    mysuccess = function(t, r) {
+      if (!!success) {
+        return success(r);
+      }
+    };
+    myerror = function(t, e) {
+      if (!!error) {
+        return error(e);
+      }
+    };
+    myfn = function(tx) {
+      return tx.executeSql(statement, params, mysuccess, myerror);
+    };
+    this.addTransaction(new SQLitePluginTransaction(this, myfn, myerror, mysuccess, false));
   };
-  // DEPRECATED AND WILL BE REMOVED:
+  /*
+    # DEPRECATED AND WILL BE REMOVED:
+  */
+
   SQLitePlugin.prototype.executePragmaStatement = function(statement, success, error) {
     console.log("SQLitePlugin::executePragmaStatement");
     pcb = success;
@@ -72,6 +84,9 @@
       return 1;
     }), error, "SQLitePlugin", "executePragmaStatement", [this.dbname, statement]);
   };
+  /*
+    FUTURE TBD GONE: Required for db.executePragmStatement() callback ONLY:
+  */
 
   SQLitePluginCallback = {
     p1: function(id, result) {
@@ -88,19 +103,33 @@
   get_unique_id = function() {
     return ++uid;
   };
-  SQLitePluginTransaction = function(db, fn, error, success) {
+  /*
+    Transaction batching object:
+  */
+
+  SQLitePluginTransaction = function(db, fn, error, success, txlock) {
     this.trid = get_unique_id();
     if (typeof fn !== "function") {
+      /*
+            # This is consistent with the implementation in Chrome -- it
+            # throws if you pass anything other than a function. This also
+            # prevents us from stalling our txQueue if somebody passes a
+            # false value for fn.
+      */
+
       throw new Error("transaction expected a function");
     }
     this.db = db;
     this.fn = fn;
     this.error = error;
     this.success = success;
+    this.txlock = txlock;
     this.executes = [];
-    this.executeSql("BEGIN", [], null, function(tx, err) {
-      throw new Error("unable to begin transaction: " + err.message);
-    });
+    if (txlock) {
+      this.executeSql("BEGIN", [], null, function(tx, err) {
+        throw new Error("unable to begin transaction: " + err.message);
+      });
+    }
   };
   SQLitePluginTransaction.prototype.start = function() {
     try {
@@ -177,11 +206,16 @@
         }
         if (--waiting === 0) {
           if (txFailure) {
-            return tx.rollBack(txFailure);
+            return tx.abort(txFailure);
           } else if (tx.executes.length > 0) {
+            /*
+                        # new requests have been issued by the callback
+                        # handlers, so run another batch.
+            */
+
             return tx.run();
           } else {
-            return tx.commit();
+            return tx.finish();
           }
         }
       };
@@ -222,13 +256,13 @@
     };
     cordova.exec(mycb, null, "SQLitePlugin", "executeSqlBatch", [this.db.dbname, tropts]);
   };
-  SQLitePluginTransaction.prototype.rollBack = function(txFailure) {
+  SQLitePluginTransaction.prototype.abort = function(txFailure) {
     var failed, succeeded, tx;
     if (this.finalized) {
       return;
     }
     tx = this;
-    succeeded = function() {
+    succeeded = function(tx) {
       tx.db.startNextTransaction();
       if (tx.error) {
         return tx.error(txFailure);
@@ -241,16 +275,20 @@
       }
     };
     this.finalized = true;
-    this.executeSql("ROLLBACK", [], succeeded, failed);
-    this.run();
+    if (this.txlock) {
+      this.executeSql("ROLLBACK", [], succeeded, failed);
+      this.run();
+    } else {
+      succeeded(tx);
+    }
   };
-  SQLitePluginTransaction.prototype.commit = function() {
+  SQLitePluginTransaction.prototype.finish = function() {
     var failed, succeeded, tx;
     if (this.finalized) {
       return;
     }
     tx = this;
-    succeeded = function() {
+    succeeded = function(tx) {
       tx.db.startNextTransaction();
       if (tx.success) {
         return tx.success();
@@ -263,14 +301,21 @@
       }
     };
     this.finalized = true;
-    this.executeSql("COMMIT", [], succeeded, failed);
-    this.run();
+    if (this.txlock) {
+      this.executeSql("COMMIT", [], succeeded, failed);
+      this.run();
+    } else {
+      succeeded(tx);
+    }
   };
   SQLiteFactory = {
-    // NOTE: this function should NOT be translated from Javascript
-    // back to CoffeeScript by js2coffee.
-    // If this function is edited in Javascript then someone will
-    // have to translate it back to CoffeeScript by hand.
+    /*
+        # NOTE: this function should NOT be translated from Javascript
+        # back to CoffeeScript by js2coffee.
+        # If this function is edited in Javascript then someone will
+        # have to translate it back to CoffeeScript by hand.
+    */
+
     opendb: function() {
       var errorcb, first, okcb, openargs;
       if (arguments.length < 1) {
@@ -302,6 +347,10 @@
       return new SQLitePlugin(openargs, okcb, errorcb);
     }
   };
+  /*
+    FUTURE TBD GONE: Required for db.executePragmStatement() callback ONLY:
+  */
+
   root.SQLitePluginCallback = SQLitePluginCallback;
   return root.sqlitePlugin = {
     sqliteFeatures: {

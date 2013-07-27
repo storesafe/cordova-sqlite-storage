@@ -31,11 +31,14 @@ do ->
 
   SQLitePlugin::txQ = []
 
-  SQLitePlugin::transaction = (fn, error, success) ->
-    t = new SQLitePluginTransaction(this, fn, error, success)
+  SQLitePlugin::addTransaction = (t) ->
     @txQ.push t
     if @txQ.length is 1
       t.start()
+    return
+
+  SQLitePlugin::transaction = (fn, error, success) ->
+    @addTransaction new SQLitePluginTransaction(this, fn, error, success, true)
     return
 
   SQLitePlugin::startNextTransaction = ->
@@ -63,14 +66,19 @@ do ->
 
   pcb = -> 1
 
-  # XXX TBD fix callback(s):
   SQLitePlugin::executeSql = (statement, params, success, error) ->
-    console.log "SQLitePlugin::executeSql[Statement]"
-    pcb = success
-    cordova.exec (-> 1), error, "SQLitePlugin", "executePragmaStatement", [@dbname, statement, params]
+    mysuccess = (t, r) -> if !!success then success r
+    myerror = (t, e) -> if !!error then error e
+
+    myfn = (tx) ->
+      tx.executeSql(statement, params, mysuccess, myerror)
+
+    @addTransaction new SQLitePluginTransaction(this, myfn, myerror, mysuccess, false)
     return
-  
+
+  ###
   # DEPRECATED AND WILL BE REMOVED:
+  ###
   SQLitePlugin::executePragmaStatement = (statement, success, error) ->
     console.log "SQLitePlugin::executePragmaStatement"
     pcb = success
@@ -78,6 +86,9 @@ do ->
     cordova.exec (-> 1), error, "SQLitePlugin", "executePragmaStatement", [ @dbname, statement ]
     return
 
+  ###
+  FUTURE TBD GONE: Required for db.executePragmStatement() callback ONLY:
+  ###
   SQLitePluginCallback =
     p1: (id, result) ->
       console.log "PRAGMA CB"
@@ -92,23 +103,33 @@ do ->
 
   get_unique_id = -> ++uid
 
-  SQLitePluginTransaction = (db, fn, error, success) ->
+  ###
+  Transaction batching object:
+  ###
+  SQLitePluginTransaction = (db, fn, error, success, txlock) ->
     # XXX TBD remove from here & Android Java impl:
     @trid = get_unique_id()
 
     if typeof(fn) != "function"
+      ###
       # This is consistent with the implementation in Chrome -- it
       # throws if you pass anything other than a function. This also
       # prevents us from stalling our txQueue if somebody passes a
       # false value for fn.
+      ###
       throw new Error("transaction expected a function")
+
     @db = db
     @fn = fn
     @error = error
     @success = success
+    @txlock = txlock
     @executes = []
-    @executeSql "BEGIN", [], null, (tx, err) ->
-      throw new Error("unable to begin transaction: " + err.message)
+
+    if txlock
+      @executeSql "BEGIN", [], null, (tx, err) ->
+        throw new Error("unable to begin transaction: " + err.message)
+
     return
 
   SQLitePluginTransaction::start = ->
@@ -184,13 +205,15 @@ do ->
 
         if --waiting == 0
           if txFailure
-            tx.rollBack txFailure
+            tx.abort txFailure
           else if tx.executes.length > 0
+            ###
             # new requests have been issued by the callback
             # handlers, so run another batch.
+            ###
             tx.run()
           else
-            tx.commit()
+            tx.finish()
 
     i = 0
 
@@ -235,11 +258,11 @@ do ->
 
     return
 
-  SQLitePluginTransaction::rollBack = (txFailure) ->
+  SQLitePluginTransaction::abort = (txFailure) ->
     if @finalized then return
     tx = @
 
-    succeeded = ->
+    succeeded = (tx) ->
       tx.db.startNextTransaction()
       if tx.error then tx.error txFailure
 
@@ -248,15 +271,20 @@ do ->
       if tx.error then tx.error new Error("error while trying to roll back: " + err.message)
 
     @finalized = true
-    @executeSql "ROLLBACK", [], succeeded, failed
-    @run()
+
+    if @txlock
+      @executeSql "ROLLBACK", [], succeeded, failed
+      @run()
+    else
+      succeeded(tx)
+
     return
 
-  SQLitePluginTransaction::commit = ->
+  SQLitePluginTransaction::finish = ->
     if @finalized then return
     tx = @
 
-    succeeded = ->
+    succeeded = (tx) ->
       tx.db.startNextTransaction()
       if tx.success then tx.success()
 
@@ -265,15 +293,22 @@ do ->
       if tx.error then tx.error new Error("error while trying to commit: " + err.message)
 
     @finalized = true
-    @executeSql "COMMIT", [], succeeded, failed
-    @run()
+
+    if @txlock
+      @executeSql "COMMIT", [], succeeded, failed
+      @run()
+    else
+      succeeded(tx)
+
     return
 
   SQLiteFactory =
+    ###
     # NOTE: this function should NOT be translated from Javascript
     # back to CoffeeScript by js2coffee.
     # If this function is edited in Javascript then someone will
     # have to translate it back to CoffeeScript by hand.
+    ###
     opendb: ->
       if arguments.length < 1 then return null
 
@@ -298,7 +333,9 @@ do ->
 
       new SQLitePlugin openargs, okcb, errorcb
 
-  # XXX TBD GONE: Required for single-SQL callbacks:
+  ###
+  FUTURE TBD GONE: Required for db.executePragmStatement() callback ONLY:
+  ###
   root.SQLitePluginCallback = SQLitePluginCallback
 
   root.sqlitePlugin =
