@@ -3,7 +3,7 @@
   root = this;
   SQLitePlugin = function(openargs, openSuccess, openError) {
     var dbname;
-    console.log("SQLitePlugin");
+    console.log("SQLitePlugin openargs: " + (JSON.stringify(openargs)));
     if (!(openargs && openargs['name'])) {
       throw new Error("Cannot create a SQLitePlugin instance without a db name");
     }
@@ -18,6 +18,7 @@
     this.openError || (this.openError = function(e) {
       return console.log(e.message);
     });
+    this.bg = !!openargs.bgType && openargs.bgType === 1;
     this.open(this.openSuccess, this.openError);
   };
   SQLitePlugin.prototype.databaseFeatures = {
@@ -47,7 +48,6 @@
     }
   };
   SQLitePlugin.prototype.close = function(success, error) {
-    console.log("SQLitePlugin.prototype.close");
     if (this.dbname in this.openDBs) {
       delete this.openDBs[this.dbname];
       cordova.exec(null, null, "SQLitePlugin", "close", [this.dbname]);
@@ -188,7 +188,7 @@
     }
   };
   SQLitePluginTransaction.prototype.run = function() {
-    var batchExecutes, handlerFor, i, mycb, mycbmap, qid, request, tropts, tx, txFailure, waiting;
+    var batchExecutes, handlerFor, i, mycb, mycbmap, mycommand, qid, request, tropts, tx, txFailure, waiting;
     txFailure = null;
     tropts = [];
     batchExecutes = this.executes;
@@ -243,7 +243,6 @@
     }
     mycb = function(cbResult) {
       var q, r, res, result, type, _i, _len;
-      console.log("mycb cbResult " + (JSON.stringify(cbResult)));
       result = cbResult.result;
       for (_i = 0, _len = result.length; _i < _len; _i++) {
         r = result[_i];
@@ -258,7 +257,8 @@
         }
       }
     };
-    cordova.exec(mycb, null, "SQLitePlugin", "executeSqlBatch", [this.db.dbname, tropts]);
+    mycommand = this.db.bg ? "backgroundExecuteSqlBatch" : "executeSqlBatch";
+    cordova.exec(mycb, null, "SQLitePlugin", mycommand, [this.db.dbname, tropts]);
   };
   SQLitePluginTransaction.prototype.abort = function(txFailure) {
     var failed, succeeded, tx;

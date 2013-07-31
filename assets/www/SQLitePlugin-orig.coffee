@@ -2,7 +2,7 @@ do ->
   root = @
 
   SQLitePlugin = (openargs, openSuccess, openError) ->
-    console.log "SQLitePlugin"
+    console.log "SQLitePlugin openargs: #{JSON.stringify openargs}"
 
     if !(openargs and openargs['name'])
       throw new Error("Cannot create a SQLitePlugin instance without a db name")
@@ -22,6 +22,8 @@ do ->
     @openError or
       @openError = (e) ->
         console.log e.message
+
+    @bg = !!openargs.bgType and openargs.bgType == 1
 
     @open @openSuccess, @openError
     return
@@ -55,7 +57,7 @@ do ->
     return
 
   SQLitePlugin::close = (success, error) ->
-    console.log "SQLitePlugin.prototype.close"
+    #console.log "SQLitePlugin.prototype.close"
 
     if @dbname of @openDBs
       delete @openDBs[@dbname]
@@ -240,7 +242,7 @@ do ->
       i++
 
     mycb = (cbResult) ->
-      console.log "mycb cbResult #{JSON.stringify cbResult}"
+      #console.log "mycb cbResult #{JSON.stringify cbResult}"
 
       result = cbResult.result
 
@@ -257,7 +259,8 @@ do ->
 
       return
 
-    cordova.exec mycb, null, "SQLitePlugin", "executeSqlBatch", [ @db.dbname, tropts ]
+    mycommand = if @db.bg then "backgroundExecuteSqlBatch" else "executeSqlBatch"
+    cordova.exec mycb, null, "SQLitePlugin", mycommand, [ @db.dbname, tropts ]
 
     return
 

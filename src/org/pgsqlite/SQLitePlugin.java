@@ -253,7 +253,9 @@ public class SQLitePlugin extends CordovaPlugin
 
 		this.cordova.getThreadPool().execute(new Runnable() {
 			public void run() {
-				myself.executeSqlBatch(dbName, queryarr, jsonparams, queryIDs, tx_id, cbc);
+				synchronized(myself) {
+					myself.executeSqlBatch(dbName, queryarr, jsonparams, queryIDs, tx_id, cbc);
+				}
 			}
 		});
 	}
