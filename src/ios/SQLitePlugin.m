@@ -148,7 +148,9 @@ static int base64_encode_blockend(char* code_out,
     self = (SQLitePlugin*)[super initWithWebView:theWebView];
     if (self) {
         openDBs = [NSMutableDictionary dictionaryWithCapacity:0];
+#if !__has_feature(objc_arc)
         [openDBs retain];
+#endif
 
         NSString *docs = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
         NSLog(@"Detected docs path: %@", docs);
@@ -478,9 +480,11 @@ static int base64_encode_blockend(char* code_out,
         sqlite3_close (db);
     }
 
+#if !__has_feature(objc_arc)
     [openDBs release];
     [appDocsPath release];
     [super dealloc];
+#endif
 }
 
 +(NSDictionary *)captureSQLiteErrorFromDb:(sqlite3 *)db
