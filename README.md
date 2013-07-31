@@ -4,7 +4,7 @@ Native interface to sqlite in a Cordova/PhoneGap plugin, working to follow the H
 
 Created by @joenoon and @davibe
 
-API changes by @brodyspark (Chris Brody)
+API changes by @brodybits (Chris Brody)
 
 iOS nested transaction callback support by @ef4 (Edward Faulkner)
 
@@ -267,5 +267,5 @@ Using the `db` option you can create multiple stores in one sqlite file. (There 
 - Reporting issues to the [pgsqlite forum](http://groups.google.com/group/pgsqlite) can help improve the quality of this plugin.
 - Patches with bug fixes are helpful, especially when submitted with test code.
 - Other enhancements will be considered if they do not increase the complexity of this plugin.
-- All contributions may be reused by [@brodyspark](https://github.com/brodyspark) under another license in the future. Efforts will be taken to give credit for major contributions but it will not be guaranteed.
+- All contributions may be reused by [@brodybits (Chris Brody)](https://github.com/brodybits) under another license in the future. Efforts will be taken to give credit for major contributions but it will not be guaranteed.
 
