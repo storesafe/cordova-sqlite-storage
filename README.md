@@ -31,7 +31,9 @@ License for this version: MIT or Apache
 
 - The db version, display name, and size parameter values are not supported and will be ignored.
 - The sqlite plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**.
-- This version is missing automatic transaction rollback upon failure.
+- For Android below SDK 11:
+ - the data that is stored is of type 'TEXT' regardless of the schema
+ - `rowsAffected` is not returned for INSERT or DELETE statement
 
 ## Other versions
 
