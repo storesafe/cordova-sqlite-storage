@@ -131,22 +131,23 @@ In this case, the same transaction in the first executeSql() callback is being r
 
 This case will also works with WebKit, assuming you replace window.sqlitePlugin.openDatabase with window.openDatabase.
 
-# Installing
+# Installation
 
-**NOTE:** There are now the following trees:
+**NOTE:** This plugin is now prepared to be installed using either the `plugman` or `cordova` tool.
 
-- `assets`: contains Javascript
+## Source tree
+
+- `cs`: Coffeescript version
+- `www`: Javascript
 - `src`: Android Java code
 - `test-www`: simple testing in `index.html` using qunit 1.5.0
 
-## Android platform installation
-
-**NOTE:** Cordova/PhoneGap 3.0 is not supported yet, still upcoming.
+## Manual installation
 
 These installation instructions are based on the Android example project from Cordova/PhoneGap 2.7.0. For your first time please unzip the PhoneGap 2.7 zipball and use the `lib/android/example` subdirectory.
 
- - Install assets/www/SQLitePlugin.js from this repository into assets/www subdirectory
- - Install org/pgsqlite/SQLitePlugin.java from this repository into src/org/pgsqlite subdirectory
+ - Install www/SQLitePlugin.js from this repository into assets/www subdirectory
+ - Install src/android/org/pgsqlite/SQLitePlugin.java from this repository into src/org/pgsqlite subdirectory
  - Add the plugin element <plugin name="SQLitePlugin" value="org.pgsqlite.SQLitePlugin"/> to res/xml/config.xml
 
 Sample change to res/xml/config.xml:
