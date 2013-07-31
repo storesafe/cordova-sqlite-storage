@@ -43,28 +43,33 @@ if (!window.Cordova) window.Cordova = window.cordova;
     this.openError || (this.openError = function(e) {
       console.log(e.message);
     });
-
+    this.bg = !!dbargs.bgType && dbargs.bgType === 1;
     this.open(this.openSuccess, this.openError);
   };
 
   SQLitePlugin.prototype.openDBs = {};
   SQLitePlugin.prototype.txQueue = [];
   SQLitePlugin.prototype.databaseFeatures = { isSQLitePluginDatabase: true };
-  // DEPRECATED AND WILL BE REMOVED:
+  /*
+    DEPRECATED AND WILL BE REMOVED:
+  */
   SQLitePlugin.prototype.features = { isSQLitePlugin: true };
-
-  // DEPRECATED AND WILL BE REMOVED:
+  /*
+    DEPRECATED AND WILL BE REMOVED:
+  */
   SQLitePlugin.prototype.executePragmaStatement = function(sql, success, error) {
     if (!sql) throw new Error("Cannot executeSql without a query");
     var mysuccesscb = function(res) {
       success(res.rows);
     };
-    exec("backgroundExecuteSql", { query: [sql], path: this.dbname }, mysuccesscb, error);
+    mycommand = this.db.bg ? "backgroundExecuteSql" : "executeSql";
+    exec(mycommand, { query: [sql], path: this.dbname }, mysuccesscb, error);
   };
 
   SQLitePlugin.prototype.executeSql = function(sql, values, success, error) {
     if (!sql) throw new Error("Cannot executeSql without a query");
-    exec("backgroundExecuteSql", { query: [sql].concat(values || []), path: this.dbname }, success, error);
+    mycommand = this.db.bg ? "backgroundExecuteSql" : "executeSql";
+    exec(mycommand, { query: [sql].concat(values || []), path: this.dbname }, success, error);
   };
 
   // API TBD subect to change:
@@ -266,8 +271,8 @@ if (!window.Cordova) window.Cordova = window.cordova;
         }
       }
     };
-
-    exec("backgroundExecuteSqlBatch", {executes: opts}, success, error);
+    mycommand = this.db.bg ? "backgroundExecuteSqlBatch" : "executeSqlBatch";
+    exec(mycommand, {executes: opts}, success, error);
   };
 
   SQLitePluginTransaction.prototype.rollBack = function(txFailure) {
