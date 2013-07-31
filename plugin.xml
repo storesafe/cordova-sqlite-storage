@@ -4,24 +4,20 @@
     version="1.0.0">
 
     <name>SQLitePlugin</name>
-	
+
     <engines>
-        <engine name="cordova" version="2.4.0" />
+        <engine name="cordova" version=">=2.5.0" />
     </engines>
-	
-    <asset src="www/SQLitePlugin.js" target="js/SQLitePlugin.js" />
+
+    <asset src="www/SQLitePlugin.js" target="SQLitePlugin.js" />
 
     <!-- ios -->
     <platform name="ios">
-        <!-- Cordova 2.2 -->
-        <plugins-plist key="SQLitePlugin" string="SQLitePlugin" />
-                    
-        <!-- Cordova 2.5+ -->
         <config-file target="config.xml" parent="/widget/plugins">
                 <plugin name="SQLitePlugin" value="SQLitePlugin"/>
         </config-file>
 
-        <!-- Note: the ios src is based off src/ios implicitly --> 
+        <!-- Note: the ios src is based off src/ios implicitly -->
         <header-file src="src/ios/SQLitePlugin.h" />
         <source-file src="src/ios/SQLitePlugin.m" />
         <framework src="libsqlite3.dylib" />
