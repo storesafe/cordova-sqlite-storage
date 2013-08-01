@@ -1,5 +1,5 @@
 (function() {
-  var SQLiteFactory, SQLitePlugin, SQLitePluginCallback, SQLitePluginTransaction, get_unique_id, pcb, root, uid;
+  var SQLiteFactory, SQLitePlugin, SQLitePluginCallback, SQLitePluginTransaction, pcb, root;
   root = this;
   SQLitePlugin = function(openargs, openSuccess, openError) {
     var dbname;
@@ -99,16 +99,11 @@
       mycb(result);
     }
   };
-  uid = 1000;
-  get_unique_id = function() {
-    return ++uid;
-  };
   /*
     Transaction batching object:
   */
 
   SQLitePluginTransaction = function(db, fn, error, success, txlock) {
-    this.trid = get_unique_id();
     if (typeof fn !== "function") {
       /*
             This is consistent with the implementation in Chrome -- it
@@ -152,13 +147,13 @@
   };
   SQLitePluginTransaction.prototype.executeSql = function(sql, values, success, error) {
     var qid;
-    qid = get_unique_id();
+    qid = this.executes.length;
     this.executes.push({
       success: success,
       error: error,
       qid: qid,
       sql: sql,
-      params: values
+      params: values || []
     });
   };
   SQLitePluginTransaction.prototype.handleStatementSuccess = function(handler, response) {
@@ -234,16 +229,15 @@
         error: handlerFor(i, false)
       };
       tropts.push({
-        trans_id: this.trid,
-        query_id: qid,
-        query: request.sql,
-        params: request.params || []
+        qid: qid,
+        query: [request.sql].concat(request.params),
+        sql: request.sql,
+        params: request.params
       });
       i++;
     }
-    mycb = function(cbResult) {
-      var q, r, res, result, type, _i, _len;
-      result = cbResult.result;
+    mycb = function(result) {
+      var q, r, res, type, _i, _len;
       for (_i = 0, _len = result.length; _i < _len; _i++) {
         r = result[_i];
         type = r.type;
@@ -258,7 +252,14 @@
       }
     };
     mycommand = this.db.bg ? "backgroundExecuteSqlBatch" : "executeSqlBatch";
-    cordova.exec(mycb, null, "SQLitePlugin", mycommand, [this.db.dbname, tropts]);
+    cordova.exec(mycb, null, "SQLitePlugin", mycommand, [
+      {
+        dbargs: {
+          dbname: this.db.dbname
+        },
+        executes: tropts
+      }
+    ]);
   };
   SQLitePluginTransaction.prototype.abort = function(txFailure) {
     var failed, succeeded, tx;

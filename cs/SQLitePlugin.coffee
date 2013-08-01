@@ -101,17 +101,10 @@ do ->
 
       return
 
-  uid = 1000
-
-  get_unique_id = -> ++uid
-
   ###
   Transaction batching object:
   ###
   SQLitePluginTransaction = (db, fn, error, success, txlock) ->
-    # XXX TBD remove from here & Android Java impl:
-    @trid = get_unique_id()
-
     if typeof(fn) != "function"
       ###
       This is consistent with the implementation in Chrome -- it
@@ -151,7 +144,7 @@ do ->
     return
 
   SQLitePluginTransaction::executeSql = (sql, values, success, error) ->
-    qid = get_unique_id()
+    qid = @executes.length
 
     @executes.push
       success: success
@@ -159,7 +152,7 @@ do ->
       qid: qid
 
       sql: sql
-      params: values
+      params: values || []
 
     return
 
@@ -234,17 +227,16 @@ do ->
         error: handlerFor(i, false)
 
       tropts.push
-        trans_id: @trid
-        query_id: qid
-        query: request.sql
-        params: request.params || []
+        qid: qid
+        # for ios version:
+        query: [request.sql].concat(request.params)
+        sql: request.sql
+        params: request.params
 
       i++
 
-    mycb = (cbResult) ->
-      #console.log "mycb cbResult #{JSON.stringify cbResult}"
-
-      result = cbResult.result
+    mycb = (result) ->
+      #console.log "mycb result #{JSON.stringify result}"
 
       for r in result
         type = r.type
@@ -260,7 +252,7 @@ do ->
       return
 
     mycommand = if @db.bg then "backgroundExecuteSqlBatch" else "executeSqlBatch"
-    cordova.exec mycb, null, "SQLitePlugin", mycommand, [ @db.dbname, tropts ]
+    cordova.exec mycb, null, "SQLitePlugin", mycommand, [{dbargs: {dbname: @db.dbname}, executes: tropts}]
 
     return
 
