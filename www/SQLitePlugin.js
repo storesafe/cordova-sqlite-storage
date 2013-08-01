@@ -57,6 +57,7 @@ if (!window.Cordova) window.Cordova = window.cordova;
   /*
     DEPRECATED AND WILL BE REMOVED:
   */
+  /**
   SQLitePlugin.prototype.executePragmaStatement = function(sql, success, error) {
     if (!sql) throw new Error("Cannot executeSql without a query");
     var mysuccesscb = function(res) {
@@ -65,18 +66,24 @@ if (!window.Cordova) window.Cordova = window.cordova;
     mycommand = this.db.bg ? "backgroundExecuteSql" : "executeSql";
     exec(mycommand, { query: [sql], path: this.dbname }, mysuccesscb, error);
   };
+  **/
 
+  /** XXX TBD:
   SQLitePlugin.prototype.executeSql = function(sql, values, success, error) {
     if (!sql) throw new Error("Cannot executeSql without a query");
     mycommand = this.db.bg ? "backgroundExecuteSql" : "executeSql";
     exec(mycommand, { query: [sql].concat(values || []), path: this.dbname }, success, error);
+    //exec(mycommand, {dbargs:{dbname:this.dbname}, {ex:{ query: [sql].concat(values || []), path: this.dbname }}, success, error);
   };
+  **/
 
   // API TBD subect to change:
+  /**
   SQLitePlugin.prototype.$executeSqlNow = function(sql, values, success, error) {
     if (!sql) throw new Error("Cannot executeSql without a query");
     exec("executeSql", { query: [sql].concat(values || []), path: this.dbname }, success, error);
   };
+  **/
 
   SQLitePlugin.prototype.transaction = function(fn, error, success) {
     var t = new SQLitePluginTransaction(this, fn, error, success);
@@ -161,8 +168,12 @@ if (!window.Cordova) window.Cordova = window.cordova;
   };
 
   SQLitePluginTransaction.prototype.executeSql = function(sql, values, success, error) {
+    var qid = this.executes.length;
+
     this.executes.push({
-      query: [sql].concat(values || []),
+      qid: qid,
+      sql: sql,
+      params: values || [],
       success: success,
       error: error
     });
@@ -223,8 +234,10 @@ if (!window.Cordova) window.Cordova = window.cordova;
     for (var i=0; i<batchExecutes.length; i++) {
       var request = batchExecutes[i];
       opts.push({
-        query: request.query,
-        path: this.db.dbname
+        qid: request.qid,
+        query: [request.sql].concat(request.params),
+        sql: request.sql,
+        params: request.params
       });
     }
 
@@ -267,12 +280,14 @@ if (!window.Cordova) window.Cordova = window.cordova;
       }
       else {
         for (var j = 0; j < results.length; ++j) {
-          handleFor(j, true, results[j]);
+          var result = results[j].result;
+          handleFor(j, true, result);
         }
       }
     };
     mycommand = this.db.bg ? "backgroundExecuteSqlBatch" : "executeSqlBatch";
-    exec(mycommand, {executes: opts}, success, error);
+    var args = {dbargs: { dbname: this.db.dbname }, executes: opts};
+    exec(mycommand, args, success, error);
   };
 
   SQLitePluginTransaction.prototype.rollBack = function(txFailure) {

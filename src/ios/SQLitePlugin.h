@@ -54,7 +54,7 @@ typedef int WebSQLError;
 -(void) executeSql:(CDVInvokedUrlCommand*)command;
 
 // Perform the SQL request
--(CDVPluginResult*) executeSqlWithDict: (NSMutableDictionary*)dict;
+-(CDVPluginResult*) executeSqlWithDict: (NSMutableDictionary*)dict andArgs: (NSMutableDictionary*)dbargs;
 
 -(id) getDBPath:(id)dbFile;
 

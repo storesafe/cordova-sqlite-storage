@@ -218,6 +218,8 @@ static int base64_encode_blockend(char* code_out,
     }
 
     [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
+
+    // NSLog(@"open cb finished ok");
 }
 
 -(void) close: (CDVInvokedUrlCommand*)command
@@ -274,18 +276,28 @@ static int base64_encode_blockend(char* code_out,
 {
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
     NSMutableArray *results = [NSMutableArray arrayWithCapacity:0];
+    NSMutableDictionary *dbargs = [options objectForKey:@"dbargs"];
     NSMutableArray *executes = [options objectForKey:@"executes"];
+
     CDVPluginResult* pluginResult;
     NSDictionary *error = nil;
 
     @synchronized(self) {
         for (NSMutableDictionary *dict in executes) {
-            CDVPluginResult *result = [self executeSqlWithDict:dict];
+            CDVPluginResult *result = [self executeSqlWithDict:dict andArgs:dbargs];
             if ([result.status intValue] == CDVCommandStatus_ERROR) {
                 error = [result message];
                 break;
             }
-            [results addObject: result.message];
+
+            // add result with result.message:
+            {
+                NSMutableDictionary *r = [NSMutableDictionary dictionaryWithCapacity:0];
+                [r setObject:[dict objectForKey:@"qid"] forKey:@"qid"];
+                [r setObject:@"success" forKey:@"type"];
+                [r setObject:result.message forKey:@"result"];
+                [results addObject: r];
+            }
         }
 
         if (!error) {
@@ -311,16 +323,20 @@ static int base64_encode_blockend(char* code_out,
 -(void) executeSql: (CDVInvokedUrlCommand*)command
 {
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
+    NSMutableDictionary *dbargs = [options objectForKey:@"dbargs"];
+    NSMutableArray *ex = [options objectForKey:@"ex"];
+
     CDVPluginResult* pluginResult;
     @synchronized (self) {
-        pluginResult = [self executeSqlWithDict: options];
+        pluginResult = [self executeSqlWithDict: ex andArgs: dbargs];
     }
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
--(CDVPluginResult*) executeSqlWithDict: (NSMutableDictionary*)options
+-(CDVPluginResult*) executeSqlWithDict: (NSMutableDictionary*)options andArgs: (NSMutableDictionary*)dbargs
 {
-    NSString *dbPath = [self getDBPath:[options objectForKey:@"path"]];
+    NSString *dbPath = [self getDBPath:[dbargs objectForKey:@"dbname"]];
+
     NSMutableArray *query_parts = [options objectForKey:@"query"];
     NSString *query = [query_parts objectAtIndex:0];
 
