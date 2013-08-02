@@ -14,10 +14,8 @@ License for this version: MIT
 
 ## Announcements
 
-- Significant rewrite by [@j3k0 (Jean-Christophe Hoelt)](https://github.com/j3k0) to support `plugman` & background processing. To enable background processing open a database like: `var db = window.sqlitePlugin.openDatabase({name: "DB", bgType: 1});`
+- Significant rewrite by [@j3k0 (Jean-Christophe Hoelt)](https://github.com/j3k0) to support `plugman` & background processing.
 - Forum & community support at: http://groups.google.com/group/pgsqlite
-- The Android version is moved to [pgsqlite / PG-SQLitePlugin-Android](https://github.com/pgsqlite/PG-SQLitePlugin-Android).
-- New, optional interface to open a database like: `var db = window.sqlitePlugin.openDatabase({name: "DB"});`
 
 **NOTE:** This version now adds `.db` extension to the database file name to be more consistent with the Android version. If you are updating an existing iOS app that was using the old version at [brodyspark / PhoneGap-SQLitePlugin-iOS](https://github.com/brodyspark/PhoneGap-SQLitePlugin-iOS), please apply the following patch to read the existing database file:
 
@@ -42,8 +40,7 @@ As described in [a recent posting](http://brodyspark.blogspot.com/2012/12/cordov
 
 Some other highlights:
 - Drop-in replacement for HTML5 SQL API: the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
-- batch processing optimizations
-- [PRAGMA support](http://brodyspark.blogspot.com/2012/12/improvements-to-phonegap-sqliteplugin.html).
+- Fail-safe nested transactions with batch processing optimizations
 - [integration with SQLCipher for iOS](http://brodyspark.blogspot.com/2012/12/integrating-sqlcipher-with.html)
 
 ## Apps using Cordova/PhoneGap SQLitePlugin
@@ -58,7 +55,7 @@ Some other highlights:
 
 ## Other versions
 
-- Android version moved to new location: [pgsqlite / PG-SQLitePlugin-Android](https://github.com/pgsqlite/PG-SQLitePlugin-Android).
+- Android version: [pgsqlite / PG-SQLitePlugin-Android](https://github.com/pgsqlite/PG-SQLitePlugin-Android).
 - Windows Phone 8+ version: https://github.com/marcucio/Cordova-WP-SqlitePlugin
 - iOS enhancements, with extra fixes for console log messages: https://github.com/mineshaftgap/Cordova-SQLitePlugin
 - Original iOS version with a different API: https://github.com/davibe/Phonegap-SQLitePlugin
@@ -84,6 +81,12 @@ There are two options to open a database:
       var db = window.sqlitePlugin.openDatabase({name: "DB"});
       // ...
     }
+
+## Background processing
+
+To enable background processing open a database like:
+
+    var db = window.sqlitePlugin.openDatabase({name: "DB", bgType: 1});
 
 # Sample with PRAGMA feature
 
