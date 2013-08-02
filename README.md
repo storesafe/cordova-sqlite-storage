@@ -10,7 +10,7 @@ License for this version: MIT or Apache
 
 ## Announcements
 
-- This version has been updated to support background processing. To enable background processing open a database like: `var db = window.sqlitePlugin.openDatabase({name: "DB", bgType: 1}});`
+- This version has been updated to support background processing. To enable background processing open a database like: `var db = window.sqlitePlugin.openDatabase({name: "DB", bgType: 1});`
 - Forum & community support at: http://groups.google.com/group/pgsqlite
 - New, optional interface to open a database like: `var db = window.sqlitePlugin.openDatabase({name: "DB"});`
  
