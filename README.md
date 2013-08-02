@@ -51,8 +51,7 @@ There are two options to open a database:
 - Recommended: `var db = window.sqlitePlugin.openDatabase({name: "DB"});`
 - Classical: `var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);`
 
-**NOTES:**
-Please wait for the "deviceready" event, as in the following example:
+**IMPORTANT:** Please wait for the "deviceready" event, as in the following example:
 
     // Wait for Cordova to load
     document.addEventListener("deviceready", onDeviceReady, false);
@@ -63,7 +62,7 @@ Please wait for the "deviceready" event, as in the following example:
       // ...
     }
 
-The database file is created with `.db` extension.
+**NOTE:** The database file is created with `.db` extension.
 
 ## Background processing
 
@@ -161,7 +160,7 @@ These installation instructions are based on the Android example project from Co
 
  - Install www/SQLitePlugin.js from this repository into assets/www subdirectory
  - Install src/android/org/pgsqlite/SQLitePlugin.java from this repository into src/org/pgsqlite subdirectory
- - Add the plugin element <plugin name="SQLitePlugin" value="org.pgsqlite.SQLitePlugin"/> to res/xml/config.xml
+ - Add the plugin element `<plugin name="SQLitePlugin" value="org.pgsqlite.SQLitePlugin"/>` to res/xml/config.xml
 
 Sample change to res/xml/config.xml:
 
