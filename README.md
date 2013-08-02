@@ -17,21 +17,6 @@ License for this version: MIT
 - Significant rewrite by [@j3k0 (Jean-Christophe Hoelt)](https://github.com/j3k0) to support `plugman` & background processing.
 - Forum & community support at: http://groups.google.com/group/pgsqlite
 
-**NOTE:** This version now adds `.db` extension to the database file name to be more consistent with the Android version. If you are updating an existing iOS app that was using the old version at [brodyspark / PhoneGap-SQLitePlugin-iOS](https://github.com/brodyspark/PhoneGap-SQLitePlugin-iOS), please apply the following patch to read the existing database file:
-
-    --- a/www/SQLitePlugin.js
-    +++ b/www/SQLitePlugin.js
-    @@ -32,8 +32,7 @@ if (!window.Cordova) window.Cordova = window.cordova;
-         }
-     
-         this.dbargs = dbargs;
-    -    this.dbname = dbargs.name + ".db";
-    -    dbargs.name = this.dbname;
-    +    this.dbname = dbargs.name;
-     
-         this.openSuccess = openSuccess;
-         this.openError = openError;
-
 ## Highlights
 
 As described in [a recent posting](http://brodyspark.blogspot.com/2012/12/cordovaphonegap-sqlite-plugins-offer.html):
@@ -60,8 +45,7 @@ Some other highlights:
 - iOS enhancements, with extra fixes for console log messages: https://github.com/mineshaftgap/Cordova-SQLitePlugin
 - Original iOS version with a different API: https://github.com/davibe/Phonegap-SQLitePlugin
 
-Usage
-=====
+# Usage
 
 The idea is to emulate the HTML5 SQL API as closely as possible. The only major change is to use window.sqlitePlugin.openDatabase() (or sqlitePlugin.openDatabase()) instead of window.openDatabase(). If you see any other major change please report it, it is probably a bug.
 
@@ -71,7 +55,7 @@ There are two options to open a database:
 - Recommended: `var db = window.sqlitePlugin.openDatabase({name: "DB"});`
 - Classical: `var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);`
 
-**NOTE:** Please wait for the "deviceready" event, as in the following example:
+**IMPORTANT:** Please wait for the "deviceready" event, as in the following example:
 
     // Wait for Cordova to load
     document.addEventListener("deviceready", onDeviceReady, false);
@@ -81,6 +65,8 @@ There are two options to open a database:
       var db = window.sqlitePlugin.openDatabase({name: "DB"});
       // ...
     }
+
+**NOTE:** The database file is created with `.db` extension.
 
 ## Background processing
 
