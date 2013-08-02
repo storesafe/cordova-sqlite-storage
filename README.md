@@ -41,8 +41,7 @@ License for this version: MIT or Apache
 - iOS version: [pgsqlite / PG-SQLitePlugin-iOS](https://github.com/pgsqlite/PG-SQLitePlugin-iOS)
 - Windows Phone 8+ version: https://github.com/marcucio/Cordova-WP-SqlitePlugin
 
-Usage
-=====
+# Usage
 
 The idea is to emulate the HTML5 SQL API as closely as possible. The only major change is to use window.sqlitePlugin.openDatabase() (or sqlitePlugin.openDatabase()) instead of window.openDatabase(). If you see any other major change and it is not reported under **known limitations** please report it, it is probably a bug.
 
@@ -53,7 +52,7 @@ There are two options to open a database:
 - Classical: `var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);`
 
 **NOTES:**
-- Please wait for the "deviceready" event, as in the following example:
+Please wait for the "deviceready" event, as in the following example:
 
     // Wait for Cordova to load
     document.addEventListener("deviceready", onDeviceReady, false);
@@ -64,7 +63,7 @@ There are two options to open a database:
       // ...
     }
 
-- The database file is created with `.db` extension.
+The database file is created with `.db` extension.
 
 ## Background processing
 
@@ -72,7 +71,7 @@ To enable background processing open a database like:
 
     var db = window.sqlitePlugin.openDatabase({name: "DB", bgType: 1});
 
-**NOTE:** As described in #known-limitations there is an issue in this version with background processing that affects transaction error handling and may affect nested transactions.
+**NOTE:** As described in **[Known limitations](#known-limitations)** there is an issue in this version with background processing that affects transaction error handling and may affect nested transactions.
 
 ## Sample with PRAGMA feature
 
