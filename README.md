@@ -14,7 +14,7 @@ License for this version: MIT
 
 ## Announcements
 
-- Significant rewrite by [@j3k0 (Jean-Christophe Hoelt)](https://github.com/j3k0) to support `plugman` & background processing. To enable background processing open a database like: `var db = window.sqlitePlugin.openDatabase({name: "DB", bgType: 1}});`
+- Significant rewrite by [@j3k0 (Jean-Christophe Hoelt)](https://github.com/j3k0) to support `plugman` & background processing. To enable background processing open a database like: `var db = window.sqlitePlugin.openDatabase({name: "DB", bgType: 1});`
 - Forum & community support at: http://groups.google.com/group/pgsqlite
 - The Android version is moved to [pgsqlite / PG-SQLitePlugin-Android](https://github.com/pgsqlite/PG-SQLitePlugin-Android).
 - New, optional interface to open a database like: `var db = window.sqlitePlugin.openDatabase({name: "DB"});`
