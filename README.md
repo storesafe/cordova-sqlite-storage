@@ -4,7 +4,7 @@ Native interface to sqlite in a Cordova/PhoneGap plugin, working to follow the H
 
 Extracted from DroidGap by @brodybits (Chris Brody)
 
-Batch proessing by @marcucio
+Transaction batch processing by @marcucio
 
 Fail-safe nested transaction support by @ef4 (Edward Faulkner)
 
@@ -12,18 +12,16 @@ License for this version: MIT or Apache
 
 ## Announcements
 
-- This version has been updated to support background processing. To enable background processing open a database like: `var db = window.sqlitePlugin.openDatabase({name: "DB", bgType: 1});`
+- This version has been updated to support background processing as an option.
 - Forum & community support at: http://groups.google.com/group/pgsqlite
-- New, optional interface to open a database like: `var db = window.sqlitePlugin.openDatabase({name: "DB"});`
  
 ## Highlights
 
 - Keeps sqlite database in a user data location that is known and can be reconfigured
 - Drop-in replacement for HTML5 SQL API, the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
-- batch processing optimizations
+- Fail-safe nested transactions with batch processing optimizations
 - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
 - Using [SQLCipher for Android](http://sqlcipher.net/sqlcipher-for-android/) for encryption: [blog posting](http://brodyspark.blogspot.com/2012/12/using-sqlcipher-for-android-with.html) & [enhancements to SQLCipher db classes for Android](http://brodyspark.blogspot.com/2012/12/enhancements-to-sqlcipher-db-classes.html)
-- [Improvements in the form of PRAGMAs & multiple database files (bug fix)](http://brodyspark.blogspot.com/2012/12/improvements-to-phonegap-sqliteplugin.html).
 
 ## Apps using Cordova/PhoneGap sqlite plugin (Android version)
 
@@ -36,6 +34,7 @@ License for this version: MIT or Apache
 - For Android below SDK 11:
  - the data that is stored is of type 'TEXT' regardless of the schema
  - `rowsAffected` is not returned for INSERT or DELETE statement
+- For this version, there is an issue with background processing that affects transaction error handling and may affect nested transactions.
 
 ## Other versions
 
@@ -53,7 +52,8 @@ There are two options to open a database:
 - Recommended: `var db = window.sqlitePlugin.openDatabase({name: "DB"});`
 - Classical: `var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);`
 
-**NOTE:** Please wait for the "deviceready" event, as in the following example:
+**NOTES:**
+- Please wait for the "deviceready" event, as in the following example:
 
     // Wait for Cordova to load
     document.addEventListener("deviceready", onDeviceReady, false);
@@ -63,6 +63,16 @@ There are two options to open a database:
       var db = window.sqlitePlugin.openDatabase({name: "DB"});
       // ...
     }
+
+- The database file is created with `.db` extension.
+
+## Background processing
+
+To enable background processing open a database like:
+
+    var db = window.sqlitePlugin.openDatabase({name: "DB", bgType: 1});
+
+**NOTE:** As described in #known-limitations there is an issue in this version with background processing that affects transaction error handling and may affect nested transactions.
 
 ## Sample with PRAGMA feature
 
