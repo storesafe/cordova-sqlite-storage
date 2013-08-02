@@ -4,7 +4,9 @@ Native interface to sqlite in a Cordova/PhoneGap plugin, working to follow the H
 
 Extracted from DroidGap by @brodybits (Chris Brody)
 
-Nested transaction callback support by @marcucio
+Batch proessing by @marcucio
+
+Fail-safe nested transaction support by @ef4 (Edward Faulkner)
 
 License for this version: MIT or Apache
 
