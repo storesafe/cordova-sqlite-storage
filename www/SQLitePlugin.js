@@ -237,16 +237,22 @@
       i++;
     }
     mycb = function(result) {
-      var q, r, res, type, _i, _len;
+      var isSuccess, q, r, res, _i, _len;
       for (_i = 0, _len = result.length; _i < _len; _i++) {
         r = result[_i];
-        type = r.type;
         qid = r.qid;
         res = r.result;
+        isSuccess = !r.error;
         q = mycbmap[qid];
         if (q) {
-          if (q[type]) {
-            q[type](res);
+          if (isSuccess) {
+            if (q.success) {
+              q.success(res);
+            }
+          } else {
+            if (q.error) {
+              q.error(r.error);
+            }
           }
         }
       }

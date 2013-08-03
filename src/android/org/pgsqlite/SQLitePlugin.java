@@ -291,6 +291,7 @@ public class SQLitePlugin extends CordovaPlugin
 
 			JSONObject queryResult = null;
 			String errorMessage = null;
+			int errorCode = 0;
 
 			try {
 				query = queryarr[i];
@@ -365,9 +366,16 @@ public class SQLitePlugin extends CordovaPlugin
 
 					myCursor.close();
 				}
+			} catch (SQLiteConstraintException ex) {
+				ex.printStackTrace();
+				errorMessage = ex.getMessage();
+				errorCode = 6; /* CONSTRAINT_ERR */
+				Log.v("executeSqlBatch", "SQLitePlugin.executeSql[Batch](): Error=" +  errorMessage);
+			// XXX TBD other SQLite exceptions to map...
 			} catch (Exception ex) {
 				ex.printStackTrace();
 				errorMessage = ex.getMessage();
+				errorCode = 0; /* UNKNOWN_ERR */
 				Log.v("executeSqlBatch", "SQLitePlugin.executeSql[Batch](): Error=" +  errorMessage);
 			}
 
@@ -376,7 +384,6 @@ public class SQLitePlugin extends CordovaPlugin
 					JSONObject r = new JSONObject();
 					r.put("qid", query_id);
 
-					r.put("type", "success");
 					r.put("result", queryResult);
 
 					batchResults.put(r);
@@ -384,8 +391,10 @@ public class SQLitePlugin extends CordovaPlugin
 					JSONObject r = new JSONObject();
 					r.put("qid", query_id);
 
-					r.put("type", "error");
-					r.put("result", errorMessage);
+					JSONObject e = new JSONObject();
+					e.put("message", errorMessage);
+					e.put("code", errorCode);
+					r.put("error", e);
 
 					batchResults.put(r);
 				}

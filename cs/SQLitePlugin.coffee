@@ -239,15 +239,20 @@ do ->
       #console.log "mycb result #{JSON.stringify result}"
 
       for r in result
-        type = r.type
         qid = r.qid
         res = r.result
+
+        isSuccess = !r.error
 
         q = mycbmap[qid]
 
         if q
-          if q[type]
-            q[type] res
+          if isSuccess
+            if q.success
+              q.success res
+          else
+            if q.error
+              q.error r.error
 
       return
 
