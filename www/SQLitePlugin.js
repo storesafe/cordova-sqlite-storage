@@ -57,25 +57,27 @@ if (!window.Cordova) window.Cordova = window.cordova;
   /*
     DEPRECATED AND WILL BE REMOVED:
   */
-  /**
   SQLitePlugin.prototype.executePragmaStatement = function(sql, success, error) {
     if (!sql) throw new Error("Cannot executeSql without a query");
-    var mysuccesscb = function(res) {
-      success(res.rows);
-    };
-    mycommand = this.db.bg ? "backgroundExecuteSql" : "executeSql";
-    exec(mycommand, { query: [sql], path: this.dbname }, mysuccesscb, error);
+    this.executeSql(sql, [], success, error);
   };
-  **/
 
-  /** XXX TBD:
   SQLitePlugin.prototype.executeSql = function(sql, values, success, error) {
     if (!sql) throw new Error("Cannot executeSql without a query");
-    mycommand = this.db.bg ? "backgroundExecuteSql" : "executeSql";
-    exec(mycommand, { query: [sql].concat(values || []), path: this.dbname }, success, error);
-    //exec(mycommand, {dbargs:{dbname:this.dbname}, {ex:{ query: [sql].concat(values || []), path: this.dbname }}, success, error);
+    var mycommand = this.bg ? "backgroundExecuteSql" : "executeSql";
+    var query = [sql].concat(values || []);
+    var args = {dbargs: { dbname: this.dbname }, ex: {query: query}};
+    var mysuccess = function (result) {
+      var response = result;
+      var payload = {
+        rows: { item: function (i) { return response.rows[i] }, length: response.rows.length},
+        rowsAffected: response.rowsAffected,
+        insertId: response.insertId || null
+      };
+      success(payload);
+    };
+    exec(mycommand, args, mysuccess, error);
   };
-  **/
 
   // API TBD subect to change:
   /**

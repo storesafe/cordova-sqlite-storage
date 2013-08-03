@@ -324,7 +324,7 @@ static int base64_encode_blockend(char* code_out,
 {
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
     NSMutableDictionary *dbargs = [options objectForKey:@"dbargs"];
-    NSMutableArray *ex = [options objectForKey:@"ex"];
+    NSMutableDictionary *ex = [options objectForKey:@"ex"];
 
     CDVPluginResult* pluginResult;
     @synchronized (self) {
