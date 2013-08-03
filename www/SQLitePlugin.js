@@ -243,6 +243,7 @@ if (!window.Cordova) window.Cordova = window.cordova;
       });
     }
 
+    // NOTE: this function is no longer expected to be called:
     var error = function (resultsAndError) {
         var results = resultsAndError.results;
         var nativeError = resultsAndError.error;
@@ -282,14 +283,20 @@ if (!window.Cordova) window.Cordova = window.cordova;
       }
       else {
         for (var j = 0; j < results.length; ++j) {
-          var result = results[j].result;
-          handleFor(j, true, result);
+          if (!results[j].error) {
+            var result = results[j].result;
+            handleFor(j, true, result);
+          } else {
+            var error = new Error('Request failed: ' + opts[j].query);
+            error.code = results[j].error.code;
+            handleFor(j, false, error);
+          }
         }
       }
     };
     mycommand = this.db.bg ? "backgroundExecuteSqlBatch" : "executeSqlBatch";
     var args = {dbargs: { dbname: this.db.dbname }, executes: opts};
-    exec(mycommand, args, success, error);
+    exec(mycommand, args, success, /* not expected: */ error);
   };
 
   SQLitePluginTransaction.prototype.rollBack = function(txFailure) {
