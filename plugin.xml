@@ -13,7 +13,7 @@
 
     <!-- ios -->
     <platform name="ios">
-        <config-file target="config.xml" parent="/widget/plugins">
+        <config-file target="config.xml" parent="/*">
                 <plugin name="SQLitePlugin" value="SQLitePlugin"/>
         </config-file>
 
