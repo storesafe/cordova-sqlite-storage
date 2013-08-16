@@ -239,6 +239,7 @@ static int base64_encode_blockend(char* code_out,
         }
         else {
             sqlite3_close (db);
+            [openDBs removeObjectForKey:dbPath];
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"DB closed"];
         }
     }
@@ -256,6 +257,7 @@ static int base64_encode_blockend(char* code_out,
     } else {
         if([[NSFileManager defaultManager]fileExistsAtPath:dbPath]) {
             [[NSFileManager defaultManager]removeItemAtPath:dbPath error:nil];
+            [openDBs removeObjectForKey:dbPath];
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"DB deleted"];
         } else {
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"The database does not exist on that path"];
