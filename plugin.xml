@@ -6,15 +6,19 @@
     <name>SQLitePlugin</name>
 
     <engines>
-        <engine name="cordova" version=">=2.5.0" />
+        <engine name="cordova" version=">=3.0.0" />
     </engines>
 
-    <asset src="www/SQLitePlugin.js" target="SQLitePlugin.js" />
+    <js-module src="www/SQLitePlugin.js" name="SQLitePlugin">
+        <clobbers target="SQLitePlugin" />
+    </js-module>
 
     <!-- ios -->
     <platform name="ios">
-        <config-file target="config.xml" parent="/widget/plugins">
-                <plugin name="SQLitePlugin" value="SQLitePlugin"/>
+        <config-file target="config.xml" parent="/*">
+            <feature name="SQLitePlugin">
+                <param name="ios-package" value="SQLitePlugin" />
+            </feature>
         </config-file>
 
         <!-- Note: the ios src is based off src/ios implicitly -->
