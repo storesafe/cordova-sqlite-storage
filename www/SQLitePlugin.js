@@ -44,7 +44,8 @@ if (!window.Cordova) window.Cordova = window.cordova;
     this.openError || (this.openError = function(e) {
       console.log(e.message);
     });
-    this.bg = !!dbargs.bgType && dbargs.bgType === 1;
+    //this.bg = !!dbargs.bgType && dbargs.bgType === 1;
+    this.bg = !dbargs.bgType || dbargs.bgType === 1;
     this.open(this.openSuccess, this.openError);
   };
 

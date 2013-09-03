@@ -39,6 +39,7 @@ Some other highlights:
 
 - The db version, display name, and size parameter values are not supported and will be ignored.
 - The sqlite plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**.
+- There is a memory leak if you use this version with background processing disabled. This issue will be solved once the Cordova 3.0 integration is finished with the Android & Windows Phone 8 versions. As a workaround, this version has background processing enabled by default.
 
 ## Other versions
 
@@ -72,9 +73,13 @@ There are two options to open a database:
 
 ## Background processing
 
-To enable background processing open a database like:
+To enable background processing on a permanent basis, open a database like:
 
     var db = window.sqlitePlugin.openDatabase({name: "DB", bgType: 1});
+
+**NOTE:** Currently, this version has background processing enabled by default as a workaround for a memory leak described under **Known limitations**. To disable background processing, open a database like:
+
+    var db = window.sqlitePlugin.openDatabase({name: "DB", bgType: 0});
 
 # Sample with PRAGMA feature
 
@@ -151,7 +156,7 @@ This case will also works with Safari (WebKit), assuming you replace window.sqli
 
 ## Source tree
 
- - `www`: `SQLitePlugin.js` (platform-specific)
+ - `www`: `SQLitePlugin.js` (currently platform-specific)
  - `src/ios`: Objective-C plugin code (platform-specific)
  - `test-www`: simple testing in `index.html` using qunit 1.5.0
  - `Lawnchair-adapter`: Lawnchair adaptor for both iOS and Android, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
