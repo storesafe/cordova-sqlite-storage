@@ -10,6 +10,11 @@ Fail-safe nested transaction support by @ef4 (Edward Faulkner)
 
 License for this version: MIT or Apache
 
+## Status
+
+- This version working with Cordova 2.9 tooling
+- New feature development is on hold until this version & the version for Windows Phone 8 are working with Cordova 3.0+ tooling
+
 ## Announcements
 
 - This version has been updated to support background processing as an option.
@@ -249,6 +254,15 @@ If you still cannot get something to work:
 
 Then please post the issue with your test program to the [pgsqlite forum](http://groups.google.com/group/pgsqlite).
 
+## Support priorities
+
+**High priority:**
+
+1. Stability is first: immediate resolution or workaround for stability issues (crashing) is the goal.
+2. Correctness: any issue with correctness should result in a new testcase together with the bug fix.
+
+**Low priority:** issues with the API or application integration will be given lower priority until the Cordova 3.0 integration is finished for this version & Windows Phone 8. Pull requests are very welcome for these kinds of issues.
+
 # Unit test(s)
 
 Unit testing is done in `test-www/index.html`. To run the test(s) yourself please copy the files from `test-www` (`index.html`, `qunit-1.5.0.js`, & `qunit-1.5.0.css`) into the `www` directory of your Android Cordova project and make sure you have SQLitePlugin completely installed (JS, Java, and plugin registered).
@@ -262,6 +276,6 @@ Unit testing is done in `test-www/index.html`. To run the test(s) yourself pleas
 - Testimonials of apps that are using this plugin would be especially helpful.
 - Reporting issues to the [pgsqlite forum](http://groups.google.com/group/pgsqlite) can help improve the quality of this plugin.
 - Patches with bug fixes are helpful, especially when submitted with test code.
-- Other enhancements will be considered if they do not increase the complexity of this plugin.
+- Other enhancements are very welcome, especially with test code. Increase of complexity should be avoided.
 - All contributions may be reused by [@brodybits (Chris Brody)](https://github.com/brodybits) under another license in the future. Efforts will be taken to give credit for major contributions but it will not be guaranteed.
 
