@@ -224,6 +224,7 @@ Then please post the issue to the [pgsqlite forum](http://groups.google.com/grou
 ## Support priorities
 
 **High priority:**
+
 1. Stability is first: immediate resolution or workaround for stability issues (crashing) is the goal.
 2. Correctness: any issue with correctness should result in a new testcase together with the bug fix.
 
