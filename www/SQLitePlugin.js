@@ -350,6 +350,11 @@
         }
       }
       return new SQLitePlugin(openargs, okcb, errorcb);
+    },
+    deleteDb: function(databaseName, success, error) {
+      return cordova.exec(success, error, "SQLitePlugin", "delete", {
+        path: databaseName
+      });
     }
   };
   /*
@@ -361,6 +366,7 @@
     sqliteFeatures: {
       isSQLitePlugin: true
     },
-    openDatabase: SQLiteFactory.opendb
+    openDatabase: SQLiteFactory.opendb,
+    deleteDatabase: SQLiteFactory.deleteDb
   };
 })();

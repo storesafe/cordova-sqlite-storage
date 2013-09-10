@@ -331,6 +331,9 @@ do ->
 
       new SQLitePlugin openargs, okcb, errorcb
 
+    deleteDb: (databaseName, success, error) ->
+      cordova.exec success, error, "SQLitePlugin", "delete", { path: databaseName }
+
   ###
   FUTURE TBD GONE: Required for db.executePragmStatement() callback ONLY:
   ###
@@ -341,4 +344,5 @@ do ->
       isSQLitePlugin: true
 
     openDatabase: SQLiteFactory.opendb
+    deleteDatabase: SQLiteFactory.deleteDb
 
