@@ -12,8 +12,8 @@ License for this version: MIT or Apache
 
 ## Status
 
-- This version working with Cordova 2.9 tooling
-- New feature development is on hold until this version & the version for Windows Phone 8 are working with Cordova 3.0+ tooling
+- This version working with Cordova 3.0 tooling
+- New feature development is on hold until the version for Windows Phone 8 is working with Cordova 3.0+ tooling
 
 ## Announcements
 
@@ -185,6 +185,21 @@ Before building for the first time, you have to update the project with the desi
     android update project --path $(pwd) --target android-17
 
 (assume Android SDK 17, use the correct desired Android SDK number here)
+
+**NOTE:** to use this plugin on Cordova pre-3.0 you may have to make the following change to SQLitePlugin.java:
+
+    --- src/android/org/pgsqlite/SQLitePlugin.java	2013-09-10 21:36:20.000000000 +0200
+    +++ SQLitePlugin.java.old	2013-09-10 21:35:14.000000000 +0200
+    @@ -17,8 +17,8 @@
+     
+     import java.util.HashMap;
+     
+    -import org.apache.cordova.CordovaPlugin;
+    -import org.apache.cordova.CallbackContext;
+    +import org.apache.cordova.api.CordovaPlugin;
+    +import org.apache.cordova.api.CallbackContext;
+     
+     import android.database.Cursor;
 
 ### Quick test
 
