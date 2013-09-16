@@ -290,12 +290,14 @@ static int base64_encode_blockend(char* code_out,
                 /* add error with result.message: */
                 NSMutableDictionary *r = [NSMutableDictionary dictionaryWithCapacity:0];
                 [r setObject:[dict objectForKey:@"qid"] forKey:@"qid"];
+                [r setObject:@"error" forKey:@"type"];
                 [r setObject:result.message forKey:@"error"];
                 [results addObject: r];
             } else {
                 /* add result with result.message: */
                 NSMutableDictionary *r = [NSMutableDictionary dictionaryWithCapacity:0];
                 [r setObject:[dict objectForKey:@"qid"] forKey:@"qid"];
+                [r setObject:@"success" forKey:@"type"];
                 [r setObject:result.message forKey:@"result"];
                 [results addObject: r];
             }
