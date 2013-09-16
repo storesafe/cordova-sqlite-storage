@@ -74,7 +74,7 @@
     this.addTransaction(new SQLitePluginTransaction(this, myfn, myerror, mysuccess, false));
   };
   /*
-    DEPRECATED AND WILL BE REMOVED:
+  DEPRECATED AND WILL BE REMOVED:
   */
 
   SQLitePlugin.prototype.executePragmaStatement = function(statement, success, error) {
@@ -85,7 +85,7 @@
     }), error, "SQLitePlugin", "executePragmaStatement", [this.dbname, statement]);
   };
   /*
-    FUTURE TBD GONE: Required for db.executePragmStatement() callback ONLY:
+  FUTURE TBD GONE: Required for db.executePragmStatement() callback ONLY:
   */
 
   SQLitePluginCallback = {
@@ -100,16 +100,16 @@
     }
   };
   /*
-    Transaction batching object:
+  Transaction batching object:
   */
 
   SQLitePluginTransaction = function(db, fn, error, success, txlock) {
     if (typeof fn !== "function") {
       /*
-            This is consistent with the implementation in Chrome -- it
-            throws if you pass anything other than a function. This also
-            prevents us from stalling our txQueue if somebody passes a
-            false value for fn.
+      This is consistent with the implementation in Chrome -- it
+      throws if you pass anything other than a function. This also
+      prevents us from stalling our txQueue if somebody passes a
+      false value for fn.
       */
 
       throw new Error("transaction expected a function");
@@ -127,6 +127,7 @@
     }
   };
   SQLitePluginTransaction.prototype.start = function() {
+    var err;
     try {
       if (!this.fn) {
         return;
@@ -134,9 +135,10 @@
       this.fn(this);
       this.fn = null;
       this.run();
-    } catch (err) {
+    } catch (_error) {
+      err = _error;
       /*
-            If "fn" throws, we must report the whole transaction as failed.
+      If "fn" throws, we must report the whole transaction as failed.
       */
 
       this.db.startNextTransaction();
@@ -192,13 +194,15 @@
     tx = this;
     handlerFor = function(index, didSucceed) {
       return function(response) {
+        var err;
         try {
           if (didSucceed) {
             tx.handleStatementSuccess(batchExecutes[index].success, response);
           } else {
             tx.handleStatementFailure(batchExecutes[index].error, response);
           }
-        } catch (err) {
+        } catch (_error) {
+          err = _error;
           if (!txFailure) {
             txFailure = err;
           }
@@ -208,8 +212,8 @@
             return tx.abort(txFailure);
           } else if (tx.executes.length > 0) {
             /*
-                        new requests have been issued by the callback
-                        handlers, so run another batch.
+            new requests have been issued by the callback
+            handlers, so run another batch.
             */
 
             return tx.run();
@@ -315,10 +319,10 @@
   };
   SQLiteFactory = {
     /*
-        NOTE: this function should NOT be translated from Javascript
-        back to CoffeeScript by js2coffee.
-        If this function is edited in Javascript then someone will
-        have to translate it back to CoffeeScript by hand.
+    NOTE: this function should NOT be translated from Javascript
+    back to CoffeeScript by js2coffee.
+    If this function is edited in Javascript then someone will
+    have to translate it back to CoffeeScript by hand.
     */
 
     opendb: function() {
@@ -358,7 +362,7 @@
     }
   };
   /*
-    FUTURE TBD GONE: Required for db.executePragmStatement() callback ONLY:
+  FUTURE TBD GONE: Required for db.executePragmStatement() callback ONLY:
   */
 
   root.SQLitePluginCallback = SQLitePluginCallback;
