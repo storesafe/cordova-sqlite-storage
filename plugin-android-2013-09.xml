@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="org.pgsqlite"
+    version="1.0.0">
+
+    <name>SQLitePlugin</name>
+
+    <description>
+        A Cordova/PhoneGap plugin to open and use sqlite databases on Android close to HTML5 Web SQL API.
+    </description>
+
+    <license>MIT or Apache</license>
+
+    <engines>
+        <engine name="cordova" version=">=3.0.0" />
+    </engines>    
+
+    <js-module src="www/SQLitePlugin.js" name="SQLitePlugin">
+        <clobbers target="SQLitePlugin" />
+    </js-module>
+
+    <!-- android -->
+    <platform name="android">
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <activity android:name="org.pgsqlite.SQLitePlugin"
+                      android:label="@string/app_name">
+                <intent-filter>
+                </intent-filter>
+            </activity>
+        </config-file>
+
+        <!-- Cordova >= 3.0.0 -->
+        <config-file target="config.xml" parent="/*">
+            <feature name="SQLitePlugin">
+                <param name="android-package" value="org.pgsqlite.SQLitePlugin"/>
+            </feature>
+        </config-file>
+
+        <source-file src="src/android/org/pgsqlite/SQLitePlugin.java" target-dir="src/org/pgsqlite"/>
+    </platform>
+
+</plugin>
