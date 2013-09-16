@@ -64,10 +64,6 @@
     }
   };
 
-  pcb = function() {
-    return 1;
-  };
-
   SQLitePlugin.prototype.executeSql = function(statement, params, success, error) {
     var myerror, myfn, mysuccess;
     mysuccess = function(t, r) {
@@ -81,9 +77,13 @@
       }
     };
     myfn = function(tx) {
-      return tx.executeSql(statement, params, mysuccess, myerror);
+      tx.executeSql(statement, params, mysuccess, myerror);
     };
     this.addTransaction(new SQLitePluginTransaction(this, myfn, myerror, mysuccess, false));
+  };
+
+  pcb = function() {
+    return 1;
   };
 
   /*
@@ -232,16 +232,16 @@
         }
         if (--waiting === 0) {
           if (txFailure) {
-            return tx.abort(txFailure);
+            tx.abort(txFailure);
           } else if (tx.executes.length > 0) {
             /*
             new requests have been issued by the callback
             handlers, so run another batch.
             */
 
-            return tx.run();
+            tx.run();
           } else {
-            return tx.finish();
+            tx.finish();
           }
         }
       };
@@ -298,13 +298,13 @@
     succeeded = function(tx) {
       tx.db.startNextTransaction();
       if (tx.error) {
-        return tx.error(txFailure);
+        tx.error(txFailure);
       }
     };
     failed = function(tx, err) {
       tx.db.startNextTransaction();
       if (tx.error) {
-        return tx.error(new Error("error while trying to roll back: " + err.message));
+        tx.error(new Error("error while trying to roll back: " + err.message));
       }
     };
     this.finalized = true;
@@ -325,13 +325,13 @@
     succeeded = function(tx) {
       tx.db.startNextTransaction();
       if (tx.success) {
-        return tx.success();
+        tx.success();
       }
     };
     failed = function(tx, err) {
       tx.db.startNextTransaction();
       if (tx.error) {
-        return tx.error(new Error("error while trying to commit: " + err.message));
+        tx.error(new Error("error while trying to commit: " + err.message));
       }
     };
     this.finalized = true;
