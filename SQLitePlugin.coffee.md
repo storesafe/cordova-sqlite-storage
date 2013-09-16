@@ -73,7 +73,7 @@ SQLitePlugin object is defined by a constructor function and prototype member fu
       if @dbname of @openDBs
         delete @openDBs[@dbname]
 
-        cordova.exec null, null, "SQLitePlugin", "close", [ @dbname ]
+        cordova.exec null, null, "SQLitePlugin", "close", [ { path: @dbname } ]
 
       return
 
@@ -356,7 +356,7 @@ SQLite plugin object factory:
         new SQLitePlugin openargs, okcb, errorcb
 
       deleteDb: (databaseName, success, error) ->
-        cordova.exec success, error, "SQLitePlugin", "delete", { path: databaseName }
+        cordova.exec success, error, "SQLitePlugin", "delete", [{ path: databaseName }]
 
     ###
     FUTURE TBD GONE: Required for db.executePragmStatement() callback ONLY:

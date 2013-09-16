@@ -60,7 +60,11 @@
   SQLitePlugin.prototype.close = function(success, error) {
     if (this.dbname in this.openDBs) {
       delete this.openDBs[this.dbname];
-      cordova.exec(null, null, "SQLitePlugin", "close", [this.dbname]);
+      cordova.exec(null, null, "SQLitePlugin", "close", [
+        {
+          path: this.dbname
+        }
+      ]);
     }
   };
 
@@ -382,9 +386,11 @@
       return new SQLitePlugin(openargs, okcb, errorcb);
     },
     deleteDb: function(databaseName, success, error) {
-      return cordova.exec(success, error, "SQLitePlugin", "delete", {
-        path: databaseName
-      });
+      return cordova.exec(success, error, "SQLitePlugin", "delete", [
+        {
+          path: databaseName
+        }
+      ]);
     }
   };
 

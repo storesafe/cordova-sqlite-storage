@@ -74,7 +74,10 @@ public class SQLitePlugin extends CordovaPlugin
 				this.openDatabase(dbname, null);
 			}
 			else if (action.equals("close")) {
-				this.closeDatabase(args.getString(0));
+				JSONObject o = args.getJSONObject(0);
+				String dbname = o.getString("path");
+
+				this.closeDatabase(dbname);
 			}
 			else if (action.equals("delete")) {
 				JSONObject o = args.getJSONObject(0);
