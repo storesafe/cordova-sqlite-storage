@@ -1,73 +1,78 @@
-do ->
+# SQLitePlugin in Markdown (litcoffee)
+
+New coffee compiler can compile this directly into Javascript
+
     root = @
-  
+
     SQLitePlugin = (openargs, openSuccess, openError) ->
       console.log "SQLitePlugin openargs: #{JSON.stringify openargs}"
-  
+
       if !(openargs and openargs['name'])
         throw new Error("Cannot create a SQLitePlugin instance without a db name")
-  
+
       dbname = openargs.name
-  
+
       @openargs = openargs
       @dbname = dbname
-  
+
       @openSuccess = openSuccess
       @openError = openError
-  
+
       @openSuccess or
         @openSuccess = ->
           console.log "DB opened: " + dbname
-  
+          return
+
       @openError or
         @openError = (e) ->
           console.log e.message
-  
+          return
+
       @bg = !!openargs.bgType and openargs.bgType == 1
-  
+
       @open @openSuccess, @openError
       return
-  
+
     SQLitePlugin::databaseFeatures = isSQLitePluginDatabase: true
     SQLitePlugin::openDBs = {}
-  
+
     SQLitePlugin::txQ = []
-  
+
     SQLitePlugin::addTransaction = (t) ->
       @txQ.push t
       if @txQ.length is 1
         t.start()
       return
-  
+
     SQLitePlugin::transaction = (fn, error, success) ->
       @addTransaction new SQLitePluginTransaction(this, fn, error, success, true)
       return
-  
+
     SQLitePlugin::startNextTransaction = ->
       @txQ.shift()
       if @txQ[0]
         @txQ[0].start()
       return
-  
+
     SQLitePlugin::open = (success, error) ->
       unless @dbname of @openDBs
         @openDBs[@dbname] = true
         cordova.exec success, error, "SQLitePlugin", "open", [ @openargs ]
-  
+
       return
-  
+
     SQLitePlugin::close = (success, error) ->
       #console.log "SQLitePlugin.prototype.close"
-  
+
       if @dbname of @openDBs
         delete @openDBs[@dbname]
-  
+
         cordova.exec null, null, "SQLitePlugin", "close", [ @dbname ]
-  
+
       return
-  
+
     pcb = -> 1
-  
+
     SQLitePlugin::executeSql = (statement, params, success, error) ->
       mysuccess = (t, r) -> if !!success then success r
       myerror = (t, e) -> if !!error then error e
