@@ -20,7 +20,7 @@
     this.openError || (this.openError = function(e) {
       console.log(e.message);
     });
-    this.bg = !!openargs.bgType && openargs.bgType === 1;
+    this.bg = !openargs.bgType ? (navigator.userAgent.match(/iPad/i)) || (navigator.userAgent.match(/iPhone/i)) : openargs.bgType === 1;
     this.open(this.openSuccess, this.openError);
   };
 

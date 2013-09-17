@@ -34,7 +34,13 @@ SQLitePlugin object is defined by a constructor function and prototype member fu
           console.log e.message
           return
 
-      @bg = !!openargs.bgType and openargs.bgType == 1
+      #@bg = !!openargs.bgType and openargs.bgType == 1
+      @bg =
+        if !openargs.bgType
+          # default to true for iOS only (due to memory issue)
+          ((navigator.userAgent.match(/iPad/i)) || (navigator.userAgent.match(/iPhone/i)))
+        else
+          openargs.bgType == 1
 
       @open @openSuccess, @openError
       return
