@@ -215,13 +215,13 @@
                 ok(false, "select statement not supposed to succeed");
               }, function(tx, err) {
                 start();
-                ok(/bogustable/.test(err.message), "should report bad statement");
+                ok(!!err.message, "should report a valid error message");
                 return true;
               });
             });
           }, function(err) {
             start();
-            ok(/bogustable/.test(err.message), "should report bad statement");
+            ok(!!err.message, "should report error message");
             stop();
             db.transaction(function(tx) {
               tx.executeSql("select count(*) as cnt from test_table", [], function(tx, res) {
@@ -249,7 +249,7 @@
                 ok(false, "select statement not supposed to succeed");
               }, function(tx, err) {
                 start();
-                ok(/bogustable/.test(err.message), "should report bad statement");
+                ok(!!err.message, "should report a valid error message");
               });
             });
           }, function(err) {
@@ -277,7 +277,7 @@
               });
             });
           }, function(err) {
-            ok(/bogustable/.test(err.message), "should report bad statement");
+            ok(!!err.message, "should report a valid error message");
             db.transaction(function(tx) {
               tx.executeSql("select count(*) as cnt from test_table", [], function(tx, res) {
                 start();
@@ -309,21 +309,21 @@
 
       test("number values inserted using number bindings", function() {
         stop();
-        var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);
+        var db = window.sqlitePlugin.openDatabase("DB", "1.0", "Demo", -1);
         db.transaction(function(tx) {
           tx.executeSql('DROP TABLE IF EXISTS test_table');
           tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data_text, data_int, data_real)');
         }, function(err) { ok(false, err.message) }, function() {
           db.transaction(function(tx) {
             // create columns with no type affinity
-            tx.executeSql("insert into test_table (data_text, data_int, data_real) VALUES (?,?,?)", ["3.14", 314, 3.14], function(tx, res) {
+            tx.executeSql("insert into test_table (data_text, data_int, data_real) VALUES (?,?,?)", ["3.14159", 314159, 3.14159], function(tx, res) {
               equal(res.rowsAffected, 1, "row inserted");
               tx.executeSql("select * from test_table", [], function(tx, res) {
                 start();
                 var row = res.rows.item(0);
-                strictEqual(row.data_text, "3.14", "data_text should have inserted data as text");
-                strictEqual(row.data_int, 314, "data_int should have inserted data as an integer");
-                strictEqual(row.data_real, 3.14, "data_real should have inserted data as a real");
+                strictEqual(row.data_text, "3.14159", "data_text should have inserted data as text");
+                strictEqual(row.data_int, 314159, "data_int should have inserted data as an integer");
+                ok(Math.abs(row.data_real - 3.14159) < 0.000001, "data_real should have inserted data as a real");
               });
             });
           });

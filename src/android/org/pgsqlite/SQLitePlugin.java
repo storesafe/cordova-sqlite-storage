@@ -317,7 +317,7 @@ public class SQLitePlugin extends CordovaPlugin
 			query_id = queryIDs[i];
 
 			JSONObject queryResult = null;
-			String errorMessage = null;
+			String errorMessage = "unknown";
 
 			try {
 				query = queryarr[i];
@@ -407,12 +407,14 @@ public class SQLitePlugin extends CordovaPlugin
 					r.put("result", queryResult);
 
 					batchResults.put(r);
-				} else if (errorMessage != null) {
+				} else {
 					JSONObject r = new JSONObject();
 					r.put("qid", query_id);
-
 					r.put("type", "error");
-					r.put("result", errorMessage);
+
+					JSONObject er = new JSONObject();
+					er.put("message", errorMessage);
+					r.put("result", er);
 
 					batchResults.put(r);
 				}

@@ -292,6 +292,7 @@ static int base64_encode_blockend(char* code_out,
                 [r setObject:[dict objectForKey:@"qid"] forKey:@"qid"];
                 [r setObject:@"error" forKey:@"type"];
                 [r setObject:result.message forKey:@"error"];
+                [r setObject:result.message forKey:@"result"];
                 [results addObject: r];
             } else {
                 /* add result with result.message: */
