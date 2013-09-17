@@ -1,57 +1,69 @@
-# Cordova/PhoneGap SQLitePlugin - iOS version
+# Cordova/PhoneGap SQLitePlugin - Android & iOS versions
 
 Native interface to sqlite in a Cordova/PhoneGap plugin, working to follow the HTML5 Web SQL API as close as possible. **NOTE** that the API is now different from [davibe / Phonegap-SQLitePlugin](https://github.com/davibe/Phonegap-SQLitePlugin).
 
-Created by @joenoon and @davibe
+Android version extracted from DroidGap by @brodybits (Chris Brody)
+
+iOS version created by @joenoon and @davibe
+
+Transaction batch processing of Android version by @marcucio
+
+Fail-safe nested transaction support by @ef4 (Edward Faulkner)
+
+Cordova 2.7+ port of iOS version with background processing by @j3k0 (Jean-Christophe Hoelt)
 
 API changes by @brodybits (Chris Brody)
 
-iOS nested transaction callback support by @ef4 (Edward Faulkner)
+License for Android version: MIT or Apache
 
-Cordova 2.7+ port with background processing by @j3k0 (Jean-Christophe Hoelt)
-
-License for this version: MIT
+License for iOS version: MIT only
 
 ## Status
 
-- This version working with Cordova 3.0
-- New feature development is on hold until Android & Windows Phone 8 are working with Cordova 3.0
+- Android & iOS versions are working with Cordova 3.0 tooling
+- New feature development is on hold until the version for Windows Phone 8 is working with Cordova 3.0+ tooling
 
 ## Announcements
 
-- This version is now working with the Cordova 3.0 tool.
-- This version can now be built with either ARC or MRC.
-- Significant rewrite by [@j3k0 (Jean-Christophe Hoelt)](https://github.com/j3k0) to support `plugman` & background processing.
+- Android & iOS versions are combined again in this project.
+- Android & iOS versions are working with Cordova 3.0 tooling.
+- iOS version can now be built with either ARC or MRC.
 - Forum & community support at: http://groups.google.com/group/pgsqlite
 
 ## Highlights
 
-As described in [a recent posting](http://brodyspark.blogspot.com/2012/12/cordovaphonegap-sqlite-plugins-offer.html):
-- Keeps sqlite database in a known user data location that will be backed up by iCloud on iOS. This Cordova/PhoneGap SQLitePlugin continues to show excellent reliability, compared to the problems described in [CB-1561](https://issues.apache.org/jira/browse/CB-1561), in [this thread](https://groups.google.com/forum/?fromgroups=#!topic/phonegap/eJTVra33HLo), and also [this thread](https://groups.google.com/forum/?fromgroups=#!topic/phonegap/Q_jEOSIAxsY)
-- No 5MB maximum, more information at: http://www.sqlite.org/limits.html
-
-Some other highlights:
-- Drop-in replacement for HTML5 SQL API: the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
+- Drop-in replacement for HTML5 SQL API, the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
 - Fail-safe nested transactions with batch processing optimizations
-- [integration with SQLCipher for iOS](http://brodyspark.blogspot.com/2012/12/integrating-sqlcipher-with.html)
+- As described in [this posting](http://brodyspark.blogspot.com/2012/12/cordovaphonegap-sqlite-plugins-offer.html):
+  - Keeps sqlite database in a user data location that is known, can be reconfigured, and iOS will be backed up by iCloud.
+  - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
+- Works with [SQLCipher](http://sqlcipher.net) for encryption (see below)
 
 ## Apps using Cordova/PhoneGap SQLitePlugin
 
 - [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/)
-- [Larkwire](http://www.larkwire.com/): Learn bird songs the fun way
+- [Larkwire](http://www.larkwire.com/) (iOS version): Learn bird songs the fun way
 
 ## Known limitations
 
 - The db version, display name, and size parameter values are not supported and will be ignored.
 - The sqlite plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**.
-- There is a memory leak if you use this version with background processing disabled. This issue will be solved once the Cordova 3.0 integration is finished with the Android & Windows Phone 8 versions. As a workaround, this version has background processing enabled by default.
+- For Android version, there is an issue with background processing that affects transaction error handling and may affect nested transactions.
+- For Android below SDK 11:
+ - the data that is stored is of type 'TEXT' regardless of the schema
+ - `rowsAffected` is not returned for INSERT or DELETE statement
+- For iOS version: There is a memory leak if you use this version with background processing disabled. A solution is planned very soon. As a workaround, the iOS version has background processing enabled by default.
 
 ## Other versions
 
-- Android version: [pgsqlite / PG-SQLitePlugin-Android](https://github.com/pgsqlite/PG-SQLitePlugin-Android).
 - Windows Phone 8+ version: https://github.com/marcucio/Cordova-WP-SqlitePlugin
 - iOS enhancements, with extra fixes for console log messages: https://github.com/mineshaftgap/Cordova-SQLitePlugin
 - Original iOS version with a different API: https://github.com/davibe/Phonegap-SQLitePlugin
+
+## Using with SQLCipher
+
+- for Android version: [this blog posting](http://brodyspark.blogspot.com/2012/12/using-sqlcipher-for-android-with.html) & [enhancements to SQLCipher db classes for Android](http://brodyspark.blogspot.com/2012/12/enhancements-to-sqlcipher-db-classes.html)
+- for iOS version: [this posting](http://brodyspark.blogspot.com/2012/12/integrating-sqlcipher-with.html)
 
 # Usage
 
@@ -82,7 +94,7 @@ To enable background processing on a permanent basis, open a database like:
 
     var db = window.sqlitePlugin.openDatabase({name: "DB", bgType: 1});
 
-**NOTE:** Currently, this version has background processing enabled by default as a workaround for a memory leak described under **Known limitations**. To disable background processing, open a database like:
+**NOTE:** the iOS version has background processing enabled by default as a workaround for a memory leak described under **Known limitations**. To disable background processing, open a database like:
 
     var db = window.sqlitePlugin.openDatabase({name: "DB", bgType: 0});
 
@@ -161,12 +173,57 @@ This case will also works with Safari (WebKit), assuming you replace window.sqli
 
 ## Source tree
 
- - `www`: `SQLitePlugin.js` (currently platform-specific)
- - `src/ios`: Objective-C plugin code (platform-specific)
- - `test-www`: simple testing in `index.html` using qunit 1.5.0
- - `Lawnchair-adapter`: Lawnchair adaptor for both iOS and Android, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
+- `SQLitePlugin.coffee.md`: platform-independent (Literate coffee-script, can be read by recent coffee-script compiler)
+- `www`: `SQLitePlugin.js` now platform-independent
+- `src`: Java plugin code for Android & Objective-C plugin code for iOS
+- `test-www`: simple testing in `index.html` using qunit 1.5.0
+- `Lawnchair-adapter`: Lawnchair adaptor for both iOS and Android, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
 
-## Manual installation
+**NOTE:** there may be some backup files and/or directories with "2013-09", these are old versions that will go away.
+
+## Manual installation - Android version
+
+These installation instructions are based on the Android example project from Cordova/PhoneGap 2.7.0. For your first time please unzip the PhoneGap 2.7 zipball and use the `lib/android/example` subdirectory.
+
+ - Install www/SQLitePlugin.js from this repository into assets/www subdirectory
+ - Install src/android/org/pgsqlite/SQLitePlugin.java from this repository into src/org/pgsqlite subdirectory
+ - Add the plugin element `<plugin name="SQLitePlugin" value="org.pgsqlite.SQLitePlugin"/>` to res/xml/config.xml
+
+Sample change to res/xml/config.xml:
+
+    --- config.xml.orig	2013-07-23 13:48:09.000000000 +0200
+    +++ res/xml/config.xml	2013-07-23 13:48:26.000000000 +0200
+    @@ -36,6 +36,7 @@
+         <preference name="useBrowserHistory" value="true" />
+         <preference name="exit-on-suspend" value="false" />
+     <plugins>
+    +    <plugin name="SQLitePlugin" value="org.pgsqlite.SQLitePlugin"/>
+         <plugin name="App" value="org.apache.cordova.App"/>
+         <plugin name="Geolocation" value="org.apache.cordova.GeoBroker"/>
+         <plugin name="Device" value="org.apache.cordova.Device"/>
+
+Before building for the first time, you have to update the project with the desired version of the Android SDK with a command like:
+
+    android update project --path $(pwd) --target android-17
+
+(assume Android SDK 17, use the correct desired Android SDK number here)
+
+**NOTE:** using this plugin on Cordova pre-3.0 requires the following change to SQLitePlugin.java:
+
+    --- src/android/org/pgsqlite/SQLitePlugin.java	2013-09-10 21:36:20.000000000 +0200
+    +++ SQLitePlugin.java.old	2013-09-10 21:35:14.000000000 +0200
+    @@ -17,8 +17,8 @@
+     
+     import java.util.HashMap;
+     
+    -import org.apache.cordova.CordovaPlugin;
+    -import org.apache.cordova.CallbackContext;
+    +import org.apache.cordova.api.CordovaPlugin;
+    +import org.apache.cordova.api.CallbackContext;
+     
+     import android.database.Cursor;
+
+## Manual installation - iOS version
 
 ### SQLite library
 
@@ -207,8 +264,8 @@ Enable the SQLitePlugin in `config.xml`:
 Community support is available via the new Google group: http://groups.google.com/group/pgsqlite
 
 If you have an issue with the plugin please check the following first:
-- You are using the latest version of the Plugin Javascript & Objective-C source from this repository.
-- You have installed the Javascript & Objective-C correctly.
+- You are using the latest version of the Plugin Javascript & platform-specific Java or Objective-C source from this repository.
+- You have installed the Javascript & platform-specific Java or Objective-C correctly.
 - You have included the correct version of the cordova Javascript and SQLitePlugin.js and got the path right.
 - You have registered the plugin properly in `config.xml`.
 
@@ -228,11 +285,11 @@ Then please post the issue to the [pgsqlite forum](http://groups.google.com/grou
 1. Stability is first: immediate resolution or workaround for stability issues (crashing) is the goal.
 2. Correctness: any issue with correctness should result in a new testcase together with the bug fix.
 
-**Low priority:** issues with the API or application integration will be given lower priority until the Cordova 3.0 integration is finished for Android & Windows Phone 8. Pull requests are very welcome for these kinds of issues.
+**Low priority:** issues with the API or application integration will be given lower priority until the Cordova 3.0 integration finished and stable for Android, iOS, and also Windows Phone 8. Pull requests are very welcome for these kinds of issues.
 
 # Unit test(s)
 
-Unit testing is done in `test-www/index.html`. To run the test(s) yourself please copy the files from `test-www` (`index.html`, `qunit-1.5.0.js`, & `qunit-1.5.0.css`) into the `www` directory of your iOS Cordova project and make sure you have SQLitePlugin completely installed (JS, Objective-C, and plugin registered).
+Unit testing is done in `test-www/index.html`. To run the test(s) yourself please copy the files from `test-www` (`index.html`, `qunit-1.5.0.js`, & `qunit-1.5.0.css`) into the `www` directory of your Android or iOS Cordova project and make sure you have SQLitePlugin completely installed (JS, Objective-C, and plugin registered).
 
 Lawnchair Adapter Usage
 =======================
