@@ -262,7 +262,7 @@ If you still cannot get something to work:
   - if the issue is with *adding* data to a table, that the test program includes the statements you used to open the database and create the table;
   - if the issue is with *retrieving* data from a table, that the test program includes the statements you used to open the database, create the table, and enter the data you are trying to retrieve.
 
-Then you can post the issue to the [pgsqlite forum](http://groups.google.com/group/pgsqlite).
+Then you can log the issue at [lite4mobi / Cordova-SQLitePlugin / issues](https://github.com/lite4mobi/Cordova-SQLitePlugin/issues) or post it to the [pgsqlite forum](http://groups.google.com/group/pgsqlite).
 
 **NOTE:** If you have any questions please use the community forum as described below.
 
