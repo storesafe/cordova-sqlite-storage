@@ -1,18 +1,10 @@
 /*
+ * Copyright (C) 2011-2013 Chris Brody
  * Copyright (C) 2011 Davide Bertola
- *
- * Authors:
- * Davide Bertola <dade@dadeb.it>
- * Joe Noon <joenoon@gmail.com>
- * Jean-Christophe Hoelt <hoelt@fovea.cc>
- *
- * Embedded public domain LIBB64 encoding routines from http://libb64.sourceforge.net 
- * - Chris Robertson <oztexan@gmail.com>
  *
  * This library is available under the terms of the MIT License (2008).
  * See http://opensource.org/licenses/alphabetical for full text.
  */
-
 
 #import "SQLitePlugin.h"
 

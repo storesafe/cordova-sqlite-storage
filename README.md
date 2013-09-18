@@ -1,18 +1,6 @@
-# Cordova/PhoneGap SQLitePlugin - Android & iOS versions
+# Cordova/PhoneGap SQLitePlugin
 
-Native interface to sqlite in a Cordova/PhoneGap plugin, working to follow the HTML5 Web SQL API as close as possible. **NOTE** that the API is now different from [davibe / Phonegap-SQLitePlugin](https://github.com/davibe/Phonegap-SQLitePlugin).
-
-Android version extracted from DroidGap by @brodybits (Chris Brody)
-
-iOS version created by @joenoon and @davibe
-
-Transaction batch processing of Android version by @marcucio
-
-Fail-safe nested transaction support by @ef4 (Edward Faulkner)
-
-Cordova 2.7+ port of iOS version with background processing by @j3k0 (Jean-Christophe Hoelt)
-
-API changes by @brodybits (Chris Brody)
+Native interface to sqlite in a Cordova/PhoneGap plugin for Android & iOS, working to follow the HTML5 Web SQL API as close as possible.
 
 License for Android version: MIT or Apache
 
@@ -274,7 +262,7 @@ If you still cannot get something to work:
   - if the issue is with *adding* data to a table, that the test program includes the statements you used to open the database and create the table;
   - if the issue is with *retrieving* data from a table, that the test program includes the statements you used to open the database, create the table, and enter the data you are trying to retrieve.
 
-Then you can log the issue at [litehelpers / Cordova-SQLitePlugin / issues](https://github.com/litehelpers/Cordova-SQLitePlugin/issues) or post it to the [pgsqlite forum](http://groups.google.com/group/pgsqlite).
+Then you can post the issue to the [pgsqlite forum](http://groups.google.com/group/pgsqlite).
 
 **NOTE:** If you have any questions please use the community forum as described below.
 

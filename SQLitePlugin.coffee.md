@@ -2,13 +2,15 @@
 
 New coffee compiler can compile this directly into Javascript
 
+License for common Javascript: MIT or Apache
+
 ## Top-level SQLitePlugin objects
 
-root window object:
+- root window object:
 
     root = @
 
-SQLitePlugin object is defined by a constructor function and prototype member functions:
+- SQLitePlugin object is defined by a constructor function and prototype member functions:
 
     SQLitePlugin = (openargs, openSuccess, openError) ->
       console.log "SQLitePlugin openargs: #{JSON.stringify openargs}"
@@ -94,7 +96,7 @@ SQLitePlugin object is defined by a constructor function and prototype member fu
       @addTransaction new SQLitePluginTransaction(this, myfn, myerror, mysuccess, false)
       return
 
-Deprecated pragma API, use db.executeSql() instead:
+- Deprecated pragma API, use db.executeSql() instead:
 
     pcb = -> 1
 
@@ -121,7 +123,7 @@ Deprecated pragma API, use db.executeSql() instead:
 
         return
 
-SQLitePluginTransaction object for batching:
+- SQLitePluginTransaction object for batching:
 
     ###
     Transaction batching object:
@@ -328,7 +330,7 @@ SQLitePluginTransaction object for batching:
 
       return
 
-SQLite plugin object factory:
+- SQLite plugin object factory:
 
     SQLiteFactory =
       ###
@@ -369,7 +371,7 @@ SQLite plugin object factory:
     ###
     root.SQLitePluginCallback = SQLitePluginCallback
 
-Exported API:
+- Exported API:
 
     root.sqlitePlugin =
       sqliteFeatures:
