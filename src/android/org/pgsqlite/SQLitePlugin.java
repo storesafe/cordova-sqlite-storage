@@ -67,6 +67,8 @@ public class SQLitePlugin extends CordovaPlugin
 	public boolean execute(String action, JSONArray args, CallbackContext cbc)
 	{
 		try {
+			boolean status = true;
+
 			if (action.equals("open")) {
 				JSONObject o = args.getJSONObject(0);
 				String dbname = o.getString("name");
@@ -80,10 +82,13 @@ public class SQLitePlugin extends CordovaPlugin
 				this.closeDatabase(dbname);
 			}
 			else if (action.equals("delete")) {
+				/* Stop & give up if API < 16: */
+				if (android.os.Build.VERSION.SDK_INT < 16) return false;
+
 				JSONObject o = args.getJSONObject(0);
 				String dbname = o.getString("path");
 
-				this.deleteDatabase(dbname);
+				status = this.deleteDatabase(dbname);
 			}
 			else if (action.equals("executePragmaStatement"))
 			{
@@ -225,16 +230,29 @@ public class SQLitePlugin extends CordovaPlugin
 	 * @param dbname
 	 *            The name of the database-NOT including its extension.
 	 *
+	 * @return true if successful or false if an exception was encountered
+	 *
 	 */
-	private void deleteDatabase(String dbname)
+	private boolean deleteDatabase(String dbname)
 	{
+		boolean status = false; // assume the worst case:
+
 		if (this.getDatabase(dbname) != null) this.closeDatabase(dbname);
 
 		File dbfile = this.cordova.getActivity().getDatabasePath(dbname + ".db");
 
 		Log.v("info", "delete sqlite db: " + dbfile.getAbsolutePath());
 
-		SQLiteDatabase.deleteDatabase(dbfile);
+		// Use try & catch just in case android.os.Build.VERSION.SDK_INT >= 16 was lying:
+		try {
+			status = SQLiteDatabase.deleteDatabase(dbfile);
+		} catch (Exception ex) {
+			// log & give up:
+			Log.v("executeSqlBatch", "deleteDatabase(): Error=" +  ex.getMessage());
+			ex.printStackTrace();
+		}
+
+		return status;
 	}
 
 	/**
@@ -320,9 +338,13 @@ public class SQLitePlugin extends CordovaPlugin
 			String errorMessage = "unknown";
 
 			try {
+				boolean needRawQuery = true;
+
 				query = queryarr[i];
 
-				// /* OPTIONAL changes for new Android SDK from HERE:
+				// UPDATE or DELETE:
+				// NOTE: this code should be safe to RUN with old Android SDK.
+				// To BUILD with old Android SDK remove lines from HERE: {{
 				if (android.os.Build.VERSION.SDK_INT >= 11 &&
 				    (query.toLowerCase().startsWith("update") ||
 				     query.toLowerCase().startsWith("delete")))
@@ -343,12 +365,34 @@ public class SQLitePlugin extends CordovaPlugin
 						}
 					}
 
-					int rowsAffected = myStatement.executeUpdateDelete();
+					int rowsAffected = -1; // (assuming invalid)
 
-					queryResult = new JSONObject();
-					queryResult.put("rowsAffected", rowsAffected);
-				} else // to HERE. */
+					// Use try & catch just in case android.os.Build.VERSION.SDK_INT >= 11 is lying:
+					try {
+						rowsAffected = myStatement.executeUpdateDelete();
+						// Indicate valid results:
+						needRawQuery = false;
+					} catch (SQLiteException ex) {
+						// Indicate problem & stop this query:
+						ex.printStackTrace();
+						errorMessage = ex.getMessage();
+						Log.v("executeSqlBatch", "SQLiteStatement.executeUpdateDelete(): Error=" +  errorMessage);
+						needRawQuery = false;
+					} catch (Exception ex) {
+						// Assuming SDK_INT was lying & method not found:
+						// do nothing here & try again with raw query.
+					}
+
+					if (rowsAffected != -1) {
+						queryResult = new JSONObject();
+						queryResult.put("rowsAffected", rowsAffected);
+					}
+				} // to HERE. }}
+
+				// INSERT:
 				if (query.toLowerCase().startsWith("insert") && jsonparams != null) {
+					needRawQuery = false;
+
 					SQLiteStatement myStatement = mydb.compileStatement(query);
 
 					for (int j = 0; j < jsonparams[i].length(); j++) {
@@ -363,14 +407,25 @@ public class SQLitePlugin extends CordovaPlugin
 						}
 					}
 
-					long insertId = myStatement.executeInsert();
-					
-					int rowsAffected = (insertId == -1) ? 0 : 1;
+					long insertId = -1; // (invalid)
 
-					queryResult = new JSONObject();
-					queryResult.put("insertId", insertId);
-					queryResult.put("rowsAffected", rowsAffected);
-				} else {
+					try {
+						insertId = myStatement.executeInsert();
+					} catch (SQLiteException ex) {
+						ex.printStackTrace();
+						errorMessage = ex.getMessage();
+						Log.v("executeSqlBatch", "SQLiteDatabase.executeInsert(): Error=" +  errorMessage);
+					}
+
+					if (insertId != -1) {
+						queryResult = new JSONObject();
+						queryResult.put("insertId", insertId);
+						queryResult.put("rowsAffected", 1);
+					}
+				}
+
+				// raw query for other statements:
+				if (needRawQuery) {
 					String[] params = null;
 
 					if (jsonparams != null) {
@@ -454,11 +509,18 @@ public class SQLitePlugin extends CordovaPlugin
 					for (int i = 0; i < colCount; ++i) {
 						key = cur.getColumnName(i);
 
-						// for old Android SDK remove lines from HERE:
+						// NOTE: this code should be safe to RUN with old Android SDK.
+						// To BUILD with old Android SDK remove lines from HERE: {{
 						if(android.os.Build.VERSION.SDK_INT >= 11)
 						{
-							switch(cur.getType (i))
-							{
+							int curType = 3; /* Cursor.FIELD_TYPE_STRING */
+
+							// Use try & catch just in case android.os.Build.VERSION.SDK_INT >= 11 is lying:
+							try {
+								curType = cur.getType(i);
+
+								switch(curType)
+								{
 								case Cursor.FIELD_TYPE_NULL:
 									row.put(key, JSONObject.NULL);
 									break;
@@ -468,15 +530,21 @@ public class SQLitePlugin extends CordovaPlugin
 								case Cursor.FIELD_TYPE_FLOAT:
 									row.put(key, cur.getFloat(i));
 									break;
-								case Cursor.FIELD_TYPE_STRING:
-									row.put(key, cur.getString(i));
-									break;
 								case Cursor.FIELD_TYPE_BLOB:
 									row.put(key, new String(Base64.encode(cur.getBlob(i), Base64.DEFAULT)));
 									break;
+								case Cursor.FIELD_TYPE_STRING:
+								default: /* (not expected) */
+									row.put(key, cur.getString(i));
+									break;
+								}
+
+							} catch (Exception ex) {
+								// simply treat like a string
+								row.put(key, cur.getString(i));
 							}
 						}
-						else // to HERE.
+						else // to HERE. }}
 						{
 							row.put(key, cur.getString(i));
 						}
