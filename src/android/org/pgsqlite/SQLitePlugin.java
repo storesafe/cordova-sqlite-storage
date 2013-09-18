@@ -157,7 +157,7 @@ public class SQLitePlugin extends CordovaPlugin
 					this.executeSqlBatch(dbName, queries, jsonparams, queryIDs, cbc);
 			}
 
-			return true;
+			return status;
 		} catch (JSONException e) {
 			// TODO: signal JSON problem to JS
 
