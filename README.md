@@ -28,7 +28,6 @@ License for iOS version: MIT only
 - Android & iOS versions are combined again in this project.
 - Android & iOS versions are working with Cordova 3.0 tooling.
 - iOS version can now be built with either ARC or MRC.
-- Forum & community support at: http://groups.google.com/group/pgsqlite
 
 ## Highlights
 
@@ -261,7 +260,7 @@ Enable the SQLitePlugin in `config.xml`:
 
 # Support
 
-Community support is available via the new Google group: http://groups.google.com/group/pgsqlite
+## Logging issues
 
 If you have an issue with the plugin please check the following first:
 - You are using the latest version of the Plugin Javascript & platform-specific Java or Objective-C source from this repository.
@@ -270,13 +269,18 @@ If you have an issue with the plugin please check the following first:
 - You have registered the plugin properly in `config.xml`.
 
 If you still cannot get something to work:
-- Make the simplest test program necessary to reproduce the issue and try again.
-- If it still does not work then please make sure it is prepared to demonstrate the issue including:
+- Make the simplest test program you can to demonstrate the issue, including the following characteristics:
   - it completely self-contained, i.e. it is using no extra libraries beyond cordova & SQLitePlugin.js;
   - if the issue is with *adding* data to a table, that the test program includes the statements you used to open the database and create the table;
   - if the issue is with *retrieving* data from a table, that the test program includes the statements you used to open the database, create the table, and enter the data you are trying to retrieve.
 
-Then please post the issue to the [pgsqlite forum](http://groups.google.com/group/pgsqlite).
+Then you can log the issue at [litehelpers / Cordova-SQLitePlugin / issues](https://github.com/litehelpers/Cordova-SQLitePlugin/issues) or post it to the [pgsqlite forum](http://groups.google.com/group/pgsqlite).
+
+**NOTE:** If you have any questions please use the community forum as described below.
+
+## Community forum
+
+If you have any questions about the plugin please post it to the [pgsqlite forum](http://groups.google.com/group/pgsqlite).
 
 ## Support priorities
 
@@ -285,7 +289,11 @@ Then please post the issue to the [pgsqlite forum](http://groups.google.com/grou
 1. Stability is first: immediate resolution or workaround for stability issues (crashing) is the goal.
 2. Correctness: any issue with correctness should result in a new testcase together with the bug fix.
 
-**Low priority:** issues with the API or application integration will be given lower priority until the Cordova 3.0 integration finished and stable for Android, iOS, and also Windows Phone 8. Pull requests are very welcome for these kinds of issues.
+**Low priority:** issues with the API or application integration will be given lower priority until the Cordova 3.0 integration is finished for Windows Phone 8. Pull requests are very welcome for these kinds of issues.
+
+## Professional support
+
+Coming soon
 
 # Unit test(s)
 
