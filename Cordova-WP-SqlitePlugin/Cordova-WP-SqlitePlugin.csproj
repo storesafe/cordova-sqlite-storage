@@ -177,9 +177,11 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
+    <!-- GONE:
     <Reference Include="Community.CsharpSqlite.WinPhone">
       <HintPath>..\Community.CsharpSqlite.WinPhone\obj\Release\Community.CsharpSqlite.WinPhone.dll</HintPath>
     </Reference>
+     -->
     <Reference Include="WPCordovaClassLib">
       <HintPath>CordovaLib\WPCordovaClassLib.dll</HintPath>
     </Reference>
