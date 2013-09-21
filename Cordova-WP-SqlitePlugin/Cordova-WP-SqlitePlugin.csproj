@@ -128,8 +128,8 @@
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Plugins\SqlitePlugin\SQLite.cs" />
-    <Compile Include="Plugins\SqlitePlugin\SQLitePlugin.cs" />
+    <Compile Include="Plugins\sqlite\SQLite.cs" />
+    <Compile Include="Plugins\sqlite\SQLitePlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
