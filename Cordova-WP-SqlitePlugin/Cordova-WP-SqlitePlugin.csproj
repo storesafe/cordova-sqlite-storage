@@ -143,11 +143,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="CordovaLib\WPCordovaClassLib.dll" />
     <Content Include="CordovaSourceDictionary.xml" />
+    <Content Include="www\cordova-2.7.0.js" />
     <Content Include="www\SQLitePlugin.js" />
     <None Include="BuildManifestProcessor.js" />
-    <Content Include="www\cordova-2.2.0.js" />
     <Content Include="www\index.html">
       <SubType>Designer</SubType>
     </Content>
@@ -177,15 +176,17 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="WPCordovaClassLib">
-      <HintPath>CordovaLib\WPCordovaClassLib.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
+    <ProjectReference Include="..\..\framework\WPCordovaClassLib.csproj">
+      <Project>{FC6A1A70-892D-46AD-9E4A-9793F72AF780}</Project>
+      <Name>WPCordovaClassLib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\sqlite-net-wp8\Sqlite.vcxproj">
       <Project>{59B35F6C-E062-4F0E-88D8-13F3F82A24F3}</Project>
       <Name>Sqlite</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="CordovaLib\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
