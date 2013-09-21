@@ -109,6 +109,20 @@
 							console.log('Callback 4 complete result:'+JSON.stringify(result))
 							console.log('Callback 4 length:'+result.rows.length)
 							console.log('Callback 4 first item:'+JSON.stringify(result.rows.item(0)))
+
+							document.getElementById('res').innerHTML = document.getElementById('res').innerHTML + "<br/>";
+							document.getElementById('res').innerHTML = document.getElementById('res').innerHTML +
+								('Callback 4 complete result:'+JSON.stringify(result));
+							document.getElementById('res').innerHTML = document.getElementById('res').innerHTML + "<br/>";
+							document.getElementById('res').innerHTML = document.getElementById('res').innerHTML +
+								('Callback 4 length:'+result.rows.length);
+							document.getElementById('res').innerHTML = document.getElementById('res').innerHTML + "<br/>";
+							document.getElementById('res').innerHTML = document.getElementById('res').innerHTML +
+								('Callback 4 first item:'+JSON.stringify(result.rows.item(0)));
+							document.getElementById('res').innerHTML = document.getElementById('res').innerHTML + "<br/>";
+							document.getElementById('res').innerHTML = document.getElementById('res').innerHTML +
+								('Callback 4 second item:'+JSON.stringify(result.rows.item(1)));
+							document.getElementById('res').innerHTML = document.getElementById('res').innerHTML + "<br/>";
 						},
 						transaction_err
 					);
