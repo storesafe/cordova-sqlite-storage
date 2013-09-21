@@ -47,6 +47,18 @@ using Sqlite3Statement = System.IntPtr;
 
 namespace SQLite
 {
+
+    public class SQLiteQueryRow
+    {
+        public List<SQLiteQueryColumn> column;
+    }
+    public class SQLiteQueryColumn
+    {
+        public string Key;
+        public object Value;
+    }
+
+
 	public class SQLiteException : Exception
 	{
 		public SQLite3.Result Result { get; private set; }
@@ -581,6 +593,12 @@ namespace SQLite
 			
 			return r;
 		}
+
+        public List<SQLiteQueryRow> Query2(string query, params object[] args)
+        {
+            var cmd = CreateCommand(query, args);
+            return cmd.ExecuteQuery();
+        }
 
 		/// <summary>
 		/// Creates a SQLiteCommand given the command text (SQL) with arguments. Place a '?'
@@ -1891,6 +1909,83 @@ namespace SQLite
 				throw SQLiteException.New (r, r.ToString ());
 			}
 		}
+
+        public List<SQLiteQueryRow> ExecuteQuery()
+        {
+            return ExecuteDeferredQuery().ToList();
+        }
+        /*
+        public class SQLiteQueryRow
+        {
+            public List<SQLiteQueryColumn> column;
+        }
+        public class SQLiteQueryColumn
+        {
+            public string Key;
+            public object Value;
+        }
+        */
+        public IEnumerable<SQLiteQueryRow> ExecuteDeferredQuery()
+        {
+            if (_conn.Trace)
+            {
+                Debug.WriteLine("Executing Query: " + this);
+            }
+
+            var stmt = Prepare();
+            try
+            {
+                var cols = new string[SQLite3.ColumnCount(stmt)];
+
+                for (int i = 0; i < cols.Length; i++)
+                {
+                    var name = SQLite3.ColumnName16(stmt, i);
+                    cols[i] = name;
+                }
+
+                while (SQLite3.Step(stmt) == SQLite3.Result.Row)
+                {
+                    var row = new SQLiteQueryRow();
+                    for (int i = 0; i < cols.Length; i++)
+                    {
+                        var colType = SQLite3.ColumnType(stmt, i);
+
+                        Type targetType;
+                        switch (colType)
+                        {
+                            case SQLite3.ColType.Text:
+                                targetType = typeof(string);
+                                break;
+                            case SQLite3.ColType.Integer:
+                                targetType = typeof(int);
+                                break;
+                            case SQLite3.ColType.Float:
+                                targetType = typeof(double);
+                                break;
+                            default:
+                                targetType = typeof(object);
+                                break;
+                        }
+
+                        var val = ReadCol(stmt, i, colType, targetType);
+                        var column = new SQLiteQueryColumn();
+                        column.Key = cols[i];
+                        column.Value = val;
+                        if (row.column == null)
+                            row.column = new List<SQLiteQueryColumn>();
+                        row.column.Add(column);
+                    }
+                    OnInstanceCreated(row);
+                    yield return row;
+                }
+            }
+            finally
+            {
+                SQLite3.Finalize(stmt);
+            }
+        }
+
+
 
 		public IEnumerable<T> ExecuteDeferredQuery<T> ()
 		{
