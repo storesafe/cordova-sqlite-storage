@@ -18,6 +18,10 @@ This was a problem with another .net library, TBD check if this is solved by usi
 
  - Drop table is not working, looks like a bug in the native SQL library. To get around this we empty the tabe instead of dropping it.
 
+## Installation
+
+Simply copy the sample project under My Documents. It has a dependency on the framework and perhaps templates directories from the Cordova kit for WP8.
+
 ## Support
 
 If you have an issue with the plugin the best way to get help is by raising an issue. It is best to make post the simplest code necessary to demonstrate the issue.
