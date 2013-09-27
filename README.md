@@ -13,6 +13,8 @@ License for iOS version: MIT only
 
 ## Announcements
 
+- New location: https://github.com/lite4cordova/Cordova-SQLitePlugin
+- Forum renamed to: [lite4cordova forum](http://groups.google.com/group/lite4cordova)
 - Android & iOS versions are combined again in this project.
 - Android & iOS versions are working with Cordova 3.0 tooling.
 - iOS version can now be built with either ARC or MRC.
@@ -262,13 +264,13 @@ If you still cannot get something to work:
   - if the issue is with *adding* data to a table, that the test program includes the statements you used to open the database and create the table;
   - if the issue is with *retrieving* data from a table, that the test program includes the statements you used to open the database, create the table, and enter the data you are trying to retrieve.
 
-Then you can log the issue at [lite4mobi / Cordova-SQLitePlugin / issues](https://github.com/lite4mobi/Cordova-SQLitePlugin/issues) or post it to the [pgsqlite forum](http://groups.google.com/group/pgsqlite).
+Then you can log the issue at [lite4cordova / Cordova-SQLitePlugin / issues](https://github.com/lite4cordova/Cordova-SQLitePlugin/issues) or post it to the [lite4cordova forum](http://groups.google.com/group/lite4cordova).
 
 **NOTE:** If you have any questions please use the community forum as described below.
 
 ## Community forum
 
-If you have any questions about the plugin please post it to the [pgsqlite forum](http://groups.google.com/group/pgsqlite).
+If you have any questions about the plugin please post it to the [lite4cordova forum](http://groups.google.com/group/lite4cordova).
 
 ## Support priorities
 
@@ -323,7 +325,7 @@ Using the `db` option you can create multiple stores in one sqlite file. (There 
 # Contributing
 
 - Testimonials of apps that are using this plugin would be especially helpful.
-- Reporting issues to the [pgsqlite forum](http://groups.google.com/group/pgsqlite) can help improve the quality of this plugin.
+- Reporting issues to the [lite4cordova forum](http://groups.google.com/group/lite4cordova) can help improve the quality of this plugin.
 - Patches with bug fixes are helpful, especially when submitted with test code.
 - Other enhancements are very welcome, especially with test code. Increase of complexity should be avoided.
 - All contributions may be reused by [@brodybits (Chris Brody)](https://github.com/brodybits) under another license in the future. Efforts will be taken to give credit for major contributions but it will not be guaranteed.
