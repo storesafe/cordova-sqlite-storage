@@ -207,6 +207,7 @@ License for common Javascript: MIT or Apache
       return
 
     SQLitePluginTransaction::run = ->
+      console.log "starting SQLitePluginTransaction::run"
       txFailure = null
 
       tropts = []
@@ -262,6 +263,7 @@ License for common Javascript: MIT or Apache
         i++
 
       mycb = (result) ->
+        console.log "got callback for SQLitePluginTransaction::run"
         #console.log "mycb result #{JSON.stringify result}"
 
         for r in result
@@ -275,11 +277,15 @@ License for common Javascript: MIT or Apache
             if q[type]
               q[type] res
 
+        console.log "finished callback for SQLitePluginTransaction::run"
+
         return
 
       mycommand = if @db.bg then "backgroundExecuteSqlBatch" else "executeSqlBatch"
+      console.log "sending #{mycommand} SQLitePluginTransaction::run"
       cordova.exec mycb, null, "SQLitePlugin", mycommand, [{dbargs: {dbname: @db.dbname}, executes: tropts}]
 
+      console.log "finished SQLitePluginTransaction::run"
       return
 
     SQLitePluginTransaction::abort = (txFailure) ->

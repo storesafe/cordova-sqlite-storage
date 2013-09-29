@@ -275,6 +275,8 @@ static int base64_encode_blockend(char* code_out,
 
     CDVPluginResult* pluginResult;
 
+    NSLog(@"Start sql batch");
+
     @synchronized(self) {
         for (NSMutableDictionary *dict in executes) {
             CDVPluginResult *result = [self executeSqlWithDict:dict andArgs:dbargs];
@@ -299,6 +301,7 @@ static int base64_encode_blockend(char* code_out,
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:results];
     }
 
+    NSLog(@"Sending plugin result");
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
@@ -319,6 +322,8 @@ static int base64_encode_blockend(char* code_out,
     @synchronized (self) {
         pluginResult = [self executeSqlWithDict: ex andArgs: dbargs];
     }
+
+    NSLog(@"Sending plugin result");
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 

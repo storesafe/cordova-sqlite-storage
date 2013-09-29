@@ -213,6 +213,7 @@
 
   SQLitePluginTransaction.prototype.run = function() {
     var batchExecutes, handlerFor, i, mycb, mycbmap, mycommand, qid, request, tropts, tx, txFailure, waiting;
+    console.log("starting SQLitePluginTransaction::run");
     txFailure = null;
     tropts = [];
     batchExecutes = this.executes;
@@ -269,6 +270,7 @@
     }
     mycb = function(result) {
       var q, r, res, type, _i, _len;
+      console.log("got callback for SQLitePluginTransaction::run");
       for (_i = 0, _len = result.length; _i < _len; _i++) {
         r = result[_i];
         type = r.type;
@@ -281,8 +283,10 @@
           }
         }
       }
+      console.log("finished callback for SQLitePluginTransaction::run");
     };
     mycommand = this.db.bg ? "backgroundExecuteSqlBatch" : "executeSqlBatch";
+    console.log("sending " + mycommand + " SQLitePluginTransaction::run");
     cordova.exec(mycb, null, "SQLitePlugin", mycommand, [
       {
         dbargs: {
@@ -291,6 +295,7 @@
         executes: tropts
       }
     ]);
+    console.log("finished SQLitePluginTransaction::run");
   };
 
   SQLitePluginTransaction.prototype.abort = function(txFailure) {
