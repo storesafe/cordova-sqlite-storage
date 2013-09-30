@@ -22,10 +22,13 @@ License for this version: MIT or Apache
  - Drop table is not working, looks like a bug in the net or csharp sqlite library. To get around this we can empty the tabe instead of dropping it.
  - A high number of features in csharp-sqlite were disabled to build when included by Cordova 3.0 CLI.
  - Missing failure-safe transaction mechanism
+ - Not (yet) working with [SQLCipher](http://sqlcipher.net) for encryption
 
 ## Installation
 
 Download & Windows version of node.js then follow normal instructions for Cordova CLI for WP8
+
+Test in `wp-test` subdirectory
 
 ## Included dependencies
 
