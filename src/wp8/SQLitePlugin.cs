@@ -94,11 +94,14 @@ namespace Cordova.Extension.Commands
         //we don't actually open here, we will do this with each db transaction
         public void open(string options)
         {
-            SQLitePluginOpenCloseOptions dbOptions;
+            System.Diagnostics.Debug.WriteLine("SQLitePlugin.open with options:" + options);
+
+            //SQLitePluginOpenCloseOptions dbOptions;
             String dbName = "";
             try
             {
-                dbOptions = JsonHelper.Deserialize<SQLitePluginOpenCloseOptions>(options);
+                //dbOptions = JsonHelper.Deserialize<SQLitePluginOpenCloseOptions>(options);
+                dbName = JsonHelper.Deserialize<string[]>(options)[0];
             }
             catch (Exception)
             {
@@ -106,9 +109,10 @@ namespace Cordova.Extension.Commands
                 return;
             }
 
-            if (!string.IsNullOrEmpty(dbOptions.DBName))
+            //if (!string.IsNullOrEmpty(dbOptions.DBName))
+            if (!string.IsNullOrEmpty(dbName))
             {
-                dbName = dbOptions.DBName;
+                //dbName = dbOptions.DBName;
                 System.Diagnostics.Debug.WriteLine("SQLitePlugin.open():" + dbName);
                 DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
                 this.dbName = dbName;

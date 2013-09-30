@@ -39,11 +39,12 @@
     opts = void 0;
     if (!(this.dbPath in this.openDBs)) {
       this.openDBs[this.dbPath] = true;
-      return cdv.exec(success, error, "SQLitePlugin", "open", {dbName: this.dbPath});
+      //return cdv.exec(success, error, "SQLitePlugin", "open", {dbName: this.dbPath});
     }
     else { // we already have this db open
-    	return cdv.exec(success, error, "SQLitePlugin", "open", {dbName: this.dbPath});
+    	//return cdv.exec(success, error, "SQLitePlugin", "open", {dbName: this.dbPath});
     }
+    cdv.exec(success, error, "SQLitePlugin", "open", [this.dbPath]);
   };
   SQLitePlugin.prototype.close = function(success, error) {
     var opts;

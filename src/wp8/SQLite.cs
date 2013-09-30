@@ -19,9 +19,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-#if WINDOWS_PHONE && !USE_WP8_NATIVE_SQLITE
-#define USE_CSHARP_SQLITE
-#endif
+//#if WINDOWS_PHONE && !USE_WP8_NATIVE_SQLITE
+//#define USE_CSHARP_SQLITE
+//#endif
 
 using System;
 using System.Diagnostics;
@@ -32,7 +32,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 
-#if USE_CSHARP_SQLITE
+#if !NOT_USE_CSHARP_SQLITE //#if USE_CSHARP_SQLITE
 using Sqlite3 = Community.CsharpSqlite.Sqlite3;
 using Sqlite3DatabaseHandle = Community.CsharpSqlite.Sqlite3.sqlite3;
 using Sqlite3Statement = Community.CsharpSqlite.Sqlite3.Vdbe;
@@ -164,7 +164,8 @@ namespace SQLite
 
 			Sqlite3DatabaseHandle handle;
 
-#if SILVERLIGHT || USE_CSHARP_SQLITE
+//#if SILVERLIGHT || USE_CSHARP_SQLITE
+#if (!NO_SILVERLIGHT) || (!USE_CSHARP_SQLITE)
             var r = SQLite3.Open (databasePath, out handle, (int)openFlags, IntPtr.Zero);
 #else
 			// open using the byte[]
@@ -953,13 +954,13 @@ namespace SQLite
 				if (Int32.TryParse (savepoint.Substring (firstLen + 1), out depth)) {
 					// TODO: Mild race here, but inescapable without locking almost everywhere.
 					if (0 <= depth && depth < _transactionDepth) {
-#if NETFX_CORE
-                        Volatile.Write (ref _transactionDepth, depth);
-#elif SILVERLIGHT
+//#if NETFX_CORE
+//                        Volatile.Write (ref _transactionDepth, depth);
+//#elif SILVERLIGHT
 						_transactionDepth = depth;
-#else
-                        Thread.VolatileWrite (ref _transactionDepth, depth);
-#endif
+//#else
+//                        Thread.VolatileWrite (ref _transactionDepth, depth);
+//#endif
                         Execute (cmd + savepoint);
 						return;
 					}
@@ -2652,7 +2653,7 @@ namespace SQLite
 #else
 					} else if (mem.Member is FieldInfo) {
 #endif
-#if SILVERLIGHT
+#if !NO_SILVERLIGHT
 						val = Expression.Lambda (expr).Compile ().DynamicInvoke ();
 #else
 						var m = (FieldInfo)mem.Member;
@@ -2828,7 +2829,8 @@ namespace SQLite
 			Serialized = 3
 		}
 
-#if !USE_CSHARP_SQLITE && !USE_WP8_NATIVE_SQLITE
+//#if !USE_CSHARP_SQLITE && !USE_WP8_NATIVE_SQLITE
+#if NO_USE_CSHARP_SQLITE && !USE_WP8_NATIVE_SQLITE
 		[DllImport("sqlite3", EntryPoint = "sqlite3_open", CallingConvention=CallingConvention.Cdecl)]
 		public static extern Result Open ([MarshalAs(UnmanagedType.LPStr)] string filename, out IntPtr db);
 
