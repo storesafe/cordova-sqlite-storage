@@ -9,7 +9,7 @@ License for iOS version: MIT only
 ## Status
 
 - Android & iOS versions are working with Cordova 3.0 tooling
-- New feature development is on hold until the version for Windows Phone 8 is working with Cordova 3.0+ tooling
+- New feature development is on hold until the version for Windows Phone 8 is integrated and working with fail-safe nested transactions
 
 ## Announcements
 
@@ -18,6 +18,7 @@ License for iOS version: MIT only
 - Android & iOS versions are combined again in this project.
 - Android & iOS versions are working with Cordova 3.0 tooling.
 - iOS version can now be built with either ARC or MRC.
+- WP8 version working with Cordova 3.0 tooling at: [lite4cordova / Cordova-SQLitePlugin-WP-2013.12](https://github.com/lite4cordova/Cordova-SQLitePlugin-WP-2013.12)
 
 ## Highlights
 
