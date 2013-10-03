@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    id="ch.zhaw.sqlite"
+	version="2.0.0">
+
+<engines>
+    <engine name="cordova" version="3.0.0" />
+</engines>
+
+<name>SqlitePlugin</name>	
+<description>Plugin to add support for SQLite databases on windows based devices</description>
+<author>ZHAW</author>
+<keywords>SQLite, sql, database, windows phone</keywords>
+<license>Apache 2.0 License</license>
+
+
+<platform name="wp8">	
+	<js-module src="www/SQLitePlugin.js" name="sqlitePlugin">
+		<clobbers target="window.plugins" />	
+	</js-module>
+	
+	<source-file src="Plugins/SqlitePlugin/SQLitePlugin.cs"
+		target-dir="Plugins/SqlitePlugin" />
+	
+	<source-file src="Plugins/SqlitePlugin/SQLite.cs"
+		target-dir="Plugins/SqlitePlugin" />
+
+</platform>
+
