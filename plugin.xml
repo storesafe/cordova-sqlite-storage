@@ -15,14 +15,14 @@
 
 
 <platform name="wp8">	
-	<js-module src="www/SQLitePlugin.js" name="sqlitePlugin">
+	<js-module src="Cordova-WP-SqlitePlugin/www/SQLitePlugin.js" name="sqlitePlugin">
 		<clobbers target="window.plugins" />	
 	</js-module>
 	
-	<source-file src="Plugins/SqlitePlugin/SQLitePlugin.cs"
+	<source-file src="Cordova-WP-SqlitePlugin/Plugins/SqlitePlugin/SQLitePlugin.cs"
 		target-dir="Plugins/SqlitePlugin" />
 	
-	<source-file src="Plugins/SqlitePlugin/SQLite.cs"
+	<source-file src="Cordova-WP-SqlitePlugin/Plugins/SqlitePlugin/SQLite.cs"
 		target-dir="Plugins/SqlitePlugin" />
 
 </platform>
