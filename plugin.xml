@@ -13,17 +13,20 @@
 <keywords>SQLite, sql, database, windows phone</keywords>
 <license>Apache 2.0 License</license>
 
+<js-module src="Cordova-WP-SqlitePlugin/www/SQLitePlugin.js" name="sqlitePlugin">
+	<clobbers target="window.plugins" />	
+</js-module>
 
-<platform name="wp8">	
-	<js-module src="Cordova-WP-SqlitePlugin/www/SQLitePlugin.js" name="sqlitePlugin">
-		<clobbers target="window.plugins" />	
-	</js-module>
+<platform name="wp8">		
+	<config-file target="config.xml" parent="/*">
+            <feature name="SQLitePlugin">
+                <param name="wp-package" value="SQLitePlugin"/>
+            </feature>
+        </config-file>
 	
-	<source-file src="Cordova-WP-SqlitePlugin/Plugins/SqlitePlugin/SQLitePlugin.cs"
-		target-dir="Plugins/SqlitePlugin" />
-	
-	<source-file src="Cordova-WP-SqlitePlugin/Plugins/SqlitePlugin/SQLite.cs"
-		target-dir="Plugins/SqlitePlugin" />
+	<source-file src="Cordova-WP-SqlitePlugin/Plugins/SqlitePlugin/SQLitePlugin.cs" />	
+	<source-file src="Cordova-WP-SqlitePlugin/Plugins/SqlitePlugin/SQLite.cs" />
 
 </platform>
 
+</plugin>
