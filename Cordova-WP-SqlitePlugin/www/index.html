@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
   <head>
     <!-- meta name="viewport" content="width=device-width, height=device-height, user-scalable=yes, initial-scale=2.0, maximum-scale=4.0, minimum-scale=1.0" / -->
@@ -9,11 +9,12 @@
     <link rel="stylesheet" href="../../master.css" type="text/css" media="screen"/>
 
 
-    <script type="text/javascript" charset="utf-8" src="cordova-2.2.0.js"></script>
+    <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
     <script type="text/javascript" charset="utf-8" src="SqlitePlugin.js"></script>
 
     <script type="text/javascript" charset="utf-8">
-      var tests = [];
+        var tests = [];
+
       function do_next_test()
       {
       var nextTest;
@@ -44,7 +45,7 @@
     {
         console.log('Test Open');
         document.getElementById('res').innerHTML = document.getElementById('res').innerHTML+ "Testing Open: ";
-        var db_ptr = sqlitePlugin.openDatabase("gid_native.sqlite3", '', '', '', function()
+        var db_ptr = window.plugins.sqlitePlugin.openDatabase("gid_native.sqlite3", '', '', '', function ()
         	{
         		if(db_ptr){
         			db_ptr.close(doTestSuccess, doTestError);
@@ -58,14 +59,14 @@
     {
         console.log('Test Open Error');
         document.getElementById('res').innerHTML = document.getElementById('res').innerHTML+ "Testing Open Error: ";
-        var db_ptr = sqlitePlugin.openDatabase("", '', '', '', doTestError, doTestSuccess);
+        var db_ptr = window.plugins.sqlitePlugin.openDatabase("", '', '', '', doTestError, doTestSuccess);
     }
     //-- Close Tests
     function testDBCloseSuccess()
     {
         console.log('Test Close');
         document.getElementById('res').innerHTML = document.getElementById('res').innerHTML+ "Testing Close: ";
-        var db_ptr = sqlitePlugin.openDatabase("gid_native.sqlite3", '', '', '', function()
+        var db_ptr = window.plugins.sqlitePlugin.openDatabase("gid_native.sqlite3", '', '', '', function ()
 	        {
 	        	db_ptr.close(doTestSuccess, doTestError);
 	        }, doTestError);	
@@ -77,7 +78,7 @@
 			console.log('Error: '+e.message);
 			doTestError(e.message);
 		}
-    	var db_ptr = sqlitePlugin.openDatabase("gid_native.sqlite3", '', '', '', function()
+    	var db_ptr = window.plugins.sqlitePlugin.openDatabase("gid_native.sqlite3", '', '', '', function ()
         {
 			try
 			{
@@ -132,6 +133,16 @@
         }, doTestError);	
     }
     function testSqlite() {
+        if (!window.plugins) {
+            console.log("No Plugins...");
+            window.plugins = {};
+        }
+
+        if (!window.plugins.sqlitePlugin) {
+            console.log("try load plugin...");
+            window.plugins.sqlitePlugin = cordova.require("ch.zhaw.sqlite.SqlitePlugin");
+        }
+
     	document.getElementById('res').innerHTML = '';
     	tests.push(testDBOpenSuccess);
     	tests.push(testDBOpenError);

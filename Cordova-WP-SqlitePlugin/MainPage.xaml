@@ -30,7 +30,7 @@
     Background="Black"
     SupportedOrientations="PortraitOrLandscape" Orientation="Portrait"
     shell:SystemTray.IsVisible="True" d:DesignHeight="768" d:DesignWidth="480" 
-    xmlns:my="clr-namespace:WPCordovaClassLib;assembly=WPCordovaClassLib">
+    xmlns:my="clr-namespace:WPCordovaClassLib">
     <Grid x:Name="LayoutRoot" Background="Transparent" HorizontalAlignment="Stretch">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -39,14 +39,6 @@
                    Margin="0,0,0,0"  
                    x:Name="CordovaView" 
                    VerticalAlignment="Stretch" />
-        <Image Source="SplashScreenImage.jpg"
-          x:Name="SplashImage"
-          VerticalAlignment="Center"
-          HorizontalAlignment="Stretch">
-            <Image.Projection>
-                <PlaneProjection x:Name="SplashProjector"  CenterOfRotationX="0"/>
-            </Image.Projection>
-        </Image>
     </Grid>
 
 </phone:PhoneApplicationPage>

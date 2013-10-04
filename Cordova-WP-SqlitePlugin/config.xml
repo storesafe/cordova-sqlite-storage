@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget>
+	<feature name="http://api.phonegap.com/1.0/network" />
+	<feature name="http://api.phonegap.com/1.0/file" />
+	
+	<feature name="SQLitePlugin">
+        <param name="wp-package" value="SQLitePlugin" />
+    </feature>
+	
+</widget>
