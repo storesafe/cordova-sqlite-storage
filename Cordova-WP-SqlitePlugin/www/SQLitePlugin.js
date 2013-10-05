@@ -306,6 +306,7 @@
             return new SQLitePlugin(dbPath, creationCallback, errorCallback);
         };
 
+        window.openDatabase = SQLitePlugin.openDatabase;
         module.exports = SQLitePlugin;
     })()
 });

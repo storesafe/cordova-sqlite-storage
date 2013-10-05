@@ -5,10 +5,26 @@ License for this version: MIT or Apache
 
 ## Highlights
 
- - Keeps sqlite database in a user data location that is known and can be reconfigured
- - Drop-in replacement for HTML5 SQL API, the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
- - batch processing optimizations
- - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
+ - Upgraded for cordova 3.0 and higher
+ - Added support for installation through CLI
+
+## Usage
+
+Install plugin via CLI:
+- cordova plugin add <urlToPlugin>
+All necessary entries should be made in the config file, native C# code file and javascript file are automatically added
+
+- Reference the SQLitePlugin.js in your index.html file (Normally it can be found under the following folder under www: plugins\ch.zhaw.sqlite\Cordova-WP-SqlitePlugin\www)
+
+- Before the first use, make sure plugin is loaded:
+if (!window.plugins.sqlitePlugin) 
+{
+	console.log("try load plugin...");
+	window.plugins.sqlitePlugin = cordova.require("ch.zhaw.sqlite.SqlitePlugin");            
+}
+
+- After this you can access it either through window.plugins.sqlitePlugin.
+- The window.openDatabase function is overwritten when the plugin is loaded, so you can also use window.openDatabase.
 
 ## Known Issues
 
