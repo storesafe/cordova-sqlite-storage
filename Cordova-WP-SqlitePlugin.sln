@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2012 for Windows Phone
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cordova-WP-SqlitePlugin", "Cordova-WP-SqlitePlugin\Cordova-WP-SqlitePlugin.csproj", "{3677C1B7-D68B-4CF9-BF8A-E869D437A6DF}"
 EndProject
 Global

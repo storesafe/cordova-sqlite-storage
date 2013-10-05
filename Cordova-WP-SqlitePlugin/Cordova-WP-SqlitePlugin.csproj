@@ -125,6 +125,22 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CordovaLib\BrowserMouseHelper.cs" />
+    <Compile Include="CordovaLib\CommandFactory.cs" />
+    <Compile Include="CordovaLib\Commands\BaseCommand.cs" />
+    <Compile Include="CordovaLib\ConfigHandler.cs" />
+    <Compile Include="CordovaLib\ConsoleHelper.cs" />
+    <Compile Include="CordovaLib\CordovaCommandCall.cs" />
+    <Compile Include="CordovaLib\CordovaView.xaml.cs" />
+    <Compile Include="CordovaLib\IBrowserDecorator.cs" />
+    <Compile Include="CordovaLib\ImageExifHelper.cs" />
+    <Compile Include="CordovaLib\JSON\JsonHelper.cs" />
+    <Compile Include="CordovaLib\MimeTypeMapper.cs" />
+    <Compile Include="CordovaLib\NativeExecution.cs" />
+    <Compile Include="CordovaLib\OrientationHelper.cs" />
+    <Compile Include="CordovaLib\PluginResult.cs" />
+    <Compile Include="CordovaLib\ScriptCallback.cs" />
+    <Compile Include="CordovaLib\XHRHelper.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -137,22 +153,45 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </ApplicationDefinition>
+    <Page Include="CordovaLib\CordovaView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MainPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="CordovaLib\WPCordovaClassLib.dll" />
-    <Content Include="CordovaSourceDictionary.xml" />
-    <Content Include="www\SQLitePlugin.js" />
-    <None Include="BuildManifestProcessor.js" />
-    <Content Include="www\cordova-2.2.0.js" />
+    <Content Include="config.xml" />
+    <Content Include="cordova\lib\build.js" />
+    <Content Include="cordova\lib\clean.js" />
+    <Content Include="cordova\lib\deploy.js" />
+    <Content Include="cordova\lib\log.js" />
+    <Content Include="cordova\lib\target-list.js" />
+    <Content Include="www\SQLitePlugin.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="www\cordova.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="www\index.html">
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="cordova\build.bat" />
+    <None Include="cordova\clean.bat" />
     <None Include="cordova\debug.bat" />
     <None Include="cordova\emulate.bat" />
+    <None Include="cordova\lib\install-device.bat" />
+    <None Include="cordova\lib\install-emulator.bat" />
+    <None Include="cordova\lib\list-devices.bat" />
+    <None Include="cordova\lib\list-emulator-images.bat" />
+    <None Include="cordova\lib\list-started-emulators.bat" />
+    <None Include="cordova\lib\start-emulator.bat" />
+    <None Include="cordova\log.bat" />
+    <None Include="cordova\run.bat" />
+    <None Include="cordova\version.bat" />
     <None Include="packages.config" />
     <None Include="Properties\AppManifest.xml">
       <SubType>Designer</SubType>
@@ -178,11 +217,14 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Community.CsharpSqlite.WinPhone">
-      <HintPath>..\Community.CsharpSqlite.WinPhone\obj\Release\Community.CsharpSqlite.WinPhone.dll</HintPath>
+      <HintPath>lib\Community.CsharpSqlite.WinPhone.dll</HintPath>
     </Reference>
     <Reference Include="WPCordovaClassLib">
       <HintPath>CordovaLib\WPCordovaClassLib.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="cordova\plugins\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
@@ -195,7 +237,8 @@
   -->
   <ProjectExtensions />
   <PropertyGroup>
-    <PreBuildEvent>CScript "$(ProjectDir)/BuildManifestProcessor.js" "$(ProjectPath)"</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>
