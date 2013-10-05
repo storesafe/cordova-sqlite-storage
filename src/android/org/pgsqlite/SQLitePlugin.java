@@ -423,6 +423,49 @@ public class SQLitePlugin extends CordovaPlugin
 					}
 				}
 
+				if (query.toLowerCase().startsWith("begin")) {
+					needRawQuery = false;
+					try {
+						mydb.beginTransaction();
+
+						queryResult = new JSONObject();
+						queryResult.put("rowsAffected", 0);
+					} catch (SQLiteException ex) {
+						ex.printStackTrace();
+						errorMessage = ex.getMessage();
+						Log.v("executeSqlBatch", "SQLiteDatabase.beginTransaction(): Error=" +  errorMessage);
+					}
+				}
+
+				if (query.toLowerCase().startsWith("commit")) {
+					needRawQuery = false;
+					try {
+						mydb.setTransactionSuccessful();
+						mydb.endTransaction();
+
+						queryResult = new JSONObject();
+						queryResult.put("rowsAffected", 0);
+					} catch (SQLiteException ex) {
+						ex.printStackTrace();
+						errorMessage = ex.getMessage();
+						Log.v("executeSqlBatch", "SQLiteDatabase.setTransactionSuccessful/endTransaction(): Error=" +  errorMessage);
+					}
+				}
+
+				if (query.toLowerCase().startsWith("rollback")) {
+					needRawQuery = false;
+					try {
+						mydb.endTransaction();
+
+						queryResult = new JSONObject();
+						queryResult.put("rowsAffected", 0);
+					} catch (SQLiteException ex) {
+						ex.printStackTrace();
+						errorMessage = ex.getMessage();
+						Log.v("executeSqlBatch", "SQLiteDatabase.endTransaction(): Error=" +  errorMessage);
+					}
+				}
+
 				// raw query for other statements:
 				if (needRawQuery) {
 					String[] params = null;
