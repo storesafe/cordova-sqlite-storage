@@ -18,6 +18,7 @@ using System.Collections.ObjectModel;
 using WPCordovaClassLib.Cordova;
 using WPCordovaClassLib.Cordova.Commands;
 using WPCordovaClassLib.Cordova.JSON;
+
 using System.Text.RegularExpressions;
 
 namespace Cordova.Extension.Commands
@@ -96,13 +97,12 @@ namespace Cordova.Extension.Commands
         {
             //Expected: {\"dbName\":\"gid_native.sqlite3\"}
 
-            var database = options.Split(',')[0];
-
             SQLitePluginOpenCloseOptions dbOptions;
             String dbName = "";
             try
             {
-                dbOptions = JsonHelper.Deserialize<SQLitePluginOpenCloseOptions>(database);
+                var dbNameParam = JsonHelper.Deserialize<string[]>(options);
+                dbOptions = JsonHelper.Deserialize<SQLitePluginOpenCloseOptions>(dbNameParam[0]);
             }
             catch (Exception)            {
 

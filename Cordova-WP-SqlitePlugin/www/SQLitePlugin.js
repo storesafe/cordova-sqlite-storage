@@ -55,8 +55,7 @@
             if (!(this.dbPath in this.openDBs)) {
                 console.log("new Database...dbPath = " + this.dbPath);
                 this.openDBs[this.dbPath] = true;
-                var args = this.dbPath;
-                return cordova.exec(success, error, "SQLitePlugin", "open", { dbName: args });
+                return cordova.exec(success, error, "SQLitePlugin", "open", [{dbName : this.dbPath}]);
             }
             else { // we already have this db open
                 console.log("old db");
