@@ -10,6 +10,12 @@ License for this version: MIT or Apache
 
 ## Usage
 
+- If used with cordova 3.0, the file SQLitePlugin.js must probably be adapted like this (if not done by plugman automatically):
+	**cordova.define("ch.zhaw.sqlite.SqlitePlugin", function(require, exports, module) {﻿**
+	*EXISTING CODE*
+	**});**
+otherwise the plugin will not be loaded correctly
+	
 Install plugin via CLI:
 - cordova plugin add <urlToPlugin>
 All necessary entries should be made in the config file, native C# code file and javascript file are automatically added

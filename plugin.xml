@@ -14,7 +14,7 @@
 <license>Apache 2.0 License</license>
 
 <js-module src="Cordova-WP-SqlitePlugin/www/SQLitePlugin.js" name="SqlitePlugin">
-	<clobbers target="plugins.sqlitePlugin" />	
+	<clobbers target="window.plugins.sqlitePlugin" />	
 </js-module>
 
 <platform name="wp8">		
