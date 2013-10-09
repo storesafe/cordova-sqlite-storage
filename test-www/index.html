@@ -20,7 +20,11 @@
 
       test("db transaction test", function() {
 
-        var db = window.sqlitePlugin.openDatabase({name: "Database", bgType: 1});
+        stop(1);
+        var db = window.sqlitePlugin.openDatabase({name: "Database", bgType: 1}, function() {
+          ok(!!db, "access db object in success cb");
+          start(1);
+        });
 
         ok(!!db, "db object");
 

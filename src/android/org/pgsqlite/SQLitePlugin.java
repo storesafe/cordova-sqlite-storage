@@ -72,7 +72,9 @@ public class SQLitePlugin extends CordovaPlugin
 				JSONObject o = args.getJSONObject(0);
 				String dbname = o.getString("name");
 
-				this.openDatabase(dbname, null);
+				if (this.openDatabase(dbname, null))
+					cbc.success();
+				// XXX TODO report failure result
 			}
 			else if (action.equals("close")) {
 				JSONObject o = args.getJSONObject(0);
@@ -192,17 +194,30 @@ public class SQLitePlugin extends CordovaPlugin
 	 *            The database password or null.
 	 *
 	 */
-	private void openDatabase(String dbname, String password)
+	private boolean openDatabase(String dbname, String password)
 	{
+		boolean status = false;
+
 		if (this.getDatabase(dbname) != null) this.closeDatabase(dbname);
 
 		File dbfile = this.cordova.getActivity().getDatabasePath(dbname + ".db");
 
 		Log.v("info", "Open sqlite db: " + dbfile.getAbsolutePath());
 
-		SQLiteDatabase mydb = SQLiteDatabase.openOrCreateDatabase(dbfile, null);
+		try {
+			SQLiteDatabase mydb = SQLiteDatabase.openOrCreateDatabase(dbfile, null);
 
-		dbmap.put(dbname, mydb);
+			if (mydb != null) {
+				status = true;
+				dbmap.put(dbname, mydb);
+			}
+		} catch (Exception ex) {
+			// log & give up:
+			Log.v("executeSqlBatch", "openDatabase(): Error=" +  ex.getMessage());
+			ex.printStackTrace();
+		}
+
+		return status;
 	}
 
 	/**
