@@ -24,7 +24,7 @@
 
         ok(!!db, "db object");
 
-        stop(9);
+        stop(10);
 
         db.transaction(function(tx) {
 
@@ -100,10 +100,15 @@
           }, function(e) {
             console.log("ERROR: " + e.message);
           });
+        }, function(e) {
+          console.log("ERROR: " + e.message);
+        }, function() {
+          console.log("tx success cb");
+          ok(true, "tx success cb");
+          start(1);
         });
 
       });
-
 
       test("nested transaction test", function() {
 
