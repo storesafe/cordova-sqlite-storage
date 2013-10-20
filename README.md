@@ -244,7 +244,7 @@ Enable the SQLitePlugin in `config.xml`:
              <plugin name="Logger" value="CDVLogger" />
              <plugin name="Compass" value="CDVLocation" />
 
-### Quick test
+## Quick installation test
 
 Make a change like this to index.html (or use the sample code) verify proper installation:
 
