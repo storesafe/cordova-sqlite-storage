@@ -1,4 +1,4 @@
-﻿
+﻿cordova.define("ch.zhaw.sqlite.SqlitePlugin", function (require, exports, module) {
     var cordova = require('cordova');
     var SQLitePlugin = function () { };
     var SQLitePluginTransaction, get_unique_id, transaction_callback_queue, transaction_queue;
@@ -6,7 +6,6 @@
     var root = this;
 
     SQLitePlugin = function (databasePath, openSuccess, openError) {
-        console.log("SQLitePlugin - dbPath = " + databasePath);
         this.dbPath = databasePath;
         this.openSuccess = openSuccess;
         this.openError = openError;
@@ -26,7 +25,6 @@
         }
 
         try {
-            console.log("SQLitePlugin Before Open - dbPath = " + this.dbPath);
             return this.open(this.openSuccess, this.openError);
         }
         catch (err) {
@@ -42,7 +40,6 @@
         return t.complete(success, error);
     };
     SQLitePlugin.prototype.open = function (success, error) {
-        console.log("SQLitePlugin: open(" + this.dbPath + ")");
         var opts;
         opts = void 0;
 
@@ -51,12 +48,10 @@
         }
 
         if (!(this.dbPath in this.openDBs)) {
-            console.log("new Database...dbPath = " + this.dbPath);
             this.openDBs[this.dbPath] = true;
             return cordova.exec(success, error, "SQLitePlugin", "open", [{ dbName: this.dbPath }]);
         }
         else { // we already have this db open
-            console.log("old db");
             return cordova.exec(success, error, "SQLitePlugin", "open", [{ dbName: this.dbPath }]);
         }
     };
@@ -300,9 +295,9 @@
     };
 
     SQLitePlugin.openDatabase = function (dbPath, version, displayName, estimatedSize, creationCallback, errorCallback) {
-        console.log("openDatabase, path = " + dbPath);
         return new SQLitePlugin(dbPath, creationCallback, errorCallback);
     };
 
     window.openDatabase = SQLitePlugin.openDatabase;
     module.exports = SQLitePlugin;
+});
