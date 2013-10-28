@@ -26,6 +26,11 @@ import android.database.sqlite.*;
 import android.util.Base64;
 import android.util.Log;
 
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.IOException;
+
 public class SQLitePlugin extends CordovaPlugin
 {
 	/**
