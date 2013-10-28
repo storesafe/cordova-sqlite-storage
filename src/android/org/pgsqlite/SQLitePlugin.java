@@ -195,8 +195,12 @@ public class SQLitePlugin extends CordovaPlugin
 	private void openDatabase(String dbname, String password)
 	{
 		if (this.getDatabase(dbname) != null) this.closeDatabase(dbname);
+		
+		String completeDBName = dbname + ".db";
 
 		File dbfile = this.cordova.getActivity().getDatabasePath(dbname + ".db");
+		
+		if(!dbfile.exists()) copyPrepopulatedDatabase(completeDBName, dbfile);
 
 		Log.v("info", "Open sqlite db: " + dbfile.getAbsolutePath());
 
@@ -205,6 +209,50 @@ public class SQLitePlugin extends CordovaPlugin
 		dbmap.put(dbname, mydb);
 	}
 
+        /**
+         * If a prepopulated DB file exists in the assets folder it is copied to the dbPath.
+         * Only runs the first time the app runs.
+         */
+        private void copyPrepopulatedDatabase(String completeDBName, File dbfile)
+        {
+            InputStream in = null;
+            OutputStream out = null;
+            try {
+                in = this.cordova.getActivity().getAssets().open(completeDBName);
+                String dbPath = dbfile.getAbsolutePath();
+                dbPath = dbPath.substring(0, dbPath.lastIndexOf("/") + 1);
+                File dbPathFile = new File(dbPath);
+                if (!dbPathFile.exists())
+                    dbPathFile.mkdirs();
+    
+                File newDbFile = new File(dbPath + completeDBName);
+                out = new FileOutputStream(newDbFile);
+    
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = in.read(buf)) > 0)
+                    out.write(buf, 0, len);
+    
+                Log.v("info", "Copied prepopulated DB content to: " + newDbFile.getAbsolutePath());
+            } catch (IOException e) {
+                Log.v("copyPrepopulatedDatabase", "No prepopulated DB found, Error=" + e.getMessage());
+            } finally {
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (IOException ignored) {
+                    }
+                }
+    
+                if (out != null) {
+                    try {
+                        out.close();
+                    } catch (IOException ignored) {
+                    }
+                }
+            }
+        }
+        
 	/**
 	 * Close a database.
 	 *
