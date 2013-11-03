@@ -21,25 +21,21 @@ Lawnchair.adapter('webkit-sqlite', (function () {
     // public methods
     return {
     
-        //valid: function() { return !!(window.openDatabase) },
-        //valid: function() { return !!(window.my_openDatabase) },
         valid: function() { return !!(sqlitePlugin.openDatabase) },
 
         init: function (options, callback) {
             var that   = this
             ,   cb     = that.fn(that.name, callback)
+            ,   dbname = options.db || this.name
+            ,   bgType = options.bgType || 1
             ,   create = "CREATE TABLE IF NOT EXISTS " + this.name + " (id NVARCHAR(32) UNIQUE PRIMARY KEY, value TEXT, timestamp REAL)"
             ,   win    = function(){ return cb.call(that, that); }
             // open a connection and create the db if it doesn't exist 
-            //this.db = openDatabase(this.name, '1.0.0', this.name, 65536)
-            //this.db = my_openDatabase(this.name, '1.0.0', this.name, 65536)
-            //this.db = window.my_openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
-            this.db = sqlitePlugin.openDatabase(this.name, '1.0.0', this.name, 65536)
-            //this.db = sqlitePlugin.openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
+            this.db = sqlitePlugin.openDatabase({name:dbname,bgType:bgType})
             this.db.transaction(function (t) { 
                 t.executeSql(create, [], win, fail) 
             })
-        }, 
+        },
 
         keys:  function (callback) {
             var cb   = this.lambda(callback)
