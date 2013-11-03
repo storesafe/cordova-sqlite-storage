@@ -364,8 +364,13 @@ In this example, you would be using/creating the database at: *Documents/kvstore
 
 Using the `db` option you can create multiple stores in one sqlite file. (There will be one table per store.)
 
-    recipes = new Lawnchair {db: "cookbook", name: "recipes", ...}
+  recipes = new Lawnchair {db: "cookbook", name: "recipes", ...}
 	ingredients = new Lawnchair {db: "cookbook", name: "ingredients", ...}
+
+It also supports bgType argument:
+
+  users = new Lawnchair {name: "users", bgType: 1, ...}
+
 
 # Contributing
 
