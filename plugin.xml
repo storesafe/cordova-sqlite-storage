@@ -24,7 +24,7 @@
         </config-file>
 
         <!-- Cordova >= 3.0.0 -->
-        <config-file target="config.xml" parent="/*">
+        <config-file target="res/xml/config.xml" parent="/*">
             <feature name="SQLitePlugin">
                 <param name="android-package" value="org.pgsqlite.SQLitePlugin"/>
             </feature>
