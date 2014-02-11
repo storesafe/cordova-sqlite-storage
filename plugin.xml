@@ -46,4 +46,19 @@
         <source-file src="src/ios/SQLitePlugin.m" />
         <framework src="libsqlite3.dylib" />
     </platform>
+
+	<!-- wp8 -->
+    <platform name="wp8">
+        <config-file target="config.xml" parent="/*">
+            <feature name="SQLitePlugin">
+                <param name="wp-package" value="SQLitePlugin" />
+            </feature>
+        </config-file>
+
+        <source-file src="src/wp8/SQLitePlugin.cs" />
+        <source-file src="src/wp8/Newtonsoft.Json.dll" />
+        <source-file src="src/wp8/SQLiteWPNative.dll" />
+
+	</platform>
+
 </plugin>
