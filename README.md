@@ -1,4 +1,4 @@
-# Cordova/PhoneGap SQLitePlugin
+# Cordova/PhoneGap SQLitePlugin - a reference implementation
 
 Native interface to sqlite in a Cordova/PhoneGap plugin for Android & iOS, working to follow the HTML5 Web SQL API as close as possible.
 
@@ -8,21 +8,22 @@ License for iOS version: MIT only
 
 ## Status
 
-- Android & iOS versions are working with Cordova 3.0 tooling
-- New feature development is on hold until the version for Windows Phone 8 is integrated and working with fail-safe nested transactions
+- Please use the [lite4cordova forum](http://groups.google.com/group/lite4cordova) for community support
+- Commercial support is available for SQLCipher integration
 
 ## Announcements
 
-- New location: https://github.com/lite4cordova/Cordova-SQLitePlugin
+- New location: https://github.com/brodysoft/Cordova-SQLitePlugin
 - Forum renamed to: [lite4cordova forum](http://groups.google.com/group/lite4cordova)
 - Android & iOS versions are combined again in this project.
 - Android & iOS versions are working with Cordova 3.0 tooling.
 - iOS version can now be built with either ARC or MRC.
-- WP8 version working with Cordova 3.0 tooling at: [lite4cordova / Cordova-SQLitePlugin-WP-2013.12](https://github.com/lite4cordova/Cordova-SQLitePlugin-WP-2013.12)
+- WP8 version working with Cordova 3.0 tooling at: [brodysoft / Cordova-SQLitePlugin-WP-2013.12](https://github.com/brodysoft/Cordova-SQLitePlugin-WP-2013.12)
 
 ## Highlights
 
-- Drop-in replacement for HTML5 SQL API, the only change is window.openDatabase() --> sqlitePlugin.openDatabase()
+- Works with Cordova 3.0 tooling
+- Drop-in replacement for HTML5 SQL API, the only change should be window.openDatabase() --> sqlitePlugin.openDatabase()
 - Fail-safe nested transactions with batch processing optimizations
 - As described in [this posting](http://brodyspark.blogspot.com/2012/12/cordovaphonegap-sqlite-plugins-offer.html):
   - Keeps sqlite database in a user data location that is known, can be reconfigured, and iOS will be backed up by iCloud.
@@ -46,9 +47,10 @@ License for iOS version: MIT only
 
 ## Other versions
 
+- Pre-populated database support for Android & iOS: https://github.com/RikshaDriver/Cordova-PrePopulated-SQLitePlugin
 - Windows Phone 8+ version: https://github.com/marcucio/Cordova-WP-SqlitePlugin
 - iOS enhancements, with extra fixes for console log messages: https://github.com/mineshaftgap/Cordova-SQLitePlugin
-- Original iOS version with a different API: https://github.com/davibe/Phonegap-SQLitePlugin
+- Original version for iOS, with a different API: https://github.com/davibe/Phonegap-SQLitePlugin
 
 ## Using with SQLCipher
 
@@ -295,7 +297,7 @@ Make a change like this to index.html (or use the sample code) verify proper ins
 
 # Support
 
-## Logging issues
+## Reporting issues
 
 If you have an issue with the plugin please check the following first:
 - You are using the latest version of the Plugin Javascript & platform-specific Java or Objective-C source from this repository.
@@ -309,9 +311,7 @@ If you still cannot get something to work:
   - if the issue is with *adding* data to a table, that the test program includes the statements you used to open the database and create the table;
   - if the issue is with *retrieving* data from a table, that the test program includes the statements you used to open the database, create the table, and enter the data you are trying to retrieve.
 
-Then you can log the issue at [lite4cordova / Cordova-SQLitePlugin / issues](https://github.com/lite4cordova/Cordova-SQLitePlugin/issues) or post it to the [lite4cordova forum](http://groups.google.com/group/lite4cordova).
-
-**NOTE:** If you have any questions please use the community forum as described below.
+Then you can post the issue to the [lite4cordova forum](http://groups.google.com/group/lite4cordova).
 
 ## Community forum
 
@@ -328,7 +328,7 @@ If you have any questions about the plugin please post it to the [lite4cordova f
 
 ## Professional support
 
-Coming soon
+Available for integration with SQLCipher.
 
 # Unit test(s)
 
