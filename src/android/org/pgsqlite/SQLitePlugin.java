@@ -207,6 +207,10 @@ public class SQLitePlugin extends CordovaPlugin
 		
 		if(!dbfile.exists()) copyPrepopulatedDatabase(completeDBName, dbfile);
 
+		if (!dbfile.exists()) {
+		    dbfile.getParentFile().mkdirs();
+		}
+
 		Log.v("info", "Open sqlite db: " + dbfile.getAbsolutePath());
 
 		SQLiteDatabase mydb = SQLiteDatabase.openOrCreateDatabase(dbfile, null);
