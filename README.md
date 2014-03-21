@@ -8,17 +8,17 @@ License for iOS version: MIT only
 
 ## Status
 
-- Please use the [lite4cordova forum](http://groups.google.com/group/lite4cordova) for community support
+- Please use the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin) for community support
 - Commercial support is available for SQLCipher integration
 
 ## Announcements
 
+- Forum renamed to: [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin)
 - New location: https://github.com/brodysoft/Cordova-SQLitePlugin
-- Forum renamed to: [lite4cordova forum](http://groups.google.com/group/lite4cordova)
 - Android & iOS versions are combined again in this project.
 - Android & iOS versions are working with Cordova 3.0 tooling.
 - iOS version can now be built with either ARC or MRC.
-- WP8 version working with Cordova 3.0 tooling at: [brodysoft / Cordova-SQLitePlugin-WP-2013.12](https://github.com/brodysoft/Cordova-SQLitePlugin-WP-2013.12)
+- WP8 version working with Cordova 3.0 tooling at: [brodybits / Cordova-SQLitePlugin-WP-2014.01](https://github.com/brodybits/Cordova-SQLitePlugin-WP-2014.01)
 
 ## Highlights
 
@@ -35,7 +35,13 @@ License for iOS version: MIT only
 - [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/)
 - [Larkwire](http://www.larkwire.com/) (iOS version): Learn bird songs the fun way
 
-## Known limitations
+## Known issues
+
+- Problem with Android 4.4.
+- Issue buiding with Android SDK < 16
+- For iOS version: There is a memory leak if you use this version with background processing disabled. As a workaround, the iOS version has background processing enabled by default.
+
+## Other limitations
 
 - The db version, display name, and size parameter values are not supported and will be ignored.
 - The sqlite plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**.
@@ -43,7 +49,9 @@ License for iOS version: MIT only
 - For Android below SDK 11:
  - the data that is stored is of type 'TEXT' regardless of the schema
  - `rowsAffected` is not returned for INSERT or DELETE statement
-- For iOS version: There is a memory leak if you use this version with background processing disabled. A solution is planned very soon. As a workaround, the iOS version has background processing enabled by default.
+- Background processing model could be improved with one background thread per database connection.
+- For iOS, iCloud backup is NOT optional and should be.
+- Missing db creation callback
 
 ## Other versions
 
@@ -311,11 +319,11 @@ If you still cannot get something to work:
   - if the issue is with *adding* data to a table, that the test program includes the statements you used to open the database and create the table;
   - if the issue is with *retrieving* data from a table, that the test program includes the statements you used to open the database, create the table, and enter the data you are trying to retrieve.
 
-Then you can post the issue to the [lite4cordova forum](http://groups.google.com/group/lite4cordova).
+Then you can post the issue to the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin).
 
 ## Community forum
 
-If you have any questions about the plugin please post it to the [lite4cordova forum](http://groups.google.com/group/lite4cordova).
+If you have any questions about the plugin please post it to the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin).
 
 ## Support priorities
 
@@ -375,7 +383,7 @@ It also supports bgType argument:
 # Contributing
 
 - Testimonials of apps that are using this plugin would be especially helpful.
-- Reporting issues to the [lite4cordova forum](http://groups.google.com/group/lite4cordova) can help improve the quality of this plugin.
+- Reporting issues to the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin) can help improve the quality of this plugin.
 - Patches with bug fixes are helpful, especially when submitted with test code.
 - Other enhancements are very welcome, especially with test code. Increase of complexity should be avoided.
 - All contributions may be reused by [@brodybits (Chris Brody)](https://github.com/brodybits) under another license in the future. Efforts will be taken to give credit for major contributions but it will not be guaranteed.
