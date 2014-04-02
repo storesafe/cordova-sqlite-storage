@@ -47,7 +47,7 @@
         <framework src="libsqlite3.dylib" />
     </platform>
 
-	<!-- wp8 -->
+    <!-- wp8 -->
     <platform name="wp8">
         <config-file target="config.xml" parent="/*">
             <feature name="SQLitePlugin">
@@ -56,9 +56,7 @@
         </config-file>
 
         <source-file src="src/wp8/SQLitePlugin.cs" />
-        <source-file src="src/wp8/Newtonsoft.Json.dll" />
-        <source-file src="src/wp8/SQLiteWPNative.dll" />
-
-	</platform>
-
+        <framework src="src/wp8/Newtonsoft.Json.dll" custom="true" />
+        <framework src="src/wp8/SQLiteWPNative.dll" custom="true" />
+    </platform>
 </plugin>
