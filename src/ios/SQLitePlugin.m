@@ -159,9 +159,11 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 
 @synthesize openDBs;
 @synthesize appDocsPath;
+@synthesize appLibPath;
+@synthesize appCachesPath;
+@synthesize appTmpPath;
 
--(CDVPlugin*) initWithWebView:(UIWebView*)theWebView
-{
+-(CDVPlugin*) initWithWebView: (UIWebView*)theWebView {
     self = (SQLitePlugin*)[super initWithWebView:theWebView];
     if (self) {
         openDBs = [NSMutableDictionary dictionaryWithCapacity:0];
@@ -172,24 +174,53 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
         NSString *docs = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
         NSLog(@"Detected docs path: %@", docs);
         [self setAppDocsPath:docs];
+
+        NSString *lib = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
+        NSLog(@"Detected lib path: %@", lib);
+        [self setAppLibPath:lib];
+
+        NSString *caches = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
+        BOOL isDir = NO;
+        NSError *error;
+        if (! [[NSFileManager defaultManager] fileExistsAtPath:caches isDirectory:&isDir] && isDir == NO) {
+            [[NSFileManager defaultManager] createDirectoryAtPath:caches withIntermediateDirectories:NO attributes:nil error:&error];
+        }
+        NSLog(@"Detected caches path: %@", caches);
+        [self setAppCachesPath:caches];
+
+        NSString *tmp = NSTemporaryDirectory();
+        NSLog(@"Detected tmp path: %@", tmp);
+        [self setAppTmpPath:tmp];
+
     }
     return self;
 }
 
--(id) getDBPath:(id)dbFile {
+-(id) getDBPath:(id)dbFile : (NSString *)path {
     if (dbFile == NULL) {
         return NULL;
     }
-    NSString *dbPath = [NSString stringWithFormat:@"%@/%@", appDocsPath, dbFile];
-    return dbPath;
+
+    if ([path isEqualToString:@"lib"]) {
+        NSString *dbPath = [NSString stringWithFormat:@"%@/%@", appLibPath, dbFile];
+        return dbPath;
+    } else if ([path isEqualToString:@"caches"]) {
+        NSString *dbPath = [NSString stringWithFormat:@"%@/%@", appCachesPath, dbFile];
+        return dbPath;
+    } else if ([path isEqualToString:@"tmp"]) {
+        NSString *dbPath = [NSString stringWithFormat:@"%@/%@", appTmpPath, dbFile];
+        return dbPath;
+    } else {
+        NSString *dbPath = [NSString stringWithFormat:@"%@/%@", appDocsPath, dbFile];
+        return dbPath;
+    }
 }
 
--(void)open: (CDVInvokedUrlCommand*)command
-{
+-(void) open: (CDVInvokedUrlCommand*)command {
     CDVPluginResult* pluginResult = nil;
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
 
-    NSString *dbname = [self getDBPath:[options objectForKey:@"name"]];
+    NSString *dbname = [self getDBPath:[options objectForKey:@"name"]:[options objectForKey:@"path"]];
     NSValue *dbPointer;
 
     if (dbname == NULL) {
@@ -246,7 +277,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     CDVPluginResult* pluginResult = nil;
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
 
-    NSString *dbPath = [self getDBPath:[options objectForKey:@"path"]];
+    NSString *dbPath = [self getDBPath:[options objectForKey:@"name"]:[options objectForKey:@"path"]];
     if (dbPath == NULL) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify database path"];
     }
@@ -270,7 +301,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     CDVPluginResult* pluginResult = nil;
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
     
-    NSString *dbPath = [self getDBPath:[options objectForKey:@"path"]];
+    NSString *dbPath = [self getDBPath:[options objectForKey:@"name"]:[options objectForKey:@"path"]];
     if(dbPath==NULL) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify database path"];
     } else {
@@ -351,7 +382,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 
 -(CDVPluginResult*) executeSqlWithDict: (NSMutableDictionary*)options andArgs: (NSMutableDictionary*)dbargs
 {
-    NSString *dbPath = [self getDBPath:[dbargs objectForKey:@"dbname"]];
+    NSString *dbPath = [self getDBPath:[dbargs objectForKey:@"dbname"]:[dbargs objectForKey:@"dbpath"]];
 
     NSMutableArray *query_parts = [options objectForKey:@"query"];
     NSString *query = [query_parts objectAtIndex:0];
@@ -515,6 +546,9 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 #if !__has_feature(objc_arc)
     [openDBs release];
     [appDocsPath release];
+    [appLibPath release];
+    [appCachesPath release];
+    [appTmpPath release];
     [super dealloc];
 #endif
 }
