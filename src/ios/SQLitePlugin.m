@@ -382,7 +382,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 
 -(CDVPluginResult*) executeSqlWithDict: (NSMutableDictionary*)options andArgs: (NSMutableDictionary*)dbargs
 {
-    NSString *dbPath = [self getDBPath:[dbargs objectForKey:@"dbname"]:[options objectForKey:@"dbpath"]];
+    NSString *dbPath = [self getDBPath:[dbargs objectForKey:@"dbname"]:[dbargs objectForKey:@"dbpath"]];
 
     NSMutableArray *query_parts = [options objectForKey:@"query"];
     NSString *query = [query_parts objectAtIndex:0];
