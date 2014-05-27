@@ -546,6 +546,9 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 #if !__has_feature(objc_arc)
     [openDBs release];
     [appDocsPath release];
+    [appLibPath release];
+    [appCachesPath release];
+    [appTmpPath release];
     [super dealloc];
 #endif
 }
