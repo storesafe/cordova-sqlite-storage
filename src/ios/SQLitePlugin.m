@@ -448,7 +448,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
                 diffRowsAffected = nowRowsAffected - previousRowsAffected;
                 rowsAffected = [NSNumber numberWithInt:diffRowsAffected];
                 nowInsertId = sqlite3_last_insert_rowid(db);
-                if (previousInsertId != nowInsertId) {
+                if (nowRowsAffected > 0 && nowInsertId != 0) {
                     hasInsertId = YES;
                     insertId = [NSNumber numberWithLongLong:sqlite3_last_insert_rowid(db)];
                 }
