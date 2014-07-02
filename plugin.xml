@@ -13,6 +13,26 @@
         <clobbers target="SQLitePlugin" />
     </js-module>
 
+    <!-- amazon-fireos -->
+    <platform name="amazon-fireos">
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <activity android:name="org.pgsqlite.SQLitePlugin"
+                      android:label="@string/app_name">
+                <intent-filter>
+                </intent-filter>
+            </activity>
+        </config-file>
+
+        <!-- Cordova >= 3.0.0 -->
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="SQLitePlugin">
+                <param name="android-package" value="org.pgsqlite.SQLitePlugin"/>
+            </feature>
+        </config-file>
+
+        <source-file src="src/android/org/pgsqlite/SQLitePlugin.java" target-dir="src/org/pgsqlite"/>
+    </platform>
+
     <!-- android -->
     <platform name="android">
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
@@ -24,7 +44,7 @@
         </config-file>
 
         <!-- Cordova >= 3.0.0 -->
-        <config-file target="config.xml" parent="/*">
+        <config-file target="res/xml/config.xml" parent="/*">
             <feature name="SQLitePlugin">
                 <param name="android-package" value="org.pgsqlite.SQLitePlugin"/>
             </feature>
