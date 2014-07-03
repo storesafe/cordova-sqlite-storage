@@ -20,3 +20,9 @@
 - Embedded public domain LIBB64 encoding routines from http://libb64.sourceforge.net by @tbbdeveloper (Chris Robertson <oztexan@gmail.com>)
 - Maintained by @brodybits (Chris Brody)
 
+## WP version
+
+- Original author: @marcucio
+- Enhancements for background processing & improved transaction support by @Gillardo (Darren Gillard)
+- DLL integration by @nadyaA (Nadezhda Atanasova) & @Gillardo (Darren Gillard)
+

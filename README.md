@@ -1,34 +1,34 @@
 # Cordova/PhoneGap SQLitePlugin - a reference implementation
 
-Native interface to sqlite in a Cordova/PhoneGap plugin for Android & iOS, working to follow the HTML5 Web SQL API as close as possible.
+Native interface to sqlite in a Cordova/PhoneGap plugin for Android/iOS/WP8, working to follow the HTML5 Web SQL API as close as possible.
 
-License for Android version: MIT or Apache
+License for Android & WP versions: MIT or Apache
 
 License for iOS version: MIT only
 
 ## Status
 
 - Please use the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin) for community support
-- Commercial support is available for SQLCipher integration
+- Commercial support is available for SQLCipher integration with Android & iOS versions
 
 ## Announcements
 
+- WP8 version added by:
+  - @nadyaA (Nadezhda Atanasova) with proper DLL integration
+  - @Gillardo (Darren Gillard) with background processing & tested with failure-safe transaction semantics
 - Forum renamed to: [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin)
 - New location: https://github.com/brodysoft/Cordova-SQLitePlugin
-- Android & iOS versions are combined again in this project.
-- Android & iOS versions are working with Cordova 3.0 tooling.
 - iOS version can now be built with either ARC or MRC.
-- WP8 version working with Cordova 3.0 tooling at: [brodybits / Cordova-SQLitePlugin-WP-2014.01](https://github.com/brodybits/Cordova-SQLitePlugin-WP-2014.01)
 
 ## Highlights
 
-- Works with Cordova 3.0 tooling
+- Works with Cordova 3.x tooling
 - Drop-in replacement for HTML5 SQL API, the only change should be window.openDatabase() --> sqlitePlugin.openDatabase()
-- Fail-safe nested transactions with batch processing optimizations
+- Failure-safe nested transactions with batch processing optimizations
 - As described in [this posting](http://brodyspark.blogspot.com/2012/12/cordovaphonegap-sqlite-plugins-offer.html):
   - Keeps sqlite database in a user data location that is known, can be reconfigured, and iOS will be backed up by iCloud.
   - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
-- Works with [SQLCipher](http://sqlcipher.net) for encryption (see below)
+- Android & iOS working with [SQLCipher](http://sqlcipher.net) for encryption (see below)
 
 ## Apps using Cordova/PhoneGap SQLitePlugin
 
@@ -56,14 +56,14 @@ License for iOS version: MIT only
 ## Other versions
 
 - Pre-populated database support for Android & iOS: https://github.com/RikshaDriver/Cordova-PrePopulated-SQLitePlugin
-- Windows Phone 8+ version: https://github.com/marcucio/Cordova-WP-SqlitePlugin
-- iOS enhancements, with extra fixes for console log messages: https://github.com/mineshaftgap/Cordova-SQLitePlugin
 - Original version for iOS, with a different API: https://github.com/davibe/Phonegap-SQLitePlugin
 
 ## Using with SQLCipher
 
 - for Android version: [this blog posting](http://brodyspark.blogspot.com/2012/12/using-sqlcipher-for-android-with.html) & [enhancements to SQLCipher db classes for Android](http://brodyspark.blogspot.com/2012/12/enhancements-to-sqlcipher-db-classes.html)
 - for iOS version: [this posting](http://brodyspark.blogspot.com/2012/12/integrating-sqlcipher-with.html)
+
+**NOTE:** This documentation is out-of-date and to be replaced very soon.
 
 # Usage
 
@@ -169,17 +169,15 @@ This case will also works with Safari (WebKit), assuming you replace window.sqli
 
 # Installing
 
-**NOTE:** This plugin is now prepared to be installed using either the `plugman` or `cordova` tool.
+**NOTE:** This plugin is now prepared to be installed using the `cordova` tool.
 
 ## Source tree
 
 - `SQLitePlugin.coffee.md`: platform-independent (Literate coffee-script, can be read by recent coffee-script compiler)
 - `www`: `SQLitePlugin.js` now platform-independent
-- `src`: Java plugin code for Android & Objective-C plugin code for iOS
+- `src`: Java plugin code for Android; Objective-C plugin code for iOS; C-sharp code & DLLs for WP8
 - `test-www`: simple testing in `index.html` using qunit 1.5.0
-- `Lawnchair-adapter`: Lawnchair adaptor for both iOS and Android, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
-
-**NOTE:** there may be some backup files and/or directories with "2013-09", these are old versions that will go away.
+- `Lawnchair-adapter`: Lawnchair adaptor, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
 
 ## Manual installation - Android version
 
@@ -253,6 +251,10 @@ Enable the SQLitePlugin in `config.xml`:
              <plugin name="Device" value="CDVDevice" />
              <plugin name="Logger" value="CDVLogger" />
              <plugin name="Compass" value="CDVLocation" />
+
+## Manual installation - WP version
+
+TODO
 
 ## Quick installation test
 
