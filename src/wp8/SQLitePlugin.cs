@@ -16,9 +16,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Cordova.Extension.Commands
 {
-    /// <summary>
-    /// Implementes access to SQLite DB
-    /// </summary>
+
     public class SQLitePlugin : BaseCommand
     {
         #region SQLitePlugin options
@@ -29,8 +27,8 @@ namespace Cordova.Extension.Commands
             [DataMember(IsRequired = true, Name = "name")]
             public string name { get; set; }
 
-            [DataMember(IsRequired = true, Name = "bgType")]
-            public int bgType { get; set; }
+            [DataMember(IsRequired = false, Name = "bgType", EmitDefaultValue = false)]
+            public int bgType = 0;
         }
 
         [DataContract]
@@ -53,7 +51,7 @@ namespace Cordova.Extension.Commands
         [CollectionDataContract]
         public class TransactionsCollection : Collection<SQLitePluginTransaction>
         {
-            
+
         }
 
         [DataContract]
@@ -98,7 +96,6 @@ namespace Cordova.Extension.Commands
             {
                 String jsonOptions = JsonHelper.Deserialize<string[]>(options)[0];
                 dbOptions = JsonHelper.Deserialize<SQLitePluginOpenCloseOptions>(jsonOptions);
-                
             }
             catch (Exception)
             {
@@ -117,18 +114,18 @@ namespace Cordova.Extension.Commands
             }
             else
             {
-                DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR, "No database name"));
+                DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR, "Invalid openDatabase parameters"));
             }
         }
-        
+
         public void close(string options)
         {
             System.Diagnostics.Debug.WriteLine("SQLitePlugin.close()");
 
+            // check we have a database, and close it
             if (this.db != null)
                 this.db.Close();
 
-            this.db = null;
             DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
         }
 
@@ -141,8 +138,15 @@ namespace Cordova.Extension.Commands
                 JArray batchResults = new JArray();
 
                 // check our db is not null, create a new connection
-                if (this.db == null)
+                if (this.db == null || !this.db.DatabasePath.Equals(dbOptions.name))
                 {
+                    // close open database to be safe
+                    if (this.db != null)
+                    {
+                        this.db.Close();
+                    }
+
+                    // open database
                     this.db = new SQLiteConnection(dbOptions.name);
                 }
 
@@ -153,30 +157,7 @@ namespace Cordova.Extension.Commands
                     string errorMessage = "unknown";
                     bool needQuery = true;
 
-                    // insert
-                    if (transaction.query.StartsWith("INSERT", StringComparison.OrdinalIgnoreCase))
-                    {
-                        needQuery = false;
-
-                        try
-                        {
-                            // execute our query
-                            db.Execute(transaction.query, transaction.query_params);
-
-                            // get the primary key of the last inserted row
-                            var insertId = SQLite3.LastInsertRowid(db.Handle);
-
-                            result = new JObject();
-                            result.Add("rowsAffected", 1);
-                            result.Add("insertId", insertId);
-                        }
-                        catch (Exception e)
-                        {
-                            errorMessage = e.Message;
-                        }
-
-                    }
-
+                    // begin
                     if (transaction.query.StartsWith("BEGIN", StringComparison.OrdinalIgnoreCase))
                     {
                         needQuery = false;
@@ -196,6 +177,7 @@ namespace Cordova.Extension.Commands
 
                     }
 
+                    // commit
                     if (transaction.query.StartsWith("COMMIT", StringComparison.OrdinalIgnoreCase))
                     {
                         needQuery = false;
@@ -214,6 +196,7 @@ namespace Cordova.Extension.Commands
 
                     }
 
+                    // rollback
                     if (transaction.query.StartsWith("ROLLBACK", StringComparison.OrdinalIgnoreCase))
                     {
                         needQuery = false;
@@ -232,14 +215,10 @@ namespace Cordova.Extension.Commands
 
                     }
 
-                    if (transaction.query.IndexOf("DROP TABLE", StringComparison.OrdinalIgnoreCase) > -1)
+                    // create/drop table
+                    if (transaction.query.IndexOf("DROP TABLE", StringComparison.OrdinalIgnoreCase) > -1 || transaction.query.IndexOf("CREATE TABLE", StringComparison.OrdinalIgnoreCase) > -1)
                     {
                         needQuery = false;
-
-                        //-- bug where drop table does not work
-                        transaction.query = Regex.Replace(transaction.query, "DROP TABLE IF EXISTS", "DELETE FROM", RegexOptions.IgnoreCase);
-                        transaction.query = Regex.Replace(transaction.query, "DROP TABLE", "DELETE FROM", RegexOptions.IgnoreCase);
-                        //--
 
                         try
                         {
@@ -247,6 +226,37 @@ namespace Cordova.Extension.Commands
 
                             result = new JObject();
                             result.Add("rowsAffected", 0);
+                        }
+                        catch (Exception e)
+                        {
+                            errorMessage = e.Message;
+                        }
+
+                    }
+
+                    // insert/update/delete
+                    if (transaction.query.StartsWith("INSERT", StringComparison.OrdinalIgnoreCase) ||
+                        transaction.query.StartsWith("UPDATE", StringComparison.OrdinalIgnoreCase) ||
+                        transaction.query.StartsWith("DELETE", StringComparison.OrdinalIgnoreCase))
+                    {
+                        needQuery = false;
+
+                        try
+                        {
+                            // execute our query
+                            var res = db.Execute(transaction.query, transaction.query_params);
+
+                            // get the primary key of the last inserted row
+                            var insertId = SQLite3.LastInsertRowid(db.Handle);
+
+                            result = new JObject();
+                            result.Add("rowsAffected", res);
+
+                            if (transaction.query.StartsWith("INSERT", StringComparison.OrdinalIgnoreCase))
+                            {
+                                result.Add("insertId", insertId);
+                            }
+
                         }
                         catch (Exception e)
                         {
@@ -271,13 +281,13 @@ namespace Cordova.Extension.Commands
                                 {
                                     if (column.Value != null)
                                     {
-                                        if (column.Value.GetType().Equals(typeof(int)))
+                                        if (column.Value.GetType().Equals(typeof(Int32)))
                                         {
-                                            row.Add(column.Key, (int)column.Value);
+                                            row.Add(column.Key, Convert.ToInt32(column.Value));
                                         }
-                                        else if (column.Value.GetType().Equals(typeof(double)))
+                                        else if (column.Value.GetType().Equals(typeof(Double)))
                                         {
-                                            row.Add(column.Key, (double)column.Value);
+                                            row.Add(column.Key, Convert.ToDouble(column.Value));
                                         }
                                         else
                                         {
