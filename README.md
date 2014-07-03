@@ -1,8 +1,8 @@
-# Cordova/PhoneGap SQLitePlugin - a reference implementation
+# Cordova/PhoneGap SQLitePlugin
 
-Native interface to sqlite in a Cordova/PhoneGap plugin for Android/iOS/WP8, working to follow the HTML5 Web SQL API as close as possible.
+Native interface to sqlite in a Cordova/PhoneGap plugin for Android/iOS/WP8, with HTML5 Web SQL API
 
-License for Android & WP versions: MIT or Apache
+License for Android & WP versions: MIT or Apache 2.0
 
 License for iOS version: MIT only
 
@@ -15,7 +15,7 @@ License for iOS version: MIT only
 
 - WP8 version added by:
   - @nadyaA (Nadezhda Atanasova) with proper DLL integration
-  - @Gillardo (Darren Gillard) with background processing & tested with failure-safe transaction semantics
+  - @Gillardo (Darren Gillard) with failure-safe transaction semantics working
 - Forum renamed to: [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin)
 - New location: https://github.com/brodysoft/Cordova-SQLitePlugin
 - iOS version can now be built with either ARC or MRC.
@@ -40,6 +40,7 @@ License for iOS version: MIT only
 - Problem with Android 4.4.
 - Issue buiding with Android SDK < 16
 - For iOS version: There is a memory leak if you use this version with background processing disabled. As a workaround, the iOS version has background processing enabled by default.
+- Background processing is not implemented for WP version.
 
 ## Other limitations
 
@@ -387,6 +388,6 @@ It also supports bgType argument:
 - Testimonials of apps that are using this plugin would be especially helpful.
 - Reporting issues to the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin) can help improve the quality of this plugin.
 - Patches with bug fixes are helpful, especially when submitted with test code.
-- Other enhancements are very welcome, especially with test code. Increase of complexity should be avoided.
+- Other enhancements welcome for consideration, especially when submitted with test code and working for all supported platforms. Increase of complexity should be avoided.
 - All contributions may be reused by [@brodybits (Chris Brody)](https://github.com/brodybits) under another license in the future. Efforts will be taken to give credit for major contributions but it will not be guaranteed.
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     id="com.phonegap.plugins.sqlite"
-    version="1.0.0">
+    version="0.7.0">
 
     <name>SQLitePlugin</name>
 
