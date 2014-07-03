@@ -1,11 +1,4 @@
-﻿/*
- * PhoneGap is available under *either* the terms of the modified BSD license *or* the
- * MIT License (2008). See http://opensource.org/licenses/alphabetical for full text.
- *
- * Copyright (c) 2005-2011, Nitobi Software Inc.
- * Copyright (c) 2011, Microsoft Corporation
- */
-
+﻿
 using System;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -19,12 +12,11 @@ using WPCordovaClassLib.Cordova;
 using WPCordovaClassLib.Cordova.Commands;
 using WPCordovaClassLib.Cordova.JSON;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json.Linq;
 
 namespace Cordova.Extension.Commands
 {
-    /// <summary>
-    /// Implementes access to SQLite DB
-    /// </summary>
+
     public class SQLitePlugin : BaseCommand
     {
         #region SQLitePlugin options
@@ -32,15 +24,28 @@ namespace Cordova.Extension.Commands
         [DataContract]
         public class SQLitePluginOpenCloseOptions
         {
-            [DataMember(IsRequired = true, Name = "dbName")]
-            public string DBName { get; set; }
+            [DataMember(IsRequired = true, Name = "name")]
+            public string name { get; set; }
+
+            [DataMember(IsRequired = false, Name = "bgType", EmitDefaultValue = false)]
+            public int bgType = 0;
+        }
+
+        [DataContract]
+        public class SQLitePluginExecuteSqlBatchArgs
+        {
+            [DataMember(IsRequired = true, Name = "dbname")]
+            public string name { get; set; }
         }
 
         [DataContract]
         public class SQLitePluginExecuteSqlBatchOptions
         {
-            [DataMember]
-            public TransactionsCollection Transactions { get; set; }
+            [DataMember(IsRequired = true, Name = "dbargs")]
+            public SQLitePluginExecuteSqlBatchArgs dbargs { get; set; }
+
+            [DataMember(IsRequired = true, Name = "executes")]
+            public TransactionsCollection executes { get; set; }
         }
 
         [CollectionDataContract]
@@ -55,19 +60,19 @@ namespace Cordova.Extension.Commands
             /// <summary>
             /// Identifier for transaction
             /// </summary>
-            [DataMember(IsRequired = true, Name = "trans_id")]
+            [DataMember(IsRequired = false, Name = "trans_id")]
             public string transId { get; set; }
 
             /// <summary>
             /// Identifier for transaction
             /// </summary>
-            [DataMember(IsRequired = true, Name = "query_id")]
+            [DataMember(IsRequired = true, Name = "qid")]
             public string queryId { get; set; }
 
             /// <summary>
             /// Identifier for transaction
             /// </summary>
-            [DataMember(IsRequired = true, Name = "query")]
+            [DataMember(IsRequired = true, Name = "sql")]
             public string query { get; set; }
 
             /// <summary>
@@ -77,28 +82,20 @@ namespace Cordova.Extension.Commands
             public string[] query_params { get; set; }
 
         }
-        public class SQLiteTransactionResult
-        {
-            public string transId;
-            public List<SQLiteQueryResult> results;
-        }
-        public class SQLiteQueryResult
-        {
-            public string queryId;
-            public List<SQLiteQueryRow> result;
-        }
 
         #endregion
-        private string dbName = "";
+
+        private SQLitePluginOpenCloseOptions dbOptions = null;
         private SQLiteConnection db;
-        //we don't actually open here, we will do this with each db transaction
+
         public void open(string options)
         {
-            SQLitePluginOpenCloseOptions dbOptions;
-            String dbName = "";
+            System.Diagnostics.Debug.WriteLine("SQLitePlugin.open with options:" + options);
+
             try
             {
-                dbOptions = JsonHelper.Deserialize<SQLitePluginOpenCloseOptions>(options);
+                String jsonOptions = JsonHelper.Deserialize<string[]>(options)[0];
+                dbOptions = JsonHelper.Deserialize<SQLitePluginOpenCloseOptions>(jsonOptions);
             }
             catch (Exception)
             {
@@ -106,83 +103,249 @@ namespace Cordova.Extension.Commands
                 return;
             }
 
-            if (!string.IsNullOrEmpty(dbOptions.DBName))
+            // check if options were valid
+            if (dbOptions != null)
             {
-                dbName = dbOptions.DBName;
-                System.Diagnostics.Debug.WriteLine("SQLitePlugin.open():" + dbName);
+
+                System.Diagnostics.Debug.WriteLine("SQLitePlugin.open():" + dbOptions.name);
+
                 DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
-                this.dbName = dbName;
+
             }
             else
             {
-                DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR, "No database name"));
+                DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR, "Invalid openDatabase parameters"));
             }
         }
+
         public void close(string options)
         {
             System.Diagnostics.Debug.WriteLine("SQLitePlugin.close()");
 
+            // check we have a database, and close it
             if (this.db != null)
                 this.db.Close();
 
-            this.db = null;
             DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
         }
+
+        public void backgroundExecuteSqlBatch(string options)
+        {
+            executeSqlBatch(options);
+        }
+
         public void executeSqlBatch(string options)
         {
-            List<string> opt = JsonHelper.Deserialize<List<string>>(options);
-            TransactionsCollection transactions;
-            SQLiteTransactionResult transResult = new SQLiteTransactionResult();
-            try
+            Deployment.Current.Dispatcher.BeginInvoke(() =>
             {
-                if (this.db == null)
-                    this.db = new SQLiteConnection(this.dbName);
-                transactions = JsonHelper.Deserialize<TransactionsCollection>(opt[0]);
+                List<string> opt = JsonHelper.Deserialize<List<string>>(options);
+                SQLitePluginExecuteSqlBatchOptions batch = JsonHelper.Deserialize<SQLitePluginExecuteSqlBatchOptions>(opt[0]);
+                JArray batchResults = new JArray();
 
-
-                this.db.RunInTransaction(() =>
+                // check our db is not null, create a new connection
+                if (this.db == null || !this.db.DatabasePath.Equals(dbOptions.name))
                 {
-                    foreach (SQLitePluginTransaction transaction in transactions)
+                    // close open database to be safe
+                    if (this.db != null)
                     {
-                        transResult.transId = transaction.transId;
-                        System.Diagnostics.Debug.WriteLine("queryId: " + transaction.queryId + " transId: " + transaction.transId + " query: " + transaction.query);
-                        int first = transaction.query.IndexOf("DROP TABLE", StringComparison.OrdinalIgnoreCase);
-                        if (first != -1)
+                        this.db.Close();
+                    }
+
+                    // open database
+                    this.db = new SQLiteConnection(dbOptions.name);
+                }
+
+                // loop through the sql in the transaction
+                foreach (SQLitePluginTransaction transaction in batch.executes)
+                {
+                    JObject result = null;
+                    string errorMessage = "unknown";
+                    bool needQuery = true;
+
+                    // begin
+                    if (transaction.query.StartsWith("BEGIN", StringComparison.OrdinalIgnoreCase))
+                    {
+                        needQuery = false;
+
+                        try
                         {
-                            //-- bug where drop tabe does not work
-                            transaction.query = Regex.Replace(transaction.query, "DROP TABLE IF EXISTS", "DELETE FROM", RegexOptions.IgnoreCase);
-                            transaction.query = Regex.Replace(transaction.query, "DROP TABLE", "DELETE FROM", RegexOptions.IgnoreCase);
-                            //--
-                            var results = db.Execute(transaction.query, transaction.query_params);
-                            //TODO call the callback function if there is a query_id
-                            SQLiteQueryResult queryResult = new SQLiteQueryResult();
-                            queryResult.queryId = transaction.queryId;
-                            queryResult.result = null;
-                            if (transResult.results == null)
-                                transResult.results = new List<SQLiteQueryResult>();
-                            transResult.results.Add(queryResult);
+                            this.db.BeginTransaction();
+
+                            result = new JObject();
+                            result.Add("rowsAffected", 0);
+
                         }
-                        else
+                        catch (Exception e)
                         {
-                            var results = this.db.Query2(transaction.query, transaction.query_params);
-                            SQLiteQueryResult queryResult = new SQLiteQueryResult();
-                            queryResult.queryId = transaction.queryId;
-                            queryResult.result = results;
-                            if (transResult.results == null)
-                                transResult.results = new List<SQLiteQueryResult>();
-                            transResult.results.Add(queryResult);
+                            errorMessage = e.Message;
                         }
 
                     }
-                });
-            }
-            catch (Exception e)
-            {
-                System.Diagnostics.Debug.WriteLine("Error: " + e);
-                DispatchCommandResult(new PluginResult(PluginResult.Status.JSON_EXCEPTION));
-                return;
-            }
-            DispatchCommandResult(new PluginResult(PluginResult.Status.OK, JsonHelper.Serialize(transResult)));
+
+                    // commit
+                    if (transaction.query.StartsWith("COMMIT", StringComparison.OrdinalIgnoreCase))
+                    {
+                        needQuery = false;
+
+                        try
+                        {
+                            this.db.Commit();
+
+                            result = new JObject();
+                            result.Add("rowsAffected", 0);
+                        }
+                        catch (Exception e)
+                        {
+                            errorMessage = e.Message;
+                        }
+
+                    }
+
+                    // rollback
+                    if (transaction.query.StartsWith("ROLLBACK", StringComparison.OrdinalIgnoreCase))
+                    {
+                        needQuery = false;
+
+                        try
+                        {
+                            this.db.Rollback();
+
+                            result = new JObject();
+                            result.Add("rowsAffected", 0);
+                        }
+                        catch (Exception e)
+                        {
+                            errorMessage = e.Message;
+                        }
+
+                    }
+
+                    // create/drop table
+                    if (transaction.query.IndexOf("DROP TABLE", StringComparison.OrdinalIgnoreCase) > -1 || transaction.query.IndexOf("CREATE TABLE", StringComparison.OrdinalIgnoreCase) > -1)
+                    {
+                        needQuery = false;
+
+                        try
+                        {
+                            var results = db.Execute(transaction.query, transaction.query_params);
+
+                            result = new JObject();
+                            result.Add("rowsAffected", 0);
+                        }
+                        catch (Exception e)
+                        {
+                            errorMessage = e.Message;
+                        }
+
+                    }
+
+                    // insert/update/delete
+                    if (transaction.query.StartsWith("INSERT", StringComparison.OrdinalIgnoreCase) ||
+                        transaction.query.StartsWith("UPDATE", StringComparison.OrdinalIgnoreCase) ||
+                        transaction.query.StartsWith("DELETE", StringComparison.OrdinalIgnoreCase))
+                    {
+                        needQuery = false;
+
+                        try
+                        {
+                            // execute our query
+                            var res = db.Execute(transaction.query, transaction.query_params);
+
+                            // get the primary key of the last inserted row
+                            var insertId = SQLite3.LastInsertRowid(db.Handle);
+
+                            result = new JObject();
+                            result.Add("rowsAffected", res);
+
+                            if (transaction.query.StartsWith("INSERT", StringComparison.OrdinalIgnoreCase))
+                            {
+                                result.Add("insertId", insertId);
+                            }
+
+                        }
+                        catch (Exception e)
+                        {
+                            errorMessage = e.Message;
+                        }
+
+                    }
+
+                    if (needQuery)
+                    {
+                        try
+                        {
+                            var results = this.db.Query2(transaction.query, transaction.query_params);
+
+                            JArray rows = new JArray();
+
+                            foreach (SQLiteQueryRow res in results)
+                            {
+                                JObject row = new JObject();
+
+                                foreach (SQLiteQueryColumn column in res.column)
+                                {
+                                    if (column.Value != null)
+                                    {
+                                        if (column.Value.GetType().Equals(typeof(Int32)))
+                                        {
+                                            row.Add(column.Key, Convert.ToInt32(column.Value));
+                                        }
+                                        else if (column.Value.GetType().Equals(typeof(Double)))
+                                        {
+                                            row.Add(column.Key, Convert.ToDouble(column.Value));
+                                        }
+                                        else
+                                        {
+                                            row.Add(column.Key, column.Value.ToString());
+                                        }
+                                    }
+                                    else
+                                    {
+                                        row.Add(column.Key, null);
+                                    }
+
+                                }
+
+                                rows.Add(row);
+                            }
+
+                            result = new JObject();
+                            result.Add("rows", rows);
+                        }
+                        catch (Exception e)
+                        {
+                            errorMessage = e.Message;
+                        }
+
+                    }
+
+                    if (result != null)
+                    {
+                        JObject r = new JObject();
+                        r.Add("qid", transaction.queryId);
+                        r.Add("type", "success");
+                        r.Add("result", result);
+
+                        batchResults.Add(r);
+                    }
+                    else
+                    {
+                        JObject r = new JObject();
+                        r.Add("qid", transaction.queryId);
+                        r.Add("type", "error");
+
+                        JObject err = new JObject();
+                        err.Add("message", errorMessage);
+
+                        r.Add("result", err);
+
+                        batchResults.Add(r);
+                    }
+                }
+
+                DispatchCommandResult(new PluginResult(PluginResult.Status.OK, batchResults.ToString()));
+
+            });
         }
     }
 }
