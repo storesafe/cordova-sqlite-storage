@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.phonegap.plugins.sqlite.tests" version="0.0.1"
+        xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Cordova SQLite Plugin Test Runner</name>
+    <description>
+      Runs the unit tests suite for the Cordova SQLite plugin.
+    </description>
+    <author email="nolan@nolanlawson.com" href="http://nolanlawson.com">
+      Nolan Lawson
+    </author>
+    <content src="index.html" />
+    <access origin="*" />
+</widget>
