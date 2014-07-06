@@ -192,21 +192,30 @@ public class SQLitePlugin extends CordovaPlugin
 	 *            The database password or null.
 	 *
 	 */
-	private void openDatabase(String dbname, String password)
+	private void openDatabase(final String dbname, final String password)
 	{
-		if (this.getDatabase(dbname) != null) this.closeDatabase(dbname);
+		final SQLitePlugin myself = this;
+		
+		cordova.getThreadPool().execute(new Runnable(){
+			@Override
+			public void run(){
+				synchronized(myself){
+					if (myself.getDatabase(dbname) != null) myself.closeDatabase(dbname);
 
-		File dbfile = this.cordova.getActivity().getDatabasePath(dbname + ".db");
-
-		if (!dbfile.exists()) {
-		    dbfile.getParentFile().mkdirs();
+					File dbfile = myself.cordova.getActivity().getDatabasePath(dbname + ".db");
+			
+					if (!dbfile.exists()) {
+					    dbfile.getParentFile().mkdirs();
+					}
+			
+					Log.v("info", "Open sqlite db: " + dbfile.getAbsolutePath());
+			
+					SQLiteDatabase mydb = SQLiteDatabase.openOrCreateDatabase(dbfile, null);
+			
+					dbmap.put(dbname, mydb);
+				}
+			}
 		}
-
-		Log.v("info", "Open sqlite db: " + dbfile.getAbsolutePath());
-
-		SQLiteDatabase mydb = SQLiteDatabase.openOrCreateDatabase(dbfile, null);
-
-		dbmap.put(dbname, mydb);
 	}
 
 	/**
