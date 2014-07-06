@@ -1,7 +1,9 @@
 (function() {
-  var SQLiteFactory, SQLitePlugin, SQLitePluginCallback, SQLitePluginTransaction, pcb, root;
 
-  root = this;
+  var READ_ONLY_REGEX = /^\s*(?:drop|delete|insert|update|create)\s/i;
+
+  var SQLiteFactory, SQLitePlugin, SQLitePluginCallback, SQLitePluginTransaction, pcb;
+  var root = this;
 
   SQLitePlugin = function(openargs, openSuccess, openError) {
     var dbname;
@@ -40,7 +42,11 @@
   };
 
   SQLitePlugin.prototype.transaction = function(fn, error, success) {
-    this.addTransaction(new SQLitePluginTransaction(this, fn, error, success, true));
+    this.addTransaction(new SQLitePluginTransaction(this, fn, error, success, true, false));
+  };
+
+  SQLitePlugin.prototype.readTransaction = function(fn, error, success) {
+    this.addTransaction(new SQLitePluginTransaction(this, fn, error, success, true, true));
   };
 
   SQLitePlugin.prototype.startNextTransaction = function() {
@@ -125,7 +131,7 @@
   */
 
 
-  SQLitePluginTransaction = function(db, fn, error, success, txlock) {
+  SQLitePluginTransaction = function(db, fn, error, success, txlock, readOnly) {
     if (typeof fn !== "function") {
       /*
       This is consistent with the implementation in Chrome -- it
@@ -141,6 +147,7 @@
     this.error = error;
     this.success = success;
     this.txlock = txlock;
+    this.readOnly = readOnly;
     this.executes = [];
     if (txlock) {
       this.executeSql("BEGIN", [], null, function(tx, err) {
@@ -172,6 +179,12 @@
   };
 
   SQLitePluginTransaction.prototype.executeSql = function(sql, values, success, error) {
+
+    if (this.readOnly && READ_ONLY_REGEX.test(sql)) {
+      this.handleStatementFailure(error, {message: 'invalid sql for a read-only transaction'});
+      return;
+    }
+
     var qid;
     qid = this.executes.length;
     this.executes.push({
