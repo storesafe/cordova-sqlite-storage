@@ -10,6 +10,11 @@ License for common Javascript: MIT or Apache
 
     root = @
 
+- global constants:
+
+    READ_ONLY_REGEX = /^\s*(?:drop|delete|insert|update|create)\s/i
+    IOS_REGEX = /iP(?:ad|hone|od)/
+
 - SQLitePlugin object is defined by a constructor function and prototype member functions:
 
     SQLitePlugin = (openargs, openSuccess, openError) ->
@@ -40,7 +45,7 @@ License for common Javascript: MIT or Apache
       @bg =
         if !openargs.bgType
           # default to true for iOS only (due to memory issue)
-          ((navigator.userAgent.match(/iPad/i)) || (navigator.userAgent.match(/iPhone/i)))
+          IOS_REGEX.test(navigator.userAgent)
         else
           openargs.bgType == 1
 
@@ -59,7 +64,11 @@ License for common Javascript: MIT or Apache
       return
 
     SQLitePlugin::transaction = (fn, error, success) ->
-      @addTransaction new SQLitePluginTransaction(this, fn, error, success, true)
+      @addTransaction new SQLitePluginTransaction(this, fn, error, success, true, false)
+      return
+
+    SQLitePlugin::readTransaction = (fn, error, success) ->
+      @addTransaction new SQLitePluginTransaction(this, fn, error, success, true, true)
       return
 
     SQLitePlugin::startNextTransaction = ->
@@ -93,7 +102,7 @@ License for common Javascript: MIT or Apache
         tx.executeSql(statement, params, mysuccess, myerror)
         return
 
-      @addTransaction new SQLitePluginTransaction(this, myfn, myerror, mysuccess, false)
+      @addTransaction new SQLitePluginTransaction(this, myfn, myerror, mysuccess, false, false)
       return
 
 - Deprecated pragma API, use db.executeSql() instead:
@@ -128,7 +137,7 @@ License for common Javascript: MIT or Apache
     ###
     Transaction batching object:
     ###
-    SQLitePluginTransaction = (db, fn, error, success, txlock) ->
+    SQLitePluginTransaction = (db, fn, error, success, txlock, readOnly) ->
       if typeof(fn) != "function"
         ###
         This is consistent with the implementation in Chrome -- it
@@ -143,6 +152,7 @@ License for common Javascript: MIT or Apache
       @error = error
       @success = success
       @txlock = txlock
+      @readOnly = readOnly
       @executes = []
 
       if txlock
@@ -168,6 +178,12 @@ License for common Javascript: MIT or Apache
       return
 
     SQLitePluginTransaction::executeSql = (sql, values, success, error) ->
+
+      if @readOnly && READ_ONLY_REGEX.test(sql)
+        @handleStatementFailure(error, {message: 'invalid sql for a read-only transaction'})
+        return
+
+
       qid = @executes.length
 
       @executes.push

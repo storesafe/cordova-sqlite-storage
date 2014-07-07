@@ -360,6 +360,70 @@
           });
         });
 
+        test(suiteName + "readTransaction should throw on modification", function() {
+          stop();
+          var db = openDatabase("Database-readonly", "1.0", "Demo", DEFAULT_SIZE);
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (foo text)');
+            tx.executeSql('INSERT INTO test_table VALUES ("bar")');
+          }, function () {}, function () {
+            db.readTransaction(function (tx) {
+              tx.executeSql('SELECT * from test_table', [], function (tx, res) {
+                equal(res.rows.length, 1);
+                equal(res.rows.item(0).foo, 'bar');
+              });
+            }, function () {}, function () {
+              var tasks;
+              var numDone = 0;
+              var failed = false;
+              function checkDone() {
+                if (++numDone === tasks.length) {
+                  start();
+                }
+              }
+              function fail() {
+                if (!failed) {
+                  failed = true;
+                  start();
+                  ok(false, 'readTransaction was supposed to fail');
+                }
+              }
+              // all of these should throw an error
+              tasks = [
+                function () {
+                  db.readTransaction(function (tx) {
+                    tx.executeSql('DELETE from test_table');
+                  }, checkDone, fail);
+                },
+                function () {
+                  db.readTransaction(function (tx) {
+                    tx.executeSql('UPDATE test_table SET foo = "baz"');
+                  }, checkDone, fail);
+                },
+                function () {
+                  db.readTransaction(function (tx) {
+                    tx.executeSql('INSERT INTO test_table VALUES ("baz")');
+                  }, checkDone, fail);
+                },
+                function () {
+                  db.readTransaction(function (tx) {
+                    tx.executeSql('DROP TABLE test_table');
+                  }, checkDone, fail);
+                },
+                function () {
+                  db.readTransaction(function (tx) {
+                    tx.executeSql('CREATE TABLE test_table2');
+                  }, checkDone, fail);
+                }
+              ];
+              for (var i = 0; i < tasks.length; i++) {
+                tasks[i]();
+              }
+            });
+          });
+        });
+
         /**
          test(suiteName + "PRAGMA & multiple databases", function() {
           var db = openDatabase("DB1", "1.0", "Demo", DEFAULT_SIZE);
