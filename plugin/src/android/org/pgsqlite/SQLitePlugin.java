@@ -164,11 +164,7 @@ public class SQLitePlugin extends CordovaPlugin {
                     }
                 }
 
-                if (action == Action.backgroundExecuteSqlBatch) {
-                    this.executeSqlBatchInBackground(dbname, queries, jsonparams, queryIDs, cbc);
-                } else {
-                    this.executeSqlBatch(dbname, queries, jsonparams, queryIDs, cbc);
-                }
+                this.executeSqlBatchInBackground(dbname, queries, jsonparams, queryIDs, cbc);
                 break;
         }
 
