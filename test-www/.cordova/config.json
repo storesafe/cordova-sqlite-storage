@@ -1,0 +1,4 @@
+{
+    "id": "com.phonegap.plugins.sqlite.tests",
+    "name": "Cordova SQLite Plugin Test Runner"
+}

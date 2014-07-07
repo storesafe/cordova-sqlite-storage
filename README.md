@@ -172,6 +172,11 @@ This case will also works with Safari (WebKit), assuming you replace window.sqli
 
 **NOTE:** This plugin is now prepared to be installed using the `cordova` tool.
 
+## Easy install with cordova tool
+
+    npm install -g cordova # if you don't have cordova
+    cordova plugin add https://github.com/brodysoft/Cordova-SQLitePlugin
+
 ## Source tree
 
 - `SQLitePlugin.coffee.md`: platform-independent (Literate coffee-script, can be read by recent coffee-script compiler)
@@ -343,7 +348,15 @@ Available for integration with SQLCipher.
 
 # Unit test(s)
 
-Unit testing is done in `test-www/index.html`. To run the test(s) yourself please copy the files from `test-www` (`index.html`, `qunit-1.5.0.js`, & `qunit-1.5.0.css`) into the `www` directory of your Android or iOS Cordova project and make sure you have SQLitePlugin completely installed (JS, Objective-C, and plugin registered).
+Unit testing is done in `test-www/`. To run the tests, simply do either:
+
+    ./bin/test.sh ios
+
+or in Android:
+
+    ./bin/test.sh android
+
+If you don't have the `cordova` command, do `npm install -g cordova`.
 
 Lawnchair Adapter Usage
 =======================
