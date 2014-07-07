@@ -424,6 +424,23 @@
           });
         });
 
+        test(suiteName + ' test callback order', function () {
+          stop();
+          var db = openDatabase("Database-Callback-Order", "1.0", "Demo", DEFAULT_SIZE);
+          var blocked = true;
+
+          db.transaction(function(tx) {
+            ok(!blocked, 'callback to the transaction shouldn\'t block (1)');
+            tx.executeSql('SELECT 1 from sqlite_master', [], function () {
+              ok(!blocked, 'callback to the transaction shouldn\'t block (2)');
+            });
+          }, function(err) { ok(false, err.message) }, function() {
+            start();
+            ok(!blocked, 'callback to the transaction shouldn\'t block (3)');
+          });
+          blocked = false;
+        });
+
         /**
          test(suiteName + "PRAGMA & multiple databases", function() {
           var db = openDatabase("DB1", "1.0", "Demo", DEFAULT_SIZE);

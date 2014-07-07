@@ -15,6 +15,10 @@ License for common Javascript: MIT or Apache
     READ_ONLY_REGEX = /^\s*(?:drop|delete|insert|update|create)\s/i
     IOS_REGEX = /iP(?:ad|hone|od)/
 
+    nextTick = window.setImmediate || (fun) ->
+      window.setTimeout(fun, 0)
+      return
+
 - SQLitePlugin object is defined by a constructor function and prototype member functions:
 
     SQLitePlugin = (openargs, openSuccess, openError) ->
@@ -59,8 +63,7 @@ License for common Javascript: MIT or Apache
 
     SQLitePlugin::addTransaction = (t) ->
       @txQ.push t
-      if @txQ.length is 1
-        t.start()
+      @.startNextTransaction()
       return
 
     SQLitePlugin::transaction = (fn, error, success) ->
@@ -72,9 +75,12 @@ License for common Javascript: MIT or Apache
       return
 
     SQLitePlugin::startNextTransaction = ->
-      @txQ.shift()
-      if @txQ[0]
-        @txQ[0].start()
+      tx = @
+
+      nextTick () ->
+        if tx.txQ.length > 0
+          tx.txQ.shift().start()
+        return
       return
 
     SQLitePlugin::open = (success, error) ->
