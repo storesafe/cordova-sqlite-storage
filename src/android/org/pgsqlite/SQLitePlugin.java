@@ -202,7 +202,7 @@ public class SQLitePlugin extends CordovaPlugin {
             this.closeDatabase(dbname);
         }
 
-        File dbfile = this.cordova.getActivity().getDatabasePath(dbname + ".db");
+        File dbfile = this.cordova.getActivity().getDatabasePath(dbname);
 
         if (!dbfile.exists()) {
             dbfile.getParentFile().mkdirs();
@@ -242,7 +242,7 @@ public class SQLitePlugin extends CordovaPlugin {
             this.closeDatabase(dbname);
         }
 
-        File dbfile = this.cordova.getActivity().getDatabasePath(dbname + ".db");
+        File dbfile = this.cordova.getActivity().getDatabasePath(dbname);
 
         Log.v("info", "delete sqlite db: " + dbfile.getAbsolutePath());
 

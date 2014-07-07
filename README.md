@@ -6,6 +6,12 @@ License for Android & WP versions: MIT or Apache 2.0
 
 License for iOS version: MIT only
 
+## WARNING: breaking change for Android version
+
+The automatic "`.db`" database file extension is now removed for the Android version, for consistency with the iOS & WP versions. For an existing app, you may have to open an existing database like:
+
+    var db = window.sqlitePlugin.openDatabase({name: "myDatabase.db"});
+
 ## Status
 
 - Please use the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin) for community support
@@ -14,8 +20,8 @@ License for iOS version: MIT only
 ## Announcements
 
 - WP8 version added by:
-  - @nadyaA (Nadezhda Atanasova) with proper DLL integration
-  - @Gillardo (Darren Gillard) with failure-safe transaction semantics working
+  - [@nadyaA (Nadezhda Atanasova)](https://github.com/nadyaA) with proper DLL integration
+  - [@Gillardo (Darren Gillard)](https://github.com/Gillardo) with failure-safe transaction semantics working
 - Forum renamed to: [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin)
 - New location: https://github.com/brodysoft/Cordova-SQLitePlugin
 - iOS version can now be built with either ARC or MRC.
@@ -73,8 +79,8 @@ The idea is to emulate the HTML5 SQL API as closely as possible. The only major 
 ## Opening a database
 
 There are two options to open a database:
-- Recommended: `var db = window.sqlitePlugin.openDatabase({name: "DB"});`
-- Classical: `var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);`
+- Recommended: `var db = window.sqlitePlugin.openDatabase({name: "myDatabase"});`
+- Classical: `var db = window.sqlitePlugin.openDatabase("myDatabase", "1.0", "Demo", -1);`
 
 **IMPORTANT:** Please wait for the "deviceready" event, as in the following example:
 
