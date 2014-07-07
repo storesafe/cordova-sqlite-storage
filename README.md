@@ -183,6 +183,11 @@ This case will also works with Safari (WebKit), assuming you replace window.sqli
     npm install -g cordova # if you don't have cordova
     cordova plugin add https://github.com/brodysoft/Cordova-SQLitePlugin
 
+## Easy install with cordova tool
+
+    npm install -g cordova # if you don't have cordova
+    cordova plugin add https://github.com/brodysoft/Cordova-SQLitePlugin
+
 ## Source tree
 
 - `SQLitePlugin.coffee.md`: platform-independent (Literate coffee-script, can be read by recent coffee-script compiler)
