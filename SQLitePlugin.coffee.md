@@ -6,21 +6,24 @@ License for common Javascript: MIT or Apache
 
 ## Top-level SQLitePlugin objects
 
-- root window object:
+### root window object:
 
     root = @
 
-- global constants:
+### constants:
 
     READ_ONLY_REGEX = /^\s*(?:drop|delete|insert|update|create)\s/i
     IOS_REGEX = /iP(?:ad|hone|od)/
 
+### globals:
+
+    txLocks = {}
+
+### utility functions:
+
     nextTick = window.setImmediate || (fun) ->
       window.setTimeout(fun, 0)
       return
-    txLocks = {}
-
-- utilities:
 
     ###
       Utility that avoids leaking the arguments object. See
@@ -38,7 +41,9 @@ License for common Javascript: MIT or Apache
         else
           return fun.call this, []
 
-- SQLitePlugin object is defined by a constructor function and prototype member functions:
+### SQLitePlugin db-connection
+
+#### SQLitePlugin object is defined by a constructor function and prototype member functions:
 
     SQLitePlugin = (openargs, openSuccess, openError) ->
       console.log "SQLitePlugin openargs: #{JSON.stringify openargs}"
@@ -136,34 +141,7 @@ License for common Javascript: MIT or Apache
       @addTransaction new SQLitePluginTransaction(this, myfn, myerror, mysuccess, false, false)
       return
 
-- Deprecated pragma API, use db.executeSql() instead:
-
-    pcb = -> 1
-
-    ###
-    DEPRECATED AND WILL BE REMOVED:
-    ###
-    SQLitePlugin::executePragmaStatement = (statement, success, error) ->
-      console.log "SQLitePlugin::executePragmaStatement"
-      pcb = success
-
-      cordova.exec (-> 1), error, "SQLitePlugin", "executePragmaStatement", [ @dbname, statement ]
-      return
-
-    ###
-    FUTURE TBD GONE: Required for db.executePragmStatement() callback ONLY:
-    ###
-    SQLitePluginCallback =
-      p1: (id, result) ->
-        console.log "PRAGMA CB"
-
-        mycb = pcb
-        pcb = -> 1
-        mycb result
-
-        return
-
-- SQLitePluginTransaction object for batching:
+### SQLitePluginTransaction object for batching:
 
     ###
     Transaction batching object:
@@ -379,7 +357,7 @@ License for common Javascript: MIT or Apache
 
       return
 
-- SQLite plugin object factory:
+### SQLite plugin object factory:
 
     SQLiteFactory =
       ###
@@ -415,12 +393,7 @@ License for common Javascript: MIT or Apache
       deleteDb: (databaseName, success, error) ->
         cordova.exec success, error, "SQLitePlugin", "delete", [{ path: databaseName }]
 
-    ###
-    FUTURE TBD GONE: Required for db.executePragmStatement() callback ONLY:
-    ###
-    root.SQLitePluginCallback = SQLitePluginCallback
-
-- Exported API:
+### Exported API:
 
     root.sqlitePlugin =
       sqliteFeatures:
