@@ -2,13 +2,13 @@
 
 Native interface to sqlite in a Cordova/PhoneGap plugin for Android/iOS/WP8, with HTML5 Web SQL API
 
-License for Android & WP versions: MIT or Apache 2.0
+License for Android & WP8 versions: MIT or Apache 2.0
 
 License for iOS version: MIT only
 
 ## WARNING: breaking change for Android version
 
-The automatic "`.db`" database file extension is now removed for the Android version, for consistency with the iOS & WP versions. For an existing app, you may have to open an existing database like:
+The automatic "`.db`" database file extension is now removed for the Android version, for consistency with the iOS & WP8 versions. For an existing app, you may have to open an existing database like:
 
     var db = window.sqlitePlugin.openDatabase({name: "myDatabase.db"});
 
@@ -43,10 +43,9 @@ The automatic "`.db`" database file extension is now removed for the Android ver
 
 ## Known issues
 
-- Problem with Android 4.4.
 - Issue buiding with Android SDK < 16
 - For iOS version: There is a memory leak if you use this version with background processing disabled. As a workaround, the iOS version has background processing enabled by default.
-- Background processing is not implemented for WP version.
+- Background processing is not implemented for WP8 version.
 
 ## Other limitations
 
@@ -264,7 +263,7 @@ Enable the SQLitePlugin in `config.xml`:
              <plugin name="Logger" value="CDVLogger" />
              <plugin name="Compass" value="CDVLocation" />
 
-## Manual installation - WP version
+## Manual installation - WP8 version
 
 TODO
 
