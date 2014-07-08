@@ -18,6 +18,25 @@ License for common Javascript: MIT or Apache
     nextTick = window.setImmediate || (fun) ->
       window.setTimeout(fun, 0)
       return
+    txLocks = {}
+
+- utilities:
+
+    ###
+      Utility that avoids leaking the arguments object. See
+      https://www.npmjs.org/package/argsarray
+    ###
+    argsArray = (fun) ->
+      return ->
+        len = arguments.length
+        if len
+          args = []
+          i = -1
+          while ++i < len
+            args[i] = arguments[i]
+          return fun.call this, args
+        else
+          return fun.call this, []
 
 - SQLitePlugin object is defined by a constructor function and prototype member functions:
 
@@ -59,11 +78,15 @@ License for common Javascript: MIT or Apache
     SQLitePlugin::databaseFeatures = isSQLitePluginDatabase: true
     SQLitePlugin::openDBs = {}
 
-    SQLitePlugin::txQ = []
-
     SQLitePlugin::addTransaction = (t) ->
-      @txQ.push t
-      @.startNextTransaction()
+
+      if !txLocks[@dbname]
+        txLocks[@dbname] = {
+          queue: []
+          inProgress: false
+        }
+      txLocks[@dbname].queue.push t
+      @startNextTransaction()
       return
 
     SQLitePlugin::transaction = (fn, error, success) ->
@@ -75,11 +98,13 @@ License for common Javascript: MIT or Apache
       return
 
     SQLitePlugin::startNextTransaction = ->
-      tx = @
+      self = @
 
       nextTick () ->
-        if tx.txQ.length > 0
-          tx.txQ.shift().start()
+        txLock = txLocks[self.dbname]
+        if txLock.queue.length > 0 && !txLock.inProgress
+          txLock.inProgress = true
+          txLock.queue.shift().start()
         return
       return
 
@@ -169,15 +194,13 @@ License for common Javascript: MIT or Apache
 
     SQLitePluginTransaction::start = ->
       try
-        unless @fn
-          return
         @fn this
-        @fn = null
         @run()
       catch err
         ###
         If "fn" throws, we must report the whole transaction as failed.
         ###
+        txLocks[@db.dbname].inProgress = false
         @db.startNextTransaction()
         if @error
           @error err
@@ -309,11 +332,13 @@ License for common Javascript: MIT or Apache
       tx = @
 
       succeeded = (tx) ->
+        txLocks[tx.db.dbname].inProgress = false
         tx.db.startNextTransaction()
         if tx.error then tx.error txFailure
         return
 
       failed = (tx, err) ->
+        txLocks[tx.db.dbname].inProgress = false
         tx.db.startNextTransaction()
         if tx.error then tx.error new Error("error while trying to roll back: " + err.message)
         return
@@ -333,11 +358,13 @@ License for common Javascript: MIT or Apache
       tx = @
 
       succeeded = (tx) ->
+        txLocks[tx.db.dbname].inProgress = false
         tx.db.startNextTransaction()
         if tx.success then tx.success()
         return
 
       failed = (tx, err) ->
+        txLocks[tx.db.dbname].inProgress = false
         tx.db.startNextTransaction()
         if tx.error then tx.error new Error("error while trying to commit: " + err.message)
         return
@@ -361,10 +388,10 @@ License for common Javascript: MIT or Apache
       If this function is edited in Javascript then someone will
       have to translate it back to CoffeeScript by hand.
       ###
-      opendb: ->
-        if arguments.length < 1 then return null
+      opendb: argsArray (args) ->
+        if args.length < 1 then return null
 
-        first = arguments[0]
+        first = args[0]
         openargs = null
         okcb = null
         errorcb = null
@@ -372,16 +399,16 @@ License for common Javascript: MIT or Apache
         if first.constructor == String
           openargs = {name: first}
 
-          if arguments.length >= 5
-            okcb = arguments[4]
-            if arguments.length > 5 then errorcb = arguments[5]
+          if args.length >= 5
+            okcb = args[4]
+            if args.length > 5 then errorcb = args[5]
 
         else
           openargs = first
 
-          if arguments.length >= 2
-            okcb = arguments[1]
-            if arguments.length > 2 then errorcb = arguments[2]
+          if args.length >= 2
+            okcb = args[1]
+            if args.length > 2 then errorcb = args[2]
 
         new SQLitePlugin openargs, okcb, errorcb
 
