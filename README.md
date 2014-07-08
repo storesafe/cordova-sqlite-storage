@@ -401,6 +401,8 @@ It also supports bgType argument:
 
 # Contributing
 
+**IMPORTANT NOTE:** It is better to push your changes from a separate branch. Sometimes they need to be redone before acceptance. Otherwise your `master` branch may become a real mess.
+
 - Testimonials of apps that are using this plugin would be especially helpful.
 - Reporting issues to the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin) can help improve the quality of this plugin.
 - Patches with bug fixes are helpful, especially when submitted with test code.
