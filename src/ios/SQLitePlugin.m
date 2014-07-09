@@ -491,8 +491,23 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
         } else {
             sqlite3_bind_text(statement, argIndex, [[NSString stringWithFormat:@"%@", arg] UTF8String], -1, SQLITE_TRANSIENT);
         }
-    } else {
-        sqlite3_bind_text(statement, argIndex, [[NSString stringWithFormat:@"%@", arg] UTF8String], -1, SQLITE_TRANSIENT);
+    } else { // NSString
+        NSString *stringArg = (NSString *)arg;
+        NSData *data = [stringArg dataUsingEncoding:NSUTF8StringEncoding];
+        char *bytes = [data bytes];
+        int numNulls = 0;
+        for (int i = 0; i < [data length]; i++) {
+            if (bytes[i] == '\0') {
+              numNulls++;
+            }
+        }
+        if (numNulls > 1) {
+          // because these strings contain many null characters, bind them as blobs 
+          sqlite3_bind_blob(statement, argIndex, data.bytes, data.length, SQLITE_TRANSIENT);
+        } else {
+          // however, regular strings should use bind_text, else sqlite coerces them to base64
+          sqlite3_bind_text(statement, argIndex, data.bytes, data.length, SQLITE_TRANSIENT);
+        }
     }
 }
 
