@@ -491,8 +491,11 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
         } else {
             sqlite3_bind_text(statement, argIndex, [[NSString stringWithFormat:@"%@", arg] UTF8String], -1, SQLITE_TRANSIENT);
         }
-    } else {
-        sqlite3_bind_text(statement, argIndex, [[NSString stringWithFormat:@"%@", arg] UTF8String], -1, SQLITE_TRANSIENT);
+    } else { // NSString
+        NSString *stringArg = (NSString *)arg;
+        NSData *data = [stringArg dataUsingEncoding:NSUTF8StringEncoding];
+
+          sqlite3_bind_text(statement, argIndex, data.bytes, data.length, SQLITE_TRANSIENT);
     }
 }
 
