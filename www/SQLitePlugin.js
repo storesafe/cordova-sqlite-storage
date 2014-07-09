@@ -113,6 +113,14 @@
     }
   };
 
+  SQLitePlugin.prototype.reset = function(success, error) {
+    cordova.exec(success, error, "SQLitePlugin", "reset", [
+      {
+        path: this.dbname
+      }
+    ]);
+  };
+
   SQLitePlugin.prototype.executeSql = function(statement, params, success, error) {
     var myerror, myfn, mysuccess;
     mysuccess = function(t, r) {
