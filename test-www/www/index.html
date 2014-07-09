@@ -24,11 +24,11 @@
         doTest(false, 'Plugin: ', window.sqlitePlugin.openDatabase);
       }
 
-      function doTest(native, suiteName, openDatabase) {
+      function doTest(isNative, suiteName, openDatabase) {
 
         test(suiteName + "db transaction test", function() {
 
-          if (native) {
+          if (isNative) {
             ok('skipped');
             return;
           }
@@ -179,7 +179,7 @@
 
         test(suiteName + "transaction encompasses all callbacks", function() {
 
-          if (native) {
+          if (isNative) {
             ok('skipped');
             return;
           }
@@ -214,7 +214,7 @@
 
         test(suiteName + "exception from transaction handler causes failure", function() {
 
-          if (native) {
+          if (isNative) {
             ok('skipped');
             return;
           }
