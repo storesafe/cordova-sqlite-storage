@@ -43,7 +43,7 @@ The automatic "`.db`" database file extension is now removed for the Android ver
 
 ## Known issues
 
-- Issue buiding with Android SDK < 16
+- Android is only supported back to SDK 10 (a.k.a. Gingerbread, Android 2.3.3).
 - For iOS version: There is a memory leak if you use this version with background processing disabled. As a workaround, the iOS version has background processing enabled by default.
 - Background processing is not implemented for WP8 version.
 
@@ -53,8 +53,7 @@ The automatic "`.db`" database file extension is now removed for the Android ver
 - The sqlite plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**.
 - For Android version, there is an issue with background processing that affects transaction error handling and may affect nested transactions.
 - For Android below SDK 11:
- - the data that is stored is of type 'TEXT' regardless of the schema
- - `rowsAffected` is not returned for INSERT or DELETE statement
+ - `rowsAffected` is not returned for INSERT or DELETE statements
 - Background processing model could be improved with one background thread per database connection.
 - For iOS, iCloud backup is NOT optional and should be.
 - Missing db creation callback

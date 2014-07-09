@@ -6,7 +6,12 @@
 
 package org.pgsqlite;
 
+import android.annotation.SuppressLint;
+import android.database.AbstractWindowedCursor;
 import android.database.Cursor;
+import android.database.CursorWindow;
+import android.database.CursorWrapper;
+import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteStatement;
@@ -17,6 +22,7 @@ import android.util.Log;
 import java.io.File;
 import java.lang.IllegalArgumentException;
 import java.lang.Number;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 
 import org.apache.cordova.CallbackContext;
@@ -48,7 +54,7 @@ public class SQLitePlugin extends CordovaPlugin {
     /**
      * Executes the request and returns PluginResult.
      *
-     * @param action The action to execute.
+     * @param actionAsString The action to execute.
      * @param args   JSONArry of arguments for the plugin.
      * @param cbc    Callback context from Cordova API
      * @return       Whether the action was valid.
@@ -235,6 +241,7 @@ public class SQLitePlugin extends CordovaPlugin {
      * @param dbname The name of the database-NOT including its extension.
      * @return true if successful or false if an exception was encountered
      */
+    @SuppressLint("NewApi")
     private boolean deleteDatabase(String dbname) {
         boolean status = false; // assume the worst case:
 
@@ -299,6 +306,7 @@ public class SQLitePlugin extends CordovaPlugin {
      * @param queryIDs   Array of query ids
      * @param cbc        Callback context from Cordova API
      */
+    @SuppressLint("NewApi")
     private void executeSqlBatch(String dbname, String[] queryarr, JSONArray[] jsonparams,
                                  String[] queryIDs, CallbackContext cbc) {
         SQLiteDatabase mydb = this.getDatabase(dbname);
@@ -325,8 +333,7 @@ public class SQLitePlugin extends CordovaPlugin {
                 query = queryarr[i];
 
                 // UPDATE or DELETE:
-                // NOTE: this code should be safe to RUN with old Android SDK.
-                // To BUILD with old Android SDK remove lines from HERE: {{
+
                 if (android.os.Build.VERSION.SDK_INT >= 11 &&
                         (query.toLowerCase().startsWith("update") ||
                                 query.toLowerCase().startsWith("delete"))) {
@@ -368,7 +375,7 @@ public class SQLitePlugin extends CordovaPlugin {
                         queryResult = new JSONObject();
                         queryResult.put("rowsAffected", rowsAffected);
                     }
-                } // to HERE. }}
+                }
 
                 // INSERT:
                 if (query.toLowerCase().startsWith("insert") && jsonparams != null) {
@@ -529,41 +536,16 @@ public class SQLitePlugin extends CordovaPlugin {
                     for (int i = 0; i < colCount; ++i) {
                         key = cur.getColumnName(i);
 
-                        // NOTE: this code should be safe to RUN with old Android SDK.
-                        // To BUILD with old Android SDK remove lines from HERE: {{
                         if (android.os.Build.VERSION.SDK_INT >= 11) {
-                            int curType = 3; /* Cursor.FIELD_TYPE_STRING */
 
                             // Use try & catch just in case android.os.Build.VERSION.SDK_INT >= 11 is lying:
                             try {
-                                curType = cur.getType(i);
-
-                                switch (curType) {
-                                    case Cursor.FIELD_TYPE_NULL:
-                                        row.put(key, JSONObject.NULL);
-                                        break;
-                                    case Cursor.FIELD_TYPE_INTEGER:
-                                        row.put(key, cur.getLong(i));
-                                        break;
-                                    case Cursor.FIELD_TYPE_FLOAT:
-                                        row.put(key, cur.getDouble(i));
-                                        break;
-                                    case Cursor.FIELD_TYPE_BLOB:
-                                        row.put(key, new String(Base64.encode(cur.getBlob(i), Base64.DEFAULT)));
-                                        break;
-                                    case Cursor.FIELD_TYPE_STRING:
-                                    default: /* (not expected) */
-                                        row.put(key, cur.getString(i));
-                                        break;
-                                }
-
+                                bindPostHoneycomb(row, key, cur, i);
                             } catch (Exception ex) {
-                                // simply treat like a string
-                                row.put(key, cur.getString(i));
+                                bindPreHoneycomb(row, key, cur, i);
                             }
-                        } else // to HERE. }}
-                        {
-                            row.put(key, cur.getString(i));
+                        } else {
+                            bindPreHoneycomb(row, key, cur, i);
                         }
                     }
 
@@ -583,6 +565,50 @@ public class SQLitePlugin extends CordovaPlugin {
         }
 
         return rowsResult;
+    }
+
+    @SuppressLint("NewApi")
+    private void bindPostHoneycomb(JSONObject row, String key, Cursor cur, int i) throws JSONException {
+        int curType = cur.getType(i);
+
+        switch (curType) {
+            case Cursor.FIELD_TYPE_NULL:
+                row.put(key, JSONObject.NULL);
+                break;
+            case Cursor.FIELD_TYPE_INTEGER:
+                row.put(key, cur.getLong(i));
+                break;
+            case Cursor.FIELD_TYPE_FLOAT:
+                row.put(key, cur.getDouble(i));
+                break;
+            case Cursor.FIELD_TYPE_BLOB:
+                row.put(key, new String(Base64.encode(cur.getBlob(i), Base64.DEFAULT)));
+                break;
+            case Cursor.FIELD_TYPE_STRING:
+            default: /* (not expected) */
+                row.put(key, cur.getString(i));
+                break;
+        }
+    }
+
+    private void bindPreHoneycomb(JSONObject row, String key, Cursor cursor, int i) throws JSONException {
+        // Since cursor.getType() is not available pre-honeycomb, this is
+        // a workaround so we don't have to bind everything as a string
+        // Details here: http://stackoverflow.com/q/11658239
+        SQLiteCursor sqLiteCursor = (SQLiteCursor) cursor;
+        CursorWindow cursorWindow = sqLiteCursor.getWindow();
+        int pos = cursor.getPosition();
+        if (cursorWindow.isNull(pos, i)) {
+            row.put(key, JSONObject.NULL);
+        } else if (cursorWindow.isLong(pos, i)) {
+            row.put(key, cursor.getLong(i));
+        } else if (cursorWindow.isFloat(pos, i)) {
+            row.put(key, cursor.getDouble(i));
+        } else if (cursorWindow.isBlob(pos, i)) {
+            row.put(key, new String(Base64.encode(cursor.getBlob(i), Base64.DEFAULT)));
+        } else { // string
+            row.put(key, cursor.getString(i));
+        }
     }
 
     /**
