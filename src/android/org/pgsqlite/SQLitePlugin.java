@@ -33,6 +33,9 @@ import org.json.JSONObject;
 
 public class SQLitePlugin extends CordovaPlugin {
 
+    private static final Pattern FIRST_WORD = Pattern.compile("^\\s*(\\S+)",
+            Pattern.CASE_INSENSITIVE);
+
     private static final Pattern WHERE_CLAUSE = Pattern.compile("\\s+WHERE\\s+(.+)$",
             Pattern.CASE_INSENSITIVE);
 
@@ -597,10 +600,12 @@ public class SQLitePlugin extends CordovaPlugin {
     }
 
     private QueryType getQueryType(String query) {
-        query = query.toLowerCase().trim();
-        for (QueryType queryType : QueryType.values()) {
-            if (query.startsWith(queryType.name())) {
-                return queryType;
+        Matcher matcher = FIRST_WORD.matcher(query);
+        if (matcher.find()) {
+            try {
+                return QueryType.valueOf(matcher.group(1).toLowerCase());
+            } catch (IllegalArgumentException ignore) {
+                // unknown verb
             }
         }
         return QueryType.other;
