@@ -91,12 +91,20 @@ public class SQLitePlugin extends CordovaPlugin {
             case open:
                 o = args.getJSONObject(0);
                 dbname = o.getString("name");
-                
+
+                boolean truncateDB = false;
                 try {
-                    if (o.getBoolean("reset")) {
+                    truncateDB = o.getBoolean("reset");
+                } catch (Exception ignored) {};
+
+                if (truncateDB) {
+                    try {
                         this.deleteDatabase(dbname);
+                    } catch ( Exception ex ) {
+                        Log.i(SQLitePlugin.class.getSimpleName(),"exception resetting database: " + ex.getMessage());
+                        ex.printStackTrace();
                     }
-                } catch ( Exception ignored ) {}
+                }
 
                 this.openDatabase(dbname, null);
                 break;
@@ -110,7 +118,6 @@ public class SQLitePlugin extends CordovaPlugin {
                 o = args.getJSONObject(0);
                 dbname = o.getString("path");
 
-                this.closeDatabase(dbname);
                 this.deleteDatabase(dbname);
                 this.openDatabase(dbname, null);
                 break;
@@ -223,12 +230,13 @@ public class SQLitePlugin extends CordovaPlugin {
             dbfile.getParentFile().mkdirs();
             try {
                 copyPrepopulatedDatabase(dbfile);
-            } catch( Exception e ) {
-                e.printStackTrace();
+            } catch( Exception ex ) {
+                // should this be a fatal error?
+                ex.printStackTrace();
             }
         }
 
-        Log.v("info", "Open sqlite db: " + dbfile.getAbsolutePath());
+        Log.i(SQLitePlugin.class.getSimpleName(), "Open sqlite db: " + dbfile.getAbsolutePath());
 
         SQLiteDatabase mydb = SQLiteDatabase.openOrCreateDatabase(dbfile, null);
 
@@ -236,19 +244,18 @@ public class SQLitePlugin extends CordovaPlugin {
     }
 
     /**
-     * If a prepopulated DB file exists in the assets folder it is copied to the dbPath.
+     * If a prepopulated DB file exists in the assets it is copied to the dbPath.
      */
     private void copyPrepopulatedDatabase(File dbFile) throws IOException {
         String seedFile = dbFile.getName();
         InputStream in;
         OutputStream out;
 
-        // try to open input file from assets directory
+        // try to open input file from the APK
         try {
             in = this.cordova.getActivity().getAssets().open(seedFile);
-        } catch ( Exception e ) {
-            Log.v("info", "SQLitePlugin: unable to open asset: " + seedFile +
-                          "SQLitePlugin: " + e.toString());
+        } catch ( Exception ignored ) {
+            Log.i(SQLitePlugin.class.getSimpleName(), "unable to open asset: " + seedFile);
             return;
         }
 
@@ -257,12 +264,12 @@ public class SQLitePlugin extends CordovaPlugin {
             dbFile.delete();
         }
 
-        Log.v("info", "SQLitePlugin: copying pre-populated database file: " + seedFile);
+        Log.i(SQLitePlugin.class.getSimpleName(), "copying pre-populated database file: " + seedFile);
 
         // open output file
         out = new FileOutputStream(dbFile);
 
-        // copy file contents
+        // copy file contents out of the APK
         byte[] buf = new byte[4096];
         int len;
         while ((len = in.read(buf,0,4096)) > 0) {
@@ -296,26 +303,24 @@ public class SQLitePlugin extends CordovaPlugin {
     private boolean deleteDatabase(String dbname) {
         boolean status = false; // assume the worst case:
         
-        /* Stop & give up if API < 16: */
-        if (android.os.Build.VERSION.SDK_INT < 16) {
-            return status;
-        }
-
         if (this.getDatabase(dbname) != null) {
             this.closeDatabase(dbname);
         }
 
         File dbfile = this.cordova.getActivity().getDatabasePath(dbname);
 
-        Log.v("info", "delete sqlite db: " + dbfile.getAbsolutePath());
+        Log.i(SQLitePlugin.class.getSimpleName(), "delete sqlite db: " + dbfile.getAbsolutePath());
 
-        // Use try & catch just in case android.os.Build.VERSION.SDK_INT >= 16 was lying:
         try {
-            status = SQLiteDatabase.deleteDatabase(dbfile);
-            Log.v("info","SQLitePlugin: status = " + status);
+            if (android.os.Build.VERSION.SDK_INT < 16) {
+                status = this.cordova.getActivity().deleteDatabase(dbname);
+            } else {
+                status = SQLiteDatabase.deleteDatabase(dbfile);
+            }
+            Log.i(SQLitePlugin.class.getSimpleName(),"status = " + status);
         } catch (Exception ex) {
             // log & give up:
-            Log.v("executeSqlBatch", "deleteDatabase(): Error=" + ex.getMessage());
+            Log.e(SQLitePlugin.class.getSimpleName(), "error = " + ex.getMessage());
             ex.printStackTrace();
         }
 
