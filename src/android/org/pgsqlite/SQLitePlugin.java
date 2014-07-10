@@ -538,9 +538,14 @@ public class SQLitePlugin extends CordovaPlugin {
         Matcher whereMatcher = WHERE_CLAUSE.matcher(query);
 
         String where = "";
-        if (whereMatcher.find()) {
+
+        int pos = 0;
+        while (whereMatcher.find(pos)) {
             where = " WHERE " + whereMatcher.group(1);
-        } // WHERE clause may be omitted
+            pos = whereMatcher.start(1);
+        }
+        // WHERE clause may be omitted, and also be sure to find the last one,
+        // e.g. for cases where there's a subquery
 
         // bindings may be in the update clause, so only take the last n
         int numQuestionMarks = 0;
@@ -566,29 +571,34 @@ public class SQLitePlugin extends CordovaPlugin {
             Matcher tableMatcher = UPDATE_TABLE_NAME.matcher(query);
             if (tableMatcher.find()) {
                 String table = tableMatcher.group(1);
-                SQLiteStatement statement = mydb.compileStatement(
-                        "SELECT count(*) FROM " + table + where);
-
-                if (subParams != null) {
-                    bindArgsToStatement(statement, subParams);
-                }
                 try {
+                    SQLiteStatement statement = mydb.compileStatement(
+                            "SELECT count(*) FROM " + table + where);
+
+                    if (subParams != null) {
+                        bindArgsToStatement(statement, subParams);
+                    }
+
                     return (int)statement.simpleQueryForLong();
-                } catch (Exception ignore) {
-                    // assume we couldn't count for whatever reason
+                } catch (Exception e) {
+                    // assume we couldn't count for whatever reason, keep going
+                    Log.e(SQLitePlugin.class.getSimpleName(), "uncaught", e);
                 }
             }
         } else { // delete
             Matcher tableMatcher = DELETE_TABLE_NAME.matcher(query);
             if (tableMatcher.find()) {
                 String table = tableMatcher.group(1);
-                SQLiteStatement statement = mydb.compileStatement(
-                        "SELECT count(*) FROM " + table + where);
-                bindArgsToStatement(statement, subParams);
                 try {
+                    SQLiteStatement statement = mydb.compileStatement(
+                            "SELECT count(*) FROM " + table + where);
+                    bindArgsToStatement(statement, subParams);
+
                     return (int)statement.simpleQueryForLong();
-                } catch (Exception ignore) {
-                    // assume we couldn't count for whatever reason
+                } catch (Exception e) {
+                    // assume we couldn't count for whatever reason, keep going
+                    Log.e(SQLitePlugin.class.getSimpleName(), "uncaught", e);
+
                 }
             }
         }
