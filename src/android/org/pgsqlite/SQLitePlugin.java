@@ -101,15 +101,17 @@ public class SQLitePlugin extends CordovaPlugin {
                 this.closeDatabase(dbname);
                 break;
             case delete:
-                /* Stop & give up if API < 16: */
-                if (android.os.Build.VERSION.SDK_INT < 16) {
-                    return false;
-                }
-
                 o = args.getJSONObject(0);
                 dbname = o.getString("path");
 
                 status = this.deleteDatabase(dbname);
+
+                // deleteDatabase() requires an async callback
+                if (status) {
+                    cbc.success();
+                } else {
+                    cbc.error("couldn't delete database");
+                }
                 break;
             case executePragmaStatement:
                 dbname = args.getString(0);
@@ -243,26 +245,33 @@ public class SQLitePlugin extends CordovaPlugin {
      */
     @SuppressLint("NewApi")
     private boolean deleteDatabase(String dbname) {
-        boolean status = false; // assume the worst case:
-
         if (this.getDatabase(dbname) != null) {
             this.closeDatabase(dbname);
         }
 
         File dbfile = this.cordova.getActivity().getDatabasePath(dbname);
 
-        Log.v("info", "delete sqlite db: " + dbfile.getAbsolutePath());
-
-        // Use try & catch just in case android.os.Build.VERSION.SDK_INT >= 16 was lying:
-        try {
-            status = SQLiteDatabase.deleteDatabase(dbfile);
-        } catch (Exception ex) {
-            // log & give up:
-            Log.v("executeSqlBatch", "deleteDatabase(): Error=" + ex.getMessage());
-            ex.printStackTrace();
+        if (android.os.Build.VERSION.SDK_INT >= 11) {
+            // Use try & catch just in case android.os.Build.VERSION.SDK_INT >= 16 was lying:
+            try {
+                return SQLiteDatabase.deleteDatabase(dbfile);
+            } catch (Exception e) {
+                Log.e(SQLitePlugin.class.getSimpleName(), "couldn't delete because old SDK_INT", e);
+                return deleteDatabasePreHoneycomb(dbfile);
+            }
+        } else {
+            // use old API
+            return deleteDatabasePreHoneycomb(dbfile);
         }
+    }
 
-        return status;
+    private boolean deleteDatabasePreHoneycomb(File dbfile) {
+        try {
+            return cordova.getActivity().deleteDatabase(dbfile.getAbsolutePath());
+        } catch (Exception e) {
+            Log.e(SQLitePlugin.class.getSimpleName(), "couldn't delete database", e);
+            return false;
+        }
     }
 
     /**
@@ -309,10 +318,14 @@ public class SQLitePlugin extends CordovaPlugin {
     @SuppressLint("NewApi")
     private void executeSqlBatch(String dbname, String[] queryarr, JSONArray[] jsonparams,
                                  String[] queryIDs, CallbackContext cbc) {
-        SQLiteDatabase mydb = this.getDatabase(dbname);
+
+        SQLiteDatabase mydb = getDatabase(dbname);
 
         if (mydb == null) {
-            return;
+            // auto-open; this is something we have to support
+            // since you can delete a database and then re-use it
+            openDatabase(dbname, null);
+            mydb = getDatabase(dbname);
         }
 
         String query = "";

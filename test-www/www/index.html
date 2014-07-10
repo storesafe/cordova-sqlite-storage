@@ -360,6 +360,67 @@
           });
         });
 
+        test(suiteName + ' test deleteDatabase()', function () {
+
+          if (isNative) {
+            ok(true, 'skip'); // doesn't exist in native WebSQL
+            return;
+          }
+
+          stop();
+          var db = openDatabase("DB-Deletable", "1.0", "Demo", DEFAULT_SIZE);
+
+          function createAndInsertStuff() {
+
+            db.transaction(function(tx) {
+              tx.executeSql('DROP TABLE IF EXISTS test');
+              tx.executeSql('CREATE TABLE IF NOT EXISTS test (name)', [], function () {
+                tx.executeSql('INSERT INTO test VALUES (?)', ['foo']);
+              });
+            }, function (e) { ok(false, 'error: ' + e); }, function () {
+              // check that we can read it
+              db.transaction(function(tx) {
+                tx.executeSql('SELECT * FROM test', [], function (tx, res) {
+                  equal(res.rows.item(0).name, 'foo');
+                });
+              }, function (e) { ok(false, 'error: ' + e); }, function () {
+                deleteAndConfirmDeleted();
+              });
+            });
+          }
+
+          function deleteAndConfirmDeleted() {
+
+            window.sqlitePlugin.deleteDatabase("DB-Deletable", function () {
+              // check that the data's gone
+              db.transaction(function(tx) {
+                    tx.executeSql('SELECT * FROM test');
+                  }, function (e) {
+                    ok(true, 'got error like we expected');
+                    testDeleteError();
+                  },
+                  function () {
+                    ok(false, 'expected an error');
+                  });
+            }, function (e) {
+              ok(false, 'error: ' + e);
+            });
+          }
+
+          function testDeleteError() {
+            // should throw an error if the db doesn't exist
+            window.sqlitePlugin.deleteDatabase("Foo-Doesnt-Exist", function () {
+              ok(false, 'expected error');
+            }, function (err) {
+              start();
+              ok(!!err, 'got error like we expected');
+            });
+          }
+
+          createAndInsertStuff();
+
+        });
+
         test(suiteName + "readTransaction should throw on modification", function() {
           stop();
           var db = openDatabase("Database-readonly", "1.0", "Demo", DEFAULT_SIZE);
@@ -515,7 +576,6 @@
             });
           });
         });
-
         test(suiteName + ' test simultaneous transactions, different dbs', function () {
           stop();
 
