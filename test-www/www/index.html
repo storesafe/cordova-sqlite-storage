@@ -195,6 +195,43 @@
           })
         });
 
+        test(suiteName + 'test rowsAffected advanced', function () {
+          var db = openDatabase("RowsAffectedAdvanced", "1.0", "Demo", DEFAULT_SIZE);
+
+          stop();
+
+          db.transaction(function (tx) {
+            tx.executeSql('DROP TABLE IF EXISTS characters');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS characters (name, creator, fav tinyint(1))');
+            tx.executeSql('DROP TABLE IF EXISTS companies');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS companies (name, fav tinyint(1))');
+            tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Sonic', 'Sega', 0], function (tx, res) {
+              equal(res.rowsAffected, 1);
+              tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Tails', 'Sega', 0], function (tx, res) {
+                tx.executeSql('INSERT INTO companies VALUES (?,?)', ['Sega', 1], function (tx, res) {
+                  equal(res.rowsAffected, 1);
+                  // query with subquery
+                  var sql = 'UPDATE characters ' +
+                      ' SET fav=(SELECT fav FROM companies WHERE name=?)' +
+                      ' WHERE creator=?';
+                  tx.executeSql(sql, ['Sega', 'Sega'], function (tx, res) {
+                    equal(res.rowsAffected, 2);
+                    // query with 2 subqueries
+                    var sql = 'UPDATE characters ' +
+                        ' SET fav=(SELECT fav FROM companies WHERE name=?),' +
+                        ' creator=(SELECT name FROM companies WHERE name=?)' +
+                        ' WHERE creator=?';
+                    tx.executeSql(sql, ['Sega', 'Sega', 'Sega'], function (tx, res) {
+                      start();
+                      equal(res.rowsAffected, 2);
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+
 
         test(suiteName + "nested transaction test", function() {
 
