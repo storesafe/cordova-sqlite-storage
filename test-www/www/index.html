@@ -123,6 +123,79 @@
 
         });
 
+        test(suiteName + 'test rowsAffected', function () {
+          var db = openDatabase("RowsAffected", "1.0", "Demo", DEFAULT_SIZE);
+
+          stop();
+
+          function test1(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS characters');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS characters (name, creator, fav tinyint(1))');
+            tx.executeSql('UPDATE characters SET name = ?', ['foo'], function (tx, res) {
+              equal(res.rowsAffected, 0, 'nothing updated');
+              tx.executeSql('DELETE from characters WHERE name = ?', ['foo'], function (tx, res) {
+                equal(res.rowsAffected, 0, 'nothing deleted');
+                tx.executeSql('UPDATE characters SET name = ?', ['foo'], function (tx, res) {
+                  equal(res.rowsAffected, 0, 'nothing updated');
+                  tx.executeSql('DELETE from characters', [], function (tx, res) {
+                    equal(res.rowsAffected, 0, 'nothing deleted');
+                    test2(tx);
+                  });
+                });
+              });
+            });
+          }
+
+          function test2(tx) {
+            tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Sonic', 'Sega', 0], function (tx, res) {
+              equal(res.rowsAffected, 1);
+              tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Mario', 'Nintendo', 0], function (tx, res) {
+                equal(res.rowsAffected, 1);
+                tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Samus', 'Nintendo', 0], function (tx, res) {
+                  equal(res.rowsAffected, 1);
+                  tx.executeSql('UPDATE characters SET fav=1 WHERE creator=?', ['Nintendo'], function (tx, res) {
+                    equal(res.rowsAffected, 2);
+                    tx.executeSql('UPDATE characters SET fav=1 WHERE creator=?', ['Konami'], function (tx, res) {
+                      equal(res.rowsAffected, 0);
+                      tx.executeSql('UPDATE characters SET fav=1', [], function (tx, res) {
+                        equal(res.rowsAffected, 3);
+                        test3(tx);
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          }
+
+          function test3(tx) {
+            tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Mega Man', 'Capcom', 0], function (tx, res) {
+              equal(res.rowsAffected, 1);
+              tx.executeSql('UPDATE characters SET fav=?, name=? WHERE creator=?;', [1, 'X', 'Capcom'], function (tx, res) {
+                equal(res.rowsAffected, 1);
+                tx.executeSql('UPDATE characters SET fav=? WHERE (creator=? OR creator=?)', [1, 'Capcom', 'Nintendo'], function (tx, res) {
+                  equal(res.rowsAffected, 3);
+                  tx.executeSql('DELETE FROM characters WHERE name="Samus";', [], function (tx, res) {
+                    equal(res.rowsAffected, 1);
+                    tx.executeSql('UPDATE characters SET fav=0,name=?', ["foo"], function (tx, res) {
+                      equal(res.rowsAffected, 3);
+                      tx.executeSql('DELETE FROM characters', [], function (tx, res) {
+                        start();
+                        equal(res.rowsAffected, 3);
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          }
+
+          db.transaction(function (tx) {
+            test1(tx);
+          })
+        });
+
+
         test(suiteName + "nested transaction test", function() {
 
           var db = openDatabase("Database2", "1.0", "Demo", DEFAULT_SIZE);
