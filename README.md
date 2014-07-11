@@ -48,7 +48,7 @@ var db = window.sqlitePlugin.openDatabase({name: "my.db"});
 ## Known issues
 
 - For iOS version: There is a memory leak if you use this version with background processing disabled. As a workaround, the iOS version has background processing enabled by default.
-- Background processing is not implemented for WP8 version.
+- Background processing and deleting a database are not implemented for WP8 version.
 
 ## Other limitations
 
@@ -188,6 +188,8 @@ This case will also works with Safari (WebKit), assuming you replace window.sqli
 ```js
 window.sqlitePlugin.deleteDatabase("my.db", successcb, errorcb);
 ```
+
+**NOTE:** This is not implemented for WP8.
 
 # Installing
 
