@@ -24,11 +24,11 @@
         doTest(false, 'Plugin: ', window.sqlitePlugin.openDatabase);
       }
 
-      function doTest(native, suiteName, openDatabase) {
+      function doTest(isNative, suiteName, openDatabase) {
 
         test(suiteName + "db transaction test", function() {
 
-          if (native) {
+          if (isNative) {
             ok('skipped');
             return;
           }
@@ -123,6 +123,116 @@
 
         });
 
+        test(suiteName + 'test rowsAffected', function () {
+          var db = openDatabase("RowsAffected", "1.0", "Demo", DEFAULT_SIZE);
+
+          stop();
+
+          function test1(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS characters');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS characters (name, creator, fav tinyint(1))');
+            tx.executeSql('UPDATE characters SET name = ?', ['foo'], function (tx, res) {
+              equal(res.rowsAffected, 0, 'nothing updated');
+              tx.executeSql('DELETE from characters WHERE name = ?', ['foo'], function (tx, res) {
+                equal(res.rowsAffected, 0, 'nothing deleted');
+                tx.executeSql('UPDATE characters SET name = ?', ['foo'], function (tx, res) {
+                  equal(res.rowsAffected, 0, 'nothing updated');
+                  tx.executeSql('DELETE from characters', [], function (tx, res) {
+                    equal(res.rowsAffected, 0, 'nothing deleted');
+                    test2(tx);
+                  });
+                });
+              });
+            });
+          }
+
+          function test2(tx) {
+            tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Sonic', 'Sega', 0], function (tx, res) {
+              equal(res.rowsAffected, 1);
+              tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Mario', 'Nintendo', 0], function (tx, res) {
+                equal(res.rowsAffected, 1);
+                tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Samus', 'Nintendo', 0], function (tx, res) {
+                  equal(res.rowsAffected, 1);
+                  tx.executeSql('UPDATE characters SET fav=1 WHERE creator=?', ['Nintendo'], function (tx, res) {
+                    equal(res.rowsAffected, 2);
+                    tx.executeSql('UPDATE characters SET fav=1 WHERE creator=?', ['Konami'], function (tx, res) {
+                      equal(res.rowsAffected, 0);
+                      tx.executeSql('UPDATE characters SET fav=1', [], function (tx, res) {
+                        equal(res.rowsAffected, 3);
+                        test3(tx);
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          }
+
+          function test3(tx) {
+            tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Mega Man', 'Capcom', 0], function (tx, res) {
+              equal(res.rowsAffected, 1);
+              tx.executeSql('UPDATE characters SET fav=?, name=? WHERE creator=?;', [1, 'X', 'Capcom'], function (tx, res) {
+                equal(res.rowsAffected, 1);
+                tx.executeSql('UPDATE characters SET fav=? WHERE (creator=? OR creator=?)', [1, 'Capcom', 'Nintendo'], function (tx, res) {
+                  equal(res.rowsAffected, 3);
+                  tx.executeSql('DELETE FROM characters WHERE name="Samus";', [], function (tx, res) {
+                    equal(res.rowsAffected, 1);
+                    tx.executeSql('UPDATE characters SET fav=0,name=?', ["foo"], function (tx, res) {
+                      equal(res.rowsAffected, 3);
+                      tx.executeSql('DELETE FROM characters', [], function (tx, res) {
+                        start();
+                        equal(res.rowsAffected, 3);
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          }
+
+          db.transaction(function (tx) {
+            test1(tx);
+          })
+        });
+
+        test(suiteName + 'test rowsAffected advanced', function () {
+          var db = openDatabase("RowsAffectedAdvanced", "1.0", "Demo", DEFAULT_SIZE);
+
+          stop();
+
+          db.transaction(function (tx) {
+            tx.executeSql('DROP TABLE IF EXISTS characters');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS characters (name, creator, fav tinyint(1))');
+            tx.executeSql('DROP TABLE IF EXISTS companies');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS companies (name, fav tinyint(1))');
+            tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Sonic', 'Sega', 0], function (tx, res) {
+              equal(res.rowsAffected, 1);
+              tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Tails', 'Sega', 0], function (tx, res) {
+                tx.executeSql('INSERT INTO companies VALUES (?,?)', ['Sega', 1], function (tx, res) {
+                  equal(res.rowsAffected, 1);
+                  // query with subquery
+                  var sql = 'UPDATE characters ' +
+                      ' SET fav=(SELECT fav FROM companies WHERE name=?)' +
+                      ' WHERE creator=?';
+                  tx.executeSql(sql, ['Sega', 'Sega'], function (tx, res) {
+                    equal(res.rowsAffected, 2);
+                    // query with 2 subqueries
+                    var sql = 'UPDATE characters ' +
+                        ' SET fav=(SELECT fav FROM companies WHERE name=?),' +
+                        ' creator=(SELECT name FROM companies WHERE name=?)' +
+                        ' WHERE creator=?';
+                    tx.executeSql(sql, ['Sega', 'Sega', 'Sega'], function (tx, res) {
+                      start();
+                      equal(res.rowsAffected, 2);
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+
+
         test(suiteName + "nested transaction test", function() {
 
           var db = openDatabase("Database2", "1.0", "Demo", DEFAULT_SIZE);
@@ -179,7 +289,7 @@
 
         test(suiteName + "transaction encompasses all callbacks", function() {
 
-          if (native) {
+          if (isNative) {
             ok('skipped');
             return;
           }
@@ -214,7 +324,7 @@
 
         test(suiteName + "exception from transaction handler causes failure", function() {
 
-          if (native) {
+          if (isNative) {
             ok('skipped');
             return;
           }
@@ -358,6 +468,67 @@
               });
             });
           });
+        });
+
+        test(suiteName + ' test deleteDatabase()', function () {
+
+          if (isNative) {
+            ok(true, 'skip'); // doesn't exist in native WebSQL
+            return;
+          }
+
+          stop();
+          var db = openDatabase("DB-Deletable", "1.0", "Demo", DEFAULT_SIZE);
+
+          function createAndInsertStuff() {
+
+            db.transaction(function(tx) {
+              tx.executeSql('DROP TABLE IF EXISTS test');
+              tx.executeSql('CREATE TABLE IF NOT EXISTS test (name)', [], function () {
+                tx.executeSql('INSERT INTO test VALUES (?)', ['foo']);
+              });
+            }, function (e) { ok(false, 'error: ' + e); }, function () {
+              // check that we can read it
+              db.transaction(function(tx) {
+                tx.executeSql('SELECT * FROM test', [], function (tx, res) {
+                  equal(res.rows.item(0).name, 'foo');
+                });
+              }, function (e) { ok(false, 'error: ' + e); }, function () {
+                deleteAndConfirmDeleted();
+              });
+            });
+          }
+
+          function deleteAndConfirmDeleted() {
+
+            window.sqlitePlugin.deleteDatabase("DB-Deletable", function () {
+              // check that the data's gone
+              db.transaction(function(tx) {
+                    tx.executeSql('SELECT * FROM test');
+                  }, function (e) {
+                    ok(true, 'got error like we expected');
+                    testDeleteError();
+                  },
+                  function () {
+                    ok(false, 'expected an error');
+                  });
+            }, function (e) {
+              ok(false, 'error: ' + e);
+            });
+          }
+
+          function testDeleteError() {
+            // should throw an error if the db doesn't exist
+            window.sqlitePlugin.deleteDatabase("Foo-Doesnt-Exist", function () {
+              ok(false, 'expected error');
+            }, function (err) {
+              start();
+              ok(!!err, 'got error like we expected');
+            });
+          }
+
+          createAndInsertStuff();
+
         });
 
         test(suiteName + "readTransaction should throw on modification", function() {
@@ -515,7 +686,6 @@
             });
           });
         });
-
         test(suiteName + ' test simultaneous transactions, different dbs', function () {
           stop();
 

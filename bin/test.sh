@@ -32,7 +32,7 @@ if [[ $? != 0 ]]; then # run from the bin/ directory
 fi
 
 # compile coffeescript
-coffee -cl -o ../www ../SQLitePlugin.coffee.md
+coffee --no-header -cl -o ../www ../SQLitePlugin.coffee.md
 
 if [[ $? != 0 ]]; then
   echo "coffeescript compilation failed"
