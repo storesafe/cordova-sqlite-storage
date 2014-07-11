@@ -20,7 +20,9 @@ import android.util.Log;
 import java.io.File;
 import java.lang.IllegalArgumentException;
 import java.lang.Number;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,7 +50,8 @@ public class SQLitePlugin extends CordovaPlugin {
     /**
      * Multiple database map (static).
      */
-    static HashMap<String, SQLiteDatabase> dbmap = new HashMap<String, SQLiteDatabase>();
+    static ConcurrentHashMap<String, SQLiteDatabase> dbmap = new ConcurrentHashMap<String, SQLiteDatabase>();
+    static ConcurrentHashMap<String, DBRunner> rmap = new ConcurrentHashMap<String, DBRunner>();
 
     /**
      * Get a SQLiteDatabase reference from the db map (public static accessor).
@@ -104,14 +107,19 @@ public class SQLitePlugin extends CordovaPlugin {
                 o = args.getJSONObject(0);
                 dbname = o.getString("name");
 
-                this.openDatabase(dbname, null);
+                DBRunner r = new DBRunner(dbname);
+                this.rmap.put(dbname, r);
+                this.cordova.getThreadPool().execute(r);
                 break;
+
             case close:
                 o = args.getJSONObject(0);
                 dbname = o.getString("path");
-
-                this.closeDatabase(dbname);
+                //this.closeDatabase(dbname);
+                r = rmap.get(dbname);
+                if (r != null) try { r.q.put(new DBQuery(true, cbc)); } catch(Exception e) {}
                 break;
+
             case delete:
                 o = args.getJSONObject(0);
                 dbname = o.getString("path");
@@ -125,6 +133,7 @@ public class SQLitePlugin extends CordovaPlugin {
                     cbc.error("couldn't delete database");
                 }
                 break;
+
             case executePragmaStatement:
                 dbname = args.getString(0);
                 String query = args.getString(1);
@@ -151,6 +160,7 @@ public class SQLitePlugin extends CordovaPlugin {
 
                 this.sendJavascriptCB("window.SQLitePluginCallback.p1('" + id + "', " + result + ");");
                 break;
+
             case executeSqlBatch:
             case executeBatchTransaction:
             case backgroundExecuteSqlBatch:
@@ -184,11 +194,15 @@ public class SQLitePlugin extends CordovaPlugin {
                     }
                 }
 
-                if (action == Action.backgroundExecuteSqlBatch) {
-                    this.executeSqlBatchInBackground(dbname, queries, jsonparams, queryIDs, cbc);
-                } else {
-                    this.executeSqlBatch(dbname, queries, jsonparams, queryIDs, cbc);
-                }
+                //if (action == Action.backgroundExecuteSqlBatch) {
+                //    this.executeSqlBatchInBackground(dbname, queries, jsonparams, queryIDs, cbc);
+                //} else {
+                //    this.executeSqlBatch(dbname, queries, jsonparams, queryIDs, cbc);
+                //}
+
+                DBQuery q = new DBQuery(queries, queryIDs, jsonparams, cbc);
+                r = rmap.get(dbname);
+                if (r != null) try { r.q.put(q); } catch(Exception e) {}
                 break;
         }
 
@@ -754,6 +768,56 @@ public class SQLitePlugin extends CordovaPlugin {
                 myself.webView.sendJavascript(cb);
             }
         });
+    }
+
+    private class DBRunner implements Runnable {
+        final String dbname;
+        final BlockingQueue<DBQuery> q;
+
+        DBRunner(final String dbname) {
+            this.dbname = dbname;
+            this.q = new LinkedBlockingQueue<DBQuery>();
+        }
+
+        public void run() {
+            openDatabase(dbname, null);
+
+            try {
+                DBQuery dbq = q.take();
+
+                while (!dbq.stop) {
+                    executeSqlBatch(dbname, dbq.queries, dbq.jsonparams, dbq.queryIDs, dbq.cbc);
+
+                    dbq = q.take();
+                }
+            } catch (Exception e) { }
+
+            closeDatabase(dbname);
+        }
+    }
+
+    private final class DBQuery {
+        final boolean stop;
+        final String[] queries;
+        final String[] queryIDs;
+        final JSONArray[] jsonparams;
+        final CallbackContext cbc;
+
+        DBQuery(String[] myqueries, String[] qids, JSONArray[] params, CallbackContext c) {
+            this.stop = false;
+            this.queries = myqueries;
+            this.queryIDs = qids;
+            this.jsonparams = params;
+            this.cbc = c;
+        }
+
+        DBQuery(boolean stop, CallbackContext cbc) {
+            this.stop = true;
+            this.queries = null;
+            this.queryIDs = null;
+            this.jsonparams = null;
+            this.cbc = cbc;
+        }
     }
 
     private static enum Action {
