@@ -11,7 +11,7 @@ License for iOS version: MIT only
 The automatic "`.db`" database file extension is [now removed](https://github.com/brodysoft/Cordova-SQLitePlugin/commit/3723cfc2dc933ae128fe9d5998efe4d76fcb0370) for the Android version, for consistency with the iOS & WP8 versions. For an existing app, you may have to open an existing database like:
 
 ```js
-var db = window.sqlitePlugin.openDatabase({name: "myDatabase.db"});
+var db = window.sqlitePlugin.openDatabase({name: "my.db"});
 ```
 
 ## Status
@@ -21,6 +21,7 @@ var db = window.sqlitePlugin.openDatabase({name: "myDatabase.db"});
 
 ## Announcements
 
+- Fixes to work with PouchDB by [@nolanlawson](https://github.com/nolanlawson)
 - WP8 version added by:
   - [@nadyaA (Nadezhda Atanasova)](https://github.com/nadyaA) with proper DLL integration
   - [@Gillardo (Darren Gillard)](https://github.com/Gillardo) with failure-safe transaction semantics working
@@ -37,6 +38,7 @@ var db = window.sqlitePlugin.openDatabase({name: "myDatabase.db"});
   - Keeps sqlite database in a user data location that is known, can be reconfigured, and iOS will be backed up by iCloud.
   - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
 - Android & iOS working with [SQLCipher](http://sqlcipher.net) for encryption (see below)
+- Android is supported back to SDK 10 (a.k.a. Gingerbread, Android 2.3.3); Support for older versions is available upon request.
 
 ## Apps using Cordova/PhoneGap SQLitePlugin
 
@@ -45,7 +47,6 @@ var db = window.sqlitePlugin.openDatabase({name: "myDatabase.db"});
 
 ## Known issues
 
-- Android is only supported back to SDK 10 (a.k.a. Gingerbread, Android 2.3.3).
 - For iOS version: There is a memory leak if you use this version with background processing disabled. As a workaround, the iOS version has background processing enabled by default.
 - Background processing is not implemented for WP8 version.
 
@@ -54,7 +55,7 @@ var db = window.sqlitePlugin.openDatabase({name: "myDatabase.db"});
 - The db version, display name, and size parameter values are not supported and will be ignored.
 - The sqlite plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**.
 - For Android version, there is an issue with background processing that affects transaction error handling and may affect nested transactions.
-- Background processing model could be improved with one background thread per database connection.
+- Background processing model could be improved for the Android version, with one background thread per database connection.
 - For iOS, iCloud backup is NOT optional and should be.
 - Missing db creation callback
 
@@ -77,8 +78,8 @@ The idea is to emulate the HTML5 SQL API as closely as possible. The only major 
 ## Opening a database
 
 There are two options to open a database:
-- Recommended: `var db = window.sqlitePlugin.openDatabase({name: "myDatabase"});`
-- Classical: `var db = window.sqlitePlugin.openDatabase("myDatabase", "1.0", "Demo", -1);`
+- Recommended: `var db = window.sqlitePlugin.openDatabase({name: "my.db"});`
+- Classical: `var db = window.sqlitePlugin.openDatabase("myDatabase.db", "1.0", "Demo", -1);`
 
 **IMPORTANT:** Please wait for the "deviceready" event, as in the following example:
 
@@ -88,25 +89,25 @@ document.addEventListener("deviceready", onDeviceReady, false);
 
 // Cordova is ready
 function onDeviceReady() {
-  var db = window.sqlitePlugin.openDatabase({name: "DB"});
+  var db = window.sqlitePlugin.openDatabase({name: "my.db"});
   // ...
 }
 ```
 
-**NOTE:** The database file is created with `.db` extension.
+**NOTE:** The database file name should include the extension, if desired.
 
 ## Background processing
 
 To enable background processing on a permanent basis, open a database like:
 
 ```js
-var db = window.sqlitePlugin.openDatabase({name: "DB", bgType: 1});
+var db = window.sqlitePlugin.openDatabase({name: "my.db", bgType: 1});
 ```
 
 **NOTE:** the iOS version has background processing enabled by default as a workaround for a memory leak described under **Known limitations**. To disable background processing, open a database like:
 
 ```js
-var db = window.sqlitePlugin.openDatabase({name: "DB", bgType: 0});
+var db = window.sqlitePlugin.openDatabase({name: "my.db", bgType: 0});
 ```
 
 # Sample with PRAGMA feature
@@ -119,7 +120,7 @@ document.addEventListener("deviceready", onDeviceReady, false);
 
 // Cordova is ready
 function onDeviceReady() {
-  var db = window.sqlitePlugin.openDatabase({name: "DB"});
+  var db = window.sqlitePlugin.openDatabase({name: "my.db"});
 
   db.transaction(function(tx) {
     tx.executeSql('DROP TABLE IF EXISTS test_table');
@@ -147,6 +148,7 @@ function onDeviceReady() {
   });
 }
 ```
+
 ## Sample with transaction-level nesting
 
 In this case, the same transaction in the first executeSql() callback is being reused to run executeSql() again.
@@ -206,7 +208,7 @@ These installation instructions are based on the Android example project from Co
  - Install src/android/org/pgsqlite/SQLitePlugin.java from this repository into src/org/pgsqlite subdirectory
  - Add the plugin element `<plugin name="SQLitePlugin" value="org.pgsqlite.SQLitePlugin"/>` to res/xml/config.xml
 
-Sample change to res/xml/config.xml:
+Sample change to res/xml/config.xml for Cordova/PhoneGap 2.x:
 
 ```diff
 --- config.xml.orig	2013-07-23 13:48:09.000000000 +0200
@@ -262,7 +264,7 @@ file in src/ to javascript WITH the top-level function wrapper option (default).
 
 Use the resulting javascript file in your HTML.
 
-Enable the SQLitePlugin in `config.xml`:
+Enable the SQLitePlugin in `config.xml` (Cordova/PhoneGap 2.x):
 
 ```diff
 --- config.xml.old	2013-05-17 13:18:39.000000000 +0200
@@ -348,7 +350,7 @@ If you still cannot get something to work:
   - if the issue is with *adding* data to a table, that the test program includes the statements you used to open the database and create the table;
   - if the issue is with *retrieving* data from a table, that the test program includes the statements you used to open the database, create the table, and enter the data you are trying to retrieve.
 
-Then you can post the issue to the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin).
+Then you can post the issue to the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin) or [raise a new issue](https://github.com/brodysoft/Cordova-SQLitePlugin/issues/new).
 
 ## Community forum
 
@@ -423,11 +425,15 @@ users = new Lawnchair {name: "users", bgType: 1, ...}
 
 # Contributing
 
-**IMPORTANT NOTE:** It is better to push your changes from a separate branch. Sometimes they need to be redone before acceptance. Otherwise your `master` branch may become a real mess.
+**IMPORTANT NOTE:** It is better to push your change(s) from a separate branch. Sometimes they need to be reworked before acceptance. Otherwise your `master` branch could become a real mess if rework is needed.
 
 - Testimonials of apps that are using this plugin would be especially helpful.
 - Reporting issues to the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin) can help improve the quality of this plugin.
 - Patches with bug fixes are helpful, especially when submitted with test code.
-- Other enhancements welcome for consideration, especially when submitted with test code and working for all supported platforms. Increase of complexity should be avoided.
+- Other enhancements welcome for consideration, when submitted with test code and will work for all supported platforms. Increase of complexity should be avoided.
 - All contributions may be reused by [@brodybits (Chris Brody)](https://github.com/brodybits) under another license in the future. Efforts will be taken to give credit for major contributions but it will not be guaranteed.
+- Project restructuring, i.e. moving files and/or directories around, should be avoided if possible. If you see a need for restructuring, it is best to ask first on the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin) where alternatives can be discussed before reaching a conclusion. If you want to propose a change to the project structure:
+  - Make a special branch within your fork from which you can send the proposed restructuring;
+  - Always use `git mv` to move files & directories;
+  - Never mix a move/rename operation and any other changes in the same commit.
 
