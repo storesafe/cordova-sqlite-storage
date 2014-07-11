@@ -183,6 +183,12 @@ function onDeviceReady() {
 
 This case will also works with Safari (WebKit), assuming you replace window.sqlitePlugin.openDatabase with window.openDatabase.
 
+## Delete a database
+
+```js
+window.sqlitePlugin.deleteDatabase("my.db", successcb, errorcb);
+```
+
 # Installing
 
 **NOTE:** This plugin is now prepared to be installed using the `cordova` tool.
