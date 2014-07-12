@@ -69,7 +69,7 @@
         <framework src="libsqlite3.dylib" />
     </platform>
 
-    <!-- wp8 -->
+    <!-- wp8 [should work but not tested on wp7] -->
     <platform name="wp8">
         <config-file target="config.xml" parent="/*">
             <feature name="SQLitePlugin">
@@ -77,8 +77,8 @@
             </feature>
         </config-file>
 
-        <source-file src="src/wp8/SQLitePlugin.cs" />
-        <framework src="src/wp8/Newtonsoft.Json.dll" custom="true" />
-        <framework src="src/wp8/SQLiteWPNative.dll" custom="true" />
+        <source-file src="src/wp/cs-sqlite-dll/SQLitePlugin.cs" />
+        <framework src="src/wp/cs-sqlite-dll/Newtonsoft.Json.dll" custom="true" />
+        <framework src="src/wp/cs-sqlite-dll/SQLiteWPNative.dll" custom="true" />
     </platform>
 </plugin>
