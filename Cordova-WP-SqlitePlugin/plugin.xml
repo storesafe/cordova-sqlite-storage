@@ -11,7 +11,7 @@
 <description>Plugin to add support for SQLite databases on windows based devices</description>
 <author>ZHAW</author>
 <keywords>SQLite, sql, database, windows phone</keywords>
-<license>Apache 2.0 License</license>
+<license>Apache 2.0</license>
 
 <platform name="wp8">	
 	<js-module src="Cordova-WP-SqlitePlugin/www/SQLitePlugin.js" name="SqlitePlugin">
@@ -24,8 +24,8 @@
             </feature>
         </config-file>
 	
-	<source-file src="Cordova-WP-SqlitePlugin/Plugins/SqlitePlugin/SQLitePlugin.cs" />	
-	<source-file src="Cordova-WP-SqlitePlugin/Plugins/SqlitePlugin/SQLite.cs" />
+	<source-file src="Plugins/SqlitePlugin/SQLitePlugin.cs" />	
+	<source-file src="Plugins/SqlitePlugin/SQLite.cs" />
 
 </platform>
 
