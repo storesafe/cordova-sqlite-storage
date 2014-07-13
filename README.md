@@ -1,14 +1,14 @@
 # Cordova/PhoneGap SQLitePlugin
 
-Native interface to sqlite in a Cordova/PhoneGap plugin for Android/iOS/WP8, with HTML5 Web SQL API
+Native interface to sqlite in a Cordova/PhoneGap plugin for Android/iOS/WP(8), with HTML5 Web SQL API
 
-License for Android & WP8 versions: MIT or Apache 2.0
+License for Android & WP(8) versions: MIT or Apache 2.0
 
 License for iOS version: MIT only
 
 ## WARNING: breaking change for Android version
 
-The automatic "`.db`" database file extension is [now removed](https://github.com/brodysoft/Cordova-SQLitePlugin/commit/3723cfc2dc933ae128fe9d5998efe4d76fcb0370) for the Android version, for consistency with the iOS & WP8 versions. For an existing app, you may have to open an existing database like:
+The automatic "`.db`" database file extension is [now removed](https://github.com/brodysoft/Cordova-SQLitePlugin/commit/3723cfc2dc933ae128fe9d5998efe4d76fcb0370) for the Android version, for consistency with the iOS & WP(8) versions. For an existing app, you may have to open an existing database like:
 
 ```js
 var db = window.sqlitePlugin.openDatabase({name: "my.db"});
@@ -20,12 +20,18 @@ var db = window.sqlitePlugin.openDatabase({name: "my.db"});
 - Please use the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin) for community support
 - Commercial support is available for SQLCipher integration with Android & iOS versions
 
+### WP(8) versions
+
+There are two versions for WP(8), in the following locations:
+- `src/wp/cs-sqlite-dll`: using CSharp-sqlite & Newtonsoft JSON DLLs; tested by [@Gillardo (Darren Gillard)](https://github.com/Gillardo); will not work with PhoneGap build service; may work with WP7
+- `Cordova-WP-SqlitePlugin`: based on [huserben / Cordova-WP-SqlitePlugin](https://github.com/huserben/Cordova-WP-SqlitePlugin) & [marcucio / Cordova-WP-SqlitePlugin](https://github.com/marcucio/Cordova-WP-SqlitePlugin); needs to use its own `SQLitePlugin.js`; uses built-in `sqlite.dll` in WP8; will NOT work with WP7
+
+The version in `Cordova-WP-SqlitePlugin` will be moved into `src/wp` once it is integrated and working with `www/SQLitePlugin.js` and passing the tests in `test-www/www/index.html`.
+
 ## Announcements
 
+- Experimenal WP(8) version, as described above
 - Fixes to work with PouchDB by [@nolanlawson](https://github.com/nolanlawson)
-- WP version added by:
-  - [@nadyaA (Nadezhda Atanasova)](https://github.com/nadyaA) with proper DLL integration
-  - [@Gillardo (Darren Gillard)](https://github.com/Gillardo) with failure-safe transaction semantics working
 - Forum renamed to: [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin)
 - New location: https://github.com/brodysoft/Cordova-SQLitePlugin
 - iOS version can now be built with either ARC or MRC.
@@ -49,7 +55,7 @@ var db = window.sqlitePlugin.openDatabase({name: "my.db"});
 ## Known issues
 
 - For iOS version: There is a memory leak if you use this version with background processing disabled. As a workaround, the iOS version has background processing enabled by default.
-- Background processing and deleting a database are not implemented for WP8 version.
+- Background processing and deleting a database are not implemented for WP(8).
 
 ## Other limitations
 
@@ -190,7 +196,7 @@ This case will also works with Safari (WebKit), assuming you replace window.sqli
 window.sqlitePlugin.deleteDatabase("my.db", successcb, errorcb);
 ```
 
-**NOTE:** This is not implemented for WP8.
+**NOTE:** This is not implemented for WP(8).
 
 # Installing
 
@@ -205,9 +211,10 @@ window.sqlitePlugin.deleteDatabase("my.db", successcb, errorcb);
 
 - `SQLitePlugin.coffee.md`: platform-independent (Literate coffee-script, can be read by recent coffee-script compiler)
 - `www`: `SQLitePlugin.js` now platform-independent
-- `src`: Java plugin code for Android; Objective-C plugin code for iOS; C-sharp code & DLLs for WP8
+- `src`: Java plugin code for Android; Objective-C plugin code for iOS; C-sharp code & DLLs for WP(8) (CSharp-sqlite DLL version)
 - `test-www`: simple testing in `index.html` using qunit 1.5.0
 - `Lawnchair-adapter`: Lawnchair adaptor, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
+- `Cordova-WP-SqlitePlugin`: WP8 version from [huserben / Cordova-WP-SqlitePlugin](https://github.com/huserben/Cordova-WP-SqlitePlugin), to be moved to `src/wp` once properly integrated as described above
 
 ## Manual installation - Android version
 
@@ -288,7 +295,7 @@ Enable the SQLitePlugin in `config.xml` (Cordova/PhoneGap 2.x):
          <plugin name="Compass" value="CDVLocation" />
 ```
 
-## Manual installation - WP8 version
+## Manual installation - WP(8) version
 
 TODO
 
