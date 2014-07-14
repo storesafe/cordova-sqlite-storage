@@ -16,13 +16,14 @@ var db = window.sqlitePlugin.openDatabase({name: "my.db"});
 
 ## Status
 
+- WP(8) version is experimental, unsupported and subject to change.
 - Please use the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin) for community support
 - Commercial support is available for SQLCipher integration with Android & iOS versions
 
 ## Announcements
 
 - Fixes to work with PouchDB by [@nolanlawson](https://github.com/nolanlawson)
-- WP8 version added by:
+- WP version added by:
   - [@nadyaA (Nadezhda Atanasova)](https://github.com/nadyaA) with proper DLL integration
   - [@Gillardo (Darren Gillard)](https://github.com/Gillardo) with failure-safe transaction semantics working
 - Forum renamed to: [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin)
