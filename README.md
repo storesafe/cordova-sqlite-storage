@@ -57,9 +57,8 @@ Also the threading model is changed as described below.
 
 - The db version, display name, and size parameter values are not supported and will be ignored.
 - The sqlite plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**.
-- For Android version, there is an issue with background processing that affects transaction error handling and may affect nested transactions.
-- Background processing model could be improved for the Android version, with one background thread per database connection.
 - For iOS, iCloud backup is NOT optional and should be.
+- The Android version cannot work with more than 100 open db files due to its threading model.
 - Missing db creation callback
 
 ## Other versions
