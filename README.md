@@ -32,12 +32,15 @@ The version in `Cordova-WP-SqlitePlugin` will be moved into `src/wp` once it is 
 
 ## Announcements
 
+- Changes to background processing:
+  - The `dbType` option is now removed;
+  - Android version is now using one thread per db;
+  - for iOS version backround processing using a thread pool is now mandatory.
 - Experimenal WP(8) version, as described above
 - Fixes to work with PouchDB by [@nolanlawson](https://github.com/nolanlawson)
 - Forum renamed to: [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin)
 - New location: https://github.com/brodysoft/Cordova-SQLitePlugin
 - iOS version can now be built with either ARC or MRC.
-- Android version is now using one thread per db, regardless of the `dbType` option.
 
 ## Highlights
 
@@ -110,14 +113,6 @@ The threading model depens on which version is used:
 - For Android, one background thread per db, always;
 - for iOS, background processing using a thread pool is enabled by default;
 - for WP(8), there is no backgroud processing (yet).
-
-**DEPRECATED OPTION, WILL BE REMOVED:** To disable background processing for the iOS version:
-
-```js
-var db = window.sqlitePlugin.openDatabase({name: "my.db", bgType: 0});
-```
-
-**WARNING:** The iOS version has a memory leak if background processing is disabled. This option is not recommended.
 
 # Sample with PRAGMA feature
 

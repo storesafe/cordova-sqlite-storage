@@ -10,16 +10,15 @@ License for common Javascript: MIT or Apache
 
     root = @
 
-### constants:
+### constant(s):
 
     READ_ONLY_REGEX = /^\s*(?:drop|delete|insert|update|create)\s/i
-    IOS_REGEX = /iP(?:ad|hone|od)/
 
-### globals:
+### global(s):
 
     txLocks = {}
 
-### utility functions:
+### utility function(s):
 
     nextTick = window.setImmediate || (fun) ->
       window.setTimeout(fun, 0)
@@ -68,14 +67,6 @@ License for common Javascript: MIT or Apache
         @openError = (e) ->
           console.log e.message
           return
-
-      #@bg = !!openargs.bgType and openargs.bgType == 1
-      @bg =
-        if !openargs.bgType
-          # default to true for iOS only (due to memory issue)
-          IOS_REGEX.test(navigator.userAgent)
-        else
-          openargs.bgType == 1
 
       @open @openSuccess, @openError
       return
@@ -300,8 +291,7 @@ License for common Javascript: MIT or Apache
 
         return
 
-      mycommand = if @db.bg then "backgroundExecuteSqlBatch" else "executeSqlBatch"
-      cordova.exec mycb, null, "SQLitePlugin", mycommand, [{dbargs: {dbname: @db.dbname}, executes: tropts}]
+      cordova.exec mycb, null, "SQLitePlugin", "backgroundExecuteSqlBatch", [{dbargs: {dbname: @db.dbname}, executes: tropts}]
 
       return
 
