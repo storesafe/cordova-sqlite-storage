@@ -14,6 +14,8 @@ The automatic "`.db`" database file extension is [now removed](https://github.co
 var db = window.sqlitePlugin.openDatabase({name: "my.db"});
 ```
 
+Also the threading model is changed as described below.
+
 ## Status
 
 - WP(8) version is experimental, unsupported and subject to change.
@@ -29,6 +31,7 @@ var db = window.sqlitePlugin.openDatabase({name: "my.db"});
 - Forum renamed to: [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin)
 - New location: https://github.com/brodysoft/Cordova-SQLitePlugin
 - iOS version can now be built with either ARC or MRC.
+- Android version is now using one thread per db, regardless of the `dbType` option.
 
 ## Highlights
 
@@ -48,7 +51,6 @@ var db = window.sqlitePlugin.openDatabase({name: "my.db"});
 
 ## Known issues
 
-- For iOS version: There is a memory leak if you use this version with background processing disabled. As a workaround, the iOS version has background processing enabled by default.
 - Background processing and deleting a database are not implemented for WP8 version.
 
 ## Other limitations
@@ -99,17 +101,18 @@ function onDeviceReady() {
 
 ## Background processing
 
-To enable background processing on a permanent basis, open a database like:
+The threading model depens on which version is used:
+- For Android, one background thread per db, always;
+- for iOS, background processing using a thread pool is enabled by default;
+- for WP(8), there is no backgroud processing (yet).
 
-```js
-var db = window.sqlitePlugin.openDatabase({name: "my.db", bgType: 1});
-```
-
-**NOTE:** the iOS version has background processing enabled by default as a workaround for a memory leak described under **Known limitations**. To disable background processing, open a database like:
+**DEPRECATED OPTION, WILL BE REMOVED:** To disable background processing for the iOS version:
 
 ```js
 var db = window.sqlitePlugin.openDatabase({name: "my.db", bgType: 0});
 ```
+
+**WARNING:** The iOS version has a memory leak if background processing is disabled. This option is not recommended.
 
 # Sample with PRAGMA feature
 
