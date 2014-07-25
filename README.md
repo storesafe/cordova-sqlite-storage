@@ -18,14 +18,14 @@ Also the threading model is changed as described below.
 
 ## Status
 
-- WP(8) version is experimental, unsupported and subject to change.
+- WP(8) version is working but subject to change (see below).
 - Please use the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin) for community support
 - Commercial support is available for SQLCipher integration with Android & iOS versions
 
-### WP(8) versions
+### WP(8) version(s)
 
 There are two versions for WP(8), in the following locations:
-- `src/wp/cs-sqlite-dll`: using CSharp-sqlite & Newtonsoft JSON DLLs; tested by [@Gillardo (Darren Gillard)](https://github.com/Gillardo); will not work with PhoneGap build service; may work with WP7
+- `src/wp/cs-sqlite-dll`: using CSharp-sqlite & Newtonsoft JSON DLLs; passing most of the tests; will not work with PhoneGap build service; may work with WP7
 - `Cordova-WP-SqlitePlugin`: based on [huserben / Cordova-WP-SqlitePlugin](https://github.com/huserben/Cordova-WP-SqlitePlugin) & [marcucio / Cordova-WP-SqlitePlugin](https://github.com/marcucio/Cordova-WP-SqlitePlugin); needs to use its own `SQLitePlugin.js`; uses built-in `sqlite.dll` in WP8; will NOT work with WP7
 
 The version in `Cordova-WP-SqlitePlugin` will be moved into `src/wp` once it is integrated and working with `www/SQLitePlugin.js` and passing the tests in `test-www/www/index.html`.
@@ -35,8 +35,9 @@ The version in `Cordova-WP-SqlitePlugin` will be moved into `src/wp` once it is 
 - Changes to background processing:
   - The `dbType` option is now removed;
   - Android version is now using one thread per db;
-  - for iOS version backround processing using a thread pool is now mandatory.
-- Experimenal WP(8) version, as described above
+  - for iOS version backround processing using a thread pool is now mandatory;
+  - for WP(8) version, background processing with one thread per transaction.
+- WP(8) version, as described above
 - Fixes to work with PouchDB by [@nolanlawson](https://github.com/nolanlawson)
 - Forum renamed to: [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin)
 - New location: https://github.com/brodysoft/Cordova-SQLitePlugin
@@ -60,7 +61,7 @@ The version in `Cordova-WP-SqlitePlugin` will be moved into `src/wp` once it is 
 
 ## Known issues
 
-- Background processing and deleting a database are not implemented for WP(8).
+- Deleting a database is not (yet) implemented for WP(8).
 
 ## Other limitations
 
@@ -112,7 +113,7 @@ function onDeviceReady() {
 The threading model depens on which version is used:
 - For Android, one background thread per db, always;
 - for iOS, background processing using a thread pool is enabled by default;
-- for WP(8), there is no backgroud processing (yet).
+- for WP(8) version, background processing with one thread per transaction, which is internally spawned by the Cordova library.
 
 # Sample with PRAGMA feature
 
