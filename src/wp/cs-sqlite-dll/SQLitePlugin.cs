@@ -180,7 +180,7 @@ namespace Cordova.Extension.Commands
             string mycbid = this.CurrentCommandCallbackId;
             //System.Diagnostics.Debug.WriteLine("SQLitePlugin.executeSqlBatch() with cbid " + mycbid + " options:" + options);
 
-            Deployment.Current.Dispatcher.BeginInvoke(() =>
+            //Deployment.Current.Dispatcher.BeginInvoke(() =>
             {
                 List<string> opt = JsonHelper.Deserialize<List<string>>(options);
                 SQLitePluginExecuteSqlBatchOptions batch = JsonHelper.Deserialize<SQLitePluginExecuteSqlBatchOptions>(opt[0]);
@@ -393,7 +393,7 @@ namespace Cordova.Extension.Commands
 
                 DispatchCommandResult(new PluginResult(PluginResult.Status.OK, batchResults.ToString()), mycbid);
 
-            });
+            }//);
         }
     }
 }
