@@ -104,14 +104,15 @@ public class SQLitePlugin extends CordovaPlugin {
                 DBRunner r = new DBRunner(dbname);
                 this.rmap.put(dbname, r);
                 this.cordova.getThreadPool().execute(r);
+                // TODO should send an async callback
                 break;
 
             case close:
                 o = args.getJSONObject(0);
                 dbname = o.getString("path");
                 // put request in the q to close the db
-                r = rmap.get(dbname);
-                if (r != null) try { r.q.put(new DBQuery(true, cbc)); } catch(Exception e) {}
+                this.closeDatabase(dbname);
+                // TODO should send an async callback
                 break;
 
             case delete:
@@ -178,7 +179,8 @@ public class SQLitePlugin extends CordovaPlugin {
     public void onDestroy() {
         while (!dbmap.isEmpty()) {
             String dbname = dbmap.keySet().iterator().next();
-            this.closeDatabase(dbname);
+	    // TODO should stop the db thread(s) instead (!!)
+            this.closeDatabaseNow(dbname);
             dbmap.remove(dbname);
         }
     }
@@ -190,10 +192,11 @@ public class SQLitePlugin extends CordovaPlugin {
     /**
      * Open a database.
      *
-     * @param dbname   The name of the database-NOT including its extension.
+     * @param dbName   The name of the database file
      */
     private void openDatabase(String dbname) {
         if (this.getDatabase(dbname) != null) {
+	    // TODO should wait for the db thread(s) to stop (!!)
             this.closeDatabase(dbname);
         }
 
@@ -211,11 +214,27 @@ public class SQLitePlugin extends CordovaPlugin {
     }
 
     /**
-     * Close a database.
+     * Close a database (in another thread).
      *
-     * @param dbName The name of the database-NOT including its extension.
+     * @param dbName   The name of the database file
      */
     private void closeDatabase(String dbName) {
+        DBRunner r = rmap.get(dbName);
+        if (r != null) {
+            try {
+                r.q.put(new DBQuery(true, null));
+            } catch(Exception e) {
+                Log.e(SQLitePlugin.class.getSimpleName(), "couldn't close database", e);
+            }
+        }
+    }
+
+    /**
+     * Close a database (in the current thread).
+     *
+     * @param dbName   The name of the database file
+     */
+    private void closeDatabaseNow(String dbName) {
         SQLiteDatabase mydb = this.getDatabase(dbName);
 
         if (mydb != null) {
@@ -227,13 +246,15 @@ public class SQLitePlugin extends CordovaPlugin {
     /**
      * Delete a database.
      *
-     * @param dbname The name of the database-NOT including its extension.
+     * @param dbName   The name of the database file
+     *
      * @return true if successful or false if an exception was encountered
      */
     @SuppressLint("NewApi")
     private boolean deleteDatabase(String dbname) {
         if (this.getDatabase(dbname) != null) {
-            this.closeDatabase(dbname);
+            // TODO: if the db is open, put request in the q to close & delete the db (instead)
+            this.closeDatabaseNow(dbname);
         }
 
         File dbfile = this.cordova.getActivity().getDatabasePath(dbname);
@@ -421,35 +442,10 @@ public class SQLitePlugin extends CordovaPlugin {
 
                 // raw query for other statements:
                 if (needRawQuery) {
-                    String[] params = null;
-
-                    if (jsonparams != null) {
-                        params = new String[jsonparams[i].length()];
-
-                        for (int j = 0; j < jsonparams[i].length(); j++) {
-                            if (jsonparams[i].isNull(j))
-                                params[j] = "";
-                            else
-                                params[j] = jsonparams[i].getString(j);
-                        }
-                    }
-
-                    Cursor myCursor = null;
-                    try {
-                        myCursor = mydb.rawQuery(query, params);
-
-                        if (query_id.length() > 0) {
-                            queryResult = this.getRowsResultFromQuery(myCursor);
-                        }
-                    } finally {
-                        if (myCursor != null) {
-                            myCursor.close();
-                        }
-                    }
+                    queryResult = this.executeSqlStatementQuery(mydb, query, jsonparams[i], cbc);
 
                     if (needRowsAffectedCompat) {
                         queryResult.put("rowsAffected", rowsAffectedCompat);
-
                     }
                 }
             } catch (Exception ex) {
@@ -595,11 +591,34 @@ public class SQLitePlugin extends CordovaPlugin {
      * @param cur Cursor into query results
      * @return results in string form
      */
-    private JSONObject getRowsResultFromQuery(Cursor cur) {
+    private JSONObject executeSqlStatementQuery(SQLiteDatabase mydb,
+                                                String query, JSONArray paramsAsJson,
+                                                CallbackContext cbc) throws Exception {
         JSONObject rowsResult = new JSONObject();
 
+        Cursor cur = null;
+        try {
+            String[] params = null;
+
+            params = new String[paramsAsJson.length()];
+
+            for (int j = 0; j < paramsAsJson.length(); j++) {
+                if (paramsAsJson.isNull(j))
+                    params[j] = "";
+                else
+                    params[j] = paramsAsJson.getString(j);
+            }
+
+            cur = mydb.rawQuery(query, params);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            String errorMessage = ex.getMessage();
+            Log.v("executeSqlBatch", "SQLitePlugin.executeSql[Batch](): Error=" + errorMessage);
+            throw ex;
+        }
+
         // If query result has rows
-        if (cur.moveToFirst()) {
+        if (cur != null && cur.moveToFirst()) {
             JSONArray rowsArrayResult = new JSONArray();
             String key = "";
             int colCount = cur.getColumnCount();
@@ -629,7 +648,6 @@ public class SQLitePlugin extends CordovaPlugin {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
             } while (cur.moveToNext());
 
             try {
@@ -637,6 +655,10 @@ public class SQLitePlugin extends CordovaPlugin {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+        }
+
+        if (cur != null) {
+            cur.close();
         }
 
         return rowsResult;
@@ -708,7 +730,7 @@ public class SQLitePlugin extends CordovaPlugin {
                 }
             } catch (Exception e) { }
 
-            closeDatabase(dbname);
+            closeDatabaseNow(dbname);
         }
     }
 
