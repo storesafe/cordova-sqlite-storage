@@ -519,7 +519,7 @@
 
         test(suiteName + ' test deleteDatabase()', function () {
 
-          if (isWebSql) {
+          if (isWebSql || /MSIE/.test(navigator.userAgent)) {
             ok(true, 'skip'); // doesn't exist in native WebSQL
             return;
           }
