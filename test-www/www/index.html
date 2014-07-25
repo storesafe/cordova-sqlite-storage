@@ -24,7 +24,7 @@
         doTest(true, 'HTML5: ', window.openDatabase);
       }
 
-      function doTest(isNative, suiteName, openDatabase) {
+      function doTest(isWebSql, suiteName, openDatabase) {
 
         test(suiteName + "US-ASCII String test", function() {
 
@@ -75,7 +75,7 @@
 
         test(suiteName + "db transaction test", function() {
 
-          if (isNative) {
+          if (isWebSql) {
             ok('skipped');
             return;
           }
@@ -336,7 +336,7 @@
 
         test(suiteName + "transaction encompasses all callbacks", function() {
 
-          if (isNative) {
+          if (isWebSql) {
             ok('skipped');
             return;
           }
@@ -371,7 +371,7 @@
 
         test(suiteName + "exception from transaction handler causes failure", function() {
 
-          if (isNative) {
+          if (isWebSql) {
             ok('skipped');
             return;
           }
@@ -519,7 +519,7 @@
 
         test(suiteName + ' test deleteDatabase()', function () {
 
-          if (isNative) {
+          if (isWebSql) {
             ok(true, 'skip'); // doesn't exist in native WebSQL
             return;
           }
