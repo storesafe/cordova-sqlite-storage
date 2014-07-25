@@ -20,11 +20,58 @@
       document.addEventListener("deviceready", doAllTests, false);
 
       function doAllTests() {
-        doTest(true, 'Native: ', window.openDatabase);
         doTest(false, 'Plugin: ', window.sqlitePlugin.openDatabase);
+        doTest(true, 'HTML5: ', window.openDatabase);
       }
 
       function doTest(isNative, suiteName, openDatabase) {
+
+        test(suiteName + "US-ASCII String test", function() {
+
+          var db = openDatabase("ASCII-String-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          ok(!!db, "db object");
+
+          stop(2);
+
+          db.transaction(function(tx) {
+
+            start(1);
+            ok(!!tx, "tx object");
+
+            tx.executeSql("select upper('Some US-ASCII text') as uppertext", [], function(tx, res) {
+              start(1);
+
+              console.log("res.rows.item(0).uppertext: " + res.rows.item(0).uppertext);
+
+              equal(res.rows.item(0).uppertext, "SOME US-ASCII TEXT", "select upper('Some US-ASCII text')");
+            });
+          });
+        });
+
+        /** FUTURE (only on recent versions of Android):
+        test(suiteName + "UNICODE String test", function() {
+
+          var db = openDatabase("UNICODE-String-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          ok(!!db, "db object");
+
+          stop(2);
+
+          db.transaction(function(tx) {
+
+            start(1);
+            ok(!!tx, "tx object");
+
+            tx.executeSql("select UPPER('Какой-то кириллический текст') as uppertext", [], function (tx, res) {
+              start(1);
+
+              console.log("res.rows.item(0).uppertext: " + res.rows.item(0).uppertext);
+
+              equal(res.rows.item(0).uppertext, "КАКОЙ-ТО КИРИЛЛИЧЕСКИЙ ТЕКСТ", "Try ''Some Cyrillic text''");
+            });
+          });
+        }); **/
 
         test(suiteName + "db transaction test", function() {
 
@@ -33,7 +80,7 @@
             return;
           }
 
-          var db = openDatabase({name: "Database", bgType: 1});
+          var db = openDatabase({name: "my.db"});
 
           ok(!!db, "db object");
 
