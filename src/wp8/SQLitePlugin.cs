@@ -18,7 +18,6 @@ using System.Collections.ObjectModel;
 using WPCordovaClassLib.Cordova;
 using WPCordovaClassLib.Cordova.Commands;
 using WPCordovaClassLib.Cordova.JSON;
-
 using System.Text.RegularExpressions;
 
 namespace Cordova.Extension.Commands
@@ -95,24 +94,25 @@ namespace Cordova.Extension.Commands
         //we don't actually open here, we will do this with each db transaction
         public void open(string options)
         {
-            //Expected: {\"dbName\":\"gid_native.sqlite3\"}
+            System.Diagnostics.Debug.WriteLine("SQLitePlugin.open with options:" + options);
 
-            SQLitePluginOpenCloseOptions dbOptions;
+            //SQLitePluginOpenCloseOptions dbOptions;
             String dbName = "";
             try
             {
-                var dbNameParam = JsonHelper.Deserialize<string[]>(options);
-                dbOptions = JsonHelper.Deserialize<SQLitePluginOpenCloseOptions>(dbNameParam[0]);
+                //dbOptions = JsonHelper.Deserialize<SQLitePluginOpenCloseOptions>(options);
+                dbName = JsonHelper.Deserialize<string[]>(options)[0];
             }
-            catch (Exception)            {
-
+            catch (Exception)
+            {
                 DispatchCommandResult(new PluginResult(PluginResult.Status.JSON_EXCEPTION));
                 return;
             }
 
-            if (dbOptions != null && dbOptions.DBName != null)
+            //if (!string.IsNullOrEmpty(dbOptions.DBName))
+            if (!string.IsNullOrEmpty(dbName))
             {
-                dbName = dbOptions.DBName;
+                //dbName = dbOptions.DBName;
                 System.Diagnostics.Debug.WriteLine("SQLitePlugin.open():" + dbName);
                 DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
                 this.dbName = dbName;
