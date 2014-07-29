@@ -12,7 +12,6 @@ using WPCordovaClassLib.Cordova;
 using WPCordovaClassLib.Cordova.Commands;
 using WPCordovaClassLib.Cordova.JSON;
 using System.Text.RegularExpressions;
-using Newtonsoft.Json.Linq;
 
 namespace Cordova.Extension.Commands
 {
@@ -96,7 +95,6 @@ namespace Cordova.Extension.Commands
             try
             {
                 String [] jsonOptions = JsonHelper.Deserialize<string[]>(options);
-                //String jsonOptions = JsonHelper.Deserialize<string[]>(options)[0];
                 dbOptions = JsonHelper.Deserialize<SQLitePluginOpenCloseOptions>(jsonOptions[0]);
                 mycbid = jsonOptions[1];
                 //System.Diagnostics.Debug.WriteLine("real cbid: " + mycbid);
@@ -184,7 +182,6 @@ namespace Cordova.Extension.Commands
             {
                 List<string> opt = JsonHelper.Deserialize<List<string>>(options);
                 SQLitePluginExecuteSqlBatchOptions batch = JsonHelper.Deserialize<SQLitePluginExecuteSqlBatchOptions>(opt[0]);
-                JArray batchResults = new JArray();
 
                 mycbid = opt[1];
                 //System.Diagnostics.Debug.WriteLine("real cbid: " + mycbid);
@@ -203,10 +200,12 @@ namespace Cordova.Extension.Commands
                     this.db = new SQLiteConnection(dbOptions.name);
                 }
 
+				string batchResultsStr = "";
+
                 // loop through the sql in the transaction
                 foreach (SQLitePluginTransaction transaction in batch.executes)
                 {
-                    JObject result = null;
+					string resultString = "";
                     string errorMessage = "unknown";
                     bool needQuery = true;
 
@@ -219,8 +218,7 @@ namespace Cordova.Extension.Commands
                         {
                             this.db.BeginTransaction();
 
-                            result = new JObject();
-                            result.Add("rowsAffected", 0);
+                            resultString = "\"rowsAffected\":0";
 
                         }
                         catch (Exception e)
@@ -239,8 +237,7 @@ namespace Cordova.Extension.Commands
                         {
                             this.db.Commit();
 
-                            result = new JObject();
-                            result.Add("rowsAffected", 0);
+                            resultString = "\"rowsAffected\":0";
                         }
                         catch (Exception e)
                         {
@@ -258,8 +255,7 @@ namespace Cordova.Extension.Commands
                         {
                             this.db.Rollback();
 
-                            result = new JObject();
-                            result.Add("rowsAffected", 0);
+                            resultString = "\"rowsAffected\":0";
                         }
                         catch (Exception e)
                         {
@@ -277,8 +273,7 @@ namespace Cordova.Extension.Commands
                         {
                             var results = db.Execute(transaction.query, transaction.query_params);
 
-                            result = new JObject();
-                            result.Add("rowsAffected", 0);
+                            resultString = "\"rowsAffected\":0";
                         }
                         catch (Exception e)
                         {
@@ -302,12 +297,11 @@ namespace Cordova.Extension.Commands
                             // get the primary key of the last inserted row
                             var insertId = SQLite3.LastInsertRowid(db.Handle);
 
-                            result = new JObject();
-                            result.Add("rowsAffected", res);
+                            resultString = String.Format("\"rowsAffected\":{0}", res);
 
                             if (transaction.query.StartsWith("INSERT", StringComparison.OrdinalIgnoreCase))
                             {
-                                result.Add("insertId", insertId);
+                                resultString += String.Format(",\"insertId\":{0}", insertId);
                             }
 
                         }
@@ -315,7 +309,6 @@ namespace Cordova.Extension.Commands
                         {
                             errorMessage = e.Message;
                         }
-
                     }
 
                     if (needQuery)
@@ -324,75 +317,68 @@ namespace Cordova.Extension.Commands
                         {
                             var results = this.db.Query2(transaction.query, transaction.query_params);
 
-                            JArray rows = new JArray();
+                            string rowsString = "";
 
                             foreach (SQLiteQueryRow res in results)
                             {
-                                JObject row = new JObject();
+                                string rowString = "";
+
+                                if (rowsString.Length != 0) rowsString += ",";
 
                                 foreach (SQLiteQueryColumn column in res.column)
                                 {
+                                    if (rowString.Length != 0) rowString += ",";
+
                                     if (column.Value != null)
                                     {
                                         if (column.Value.GetType().Equals(typeof(Int32)))
                                         {
-                                            row.Add(column.Key, Convert.ToInt32(column.Value));
+                                            rowString += String.Format("\"{0}\":{1}",
+                                                column.Key, Convert.ToInt32(column.Value));
                                         }
                                         else if (column.Value.GetType().Equals(typeof(Double)))
                                         {
-                                            row.Add(column.Key, Convert.ToDouble(column.Value));
+                                            rowString += String.Format("\"{0}\":{1}",
+                                                column.Key, Convert.ToDouble(column.Value));
                                         }
                                         else
                                         {
-                                            row.Add(column.Key, column.Value.ToString());
+                                            rowString += String.Format("\"{0}\":\"{1}\"",
+                                                column.Key, column.Value.ToString().Replace("\\","\\\\").Replace("\"","\\\""));
                                         }
                                     }
                                     else
                                     {
-                                        row.Add(column.Key, null);
+                                        rowString += String.Format("\"{0}\":null", column.Key);
                                     }
 
                                 }
 
-                                rows.Add(row);
+                                rowsString += "{" + rowString + "}";
                             }
 
-                            result = new JObject();
-                            result.Add("rows", rows);
+                            resultString = "\"rows\":["+rowsString+"]";
                         }
                         catch (Exception e)
                         {
                             errorMessage = e.Message;
                         }
-
                     }
 
-                    if (result != null)
-                    {
-                        JObject r = new JObject();
-                        r.Add("qid", transaction.queryId);
-                        r.Add("type", "success");
-                        r.Add("result", result);
+                    if (batchResultsStr.Length != 0) batchResultsStr += ",";
 
-                        batchResults.Add(r);
+                    if (resultString.Length != 0)
+                    {
+                        batchResultsStr += "{\"qid\":\"" + transaction.queryId + "\",\"type\":\"success\",\"result\":{" + resultString + "}}";
+                        //System.Diagnostics.Debug.WriteLine("batchResultsStr: " + batchResultsStr);
                     }
                     else
                     {
-                        JObject r = new JObject();
-                        r.Add("qid", transaction.queryId);
-                        r.Add("type", "error");
-
-                        JObject err = new JObject();
-                        err.Add("message", errorMessage);
-
-                        r.Add("result", err);
-
-                        batchResults.Add(r);
+						batchResultsStr += "{\"qid\":\"" + transaction.queryId + "\",\"type\":\"error\",\"result\":{\"message\":\"" + errorMessage.Replace("\\","\\\\").Replace("\"","\\\"") + "\"}}";
                     }
                 }
 
-                DispatchCommandResult(new PluginResult(PluginResult.Status.OK, batchResults.ToString()), mycbid);
-
+                DispatchCommandResult(new PluginResult(PluginResult.Status.OK, "["+batchResultsStr+"]"), mycbid);
             }//);
         }
     }
