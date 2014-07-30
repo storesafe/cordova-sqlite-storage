@@ -69,7 +69,9 @@
         <framework src="libsqlite3.dylib" />
     </platform>
 
-    <!-- WP8 with DLLs [should work but not tested on WP7]
+    <!-- wp8 using dlls [should work but not tested on wp7]
+         NOTE: SQLiteWPNative.dll includes the classes from SQLite.cs
+         (which is not desired).
     <platform name="wp8">
         <config-file target="config.xml" parent="/*">
             <feature name="SQLitePlugin">
@@ -77,7 +79,7 @@
             </feature>
         </config-file>
 
-        <source-file src="src/wp/cs-sqlite-dll/SQLitePlugin.cs" />
+        <source-file src="src/wp/SQLitePlugin.cs" />
         <framework src="src/wp/cs-sqlite-dll/SQLiteWPNative.dll" custom="true" />
     </platform>
     -->
@@ -89,11 +91,8 @@
             </feature>
         </config-file>
 
-        <!-- TBD location to be changed: -->
-        <source-file src="src/wp/cs-sqlite-dll/SQLitePlugin.cs" />
-
-        <!-- TBD location to be changed: -->
-        <source-file src="src/wp8/SQLite.cs" />
+        <source-file src="src/wp/SQLitePlugin.cs" />
+        <source-file src="src/wp/SQLite.cs" />
 
         <source-file src="src/wp/csharp-sqlite-src/_Custom.cs" />
 
