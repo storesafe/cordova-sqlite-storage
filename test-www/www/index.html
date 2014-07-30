@@ -791,6 +791,70 @@
 
         });
 
+        test(suiteName + ' handles unicode correctly', function () {
+          stop();
+
+          var dbName = "Database-Unicode";
+          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function (tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test', [], function () {
+              tx.executeSql('CREATE TABLE test (name, id)', [], function() {
+                tx.executeSql('INSERT INTO test VALUES (?, "id1")', ['\u0000foo'], function () {
+                  tx.executeSql('SELECT hex(name) AS `hex` FROM test', [], function (tx, res) {
+                    // select hex() because even the native database doesn't
+                    // give the full string. it's a bug in WebKit apparently
+                    var hex = res.rows.item(0).hex;
+
+                    // varies between Chrome-like (UTF-8)
+                    // and Safari-like (UTF-16)
+                    var expected = [
+                      '000066006F006F00',
+                      '00666F6F'
+                    ];
+                    ok(expected.indexOf(hex) !== -1, 'hex matches: ' +
+                        JSON.stringify(hex) + ' should be in ' +
+                        JSON.stringify(expected));
+
+                    // ensure this matches our expectation of that database's
+                    // default encoding
+                    tx.executeSql('SELECT hex("foob") AS `hex` FROM sqlite_master', [], function (tx, res) {
+                      var otherHex = res.rows.item(0).hex;
+                      equal(hex.length, otherHex.length,
+                          'expect same length, i.e. same global db encoding');
+
+                      checkCorrectOrdering(tx);
+                    });
+                  })
+                });
+              });
+            });
+          }, function(err) {
+            ok(false, 'unexpected error: ' + err.message);
+          }, function () {
+          });
+        });
+
+        function checkCorrectOrdering(tx) {
+          var least = "54key3\u0000\u0000";
+          var most = "54key3\u00006\u0000\u0000";
+          var key1 = "54key3\u00004bar\u000031\u0000\u0000";
+          var key2 = "54key3\u00004foo\u000031\u0000\u0000";
+
+          tx.executeSql('INSERT INTO test VALUES (?, "id2")', [key1], function () {
+            tx.executeSql('INSERT INTO test VALUES (?, "id3")', [key2], function () {
+              var sql = 'SELECT id FROM test WHERE name > ? AND name < ? ORDER BY name';
+              tx.executeSql(sql, [least, most], function (tx, res) {
+                start();
+                equal(res.rows.length, 2, 'should get two results');
+                equal(res.rows.item(0).id, 'id2', 'correct ordering');
+                equal(res.rows.item(1).id, 'id3', 'correct ordering');
+              });
+            });
+          });
+        }
+
+
         /**
          test(suiteName + "PRAGMA & multiple databases", function() {
           var db = openDatabase("DB1", "1.0", "Demo", DEFAULT_SIZE);
