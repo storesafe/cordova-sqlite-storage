@@ -90,16 +90,20 @@ namespace Cordova.Extension.Commands
 
         public void open(string options)
         {
-            System.Diagnostics.Debug.WriteLine("SQLitePlugin.open with options:" + options);
+            string mycbid = this.CurrentCommandCallbackId;
+            //System.Diagnostics.Debug.WriteLine("SQLitePlugin.open() with cbid " + mycbid + " options:" + options);
 
             try
             {
-                String jsonOptions = JsonHelper.Deserialize<string[]>(options)[0];
-                dbOptions = JsonHelper.Deserialize<SQLitePluginOpenCloseOptions>(jsonOptions);
+                String [] jsonOptions = JsonHelper.Deserialize<string[]>(options);
+                //String jsonOptions = JsonHelper.Deserialize<string[]>(options)[0];
+                dbOptions = JsonHelper.Deserialize<SQLitePluginOpenCloseOptions>(jsonOptions[0]);
+                mycbid = jsonOptions[1];
+                //System.Diagnostics.Debug.WriteLine("real cbid: " + mycbid);
             }
             catch (Exception)
             {
-                DispatchCommandResult(new PluginResult(PluginResult.Status.JSON_EXCEPTION));
+                DispatchCommandResult(new PluginResult(PluginResult.Status.JSON_EXCEPTION), mycbid);
                 return;
             }
 
@@ -107,41 +111,85 @@ namespace Cordova.Extension.Commands
             if (dbOptions != null)
             {
 
-                System.Diagnostics.Debug.WriteLine("SQLitePlugin.open():" + dbOptions.name);
+                //System.Diagnostics.Debug.WriteLine("SQLitePlugin.open() dbname:" + dbOptions.name);
 
-                DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
+                DispatchCommandResult(new PluginResult(PluginResult.Status.OK), mycbid);
 
             }
             else
             {
-                DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR, "Invalid openDatabase parameters"));
+                DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR, "Invalid openDatabase parameters"), mycbid);
             }
         }
 
         public void close(string options)
         {
-            System.Diagnostics.Debug.WriteLine("SQLitePlugin.close()");
+            string mycbid = this.CurrentCommandCallbackId;
+            //System.Diagnostics.Debug.WriteLine("SQLitePlugin.close() with cbid " + mycbid + " options:" + options);
 
-            // check we have a database, and close it
+            try
+            {
+                String[] jsonOptions = JsonHelper.Deserialize<string[]>(options);
+                mycbid = jsonOptions[1];
+                //System.Diagnostics.Debug.WriteLine("real cbid: " + mycbid);
+            }
+            catch (Exception)
+            {
+                DispatchCommandResult(new PluginResult(PluginResult.Status.JSON_EXCEPTION), mycbid);
+                return;
+            }
+
+            /* check we have a database, and close it
             if (this.db != null)
                 this.db.Close();
+             */
 
-            DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
+            DispatchCommandResult(new PluginResult(PluginResult.Status.OK), mycbid);
+        }
+
+        public void delete(string options)
+        {
+            string mycbid = this.CurrentCommandCallbackId;
+
+            //System.Diagnostics.Debug.WriteLine("SQLitePlugin.delete() with cbid " + mycbid + " options:" + options);
+            try
+            {
+                String[] jsonOptions = JsonHelper.Deserialize<string[]>(options);
+                mycbid = jsonOptions[1];
+                //System.Diagnostics.Debug.WriteLine("real cbid: " + mycbid);
+            }
+            catch (Exception)
+            {
+                DispatchCommandResult(new PluginResult(PluginResult.Status.JSON_EXCEPTION), mycbid);
+                return;
+            }
+
+            //DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR, "Sorry SQLitePlugin.delete() not implemented"), mycbid);
+            DispatchCommandResult(new PluginResult(PluginResult.Status.OK), mycbid);
         }
 
         public void backgroundExecuteSqlBatch(string options)
         {
+            string mycbid = this.CurrentCommandCallbackId;
+            //System.Diagnostics.Debug.WriteLine("SQLitePlugin.backgroundExecuteSqlBatch() with cbid " + mycbid + " options:" + options);
             executeSqlBatch(options);
         }
 
         public void executeSqlBatch(string options)
         {
-            Deployment.Current.Dispatcher.BeginInvoke(() =>
+            string mycbid = this.CurrentCommandCallbackId;
+            //System.Diagnostics.Debug.WriteLine("SQLitePlugin.executeSqlBatch() with cbid " + mycbid + " options:" + options);
+
+            //Deployment.Current.Dispatcher.BeginInvoke(() =>
             {
                 List<string> opt = JsonHelper.Deserialize<List<string>>(options);
                 SQLitePluginExecuteSqlBatchOptions batch = JsonHelper.Deserialize<SQLitePluginExecuteSqlBatchOptions>(opt[0]);
                 JArray batchResults = new JArray();
 
+                mycbid = opt[1];
+                //System.Diagnostics.Debug.WriteLine("real cbid: " + mycbid);
+
+                // XXX TODO keep in a map:
                 // check our db is not null, create a new connection
                 if (this.db == null || !this.db.DatabasePath.Equals(dbOptions.name))
                 {
@@ -343,9 +391,9 @@ namespace Cordova.Extension.Commands
                     }
                 }
 
-                DispatchCommandResult(new PluginResult(PluginResult.Status.OK, batchResults.ToString()));
+                DispatchCommandResult(new PluginResult(PluginResult.Status.OK, batchResults.ToString()), mycbid);
 
-            });
+            }//);
         }
     }
 }
