@@ -18,12 +18,13 @@ Also the threading model is changed as described below.
 
 ## Status
 
+- WP8 version is now integrated for the PhoneGap build (ref: #99)
 - Please use the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin) for community support
 - Commercial support is available for SQLCipher integration with Android & iOS versions
 
 ## Announcements
 
-- WP(8) version is now working with CSharp-SQLite library (DLL) and passing most of the tests.
+- WP(8) version is now working with CSharp-SQLite library (which is embedded & built from source) and passing most of the tests.
 - Changes to background processing:
   - The `dbType` option is now removed;
   - Android version is now using one thread per db;
