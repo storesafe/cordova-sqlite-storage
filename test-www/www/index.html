@@ -50,6 +50,11 @@
         });
 
         test(suiteName + ' UNICODE encoding test', function () {
+          if (/MSIE/.test(navigator.userAgent)) {
+            ok(true, 'skip');
+            return;
+          }
+
           stop();
 
           var dbName = "Unicode-hex-test";
@@ -834,6 +839,11 @@
         });
 
         test(suiteName + ' stores unicode correctly', function () {
+          if (/MSIE/.test(navigator.userAgent)) {
+            ok(true, 'skip');
+            return;
+          }
+
           stop();
 
           var dbName = "Database-Unicode";
