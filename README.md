@@ -62,6 +62,7 @@ Also the threading model is changed as described below.
 - For iOS, iCloud backup is NOT optional and should be.
 - The Android version cannot work with more than 100 open db files due to its threading model.
 - Missing db creation callback
+- Currently does not support multi-page architecture
 
 ## Other versions
 
