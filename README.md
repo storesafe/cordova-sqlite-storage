@@ -44,6 +44,7 @@ Also the threading model is changed as described below.
 
 - [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/)
 - [Larkwire](http://www.larkwire.com/) (iOS version): Learn bird songs the fun way
+- [Tangorin](https://play.google.com/store/apps/details?id=com.tangorin.app) (Android) Japanese Dictionary
 
 ## Known issues
 
