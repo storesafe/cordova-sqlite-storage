@@ -23,7 +23,7 @@ Also the threading model is changed as described below.
 
 ## Announcements
 
-- WP(8) version is now working with CSharp-SQLite library (DLL) and passing most of the tests.
+- WP(8) version is now working with CSharp-SQLite library (may use DLL or rebuild from source) and passing most of the tests.
 - Changes to background processing:
   - The `dbType` option is now removed;
   - Android version is now using one thread per db;
@@ -103,7 +103,7 @@ function onDeviceReady() {
 
 The threading model depens on which version is used:
 - For Android, one background thread per db, always;
-- for iOS, background processing using a thread pool is enabled by default;
+- for iOS, background processing using a thread pool (always);
 - for WP(8) version, background processing with one thread per transaction, which is internally spawned by the Cordova library.
 
 # Sample with PRAGMA feature
