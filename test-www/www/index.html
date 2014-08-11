@@ -115,6 +115,43 @@
           });
         }); **/
 
+        test(suiteName + "DB String result test", function() {
+          if (isWebSql) {
+            ok('skipped');
+            return;
+          }
+
+          var db = openDatabase("DB-String-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          var expected = [ 'FIRST', 'SECOND' ];
+          var i=0;
+
+          ok(!!db, "db object");
+
+          stop(2);
+
+          var okcb = function(res) {
+            if (i > 1) {
+              ok(false, "unexpected result: " + JSON.stringify(res));
+              console.log("discarding unexpected result: " + JSON.stringify(res))
+              return;
+            }
+
+            ok(!!res, "valid object");
+
+            // do not count res if undefined:
+            if (!!res) { // will freeze the test if res is undefined:
+              console.log("res.rows.item(0).uppertext: " + res.rows.item(0).uppertext);
+              equal(res.rows.item(0).uppertext, expected[i], "Check result " + i);
+              i++;
+              start(1);
+            }
+          };
+
+          db.executeSql("select upper('first') as uppertext", [], okcb);
+          db.executeSql("select upper('second') as uppertext", [], okcb);
+        });
+
         test(suiteName + "db transaction test", function() {
 
           if (isWebSql) {
