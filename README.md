@@ -377,13 +377,21 @@ Available for integration with SQLCipher.
 
 # Unit test(s)
 
-Unit testing is done in `test-www/`. To run the tests, simply do either:
+Unit testing is done in `test-www/`. To run the tests from *nix shell, simply do either:
 
     ./bin/test.sh ios
 
 or in Android:
 
     ./bin/test.sh android
+
+To run then from a windows powershell do either
+
+    .\bin\test.ps1 android
+
+or for Windows Phone 8:
+
+    .\bin\test.ps1 wp8
 
 Lawnchair Adapter Usage
 =======================

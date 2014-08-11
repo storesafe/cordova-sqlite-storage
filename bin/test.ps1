@@ -2,8 +2,9 @@
 # installs the plugin, installs the test app, and then runs it on
 # a device or emulator.
 #
-# usage: .\bin\test.sh [android|ios|wp8]
-#
+# usage: .\bin\test.ps1 [android|ios|wp8]
+
+# N.B. if you functionally change this script you _must_ change .\bin\test.sh too.
 
 param([string]$platform)
 
