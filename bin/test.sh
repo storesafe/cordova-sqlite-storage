@@ -22,7 +22,7 @@ fi
 
 if [[ ! -x $(which cordova) ]]; then
   echo "you need cordova. please install with:"
-  echo "npm install -g coffee-script"
+  echo "npm install -g cordova"
   exit 1
 fi
 
