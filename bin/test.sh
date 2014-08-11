@@ -6,6 +6,8 @@
 #
 # usage: ./bin/test.sh [android|ios]
 #
+# N.B. if you functionally change this script you _must_ change .\bin\test.sh too.
+#
 
 platform=$1
 
