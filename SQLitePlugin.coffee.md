@@ -122,14 +122,29 @@ License for common Javascript: MIT or Apache
       return
 
     SQLitePlugin::executeSql = (statement, params, success, error) ->
-      mysuccess = (t, r) -> if !!success then success r
-      myerror = (t, e) -> if !!error then error e
+      sqlresults = undefined
+      sqlSuccessCallback = (tx, results) ->
+        sqlresults = results
+
+      sqlError = undefined
+      sqlErrorCallback = (tx, error) ->
+        sqlerror = error
 
       myfn = (tx) ->
-        tx.executeSql(statement, params, mysuccess, myerror)
+        tx.executeSql(statement, params, sqlSuccessCallback, sqlErrorCallback)
         return
 
-      @addTransaction new SQLitePluginTransaction(this, myfn, myerror, mysuccess, false, false)
+      txSuccessCallback = () -> if !!sqlError and !! error
+                                  error sqlError
+                                else if !!success
+                                  success sqlresults
+      txErrorCallback = (txError) -> if !!error
+                                       if !!sqlError
+                                         error sqlError
+                                       else
+                                         error txError 
+
+      @addTransaction new SQLitePluginTransaction(this, myfn, txErrorCallback, txSuccessCallback, false, false)
       return
 
 ### SQLitePluginTransaction object for batching:
