@@ -111,21 +111,36 @@
   };
 
   SQLitePlugin.prototype.executeSql = function(statement, params, success, error) {
-    var myerror, myfn, mysuccess;
-    mysuccess = function(t, r) {
-      if (!!success) {
-        return success(r);
-      }
+    var myfn, sqlError, sqlErrorCallback, sqlSuccessCallback, sqlresults, txErrorCallback, txSuccessCallback;
+    sqlresults = void 0;
+    sqlSuccessCallback = function(tx, results) {
+      return sqlresults = results;
     };
-    myerror = function(t, e) {
-      if (!!error) {
-        return error(e);
-      }
+    sqlError = void 0;
+    sqlErrorCallback = function(tx, error) {
+      var sqlerror;
+      return sqlerror = error;
     };
     myfn = function(tx) {
-      tx.executeSql(statement, params, mysuccess, myerror);
+      tx.executeSql(statement, params, sqlSuccessCallback, sqlErrorCallback);
     };
-    this.addTransaction(new SQLitePluginTransaction(this, myfn, myerror, mysuccess, false, false));
+    txSuccessCallback = function() {
+      if (!!sqlError && !!error) {
+        return error(sqlError);
+      } else if (!!success) {
+        return success(sqlresults);
+      }
+    };
+    txErrorCallback = function(txError) {
+      if (!!error) {
+        if (!!sqlError) {
+          return error(sqlError);
+        } else {
+          return error(txError);
+        }
+      }
+    };
+    this.addTransaction(new SQLitePluginTransaction(this, myfn, txErrorCallback, txSuccessCallback, false, false));
   };
 
 
