@@ -40,11 +40,11 @@ Also the threading model is changed as described below.
 - Android & iOS working with [SQLCipher](http://sqlcipher.net) for encryption (see below)
 - Android is supported back to SDK 10 (a.k.a. Gingerbread, Android 2.3.3); Support for older versions is available upon request.
 
-## Apps using Cordova/PhoneGap SQLitePlugin
+## Some apps using Cordova/PhoneGap SQLitePlugin
 
 - [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/)
 - [Larkwire](http://www.larkwire.com/) (iOS version): Learn bird songs the fun way
-- [Tangorin](https://play.google.com/store/apps/details?id=com.tangorin.app) (Android) Japanese Dictionary
+- [Tangorin](https://play.google.com/store/apps/details?id=com.tangorin.app) (Android) Japanese Dictionary at [tangorin.com](http://tangorin.com/)
 
 ## Known issues
 
@@ -59,6 +59,7 @@ Also the threading model is changed as described below.
 - For iOS, iCloud backup is NOT optional and should be.
 - The Android version cannot work with more than 100 open db files due to its threading model.
 - Missing db creation callback
+- Multi-page architecture is not (yet) supported.
 
 ## Other versions
 
@@ -103,7 +104,7 @@ The threading model depens on which version is used:
 - For Android, one background thread per db, always;
 - for iOS, background processing using a thread pool is enabled by default;
 
-**DEPRECATED OPTION, WILL BE REMOVED:** To disable background processing for the iOS version:
+**DEV OPTION (already removed from release version):** To disable background processing for the iOS version:
 
 ```js
 var db = window.sqlitePlugin.openDatabase({name: "my.db", bgType: 0});
@@ -197,7 +198,10 @@ window.sqlitePlugin.deleteDatabase("my.db", successcb, errorcb);
 ## Easy install with cordova tool
 
     npm install -g cordova # if you don't have cordova
+    cordova create MyProjectFolder com.my.project MyProject && cd MyProjectFolder # if you are just starting
     cordova plugin add https://github.com/brodysoft/Cordova-SQLitePlugin
+
+You can find more details at [this writeup](http://iphonedevlog.wordpress.com/2014/04/07/installing-chris-brodys-sqlite-database-with-cordova-cli-android/).
 
 ## Source tree
 
@@ -382,17 +386,15 @@ or in Android:
 
     ./bin/test.sh android
 
-Lawnchair Adapter Usage
-=======================
+# Adapters
 
-Common adapter
---------------
+## Lawnchair Adapter
+
+### Common adapter
 
 Please look at the `Lawnchair-adapter` tree that contains a common adapter, which should also work with the Android version, along with a test-www directory.
 
-
-Included files
---------------
+### Included files
 
 Include the following js files in your html:
 
@@ -400,8 +402,7 @@ Include the following js files in your html:
 -  SQLitePlugin.js
 -  Lawnchair-sqlitePlugin.js (must come after SQLitePlugin.js)
 
-Sample
-------
+### Sample
 
 The `name` option will determine the sqlite filename. Optionally, you can change it using the `db` option.
 
@@ -425,6 +426,9 @@ It also supports bgType argument:
 users = new Lawnchair {name: "users", bgType: 1, ...}
 ```
 
+### PouchDB
+
+The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawson](https://github.com/nolanlawson), see [PouchDB FAQ](http://pouchdb.com/faq.html).
 
 # Contributing
 
@@ -439,4 +443,11 @@ users = new Lawnchair {name: "users", bgType: 1, ...}
   - Make a special branch within your fork from which you can send the proposed restructuring;
   - Always use `git mv` to move files & directories;
   - Never mix a move/rename operation and any other changes in the same commit.
+
+## Major branches
+
+- `common-src` - source for Android & iOS versions
+- `master-src` - source for Android, iOS, & WP(8) versions
+- `master-rc` - pre-release version, including source for CSharp-SQLite library classes
+- `master` - version for release, will be included in PhoneGap build.
 
