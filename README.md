@@ -1,14 +1,14 @@
 # Cordova/PhoneGap SQLitePlugin
 
-Native interface to sqlite in a Cordova/PhoneGap plugin for Android/iOS/WP8, with HTML5 Web SQL API
+Native interface to sqlite in a Cordova/PhoneGap plugin for Android & iOS, with HTML5 Web SQL API.
 
-License for Android & WP8 versions: MIT or Apache 2.0
+License for Android version: MIT or Apache 2.0
 
 License for iOS version: MIT only
 
 ## WARNING: breaking change for Android version
 
-The automatic "`.db`" database file extension is [now removed](https://github.com/brodysoft/Cordova-SQLitePlugin/commit/3723cfc2dc933ae128fe9d5998efe4d76fcb0370) for the Android version, for consistency with the iOS & WP8 versions. For an existing app, you may have to open an existing database like:
+The automatic "`.db`" database file extension is [now removed](https://github.com/brodysoft/Cordova-SQLitePlugin/commit/3723cfc2dc933ae128fe9d5998efe4d76fcb0370) for the Android version, for consistency with the other versions. For an existing app, you may have to open an existing database like:
 
 ```js
 var db = window.sqlitePlugin.openDatabase({name: "my.db"});
@@ -18,16 +18,12 @@ Also the threading model is changed as described below.
 
 ## Status
 
-- WP(8) version is experimental, unsupported and subject to change.
 - Please use the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin) for community support
 - Commercial support is available for SQLCipher integration with Android & iOS versions
 
 ## Announcements
 
 - Fixes to work with PouchDB by [@nolanlawson](https://github.com/nolanlawson)
-- WP version added by:
-  - [@nadyaA (Nadezhda Atanasova)](https://github.com/nadyaA) with proper DLL integration
-  - [@Gillardo (Darren Gillard)](https://github.com/Gillardo) with failure-safe transaction semantics working
 - Forum renamed to: [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin)
 - New location: https://github.com/brodysoft/Cordova-SQLitePlugin
 - iOS version can now be built with either ARC or MRC.
@@ -51,7 +47,9 @@ Also the threading model is changed as described below.
 
 ## Known issues
 
-- Background processing and deleting a database are not implemented for WP8 version.
+- db.executeSql() calls callback multiple times
+- issues with db.close() & sqlitePlugin.deleteDatabase()
+- using web workers is currently not supported and known to be broken on Android
 
 ## Other limitations
 
@@ -103,7 +101,6 @@ function onDeviceReady() {
 The threading model depens on which version is used:
 - For Android, one background thread per db, always;
 - for iOS, background processing using a thread pool is enabled by default;
-- for WP(8), there is no backgroud processing (yet).
 
 **DEPRECATED OPTION, WILL BE REMOVED:** To disable background processing for the iOS version:
 
@@ -192,8 +189,6 @@ This case will also works with Safari (WebKit), assuming you replace window.sqli
 window.sqlitePlugin.deleteDatabase("my.db", successcb, errorcb);
 ```
 
-**NOTE:** This is not implemented for WP8.
-
 # Installing
 
 **NOTE:** This plugin is now prepared to be installed using the `cordova` tool.
@@ -207,7 +202,7 @@ window.sqlitePlugin.deleteDatabase("my.db", successcb, errorcb);
 
 - `SQLitePlugin.coffee.md`: platform-independent (Literate coffee-script, can be read by recent coffee-script compiler)
 - `www`: `SQLitePlugin.js` now platform-independent
-- `src`: Java plugin code for Android; Objective-C plugin code for iOS; C-sharp code & DLLs for WP8
+- `src`: Java plugin code for Android; Objective-C plugin code for iOS
 - `test-www`: simple testing in `index.html` using qunit 1.5.0
 - `Lawnchair-adapter`: Lawnchair adaptor, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
 
@@ -289,10 +284,6 @@ Enable the SQLitePlugin in `config.xml` (Cordova/PhoneGap 2.x):
          <plugin name="Logger" value="CDVLogger" />
          <plugin name="Compass" value="CDVLocation" />
 ```
-
-## Manual installation - WP8 version
-
-TODO
 
 ## Quick installation test
 
