@@ -1,4 +1,4 @@
-<!DOCTYPE HTML>
+﻿<!DOCTYPE HTML>
 <html>
   <head>
     <meta name="viewport" content="width=320; user-scalable=no" />
@@ -20,13 +20,280 @@
       document.addEventListener("deviceready", doAllTests, false);
 
       function doAllTests() {
+        QUnit.config.testTimeout = 30000;
         doTest(false, 'Plugin: ', window.sqlitePlugin.openDatabase);
         doTest(true, 'HTML5: ', window.openDatabase);
       }
 
       function doTest(isWebSql, suiteName, openDatabase) {
 
-        test(suiteName + "US-ASCII String test", function() {
+        test(suiteName + ' database.open calls its success callback', function () {
+          if (isWebSql) {
+            ok('skipped');
+            return;
+          }
+
+          // asynch test coming up
+          stop(1);
+
+          var dbName = "Database-Open-callback";
+          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function (tx, results) {
+            ok(true, 'expected close success callback to be called after database is closed');
+            start(1);
+          }, function (error) {
+            ok(false, 'expected close error callback not to be called after database is closed');
+            start(1);
+          });
+        });
+
+        test(suiteName + ' database.close calls its success callback', function () {
+          if (isWebSql) {
+            ok('skipped');
+            return;
+          }
+
+          // asynch test coming up
+          stop(1);
+
+          var dbName = "Database-Close-callback";
+          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+
+          // close database - need to run tests directly in callbacks as nothing is guarenteed to be queued after a close
+          db.close(ok, function (tx, results) {
+            ok(true, 'expected close success callback to be called after database is closed');
+            start(1);
+          }, function (error) {
+            ok(false, 'expected close error callback not to be called after database is closed');
+            start(1);
+          });
+        });
+
+        test(suiteName + ' database.executeSql invokes call backs just once', function () {
+          if (isWebSql) {
+            ok('skipped - database.executeSql is not part of standard suite');
+            return;
+          }
+          var dbName = "Database-executsql-callback";
+          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+
+          var successCbCount = 0;
+          var successArgumentCount = 0;
+          var successCb = function (tx, results) {
+            successCbCount += 1;
+            successArgumentCount = arguments.length;
+          };
+          var errorCbCount = 0;
+          var errorArgumentCount = 0;
+          var errorCb = function (error) {
+            errorCbCount += 1;
+            errorArgumentCount = arguments.length;
+          };
+
+
+          // 3 asynch tests coming up
+          stop(3);
+
+          // test succesfull query
+          successCbCount = errorCbCount = 0;
+          db.executeSql('SELECT 1', [], successCb, errorCb);
+          // use a new transaction to guarentee tests are run after completion of previous transaction, regardless of when the callbacks are called
+          db.transaction(function (tx) {
+            tx.executeSql('SELECT 1', [], function () {
+              equal(successCbCount, 1, 'expected success callback to be called once for a succesful query');
+              equal(successArgumentCount, 2, 'expected success callback to be called with two arguments (transaction and query results)');
+              equal(errorCbCount, 0, 'expected error callback not to be called for a succesful query');
+              start(1);
+
+              // test succesfull query
+              successCbCount = 0;
+              errorCbCount = 0;
+              db.executeSql('I am not a query', [], successCb, errorCb);
+              // use a new transaction to guarentee tests are run after completion of previous transaction, regardless of when the callbacks are called
+              db.transaction(function (tx) {
+                tx.executeSql('SELECT 1', [], function () {
+                  equal(successCbCount, 0, 'expected success callback not to be called once for a failed query');
+                  equal(errorCbCount, 1, 'expected error callback to be called once for a failed query');
+                  equal(errorArgumentCount, 1, 'expected error callback to be called with one argument (error details)');
+                  start(1);
+
+                  // test a statement that will succeed where the transaction will fail
+                  // this example's a bit contrived/stupid but the principle applies in more reasonable circumstances, such as out of disk space during commit
+                  successCbCount = 0;
+                  errorCbCount = 0;
+                  db.executeSql('COMMIT;', [], successCb, errorCb);
+                  // use a new transaction to guarentee tests are run after completion of previous transaction, regardless of when the callbacks are called
+                  db.transaction(function (tx) {
+                    tx.executeSql('SELECT 1', [], function () {
+                      equal(successCbCount, 0, 'expected success callback not to be called for a valid query whose implicit transaction failes');
+                      equal(errorCbCount, 1, 'expected error  callback to be called once for a valid query whose implicit transaction failes');
+                      equal(errorArgumentCount, 1, 'expected error callback to be called with one argument (error details)');
+                      start(1);
+                    })
+                  }, function (err) {
+                    ok(false, 'unexpected error: ' + err.message);
+                  });
+                })
+              }, function (err) {
+                ok(false, 'unexpected error: ' + err.message);
+              });
+            })
+          }, function (err) {
+            ok(false, 'unexpected error: ' + err.message);
+          });
+        });
+
+        test(suiteName + ' close then re-open allows subsequent queries to run', function () {
+          if (isWebSql) {
+            ok('skipped'); // close is non-standard
+            return;
+          }
+
+          ok(false, 'skipped due to missing close callbacks'); // TODO: once close callback works
+          return;
+
+          // asynch test coming up
+          stop(1);
+
+          var dbName = "Database-Close-and-Reopen";
+          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+          db.close(function () {
+            db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+            db.readTransaction(function (tx) {
+              tx.executeSql('SELECT 1', function (tx, results) {
+                ok(true, 'database re-opened succesfully');
+                start(1);
+              });
+            });
+          });
+        });
+
+        test(suiteName + ' delete then re-open allows subsequent queries to run', function () {
+          if (isWebSql) {
+            ok('skipped'); // delete is non-standard
+            return;
+          }
+
+          // asynch test coming up
+          stop(1);
+
+          var dbName = "Database-Close-and-Reopen";
+          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+          // TODO openDatabase callbacks not working, so using transaction success callback to delay until open complete
+          db.transaction(function (tx) {
+            ok(true, 'transaction started');
+            // action CB
+          }, function (tx) {
+            // error CB
+          }, function (tx) {
+            // success CB
+            ok(true, 'transaction completed');
+            deleteDatabase(dbName, function () {
+              ok(true, 'delete completed');
+              db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+              db.readTransaction(function (tx) {
+                ok(true, 'new transaction started');
+                tx.executeSql('SELECT 1', function (tx, results) {
+                  ok(true, 'database re-opened succesfully');
+                  start(1);
+                });
+              });
+            });
+          });
+        });
+
+        test(suiteName + ' close, then delete then re-open allows subsequent queries to run', function () {
+          if (isWebSql) {
+            ok('skipped'); // close and delete are non-standard
+            return;
+          }
+
+          ok(false, 'skipped due to missing close callbacks'); // TODO: once close callback works
+          return;
+
+          // asynch test coming up
+          stop(1);
+
+          var dbName = "Database-Close-and-Reopen";
+          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+          db.close(function () {
+            db.delete(dbName, function () {
+              db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+              db.readTransaction(function (tx) {
+                tx.executeSql('SELECT 1', function (tx, results) {
+                  ok(true, 'database re-opened succesfully');
+                  start(1);
+                });
+              });
+            });
+          });
+        });
+
+        // This kills the current android client, possibly due to incomplete implemention of closeDatabaseNow
+        test(suiteName + ' repeatedly open and delete database succeeds', function () {
+          if (isWebSql) {
+            ok('skipped'); // delete not in standard websql
+            return;
+          }
+
+          ok('skipped due to delete/re-open crashing client'); // TODO: once delete closes database cleanly
+
+          // asynch test coming up
+          stop(5);
+
+          var dbName = "repeatedly-open-and-delete";
+
+          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+          window.sqlitePlugin.deleteDatabase(dbName, function (tx, results) {
+            ok(true, 'success 1/5');
+
+            db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+            window.sqlitePlugin.deleteDatabase(dbName, function (tx, results) {
+              ok(true, 'success 2/5');
+
+              db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+              window.sqlitePlugin.deleteDatabase(dbName, function (tx, results) {
+                ok(true, 'success 3/5');
+
+                db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+                window.sqlitePlugin.deleteDatabase(dbName, function (tx, results) {
+                  ok(true, 'success 4/5');
+
+                  db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+                  window.sqlitePlugin.deleteDatabase(dbName, function (tx, results) {
+                    ok(true, 'success 5/5');
+
+                    start(1);
+                  }, function (error) {
+                    ok(false, 'expected delete 5/5 error callback not to be called for an open database' + error);
+                    start(1);
+                  });
+
+                  start(1);
+                }, function (error) {
+                  ok(false, 'expected delete 4/5 error callback not to be called for an open database' + error);
+                  start(1);
+                });
+
+                start(1);
+              }, function (error) {
+                ok(false, 'expected delete 3/5 error callback not to be called for an open database' + error);
+                start(1);
+              });
+
+              start(1);
+            }, function (error) {
+              ok(false, 'expected delete 2/5 error callback not to be called for an open database' + error);
+              start(1);
+            });
+
+            start(1);
+          }, function (error) {
+            ok(false, 'expected delete 1/5 error callback not to be called for an open database' + error);
+            start(1);
+          });
+        });
+
+        test(suiteName + "US-ASCII String test", function () {
 
           var db = openDatabase("ASCII-String-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
@@ -110,12 +377,12 @@
             start(1);
             ok(!!tx, "tx object");
 
-            tx.executeSql("select UPPER('Какой-то кириллический текст') as uppertext", [], function (tx, res) {
+            tx.executeSql("select UPPER('ÐšÐ°ÐºÐ¾Ð¹-Ñ‚Ð¾ ÐºÐ¸Ñ€Ð¸Ð»Ð»Ð¸Ñ‡ÐµÑÐºÐ¸Ð¹ Ñ‚ÐµÐºÑÑ‚') as uppertext", [], function (tx, res) {
               start(1);
 
               console.log("res.rows.item(0).uppertext: " + res.rows.item(0).uppertext);
 
-              equal(res.rows.item(0).uppertext, "КАКОЙ-ТО КИРИЛЛИЧЕСКИЙ ТЕКСТ", "Try ''Some Cyrillic text''");
+              equal(res.rows.item(0).uppertext, "ÐšÐÐšÐžÐ™-Ð¢Ðž ÐšÐ˜Ð Ð˜Ð›Ð›Ð˜Ð§Ð•Ð¡ÐšÐ˜Ð™ Ð¢Ð•ÐšÐ¡Ð¢", "Try ''Some Cyrillic text''");
             });
           });
         }); **/
