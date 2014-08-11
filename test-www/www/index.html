@@ -100,7 +100,7 @@
           db.transaction(function (tx) {
             tx.executeSql('SELECT 1', [], function () {
               equal(successCbCount, 1, 'expected success callback to be called once for a succesful query');
-              equal(successArgumentCount, 2, 'expected success callback to be called with two arguments (transaction and query results)');
+              equal(successArgumentCount, 1, 'expected success callback to be called with two arguments (query results)');
               equal(errorCbCount, 0, 'expected error callback not to be called for a succesful query');
               start(1);
 
