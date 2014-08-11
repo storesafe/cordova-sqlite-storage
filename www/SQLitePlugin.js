@@ -128,7 +128,7 @@
     myfn = function(tx) {
       tx.executeSql(statement, params, mysuccess, myerror);
     };
-    this.addTransaction(new SQLitePluginTransaction(this, myfn, myerror, mysuccess, false, false));
+    this.addTransaction(new SQLitePluginTransaction(this, myfn, null, null, false, false));
   };
 
 

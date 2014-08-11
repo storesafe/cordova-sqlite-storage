@@ -138,7 +138,7 @@ License for common Javascript: MIT or Apache
         tx.executeSql(statement, params, mysuccess, myerror)
         return
 
-      @addTransaction new SQLitePluginTransaction(this, myfn, myerror, mysuccess, false, false)
+      @addTransaction new SQLitePluginTransaction(this, myfn, null, null, false, false)
       return
 
 ### SQLitePluginTransaction object for batching:
