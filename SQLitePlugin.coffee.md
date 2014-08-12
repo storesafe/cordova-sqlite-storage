@@ -117,7 +117,7 @@ License for common Javascript: MIT or Apache
       if @dbname of @openDBs
         delete @openDBs[@dbname]
 
-        cordova.exec null, null, "SQLitePlugin", "close", [ { path: @dbname } ]
+        cordova.exec success, error, "SQLitePlugin", "close", [ { path: @dbname } ]
 
       return
 
