@@ -59,7 +59,7 @@
           var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
 
           // close database - need to run tests directly in callbacks as nothing is guarenteed to be queued after a close
-          db.close(ok, function () {
+          db.close(function () {
             ok(true, 'expected close success callback to be called after database is closed');
             start(1);
           }, function (error) {
