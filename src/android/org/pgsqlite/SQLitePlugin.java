@@ -110,8 +110,7 @@ public class SQLitePlugin extends CordovaPlugin {
                 o = args.getJSONObject(0);
                 dbname = o.getString("path");
                 // put request in the q to close the db
-                this.closeDatabase(dbname);
-                // TODO should send an async callback
+                this.closeDatabase(dbname, cbc);
                 break;
 
             case delete:
@@ -178,7 +177,7 @@ public class SQLitePlugin extends CordovaPlugin {
     public void onDestroy() {
         while (!dbmap.isEmpty()) {
             String dbname = dbmap.keySet().iterator().next();
-	    // TODO should stop the db thread(s) instead (!!)
+            // TODO should stop the db thread(s) instead (!!)
             this.closeDatabaseNow(dbname);
             dbmap.remove(dbname);
         }
@@ -205,8 +204,8 @@ public class SQLitePlugin extends CordovaPlugin {
 
     private void openDatabase(String dbname) {
         if (this.getDatabase(dbname) != null) {
-	    // TODO should wait for the db thread(s) to stop (!!)
-            this.closeDatabase(dbname);
+            // TODO should wait for the db thread(s) to stop (!!)
+            this.closeDatabase(dbname, null);
         }
 
         File dbfile = this.cordova.getActivity().getDatabasePath(dbname);
@@ -222,19 +221,27 @@ public class SQLitePlugin extends CordovaPlugin {
         dbmap.put(dbname, mydb);
     }
 
+
     /**
      * Close a database (in another thread).
      *
      * @param dbName   The name of the database file
      */
-    private void closeDatabase(String dbName) {
+    private void closeDatabase(String dbName, CallbackContext cbc) {
         DBRunner r = rmap.get(dbName);
         if (r != null) {
             try {
-                r.q.put(new DBQuery(true, null));
+                r.q.put(new DBQuery(true, cbc));
             } catch(Exception e) {
+            	if (cbc != null) {
+            		cbc.error("couldn't close database" + e);
+            	}
                 Log.e(SQLitePlugin.class.getSimpleName(), "couldn't close database", e);
             }
+        } else {
+        	if (cbc != null) {
+        		cbc.success();
+        	}
         }
     }
 
@@ -736,17 +743,31 @@ public class SQLitePlugin extends CordovaPlugin {
         public void run() {
             openDatabase(dbname, this.openCbc);
 
+            DBQuery dbq;
             try {
-                DBQuery dbq = q.take();
+                dbq = q.take();
 
                 while (!dbq.stop) {
                     executeSqlBatch(dbname, dbq.queries, dbq.jsonparams, dbq.queryIDs, dbq.cbc);
 
                     dbq = q.take();
                 }
-            } catch (Exception e) { }
 
-            closeDatabaseNow(dbname);
+                try {
+                    closeDatabaseNow(dbname);
+                    
+                    if (dbq.cbc != null) {
+                        dbq.cbc.success();
+                    }
+                } catch (Exception e) {
+                    Log.e(SQLitePlugin.class.getSimpleName(), "couldn't close database", e);
+                    if (dbq.cbc != null) {
+                    	dbq.cbc.error("couldn't close database: " + e);
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(SQLitePlugin.class.getSimpleName(), "unexpected error", e);
+            }
         }
     }
 
