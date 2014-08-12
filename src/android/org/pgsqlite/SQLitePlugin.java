@@ -101,10 +101,9 @@ public class SQLitePlugin extends CordovaPlugin {
                 o = args.getJSONObject(0);
                 dbname = o.getString("name");
 
-                DBRunner r = new DBRunner(dbname);
+                DBRunner r = new DBRunner(dbname, cbc);
                 this.rmap.put(dbname, r);
                 this.cordova.getThreadPool().execute(r);
-                // TODO should send an async callback
                 break;
 
             case close:
@@ -194,6 +193,16 @@ public class SQLitePlugin extends CordovaPlugin {
      *
      * @param dbName   The name of the database file
      */
+    private void openDatabase(String dbname, CallbackContext cbc) {
+        try {
+            openDatabase(dbname);
+            cbc.success();
+        } catch (SQLiteException e) {
+            cbc.error("can't open database " + e);
+            throw e;
+        }
+    }
+
     private void openDatabase(String dbname) {
         if (this.getDatabase(dbname) != null) {
 	    // TODO should wait for the db thread(s) to stop (!!)
@@ -716,14 +725,16 @@ public class SQLitePlugin extends CordovaPlugin {
     private class DBRunner implements Runnable {
         final String dbname;
         final BlockingQueue<DBQuery> q;
+        final CallbackContext openCbc;
 
-        DBRunner(final String dbname) {
+        DBRunner(final String dbname, CallbackContext cbc) {
             this.dbname = dbname;
             this.q = new LinkedBlockingQueue<DBQuery>();
+            this.openCbc = cbc;
         }
 
         public void run() {
-            openDatabase(dbname);
+            openDatabase(dbname, this.openCbc);
 
             try {
                 DBQuery dbq = q.take();
