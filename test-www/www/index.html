@@ -37,7 +37,7 @@
           stop(1);
 
           var dbName = "Database-Open-callback";
-          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function (tx, results) {
+          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
             ok(true, 'expected close success callback to be called after database is closed');
             start(1);
           }, function (error) {
@@ -59,7 +59,7 @@
           var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
 
           // close database - need to run tests directly in callbacks as nothing is guarenteed to be queued after a close
-          db.close(ok, function (tx, results) {
+          db.close(ok, function () {
             ok(true, 'expected close success callback to be called after database is closed');
             start(1);
           }, function (error) {
@@ -78,7 +78,7 @@
 
           var successCbCount = 0;
           var successArgumentCount = 0;
-          var successCb = function (tx, results) {
+          var successCb = function () {
             successCbCount += 1;
             successArgumentCount = arguments.length;
           };
@@ -245,23 +245,23 @@
           var dbName = "repeatedly-open-and-delete";
 
           var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
-          window.sqlitePlugin.deleteDatabase(dbName, function (tx, results) {
+          window.sqlitePlugin.deleteDatabase(dbName, function () {
             ok(true, 'success 1/5');
 
             db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
-            window.sqlitePlugin.deleteDatabase(dbName, function (tx, results) {
+            window.sqlitePlugin.deleteDatabase(dbName, function () {
               ok(true, 'success 2/5');
 
               db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
-              window.sqlitePlugin.deleteDatabase(dbName, function (tx, results) {
+              window.sqlitePlugin.deleteDatabase(dbName, function () {
                 ok(true, 'success 3/5');
 
                 db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
-                window.sqlitePlugin.deleteDatabase(dbName, function (tx, results) {
+                window.sqlitePlugin.deleteDatabase(dbName, function () {
                   ok(true, 'success 4/5');
 
                   db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
-                  window.sqlitePlugin.deleteDatabase(dbName, function (tx, results) {
+                  window.sqlitePlugin.deleteDatabase(dbName, function () {
                     ok(true, 'success 5/5');
 
                     start(1);
