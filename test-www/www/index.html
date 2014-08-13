@@ -20,7 +20,7 @@
       document.addEventListener("deviceready", doAllTests, false);
 
       function doAllTests() {
-        QUnit.config.testTimeout = 30000;
+        QUnit.config.testTimeout = 5000;
         doTest(false, 'Plugin: ', window.sqlitePlugin.openDatabase);
         doTest(true, 'HTML5: ', window.openDatabase);
       }
@@ -37,7 +37,7 @@
           stop(1);
 
           var dbName = "Database-Open-callback";
-          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
+          openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function (db) {
             ok(true, 'expected close success callback to be called after database is closed');
             start(1);
           }, function (error) {
@@ -144,28 +144,93 @@
           });
         });
 
+        test(suiteName + ' open same database twice works', function () {
+          if (isWebSql) {
+            ok('skipped'); // delete is non-standard
+            return;
+          }
+
+          stop(2);
+
+          var dbName = 'open-twice';
+
+          var db1 = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
+            var db2 = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
+              db1.readTransaction(function(tx1) {
+                tx1.executeSql('SELECT 1', [], function(tx1d, results) {
+                  ok(true, 'db1 transaction working');
+                  start(1);
+                }, function(error) {
+                  ok(false, error);
+                });
+              }, function(error) {
+                ok(false, error);
+              });
+              db2.readTransaction(function(tx2) {
+                tx2.executeSql('SELECT 1', [], function(tx2d, results) {
+                  ok(true, 'db2 transaction working');
+                  start(1);
+                }, function(error) {
+                  ok(false, error);
+                });
+              }, function(error) {
+                ok(false, error);
+              });
+            }, function (error) {
+              ok(false, error);
+            });
+          }, function (error) {
+            ok(false, error);
+          });
+        });
+
         test(suiteName + ' close then re-open allows subsequent queries to run', function () {
           if (isWebSql) {
             ok('skipped'); // close is non-standard
             return;
           }
 
-          ok(false, 'skipped due to missing close callbacks'); // TODO: once close callback works
-          return;
-
           // asynch test coming up
           stop(1);
-
+        
           var dbName = "Database-Close-and-Reopen";
-          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
-          db.close(function () {
-            db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
-            db.readTransaction(function (tx) {
-              tx.executeSql('SELECT 1', function (tx, results) {
-                ok(true, 'database re-opened succesfully');
+          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
+            db.close(function () {
+              db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
+                db.close(function () {
+                  db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
+                    db.readTransaction(function (tx) {
+                      tx.executeSql('SELECT 1', [], function (tx, results) {
+                        ok(true, 'database re-opened succesfully');
+                        db.close();
+                        start(1);
+                      }, function (error) {
+                        ok(false, error.message);
+                        start(1);
+                      });
+                    }, function (error) {
+                      ok(false, error.message);
+                      start(1);
+                    });
+                  }, function (error) {
+                    ok(false, error.message);
+                    start(1);
+                  });
+                }, function (error) {
+                  ok(false, error.message);
+                  start(1);
+                });
+              }, function (error) {
+                ok(false, error.message);
                 start(1);
               });
+            }, function (error) {
+              ok(false, error.message);
+              start(1);
             });
+          }, function (error) {
+            ok(false, error.message);
+            start(1);
           });
         });
 
@@ -178,28 +243,37 @@
           // asynch test coming up
           stop(1);
 
-          var dbName = "Database-Close-and-Reopen";
-          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
-          // TODO openDatabase callbacks not working, so using transaction success callback to delay until open complete
-          db.transaction(function (tx) {
-            ok(true, 'transaction started');
-            // action CB
-          }, function (tx) {
-            // error CB
-          }, function (tx) {
+          var dbName = "Database-delete-and-Reopen";
+          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
             // success CB
-            ok(true, 'transaction completed');
-            deleteDatabase(dbName, function () {
-              ok(true, 'delete completed');
-              db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
-              db.readTransaction(function (tx) {
-                ok(true, 'new transaction started');
-                tx.executeSql('SELECT 1', function (tx, results) {
-                  ok(true, 'database re-opened succesfully');
+            window.sqlitePlugin.deleteDatabase(dbName, function () {
+              db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
+                db.readTransaction(function (tx) {
+                  tx.executeSql('SELECT 1', [], function (tx, results) {
+                    ok(true, 'database re-opened succesfully');
+                    start(1);
+                  }, function (error) {
+                    ok(false, error);
+                    start(1);
+                  }, function (error) {
+                    ok(false, error);
+                    start(1);
+                  });
+                }, function (error) {
+                  ok(false, error);
                   start(1);
                 });
+              }, function (error) {
+                ok(false, error);
+                start(1);
               });
+            }, function (error) {
+              ok(false, error);
+              start(1);
             });
+          }, function (error) {
+            ok(false, error);
+            start(1);
           });
         });
 
@@ -209,24 +283,37 @@
             return;
           }
 
-          ok(false, 'skipped due to missing close callbacks'); // TODO: once close callback works
-          return;
-
           // asynch test coming up
           stop(1);
 
-          var dbName = "Database-Close-and-Reopen";
+          var dbName = "Database-Close-delete-Reopen";
           var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
           db.close(function () {
-            db.delete(dbName, function () {
-              db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
-              db.readTransaction(function (tx) {
-                tx.executeSql('SELECT 1', function (tx, results) {
-                  ok(true, 'database re-opened succesfully');
+            window.sqlitePlugin.deleteDatabase(dbName, function () {
+              db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
+                db.readTransaction(function (tx) {
+                  tx.executeSql('SELECT 1', [], function (tx, results) {
+                    ok(true, 'database re-opened succesfully');
+                    start(1);
+                  }, function (e) {
+                    ok(false, 'error: ' + e);
+                    start(1);
+                  });
+                }, function (e) {
+                  ok(false, 'error: ' + e);
                   start(1);
                 });
+              }, function (e) {
+                ok(false, 'error: ' + e);
+                start(1);
               });
+            }, function (e) {
+              ok(false, 'error: ' + e);
+              start(1);
             });
+          }, function (e) {
+            ok(false, 'error: ' + e);
+            start(1);
           });
         });
 
@@ -237,8 +324,6 @@
             return;
           }
 
-          ok('skipped due to delete/re-open crashing client'); // TODO: once delete closes database cleanly
-
           // asynch test coming up
           stop(5);
 
@@ -246,19 +331,15 @@
 
           var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
           window.sqlitePlugin.deleteDatabase(dbName, function () {
-            ok(true, 'success 1/5');
 
             db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
             window.sqlitePlugin.deleteDatabase(dbName, function () {
-              ok(true, 'success 2/5');
 
               db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
               window.sqlitePlugin.deleteDatabase(dbName, function () {
-                ok(true, 'success 3/5');
 
                 db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
                 window.sqlitePlugin.deleteDatabase(dbName, function () {
-                  ok(true, 'success 4/5');
 
                   db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
                   window.sqlitePlugin.deleteDatabase(dbName, function () {
@@ -291,7 +372,7 @@
             start(1);
           }, function (error) {
             ok(false, 'expected delete 1/5 error callback not to be called for an open database' + error);
-            start(1);
+            start(5);
           });
         });
 
@@ -845,14 +926,14 @@
 
           function createAndInsertStuff() {
 
-            db.transaction(function(tx) {
+            db.transaction(function (tx) {
               tx.executeSql('DROP TABLE IF EXISTS test');
               tx.executeSql('CREATE TABLE IF NOT EXISTS test (name)', [], function () {
                 tx.executeSql('INSERT INTO test VALUES (?)', ['foo']);
               });
             }, function (e) { ok(false, 'error: ' + e); }, function () {
               // check that we can read it
-              db.transaction(function(tx) {
+              db.transaction(function (tx) {
                 tx.executeSql('SELECT * FROM test', [], function (tx, res) {
                   equal(res.rows.item(0).name, 'foo');
                 });
@@ -865,16 +946,16 @@
           function deleteAndConfirmDeleted() {
 
             window.sqlitePlugin.deleteDatabase("DB-Deletable", function () {
+
               // check that the data's gone
-              db.transaction(function(tx) {
-                    tx.executeSql('SELECT * FROM test');
-                  }, function (e) {
-                    ok(true, 'got error like we expected');
-                    testDeleteError();
-                  },
-                  function () {
-                    ok(false, 'expected an error');
-                  });
+              db.transaction(function (tx) {
+                tx.executeSql('SELECT name FROM test', []);
+              }, function (e) {
+                ok(true, 'got an expected transaction error');
+                testDeleteError();
+              }, function () {
+                ok(false, 'expected a transaction error');
+              });
             }, function (e) {
               ok(false, 'error: ' + e);
             });
