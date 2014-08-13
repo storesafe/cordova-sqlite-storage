@@ -101,11 +101,25 @@
   };
 
   SQLitePlugin.prototype.open = function(success, error) {
+    var onSuccess;
+    onSuccess = (function(_this) {
+      return function() {
+        return success(_this);
+      };
+    })(this);
     if (!(this.dbname in this.openDBs)) {
       this.openDBs[this.dbname] = true;
-      cordova.exec(success, error, "SQLitePlugin", "open", [this.openargs]);
+      cordova.exec(onSuccess, error, "SQLitePlugin", "open", [this.openargs]);
     } else {
-      success();
+
+      /*
+      for a re-open run onSuccess async so that the openDatabase return value
+      can be used in the success handler as an alternative to the handler's
+      db argument
+       */
+      nextTick(function() {
+        return onSuccess();
+      });
     }
   };
 
