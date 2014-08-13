@@ -160,7 +160,7 @@
               ok(true, 'database re-opened');
               db1.readTransaction(function(tx1) {
                 ok(true, 'db1 transaction started');
-                tx1.executeSql('SELECT 1', function(tx1d, results) {
+                tx1.executeSql('SELECT 1', [], function(tx1d, results) {
                   ok(true, 'db1 transaction working');
                   start(1);
                 }, function(error) {
@@ -171,7 +171,7 @@
               });
               db2.readTransaction(function(tx2) {
                 ok(true, 'db2 transaction started');
-                tx2.executeSql('SELECT 1', function(tx2d, results) {
+                tx2.executeSql('SELECT 1', [], function(tx2d, results) {
                   ok(true, 'db2 transaction working');
                   start(1);
                 }, function(error) {
@@ -263,7 +263,7 @@
                 ok(true, 'database re-opened');
                 db.readTransaction(function (tx) {
                   ok(true, 'new transaction started');
-                  tx.executeSql('SELECT 1', function (tx, results) {
+                  tx.executeSql('SELECT 1', [], function (tx, results) {
                     ok(true, 'database re-opened succesfully');
                     start(1);
                   }, function (error) {
@@ -300,18 +300,34 @@
           // asynch test coming up
           stop(1);
 
-          var dbName = "Database-Close-and-Reopen";
+          var dbName = "Database-Close-delete-Reopen";
           var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
           db.close(function () {
-            db.delete(dbName, function () {
-              db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
-              db.readTransaction(function (tx) {
-                tx.executeSql('SELECT 1', function (tx, results) {
-                  ok(true, 'database re-opened succesfully');
+            window.sqlitePlugin.deleteDatabase(dbName, function () {
+              db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
+                db.readTransaction(function (tx) {
+                  tx.executeSql('SELECT 1', [], function (tx, results) {
+                    ok(true, 'database re-opened succesfully');
+                    start(1);
+                  }, function (e) {
+                    ok(false, 'error: ' + e);
+                    start(1);
+                  });
+                }, function (e) {
+                  ok(false, 'error: ' + e);
                   start(1);
                 });
+              }, function (e) {
+                ok(false, 'error: ' + e);
+                start(1);
               });
+            }, function (e) {
+              ok(false, 'error: ' + e);
+              start(1);
             });
+          }, function (e) {
+            ok(false, 'error: ' + e);
+            start(1);
           });
         });
 

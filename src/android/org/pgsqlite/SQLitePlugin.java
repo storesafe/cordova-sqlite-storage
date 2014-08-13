@@ -159,14 +159,13 @@ public class SQLitePlugin extends CordovaPlugin {
                 DBQuery q = new DBQuery(queries, queryIDs, jsonparams, cbc);
                 DBRunner r = rmap.get(dbname);
                 if (r != null) {
+            		// missing DB should be handled in javascript
                 	try {
                 		r.q.put(q); 
                 	} catch(Exception e) {
                 		Log.e(SQLitePlugin.class.getSimpleName(), "couldn't add to queue", e);
                 		cbc.error("couldn't add to queue");
                 	}
-                } else {
-            		cbc.error("database not open");
                 }
                 break;
         }
@@ -353,8 +352,7 @@ public class SQLitePlugin extends CordovaPlugin {
         SQLiteDatabase mydb = getDatabase(dbname);
 
         if (mydb == null) {
-        	// not allowed - can only happen if someone has closed (and possibly deleted) a database and then re-used the database
-        	cbc.error("database has been closed");
+        	// should never happen - blocked in javascript
         	return;
         }
 
@@ -762,7 +760,7 @@ public class SQLitePlugin extends CordovaPlugin {
             this.openCbc = cbc;
         }
 
-        public void run() {
+		public void run() {
             openDatabase(dbname, this.openCbc);
 
             DBQuery dbq;

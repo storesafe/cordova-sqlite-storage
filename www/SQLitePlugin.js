@@ -72,10 +72,18 @@
   };
 
   SQLitePlugin.prototype.transaction = function(fn, error, success) {
+    if (!this.openDBs[this.dbname]) {
+      error('database not open');
+      return;
+    }
     this.addTransaction(new SQLitePluginTransaction(this, fn, error, success, true, false));
   };
 
   SQLitePlugin.prototype.readTransaction = function(fn, error, success) {
+    if (!this.openDBs[this.dbname]) {
+      error('database not open');
+      return;
+    }
     this.addTransaction(new SQLitePluginTransaction(this, fn, error, success, true, true));
   };
 
@@ -96,6 +104,8 @@
     if (!(this.dbname in this.openDBs)) {
       this.openDBs[this.dbname] = true;
       cordova.exec(success, error, "SQLitePlugin", "open", [this.openargs]);
+    } else {
+      success();
     }
   };
 
@@ -416,6 +426,7 @@
       return new SQLitePlugin(openargs, okcb, errorcb);
     }),
     deleteDb: function(databaseName, success, error) {
+      delete SQLitePlugin.prototype.openDBs[databaseName];
       return cordova.exec(success, error, "SQLitePlugin", "delete", [
         {
           path: databaseName
