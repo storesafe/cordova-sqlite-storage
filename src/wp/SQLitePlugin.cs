@@ -94,7 +94,7 @@ namespace Cordova.Extension.Commands
 
             try
             {
-                String [] jsonOptions = JsonHelper.Deserialize<string[]>(options);
+                String[] jsonOptions = JsonHelper.Deserialize<string[]>(options);
                 dbOptions = JsonHelper.Deserialize<SQLitePluginOpenCloseOptions>(jsonOptions[0]);
                 mycbid = jsonOptions[1];
                 //System.Diagnostics.Debug.WriteLine("real cbid: " + mycbid);
@@ -200,12 +200,12 @@ namespace Cordova.Extension.Commands
                     this.db = new SQLiteConnection(dbOptions.name);
                 }
 
-				string batchResultsStr = "";
+                string batchResultsStr = "";
 
                 // loop through the sql in the transaction
                 foreach (SQLitePluginTransaction transaction in batch.executes)
                 {
-					string resultString = "";
+                    string resultString = "";
                     string errorMessage = "unknown";
                     bool needQuery = true;
 
@@ -343,8 +343,12 @@ namespace Cordova.Extension.Commands
                                         }
                                         else
                                         {
-                                            rowString += String.Format("\"{0}\":\"{1}\"",
-                                                column.Key, column.Value.ToString().Replace("\\","\\\\").Replace("\"","\\\""));
+                                            string value = column.Value.ToString().Replace("\\", "\\\\").Replace("\"", "\\\"");
+
+                                            // replace carriage returns with \n, else json is invalid on return
+                                            value = value.Replace(System.Environment.NewLine, "\\n");
+
+                                            rowString += String.Format("\"{0}\":\"{1}\"", column.Key, value);
                                         }
                                     }
                                     else
@@ -357,11 +361,12 @@ namespace Cordova.Extension.Commands
                                 rowsString += "{" + rowString + "}";
                             }
 
-                            resultString = "\"rows\":["+rowsString+"]";
+                            resultString = "\"rows\":[" + rowsString + "]";
                         }
                         catch (Exception e)
                         {
                             errorMessage = e.Message;
+                            //System.Diagnostics.Debug.WriteLine("ERROR: " + errorMessage);
                         }
                     }
 
@@ -369,16 +374,19 @@ namespace Cordova.Extension.Commands
 
                     if (resultString.Length != 0)
                     {
+
                         batchResultsStr += "{\"qid\":\"" + transaction.queryId + "\",\"type\":\"success\",\"result\":{" + resultString + "}}";
                         //System.Diagnostics.Debug.WriteLine("batchResultsStr: " + batchResultsStr);
                     }
                     else
                     {
-						batchResultsStr += "{\"qid\":\"" + transaction.queryId + "\",\"type\":\"error\",\"result\":{\"message\":\"" + errorMessage.Replace("\\","\\\\").Replace("\"","\\\"") + "\"}}";
+                        batchResultsStr += "{\"qid\":\"" + transaction.queryId + "\",\"type\":\"error\",\"result\":{\"message\":\"" + errorMessage.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"}}";
+                        //System.Diagnostics.Debug.WriteLine("resultString is blank");
                     }
                 }
 
-                DispatchCommandResult(new PluginResult(PluginResult.Status.OK, "["+batchResultsStr+"]"), mycbid);
+                //System.Diagnostics.Debug.WriteLine("completed with : " + mycbid);
+                DispatchCommandResult(new PluginResult(PluginResult.Status.OK, "[" + batchResultsStr + "]"), mycbid);
             }//);
         }
     }
