@@ -390,14 +390,11 @@ public class SQLitePlugin extends CordovaPlugin {
                         Log.v("executeSqlBatch", "SQLiteDatabase.executeInsert(): Error=" + errorMessage);
                     }
 
+                    queryResult = new JSONObject();
                     if (insertId != -1) {
-                        queryResult = new JSONObject();
                         queryResult.put("insertId", insertId);
                         queryResult.put("rowsAffected", 1);
-                    }
-                    //fix code
-                    if (insertId == -1) {
-                        queryResult = new JSONObject();
+                    } else {
                         queryResult.put("rowsAffected", 0);
                     }
                 }
