@@ -328,10 +328,11 @@
 
           db.transaction(function (tx) {
             tx.executeSql('DROP TABLE IF EXISTS characters');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS characters (name, creator, fav tinyint(1))');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS characters (name unique, creator, fav tinyint(1))');
             tx.executeSql('DROP TABLE IF EXISTS companies');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS companies (name, fav tinyint(1))');
-            tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Sonic', 'Sega', 0], function (tx, res) {
+            tx.executeSql('CREATE TABLE IF NOT EXISTS companies (name unique, fav tinyint(1))');
+	    // INSERT or IGNORE with the real thing:
+            tx.executeSql('INSERT or IGNORE INTO characters VALUES (?,?,?)', ['Sonic', 'Sega', 0], function (tx, res) {
               equal(res.rowsAffected, 1);
               tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Tails', 'Sega', 0], function (tx, res) {
                 tx.executeSql('INSERT INTO companies VALUES (?,?)', ['Sega', 1], function (tx, res) {
@@ -348,8 +349,15 @@
                         ' creator=(SELECT name FROM companies WHERE name=?)' +
                         ' WHERE creator=?';
                     tx.executeSql(sql, ['Sega', 'Sega', 'Sega'], function (tx, res) {
-                      start();
                       equal(res.rowsAffected, 2);
+                      // knockoffs shall be ignored:
+                      tx.executeSql('INSERT or IGNORE INTO characters VALUES (?,?,?)', ['Sonic', 'knockoffs4you', 0], function (tx, res) {
+                        equal(res.rowsAffected, 0);
+                        start();
+                      }, function(tx, err) {
+                        ok(false, 'knockoff should have been ignored');
+                        start();
+                      });
                     });
                   });
                 });
@@ -357,7 +365,6 @@
             });
           });
         });
-
 
         test(suiteName + "nested transaction test", function() {
 
