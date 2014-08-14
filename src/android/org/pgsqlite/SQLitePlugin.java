@@ -395,6 +395,11 @@ public class SQLitePlugin extends CordovaPlugin {
                         queryResult.put("insertId", insertId);
                         queryResult.put("rowsAffected", 1);
                     }
+                    //fix code
+                    if (insertId == -1) {
+                        queryResult = new JSONObject();
+                        queryResult.put("rowsAffected", 0);
+                    }
                 }
 
                 if (queryType == QueryType.begin) {
