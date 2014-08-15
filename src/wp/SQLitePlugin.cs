@@ -200,12 +200,12 @@ namespace Cordova.Extension.Commands
                     this.db = new SQLiteConnection(dbOptions.name);
                 }
 
-				string batchResultsStr = "";
+                string batchResultsStr = "";
 
                 // loop through the sql in the transaction
                 foreach (SQLitePluginTransaction transaction in batch.executes)
                 {
-					string resultString = "";
+                    string resultString = "";
                     string errorMessage = "unknown";
                     bool needQuery = true;
 
@@ -345,10 +345,13 @@ namespace Cordova.Extension.Commands
                                         {
                                             rowString += String.Format("\"{0}\":\"{1}\"",
                                                 column.Key,
-												column.Value.ToString().Replace("\\","\\\\")
-												    .Replace("\"","\\\"")
-												    .Replace("\r","\\r")
-												    .Replace("\n","\\n"));
+                                                column.Value.ToString()
+                                                    .Replace("\\","\\\\")
+                                                    .Replace("\"","\\\"")
+                                                    .Replace("\t","\\t")
+                                                    .Replace("\r","\\r")
+                                                    .Replace("\n","\\n")
+                                            );
                                         }
                                     }
                                     else
@@ -378,7 +381,7 @@ namespace Cordova.Extension.Commands
                     }
                     else
                     {
-						batchResultsStr += "{\"qid\":\"" + transaction.queryId + "\",\"type\":\"error\",\"result\":{\"message\":\"" + errorMessage.Replace("\\","\\\\").Replace("\"","\\\"") + "\"}}";
+                        batchResultsStr += "{\"qid\":\"" + transaction.queryId + "\",\"type\":\"error\",\"result\":{\"message\":\"" + errorMessage.Replace("\\","\\\\").Replace("\"","\\\"") + "\"}}";
                     }
                 }
 
