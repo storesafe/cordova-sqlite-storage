@@ -28,7 +28,7 @@
 
         test(suiteName + "US-ASCII String test", function() {
 
-          var db = openDatabase("ASCII-String-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase("String-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           ok(!!db, "db object");
 
@@ -99,7 +99,7 @@
         /** FUTURE (only on recent versions of Android):
         test(suiteName + "ICU-UNICODE String test", function() {
 
-          var db = openDatabase("ICU-UNICODE-String-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase("String-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           ok(!!db, "db object");
 
@@ -126,7 +126,7 @@
             return;
           }
 
-          var db = openDatabase("DB-String-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase("String-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           var expected = [ 'FIRST', 'SECOND' ];
           var i=0;
@@ -155,6 +155,27 @@
 
           db.executeSql("select upper('first') as uppertext", [], okcb);
           db.executeSql("select upper('second') as uppertext", [], okcb);
+        });
+
+        test(suiteName + "CR-LF String test", function() {
+          var db = openDatabase("CR-LF-String-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          ok(!!db, "db object");
+          stop();
+
+          db.transaction(function(tx) {
+            ok(!!tx, "tx object");
+            tx.executeSql("select upper('cr\r\nlf') as uppertext", [], function(tx, res) {
+              ok(res.rows.item(0).uppertext !== "CR\nLF", "CR-LF should not be converted to \\n");
+              equal(res.rows.item(0).uppertext, "CR\r\nLF", "CRLF ok");
+              tx.executeSql("select upper('Carriage\rReturn') as uppertext", [], function(tx, res) {
+                equal(res.rows.item(0).uppertext, "CARRIAGE\rRETURN", "CR ok");
+                tx.executeSql("select upper('New\nLine') as uppertext", [], function(tx, res) {
+                  equal(res.rows.item(0).uppertext, "NEW\nLINE", "newline ok");
+                  start();
+                });
+              });
+            });
+          });
         });
 
         test(suiteName + "db transaction test", function() {
@@ -333,10 +354,11 @@
 
           db.transaction(function (tx) {
             tx.executeSql('DROP TABLE IF EXISTS characters');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS characters (name, creator, fav tinyint(1))');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS characters (name unique, creator, fav tinyint(1))');
             tx.executeSql('DROP TABLE IF EXISTS companies');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS companies (name, fav tinyint(1))');
-            tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Sonic', 'Sega', 0], function (tx, res) {
+            tx.executeSql('CREATE TABLE IF NOT EXISTS companies (name unique, fav tinyint(1))');
+	    // INSERT or IGNORE with the real thing:
+            tx.executeSql('INSERT or IGNORE INTO characters VALUES (?,?,?)', ['Sonic', 'Sega', 0], function (tx, res) {
               equal(res.rowsAffected, 1);
               tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Tails', 'Sega', 0], function (tx, res) {
                 tx.executeSql('INSERT INTO companies VALUES (?,?)', ['Sega', 1], function (tx, res) {
@@ -353,8 +375,15 @@
                         ' creator=(SELECT name FROM companies WHERE name=?)' +
                         ' WHERE creator=?';
                     tx.executeSql(sql, ['Sega', 'Sega', 'Sega'], function (tx, res) {
-                      start();
                       equal(res.rowsAffected, 2);
+                      // knockoffs shall be ignored:
+                      tx.executeSql('INSERT or IGNORE INTO characters VALUES (?,?,?)', ['Sonic', 'knockoffs4you', 0], function (tx, res) {
+                        equal(res.rowsAffected, 0);
+                        start();
+                      }, function(tx, err) {
+                        ok(false, 'knockoff should have been ignored');
+                        start();
+                      });
                     });
                   });
                 });
@@ -362,7 +391,6 @@
             });
           });
         });
-
 
         test(suiteName + "nested transaction test", function() {
 
