@@ -344,7 +344,11 @@ namespace Cordova.Extension.Commands
                                         else
                                         {
                                             rowString += String.Format("\"{0}\":\"{1}\"",
-                                                column.Key, column.Value.ToString().Replace("\\","\\\\").Replace("\"","\\\""));
+                                                column.Key,
+												column.Value.ToString().Replace("\\","\\\\")
+												    .Replace("\"","\\\"")
+												    .Replace("\r","\\r")
+												    .Replace("\n","\\n"));
                                         }
                                     }
                                     else
