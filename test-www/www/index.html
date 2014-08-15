@@ -28,7 +28,7 @@
 
         test(suiteName + "US-ASCII String test", function() {
 
-          var db = openDatabase("ASCII-String-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase("String-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           ok(!!db, "db object");
 
@@ -94,7 +94,7 @@
         /** FUTURE (only on recent versions of Android):
         test(suiteName + "ICU-UNICODE String test", function() {
 
-          var db = openDatabase("ICU-UNICODE-String-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase("String-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           ok(!!db, "db object");
 
@@ -121,7 +121,7 @@
             return;
           }
 
-          var db = openDatabase("DB-String-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase("String-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           var expected = [ 'FIRST', 'SECOND' ];
           var i=0;
@@ -150,6 +150,27 @@
 
           db.executeSql("select upper('first') as uppertext", [], okcb);
           db.executeSql("select upper('second') as uppertext", [], okcb);
+        });
+
+        test(suiteName + "CR-LF String test", function() {
+          var db = openDatabase("CR-LF-String-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          ok(!!db, "db object");
+          stop();
+
+          db.transaction(function(tx) {
+            ok(!!tx, "tx object");
+            tx.executeSql("select upper('cr\r\nlf') as uppertext", [], function(tx, res) {
+              ok(res.rows.item(0).uppertext !== "CR\nLF", "CR-LF should not be converted to \\n");
+              equal(res.rows.item(0).uppertext, "CR\r\nLF", "CRLF ok");
+              tx.executeSql("select upper('Carriage\rReturn') as uppertext", [], function(tx, res) {
+                equal(res.rows.item(0).uppertext, "CARRIAGE\rRETURN", "CR ok");
+                tx.executeSql("select upper('New\nLine') as uppertext", [], function(tx, res) {
+                  equal(res.rows.item(0).uppertext, "NEW\nLINE", "newline ok");
+                  start();
+                });
+              });
+            });
+          });
         });
 
         test(suiteName + "db transaction test", function() {
