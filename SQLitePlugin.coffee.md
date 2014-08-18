@@ -20,7 +20,17 @@ License for common Javascript: MIT or Apache
 
 ### utility function(s):
 
-    nextTick = window.setImmediate || (fun) ->
+    nextTick = window.setImmediate || (fun) -    SQLitePlugin::executeSql = (statement, params, success, error) ->
+      mysuccess = (t, r) -> if !!success then success r
+      myerror = (t, e) -> if !!error then error e
+
+      myfn = (tx) ->
+        tx.executeSql(statement, params, mysuccess, myerror)
+        return
+
+      @addTransaction new SQLitePluginTransaction(this, myfn, null, null, false, false)
+      return
+>
       window.setTimeout(fun, 0)
       return
 
@@ -135,29 +145,14 @@ License for common Javascript: MIT or Apache
       return
 
     SQLitePlugin::executeSql = (statement, params, success, error) ->
-      sqlresults = undefined
-      sqlSuccessCallback = (tx, results) ->
-        sqlresults = results
-
-      sqlError = undefined
-      sqlErrorCallback = (tx, error) ->
-        sqlerror = error
+      mysuccess = (t, r) -> if !!success then success r
+      myerror = (t, e) -> if !!error then error e
 
       myfn = (tx) ->
-        tx.executeSql(statement, params, sqlSuccessCallback, sqlErrorCallback)
+        tx.executeSql(statement, params, mysuccess, myerror)
         return
 
-      txSuccessCallback = () -> if !!sqlError and !! error
-                                  error sqlError
-                                else if !!success
-                                  success sqlresults
-      txErrorCallback = (txError) -> if !!error
-                                       if !!sqlError
-                                         error sqlError
-                                       else
-                                         error txError 
-
-      @addTransaction new SQLitePluginTransaction(this, myfn, txErrorCallback, txSuccessCallback, false, false)
+      @addTransaction new SQLitePluginTransaction(this, myfn, null, null, false, false)
       return
 
 ### SQLitePluginTransaction object for batching:
