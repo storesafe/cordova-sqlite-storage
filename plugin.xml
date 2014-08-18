@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    id="com.phonegap.plugins.sqlite"
-    version="0.7.0">
+    id="com.brodysoft.sqlitePlugin"
+    version="1.0.0">
 
-    <name>SQLitePlugin</name>
+    <name>Brodysoft SQLitePlugin</name>
 
     <license>MIT</license>
 
     <description>Native interface to SQLite for PhoneGap/Cordova. Allows you to use more storage and provides more flexibility than the standard Web SQL database (window.openDatabase).</description>
-    <author>Chris Brody</author>
+    <author>Various</author>
 
     <engines>
-        <engine name="cordova" version=">=3.0.0" />
+        <engine name="cordova" version=">=3.5.0" />
     </engines>
 
     <js-module src="www/SQLitePlugin.js" name="SQLitePlugin">

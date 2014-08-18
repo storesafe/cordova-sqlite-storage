@@ -49,6 +49,7 @@ Also the threading model is changed as described below.
 ## Some apps using Cordova/PhoneGap SQLitePlugin
 
 - [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/)
+- [KAAHE Health Encyclopedia](http://www.kaahe.org/en/index.php?option=com_content&view=article&id=817): Official health app of the Kingdom of Saudi Arabia.
 - [Larkwire](http://www.larkwire.com/) (iOS version): Learn bird songs the fun way
 - [Tangorin](https://play.google.com/store/apps/details?id=com.tangorin.app) (Android) Japanese Dictionary at [tangorin.com](http://tangorin.com/)
 
