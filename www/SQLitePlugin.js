@@ -36,7 +36,6 @@
 
   SQLitePlugin = function(openargs, openSuccess, openError) {
     var dbname;
-    console.log("SQLitePlugin openargs: " + (JSON.stringify(openargs)));
     if (!(openargs && openargs['name'])) {
       throw new Error("Cannot create a SQLitePlugin instance without a db name");
     }
