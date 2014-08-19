@@ -22,7 +22,11 @@
       function doAllTests() {
         QUnit.config.testTimeout = 5000;
         doTest(false, 'Plugin: ', window.sqlitePlugin.openDatabase);
-        doTest(true, 'HTML5: ', window.openDatabase);
+
+        if (!/MSIE/.test(navigator.userAgent)) {
+            // IE does not support WebSql
+            doTest(true, 'HTML5: ', window.openDatabase);
+        }
       }
 
       function doTest(isWebSql, suiteName, openDatabase) {
