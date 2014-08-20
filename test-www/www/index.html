@@ -115,37 +115,6 @@
           });
         });
 
-        if (!isWebSql) test(suiteName + "DB String result test", function() {
-          var db = openDatabase("String-test.db", "1.0", "Demo", DEFAULT_SIZE);
-
-          var expected = [ 'FIRST', 'SECOND' ];
-          var i=0;
-
-          ok(!!db, "db object");
-
-          stop(2);
-
-          var okcb = function(res) {
-            if (i > 1) {
-              ok(false, "unexpected result: " + JSON.stringify(res));
-              console.log("discarding unexpected result: " + JSON.stringify(res))
-              return;
-            }
-
-            ok(!!res, "valid object");
-
-            // do not count res if undefined:
-            if (!!res) { // will freeze the test if res is undefined:
-              console.log("res.rows.item(0).uppertext: " + res.rows.item(0).uppertext);
-              equal(res.rows.item(0).uppertext, expected[i], "Check result " + i);
-              i++;
-              start(1);
-            }
-          };
-
-          db.executeSql("select upper('first') as uppertext", [], okcb);
-          db.executeSql("select upper('second') as uppertext", [], okcb);
-        });
 
         test(suiteName + "CR-LF String test", function() {
           var db = openDatabase("CR-LF-String-test.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -619,61 +588,6 @@
           });
         });
 
-        if (!isWebSql) test(suiteName + ' test sqlitePlugin.deleteDatabase()', function () {
-
-          stop();
-          var db = openDatabase("DB-Deletable", "1.0", "Demo", DEFAULT_SIZE);
-
-          function createAndInsertStuff() {
-
-            db.transaction(function(tx) {
-              tx.executeSql('DROP TABLE IF EXISTS test');
-              tx.executeSql('CREATE TABLE IF NOT EXISTS test (name)', [], function () {
-                tx.executeSql('INSERT INTO test VALUES (?)', ['foo']);
-              });
-            }, function (e) { ok(false, 'error: ' + e); }, function () {
-              // check that we can read it
-              db.transaction(function(tx) {
-                tx.executeSql('SELECT * FROM test', [], function (tx, res) {
-                  equal(res.rows.item(0).name, 'foo');
-                });
-              }, function (e) { ok(false, 'error: ' + e); }, function () {
-                deleteAndConfirmDeleted();
-              });
-            });
-          }
-
-          function deleteAndConfirmDeleted() {
-
-            window.sqlitePlugin.deleteDatabase("DB-Deletable", function () {
-              // check that the data's gone
-              db.transaction(function(tx) {
-                    tx.executeSql('SELECT * FROM test');
-                  }, function (e) {
-                    ok(true, 'got error like we expected');
-                    testDeleteError();
-                  },
-                  function () {
-                    ok(false, 'expected an error');
-                  });
-            }, function (e) {
-              ok(false, 'error: ' + e);
-            });
-          }
-
-          function testDeleteError() {
-            // should throw an error if the db doesn't exist
-            window.sqlitePlugin.deleteDatabase("Foo-Doesnt-Exist", function () {
-              ok(false, 'expected error');
-            }, function (err) {
-              start();
-              ok(!!err, 'got error like we expected');
-            });
-          }
-
-          createAndInsertStuff();
-        });
-
         test(suiteName + "readTransaction should throw on modification", function() {
           stop();
           var db = openDatabase("Database-readonly", "1.0", "Demo", DEFAULT_SIZE);
@@ -950,50 +864,6 @@
           });
         }
 
-        if (!isWebSql) test(suiteName + "PRAGMA & multiple databases", function() {
-          var db = openDatabase("DB1", "1.0", "Demo", DEFAULT_SIZE);
-
-          var db2 = openDatabase("DB2", "1.0", "Demo", DEFAULT_SIZE);
-
-          db.transaction(function(tx) {
-            tx.executeSql('DROP TABLE IF EXISTS test_table');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)', [], function() {
-              console.log("test_table created");
-            });
-
-            stop();
-            db.executeSql("pragma table_info (test_table);", [], function(res) {
-              start();
-              console.log("PRAGMA res: " + JSON.stringify(res));
-              equal(res.rows.item(2).name, "data_num", "DB1 table number field name");
-            });
-          });
-
-          stop(2);
-          db2.transaction(function(tx) {
-            tx.executeSql('DROP TABLE IF EXISTS tt2');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS tt2 (id2 integer primary key, data2 text, data_num2 integer)', [], function() {
-              console.log("tt2 created");
-            });
-
-            db.executeSql("pragma table_info (test_table);", [], function(res) {
-              start();
-              console.log("PRAGMA (db) res: " + JSON.stringify(res));
-              equal(res.rows.item(0).name, "id", "DB1 table key field name");
-              equal(res.rows.item(1).name, "data", "DB1 table text field name");
-              equal(res.rows.item(2).name, "data_num", "DB1 table number field name");
-            });
-
-            db2.executeSql("pragma table_info (tt2);", [], function(res) {
-              start();
-              console.log("PRAGMA (tt2) res: " + JSON.stringify(res));
-              equal(res.rows.item(0).name, "id2", "DB2 table key field name");
-              equal(res.rows.item(1).name, "data2", "DB2 table text field name");
-              equal(res.rows.item(2).name, "data_num2", "DB2 table number field name");
-            });
-          });
-        });
-
         test(suiteName + "syntax error", function() {
           var db = openDatabase("Syntax-error-test.db", "1.0", "Demo", DEFAULT_SIZE);
           ok(!!db, "db object");
@@ -1072,6 +942,138 @@
             start();
           });
         });
+
+        if (!isWebSql) test(suiteName + "DB String result test", function() {
+          var db = openDatabase("String-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          var expected = [ 'FIRST', 'SECOND' ];
+          var i=0;
+
+          ok(!!db, "db object");
+
+          stop(2);
+
+          var okcb = function(res) {
+            if (i > 1) {
+              ok(false, "unexpected result: " + JSON.stringify(res));
+              console.log("discarding unexpected result: " + JSON.stringify(res))
+              return;
+            }
+
+            ok(!!res, "valid object");
+
+            // do not count res if undefined:
+            if (!!res) { // will freeze the test if res is undefined:
+              console.log("res.rows.item(0).uppertext: " + res.rows.item(0).uppertext);
+              equal(res.rows.item(0).uppertext, expected[i], "Check result " + i);
+              i++;
+              start(1);
+            }
+          };
+
+          db.executeSql("select upper('first') as uppertext", [], okcb);
+          db.executeSql("select upper('second') as uppertext", [], okcb);
+        });
+
+        if (!isWebSql) test(suiteName + "PRAGMAs & multiple databases", function() {
+          var db = openDatabase("DB1", "1.0", "Demo", DEFAULT_SIZE);
+
+          var db2 = openDatabase("DB2", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)', [], function() {
+              console.log("test_table created");
+            });
+
+            stop();
+            db.executeSql("pragma table_info (test_table);", [], function(res) {
+              start();
+              console.log("PRAGMA res: " + JSON.stringify(res));
+              equal(res.rows.item(2).name, "data_num", "DB1 table number field name");
+            });
+          });
+
+          stop(2);
+          db2.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS tt2');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt2 (id2 integer primary key, data2 text, data_num2 integer)', [], function() {
+              console.log("tt2 created");
+            });
+
+            db.executeSql("pragma table_info (test_table);", [], function(res) {
+              start();
+              console.log("PRAGMA (db) res: " + JSON.stringify(res));
+              equal(res.rows.item(0).name, "id", "DB1 table key field name");
+              equal(res.rows.item(1).name, "data", "DB1 table text field name");
+              equal(res.rows.item(2).name, "data_num", "DB1 table number field name");
+            });
+
+            db2.executeSql("pragma table_info (tt2);", [], function(res) {
+              start();
+              console.log("PRAGMA (tt2) res: " + JSON.stringify(res));
+              equal(res.rows.item(0).name, "id2", "DB2 table key field name");
+              equal(res.rows.item(1).name, "data2", "DB2 table text field name");
+              equal(res.rows.item(2).name, "data_num2", "DB2 table number field name");
+            });
+          });
+        });
+
+        if (!isWebSql) test(suiteName + ' test sqlitePlugin.deleteDatabase()', function () {
+
+          stop();
+          var db = openDatabase("DB-Deletable", "1.0", "Demo", DEFAULT_SIZE);
+
+          function createAndInsertStuff() {
+
+            db.transaction(function(tx) {
+              tx.executeSql('DROP TABLE IF EXISTS test');
+              tx.executeSql('CREATE TABLE IF NOT EXISTS test (name)', [], function () {
+                tx.executeSql('INSERT INTO test VALUES (?)', ['foo']);
+              });
+            }, function (e) { ok(false, 'error: ' + e); }, function () {
+              // check that we can read it
+              db.transaction(function(tx) {
+                tx.executeSql('SELECT * FROM test', [], function (tx, res) {
+                  equal(res.rows.item(0).name, 'foo');
+                });
+              }, function (e) { ok(false, 'error: ' + e); }, function () {
+                deleteAndConfirmDeleted();
+              });
+            });
+          }
+
+          function deleteAndConfirmDeleted() {
+
+            window.sqlitePlugin.deleteDatabase("DB-Deletable", function () {
+              // check that the data's gone
+              db.transaction(function(tx) {
+                    tx.executeSql('SELECT * FROM test');
+                  }, function (e) {
+                    ok(true, 'got error like we expected');
+                    testDeleteError();
+                  },
+                  function () {
+                    ok(false, 'expected an error');
+                  });
+            }, function (e) {
+              ok(false, 'error: ' + e);
+            });
+          }
+
+          function testDeleteError() {
+            // should throw an error if the db doesn't exist
+            window.sqlitePlugin.deleteDatabase("Foo-Doesnt-Exist", function () {
+              ok(false, 'expected error');
+            }, function (err) {
+              start();
+              ok(!!err, 'got error like we expected');
+            });
+          }
+
+          createAndInsertStuff();
+        });
+
       }
     })();
     </script>
