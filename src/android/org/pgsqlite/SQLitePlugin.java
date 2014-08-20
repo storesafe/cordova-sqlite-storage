@@ -384,18 +384,21 @@ public class SQLitePlugin extends CordovaPlugin {
 
                     try {
                         insertId = myStatement.executeInsert();
+
+                        // statement has finished with no constraint violation:
+                        queryResult = new JSONObject();
+                        if (insertId != -1) {
+                            queryResult.put("insertId", insertId);
+                            queryResult.put("rowsAffected", 1);
+                        } else {
+                            queryResult.put("rowsAffected", 0);
+                        }
                     } catch (SQLiteException ex) {
+                        // report error result with the error message
+                        // could be constraint violation or some other error
                         ex.printStackTrace();
                         errorMessage = ex.getMessage();
                         Log.v("executeSqlBatch", "SQLiteDatabase.executeInsert(): Error=" + errorMessage);
-                    }
-
-                    queryResult = new JSONObject();
-                    if (insertId != -1) {
-                        queryResult.put("insertId", insertId);
-                        queryResult.put("rowsAffected", 1);
-                    } else {
-                        queryResult.put("rowsAffected", 0);
                     }
                 }
 

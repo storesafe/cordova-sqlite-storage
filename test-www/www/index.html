@@ -1032,8 +1032,7 @@
           });
         });
 
-        // XXX fix for #120 (INSERT or IGNORE on Android version) broke this one:
-        if (isWebSql || !/Android/.test(navigator.userAgent)) test(suiteName + "constraint violation", function() {
+	test(suiteName + "constraint violation", function() {
           var db = openDatabase("Constraint-violation-test.db", "1.0", "Demo", DEFAULT_SIZE);
           ok(!!db, "db object");
 
