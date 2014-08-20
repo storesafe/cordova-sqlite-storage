@@ -8,7 +8,7 @@ License for iOS version: MIT only
 
 ## WARNING: breaking change for Android version
 
-The automatic "`.db`" database file extension is [now removed](https://github.com/brodysoft/Cordova-SQLitePlugin/commit/3723cfc2dc933ae128fe9d5998efe4d76fcb0370) for the Android version, for consistency with the iOS & WP(8) versions. For an existing app, you may have to open an existing database like:
+The automatic "`.db`" database file extension is [now removed](https://github.com/brodysoft/Cordova-SQLitePlugin/commit/3723cfc2dc933ae128fe9d5998efe4d76fcb0370) for the Android version, for consistency with the other versions. For an existing app, you may have to open an existing database like:
 
 ```js
 var db = window.sqlitePlugin.openDatabase({name: "my.db"});
@@ -24,7 +24,7 @@ Also the threading model is changed as described below.
 
 ## Announcements
 
-- WP(8) version is now working with CSharp-SQLite library (which is embedded & built from source) and passing most of the tests.
+- WP(8) version is now working with CSharp-SQLite library classes (which are embedded & built from source) and passing most of the tests.
 - Changes to background processing:
   - The `dbType` option is now removed;
   - Android version is now using one thread per db;
@@ -46,14 +46,19 @@ Also the threading model is changed as described below.
 - Android & iOS working with [SQLCipher](http://sqlcipher.net) for encryption (see below)
 - Android is supported back to SDK 10 (a.k.a. Gingerbread, Android 2.3.3); Support for older versions is available upon request.
 
-## Apps using Cordova/PhoneGap SQLitePlugin
+## Some apps using Cordova/PhoneGap SQLitePlugin
 
 - [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/)
+- [KAAHE Health Encyclopedia](http://www.kaahe.org/en/index.php?option=com_content&view=article&id=817): Official health app of the Kingdom of Saudi Arabia.
 - [Larkwire](http://www.larkwire.com/) (iOS version): Learn bird songs the fun way
+- [Tangorin](https://play.google.com/store/apps/details?id=com.tangorin.app) (Android) Japanese Dictionary at [tangorin.com](http://tangorin.com/)
 
 ## Known issues
 
 - Deleting a database is not (yet) implemented for WP(8).
+- db.executeSql() calls callback multiple times
+- issues with db.close() & sqlitePlugin.deleteDatabase()
+- using web workers is currently not supported and known to be broken on Android
 
 ## Other limitations
 
@@ -62,7 +67,7 @@ Also the threading model is changed as described below.
 - For iOS, iCloud backup is NOT optional and should be.
 - The Android version cannot work with more than 100 open db files due to its threading model.
 - Missing db creation callback
-- Currently does not support multi-page architecture
+- Multi-page architecture is not (yet) supported.
 
 ## Other versions
 
@@ -105,7 +110,7 @@ function onDeviceReady() {
 
 The threading model depens on which version is used:
 - For Android, one background thread per db, always;
-- for iOS, background processing using a thread pool is enabled by default;
+- for iOS, background processing using a thread pool (always);
 - for WP(8) version, background processing with one thread per transaction, which is internally spawned by the Cordova library.
 
 # Sample with PRAGMA feature
@@ -196,7 +201,10 @@ window.sqlitePlugin.deleteDatabase("my.db", successcb, errorcb);
 ## Easy install with cordova tool
 
     npm install -g cordova # if you don't have cordova
+    cordova create MyProjectFolder com.my.project MyProject && cd MyProjectFolder # if you are just starting
     cordova plugin add https://github.com/brodysoft/Cordova-SQLitePlugin
+
+You can find more details at [this writeup](http://iphonedevlog.wordpress.com/2014/04/07/installing-chris-brodys-sqlite-database-with-cordova-cli-android/).
 
 ## Source tree
 
@@ -393,17 +401,15 @@ or for Windows Phone 8:
 
     .\bin\test.ps1 wp8
 
-Lawnchair Adapter Usage
-=======================
+# Adapters
 
-Common adapter
---------------
+## Lawnchair Adapter
+
+### Common adapter
 
 Please look at the `Lawnchair-adapter` tree that contains a common adapter, which should also work with the Android version, along with a test-www directory.
 
-
-Included files
---------------
+### Included files
 
 Include the following js files in your html:
 
@@ -411,8 +417,7 @@ Include the following js files in your html:
 -  SQLitePlugin.js
 -  Lawnchair-sqlitePlugin.js (must come after SQLitePlugin.js)
 
-Sample
-------
+### Sample
 
 The `name` option will determine the sqlite filename. Optionally, you can change it using the `db` option.
 
@@ -436,6 +441,9 @@ It also supports bgType argument:
 users = new Lawnchair {name: "users", bgType: 1, ...}
 ```
 
+### PouchDB
+
+The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawson](https://github.com/nolanlawson), see [PouchDB FAQ](http://pouchdb.com/faq.html).
 
 # Contributing
 
@@ -450,4 +458,11 @@ users = new Lawnchair {name: "users", bgType: 1, ...}
   - Make a special branch within your fork from which you can send the proposed restructuring;
   - Always use `git mv` to move files & directories;
   - Never mix a move/rename operation and any other changes in the same commit.
+
+## Major branches
+
+- `common-src` - source for Android & iOS versions
+- `master-src` - source for Android, iOS, & WP(8) versions
+- `master-rc` - pre-release version, including source for CSharp-SQLite library classes
+- `master` - version for release, will be included in PhoneGap build.
 

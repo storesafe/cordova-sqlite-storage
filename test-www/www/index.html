@@ -22,7 +22,11 @@
       function doAllTests() {
         QUnit.config.testTimeout = 5000;
         doTest(false, 'Plugin: ', window.sqlitePlugin.openDatabase);
-        doTest(true, 'HTML5: ', window.openDatabase);
+
+        if (!/MSIE/.test(navigator.userAgent)) {
+            // IE does not support WebSql
+            doTest(true, 'HTML5: ', window.openDatabase);
+        }
       }
 
       function doTest(isWebSql, suiteName, openDatabase) {
@@ -42,6 +46,52 @@
             start(1);
           }, function (error) {
             ok(false, 'expected close error callback not to be called after database is closed');
+            start(1);
+          });
+        });
+
+        test(suiteName + ' can open two databases at the same time', function () {
+          // create databases and tables
+          var db1 = openDatabase("DB1", "1.0", "Demo", DEFAULT_SIZE);
+          db1.executeSql('CREATE TABLE IF NOT EXISTS test1 (x int)');
+
+          var db2 = openDatabase("DB2", "1.0", "Demo", DEFAULT_SIZE);
+          db2.executeSql('CREATE TABLE IF NOT EXISTS test2 (x int)');
+
+          // two queries and one commit each
+          stop(6);
+
+          // create overlapping transactions
+          db1.transaction(function (tx1) {
+            db2.transaction(function (tx2) {
+              tx1.executeSql('INSERT INTO test1 VALUES (1)', [], function (tx, result) {
+                ok(true, 'inserted into first database');
+                start(1);
+                tx1.executeSql('SELECT * from test1', [], function (tx, result) {
+                  equal(result.rows.item(0).x, 1, 'selected from first database');
+                  start(1);
+                });
+              });
+              tx2.executeSql('INSERT INTO test2 VALUES (2)', [], function (tx, result) {
+                ok(true, 'inserted into second database');
+                start(1);
+                tx2.executeSql('SELECT * from test2', [], function (tx, result) {
+                  equal(result.rows.item(0).x, 2, 'selected from second database');
+                  start(1);
+                });
+              });
+            }, function (error) {
+              ok(false, 'transaction 2 failed ' + error);
+              start(1);
+            }, function () {
+              ok(true, 'transaction 2 committed');
+              start(1);
+            })
+          }, function (error) {
+            ok(false, 'transaction 1 failed ' + error);
+            start(1);
+          }, function () {
+            ok(true, 'transaction 1 committed');
             start(1);
           });
         });
@@ -469,6 +519,43 @@
             });
           });
         }); **/
+
+        test(suiteName + "DB String result test", function() {
+          if (isWebSql) {
+            ok('skipped');
+            return;
+          }
+
+          var db = openDatabase("DB-String-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          var expected = [ 'FIRST', 'SECOND' ];
+          var i=0;
+
+          ok(!!db, "db object");
+
+          stop(2);
+
+          var okcb = function(res) {
+            if (i > 1) {
+              ok(false, "unexpected result: " + JSON.stringify(res));
+              console.log("discarding unexpected result: " + JSON.stringify(res))
+              return;
+            }
+
+            ok(!!res, "valid object");
+
+            // do not count res if undefined:
+            if (!!res) { // will freeze the test if res is undefined:
+              console.log("res.rows.item(0).uppertext: " + res.rows.item(0).uppertext);
+              equal(res.rows.item(0).uppertext, expected[i], "Check result " + i);
+              i++;
+              start(1);
+            }
+          };
+
+          db.executeSql("select upper('first') as uppertext", [], okcb);
+          db.executeSql("select upper('second') as uppertext", [], okcb);
+        });
 
         test(suiteName + "db transaction test", function() {
 
