@@ -20,17 +20,7 @@ License for common Javascript: MIT or Apache
 
 ### utility function(s):
 
-    nextTick = window.setImmediate || (fun) -    SQLitePlugin::executeSql = (statement, params, success, error) ->
-      mysuccess = (t, r) -> if !!success then success r
-      myerror = (t, e) -> if !!error then error e
-
-      myfn = (tx) ->
-        tx.executeSql(statement, params, mysuccess, myerror)
-        return
-
-      @addTransaction new SQLitePluginTransaction(this, myfn, null, null, false, false)
-      return
->
+    nextTick = window.setImmediate || (fun) ->
       window.setTimeout(fun, 0)
       return
 
@@ -55,8 +45,6 @@ License for common Javascript: MIT or Apache
 #### SQLitePlugin object is defined by a constructor function and prototype member functions:
 
     SQLitePlugin = (openargs, openSuccess, openError) ->
-      console.log "SQLitePlugin openargs: #{JSON.stringify openargs}"
-
       if !(openargs and openargs['name'])
         throw new Error("Cannot create a SQLitePlugin instance without a db name")
 
