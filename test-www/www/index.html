@@ -20,6 +20,7 @@
       document.addEventListener("deviceready", doAllTests, false);
 
       function doAllTests() {
+        QUnit.config.testTimeout = 5000; // 5 sec.
         doTest(false, 'Plugin: ', window.sqlitePlugin.openDatabase);
         doTest(true, 'HTML5: ', window.openDatabase);
       }
@@ -91,9 +92,8 @@
           });
         });
 
-        /** FUTURE (only on recent versions of Android):
-        test(suiteName + "ICU-UNICODE String test", function() {
-
+        // ICU-UNICODE only functional on recent versions of Android:
+        if (/Android 4\.[3-9]/.test(navigator.userAgent)) test(suiteName + "ICU-UNICODE String test", function() {
           var db = openDatabase("String-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           ok(!!db, "db object");
@@ -113,14 +113,9 @@
               equal(res.rows.item(0).uppertext, "КАКОЙ-ТО КИРИЛЛИЧЕСКИЙ ТЕКСТ", "Try ''Some Cyrillic text''");
             });
           });
-        }); **/
+        });
 
-        test(suiteName + "DB String result test", function() {
-          if (isWebSql) {
-            ok('skipped');
-            return;
-          }
-
+        if (!isWebSql) test(suiteName + "DB String result test", function() {
           var db = openDatabase("String-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           var expected = [ 'FIRST', 'SECOND' ];
@@ -174,13 +169,7 @@
         });
 
         test(suiteName + "db transaction test", function() {
-
-          if (isWebSql) {
-            ok('skipped');
-            return;
-          }
-
-          var db = openDatabase({name: "my.db"});
+          var db = openDatabase("db-trx-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           ok(!!db, "db object");
 
@@ -441,14 +430,17 @@
           });
         };
 
-        test(suiteName + "transaction encompasses all callbacks", function() {
+        // XXX (Uncaught) Error is reported in the case of Web SQL, needs investigation!
+        if (!isWebSql) test(suiteName + "transaction encompasses all callbacks", function() {
+          stop();
+          var db = openDatabase("tx-all-callbacks.db", "1.0", "Demo", DEFAULT_SIZE);
 
-          if (isWebSql) {
-            ok('skipped');
-            return;
-          }
+          db.transaction(function(tx) {
 
-          withTestTable(function(db) {
+            start();
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
+
             stop();
             db.transaction(function(tx) {
               tx.executeSql('INSERT INTO test_table (data, data_num) VALUES (?,?)', ['test', 100], function(tx, res) {
@@ -461,7 +453,7 @@
               });
             }, function(error) {
               start();
-              equal(error.message, "deliberately aborting transaction");
+              if (!isWebSql) equal(error.message, "deliberately aborting transaction");
               stop();
               db.transaction(function(tx) {
                 tx.executeSql("select count(*) as cnt from test_table", [], function(tx, res) {
@@ -476,24 +468,27 @@
           });
         });
 
-        test(suiteName + "exception from transaction handler causes failure", function() {
+        // XXX (Uncaught) Error is reported in the case of Web SQL, needs investigation!
+        if (!isWebSql) test(suiteName + "exception from transaction handler causes failure", function() {
+          stop();
+          var db = openDatabase("exception-causes-failure.db", "1.0", "Demo", DEFAULT_SIZE);
 
-          if (isWebSql) {
-            ok('skipped');
-            return;
-          }
-
-          withTestTable(function(db) {
-            stop();
+	  try {
             db.transaction(function(tx) {
               throw new Error("boom");
             }, function(err) {
+              ok(!!err, "valid error object");
+              ok(err.hasOwnProperty('message'), "error.message exists");
               start();
-              equal(err.message, 'boom');
+              if (!isWebSql) equal(err.message, 'boom');
             }, function() {
               ok(false, "not supposed to succeed");
+              start();
             });
-          });
+            ok(true, "db.transaction() did not throw an error");
+	  } catch(err) {
+            ok(true, "db.transaction() DID throw an error");
+          }
         });
 
         test(suiteName + "error handler returning true causes rollback", function() {
@@ -624,12 +619,7 @@
           });
         });
 
-        test(suiteName + ' test deleteDatabase()', function () {
-
-          if (isWebSql) {
-            ok(true, 'skip'); // doesn't exist in native WebSQL
-            return;
-          }
+        if (!isWebSql) test(suiteName + ' test sqlitePlugin.deleteDatabase()', function () {
 
           stop();
           var db = openDatabase("DB-Deletable", "1.0", "Demo", DEFAULT_SIZE);
@@ -682,7 +672,6 @@
           }
 
           createAndInsertStuff();
-
         });
 
         test(suiteName + "readTransaction should throw on modification", function() {
@@ -766,7 +755,6 @@
           blocked = false;
         });
 
-
         test(suiteName + ' test simultaneous transactions', function () {
           stop();
 
@@ -840,6 +828,7 @@
             });
           });
         });
+
         test(suiteName + ' test simultaneous transactions, different dbs', function () {
           stop();
 
@@ -961,9 +950,7 @@
           });
         }
 
-
-        /**
-         test(suiteName + "PRAGMA & multiple databases", function() {
+        if (!isWebSql) test(suiteName + "PRAGMA & multiple databases", function() {
           var db = openDatabase("DB1", "1.0", "Demo", DEFAULT_SIZE);
 
           var db2 = openDatabase("DB2", "1.0", "Demo", DEFAULT_SIZE);
@@ -1005,62 +992,56 @@
               equal(res.rows.item(2).name, "data_num2", "DB2 table number field name");
             });
           });
-
         });
 
-         var db;
-         module("Error codes", {
-          setup: function() {
-            stop();
-            db = openDatabase("Database", "1.0", "Demo", DEFAULT_SIZE);
-            db.transaction(function(tx) {
-              tx.executeSql('DROP TABLE IF EXISTS test_table');
-              tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data unique)');
-            }, function(error) {
-              ok(false, error.message);
-              start();
-            }, function() {
-              start();
-            });
-          },
-          teardown: function() {
-            stop();
-            db.transaction(function(tx) {
-              tx.executeSql('DROP TABLE IF EXISTS test_table');
-            }, function(error) {
-              ok(false, error.message);
-              start();
-            }, function() {
-              start();
-            });
-          }
-        });
+        test(suiteName + "syntax error", function() {
+          var db = openDatabase("Syntax-error-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          ok(!!db, "db object");
 
-         test(suiteName + "syntax error", function() {
           stop(2);
           db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data unique)');
+
             // This insertion has a sql syntax error
             tx.executeSql("insert into test_table (data) VALUES ", [123], function(tx) {
               ok(false, "unexpected success");
               start();
+	      throw new Error('abort tx');
             }, function(tx, error) {
-              strictEqual(error.code, SQLException.SYNTAX_ERR, "error.code === SYNTAX_ERR");
-              equal(error.message, "Request failed: insert into test_table (data) VALUES ,123", "error.message");
+              ok(!!error, "valid error object");
+
+              // XXX NOT WORKING for Android version of plugin:
+              if (isWebSql || !/Android/.test(navigator.userAgent))
+	        ok(!!error['code'], "valid error.code exists");
+
+              ok(error.hasOwnProperty('message'), "error.message exists");
+              // XXX NOT WORKING for Android version of plugin:
+              if (isWebSql || !/Android/.test(navigator.userAgent))
+                strictEqual(error.code, 5, "error.code === SQLException.SYNTAX_ERR (5)");
+              //equal(error.message, "Request failed: insert into test_table (data) VALUES ,123", "error.message");
               start();
 
               // We want this error to fail the entire transaction
               return true;
             });
           }, function (error) {
-            strictEqual(error.code, SQLException.SYNTAX_ERR, "error.code === SYNTAX_ERR");
-            equal(error.message, "Request failed: insert into test_table (data) VALUES ,123", "error.message");
+            ok(!!error, "valid error object");
+            ok(error.hasOwnProperty('message'), "error.message exists");
             start();
           });
         });
 
-         test(suiteName + "constraint violation", function() {
+        // XXX fix for #120 (INSERT or IGNORE on Android version) broke this one:
+        if (isWebSql || !/Android/.test(navigator.userAgent)) test(suiteName + "constraint violation", function() {
+          var db = openDatabase("Constraint-violation-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          ok(!!db, "db object");
+
           stop(2);
           db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data unique)');
+
             tx.executeSql("insert into test_table (data) VALUES (?)", [123], null, function(tx, error) {
               ok(false, error.message);
             });
@@ -1068,22 +1049,30 @@
             // This insertion will violate the unique constraint
             tx.executeSql("insert into test_table (data) VALUES (?)", [123], function(tx) {
               ok(false, "unexpected success");
+              ok(!!res['rowsAffected'] || !(res.rowsAffected >= 1), "should not have positive rowsAffected");
               start();
+	      throw new Error('abort tx');
             }, function(tx, error) {
-              strictEqual(error.code, SQLException.CONSTRAINT_ERR, "error.code === CONSTRAINT_ERR");
-              equal(error.message, "Request failed: insert into test_table (data) VALUES (?),123", "error.message");
+              ok(!!error, "valid error object");
+
+              // XXX NOT WORKING for Android version of plugin:
+              if (isWebSql || !/Android/.test(navigator.userAgent))
+	        ok(!!error['code'], "valid error.code exists");
+
+              ok(error.hasOwnProperty('message'), "error.message exists");
+              //strictEqual(error.code, 6, "error.code === SQLException.CONSTRAINT_ERR (6)");
+              //equal(error.message, "Request failed: insert into test_table (data) VALUES (?),123", "error.message");
               start();
 
               // We want this error to fail the entire transaction
               return true;
             });
           }, function(error) {
-            strictEqual(error.code, SQLException.CONSTRAINT_ERR, "error.code === CONSTRAINT_ERR");
-            equal(error.message, "Request failed: insert into test_table (data) VALUES (?),123", "error.message");
+            ok(!!error, "valid error object");
+            ok(error.hasOwnProperty('message'), "error.message exists");
             start();
           });
         });
-         **/
       }
     })();
     </script>
