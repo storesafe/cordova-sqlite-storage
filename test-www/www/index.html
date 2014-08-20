@@ -310,7 +310,7 @@
             tx.executeSql('CREATE TABLE IF NOT EXISTS characters (name unique, creator, fav tinyint(1))');
             tx.executeSql('DROP TABLE IF EXISTS companies');
             tx.executeSql('CREATE TABLE IF NOT EXISTS companies (name unique, fav tinyint(1))');
-	    // INSERT or IGNORE with the real thing:
+            // INSERT or IGNORE with the real thing:
             tx.executeSql('INSERT or IGNORE INTO characters VALUES (?,?,?)', ['Sonic', 'Sega', 0], function (tx, res) {
               equal(res.rowsAffected, 1);
               tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Tails', 'Sega', 0], function (tx, res) {
@@ -442,7 +442,7 @@
           stop();
           var db = openDatabase("exception-causes-failure.db", "1.0", "Demo", DEFAULT_SIZE);
 
-	  try {
+          try {
             db.transaction(function(tx) {
               throw new Error("boom");
             }, function(err) {
@@ -455,7 +455,7 @@
               start();
             });
             ok(true, "db.transaction() did not throw an error");
-	  } catch(err) {
+          } catch(err) {
             ok(true, "db.transaction() DID throw an error");
           }
         });
@@ -877,13 +877,13 @@
             tx.executeSql("insert into test_table (data) VALUES ", [123], function(tx) {
               ok(false, "unexpected success");
               start();
-	      throw new Error('abort tx');
+              throw new Error('abort tx');
             }, function(tx, error) {
               ok(!!error, "valid error object");
 
               // XXX NOT WORKING for Android version of plugin:
               if (isWebSql || !/Android/.test(navigator.userAgent))
-	        ok(!!error['code'], "valid error.code exists");
+                ok(!!error['code'], "valid error.code exists");
 
               ok(error.hasOwnProperty('message'), "error.message exists");
               // XXX NOT WORKING for Android version of plugin:
@@ -902,7 +902,7 @@
           });
         });
 
-	test(suiteName + "constraint violation", function() {
+        test(suiteName + "constraint violation", function() {
           var db = openDatabase("Constraint-violation-test.db", "1.0", "Demo", DEFAULT_SIZE);
           ok(!!db, "db object");
 
@@ -920,13 +920,13 @@
               ok(false, "unexpected success");
               ok(!!res['rowsAffected'] || !(res.rowsAffected >= 1), "should not have positive rowsAffected");
               start();
-	      throw new Error('abort tx');
+              throw new Error('abort tx');
             }, function(tx, error) {
               ok(!!error, "valid error object");
 
               // XXX NOT WORKING for Android version of plugin:
               if (isWebSql || !/Android/.test(navigator.userAgent))
-	        ok(!!error['code'], "valid error.code exists");
+                ok(!!error['code'], "valid error.code exists");
 
               ok(error.hasOwnProperty('message'), "error.message exists");
               //strictEqual(error.code, 6, "error.code === SQLException.CONSTRAINT_ERR (6)");
@@ -1074,11 +1074,7 @@
           createAndInsertStuff();
         });
 
-        test(suiteName + ' database.open calls its success callback', function () {
-          if (isWebSql) {
-            ok('skipped');
-            return;
-          }
+        if (!isWebSql) test(suiteName + ' database.open calls its success callback', function () {
 
           // asynch test coming up
           stop(1);
@@ -1093,11 +1089,7 @@
           });
         });
 
-        test(suiteName + ' database.close calls its success callback', function () {
-          if (isWebSql) {
-            ok('skipped');
-            return;
-          }
+        if (!isWebSql) test(suiteName + ' database.close calls its success callback', function () {
 
           // asynch test coming up
           stop(1);
@@ -1115,87 +1107,7 @@
           });
         });
 
-        test(suiteName + ' database.executeSql invokes call backs just once', function () {
-          if (isWebSql) {
-            ok('skipped - database.executeSql is not part of standard suite');
-            return;
-          }
-          var dbName = "Database-executsql-callback";
-          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
-
-          var successCbCount = 0;
-          var successArgumentCount = 0;
-          var successCb = function () {
-            successCbCount += 1;
-            successArgumentCount = arguments.length;
-          };
-          var errorCbCount = 0;
-          var errorArgumentCount = 0;
-          var errorCb = function (error) {
-            errorCbCount += 1;
-            errorArgumentCount = arguments.length;
-          };
-
-
-          // 3 asynch tests coming up
-          stop(2);
-
-          // test succesfull query
-          successCbCount = errorCbCount = 0;
-          db.executeSql('SELECT 1', [], successCb, errorCb);
-          // use a new transaction to guarentee tests are run after completion of previous transaction, regardless of when the callbacks are called
-          db.transaction(function (tx) {
-            tx.executeSql('SELECT 1', [], function () {
-              equal(successCbCount, 1, 'expected success callback to be called once for a succesful query');
-              equal(successArgumentCount, 1, 'expected success callback to be called with two arguments (query results)');
-              equal(errorCbCount, 0, 'expected error callback not to be called for a succesful query');
-              start(1);
-
-              // test succesfull query
-              successCbCount = 0;
-              errorCbCount = 0;
-              db.executeSql('I am not a query', [], successCb, errorCb);
-              // use a new transaction to guarentee tests are run after completion of previous transaction, regardless of when the callbacks are called
-              db.transaction(function (tx) {
-                tx.executeSql('SELECT 1', [], function () {
-                  equal(successCbCount, 0, 'expected success callback not to be called once for a failed query');
-                  equal(errorCbCount, 1, 'expected error callback to be called once for a failed query');
-                  equal(errorArgumentCount, 1, 'expected error callback to be called with one argument (error details)');
-                  start(1);
-
-                  // Test a statement that will succeed where the transaction will fail.
-                  // This example's so contrived/stupid that it doesn't even work with the WP8 implementation (but does on Android)... 
-                  // Alas the principle does still apply in more reasonable but hard to test circumstances, such as out of disk space during commit.
-                  /*
-                  successCbCount = 0;
-                  errorCbCount = 0;
-                  db.executeSql('COMMIT;', [], successCb, errorCb);
-                  db.transaction(function (tx) {
-                    tx.executeSql('SELECT 1', [], function () {
-                      equal(successCbCount, 0, 'expected success callback not to be called for a valid query whose implicit transaction failes');
-                      equal(errorCbCount, 1, 'expected error  callback to be called once for a valid query whose implicit transaction failes');
-                      equal(errorArgumentCount, 1, 'expected error callback to be called with one argument (error details)');
-                      start(1);
-                    })
-                  }, function (err) {
-                    ok(false, 'unexpected error: ' + err.message);
-                  });
-                  */
-                })
-              }, function (err) {
-                ok(false, 'unexpected error: ' + err.message);
-              });
-            })
-          }, function (err) {
-            ok(false, 'unexpected error: ' + err.message);
-          });
-        });
-
-        test(suiteName + ' open same database twice works', function () {
-          if (isWebSql) {
-            ok('skipped'); // delete is non-standard
-            return;
-          }
+        if (!isWebSql) test(suiteName + ' open same database twice works', function () {
 
           stop(2);
 
@@ -1231,11 +1143,7 @@
           });
         });
 
-        test(suiteName + ' close then re-open allows subsequent queries to run', function () {
-          if (isWebSql) {
-            ok('skipped'); // close is non-standard
-            return;
-          }
+        if (!isWebSql ) test(suiteName + ' close then re-open allows subsequent queries to run', function () {
 
           // asynch test coming up
           stop(1);
@@ -1281,11 +1189,7 @@
           });
         });
 
-        test(suiteName + ' delete then re-open allows subsequent queries to run', function () {
-          if (isWebSql) {
-            ok('skipped'); // delete is non-standard
-            return;
-          }
+        if (!isWebSql) test(suiteName + ' delete then re-open allows subsequent queries to run', function () {
 
           // asynch test coming up
           stop(1);
@@ -1324,11 +1228,7 @@
           });
         });
 
-        test(suiteName + ' close, then delete then re-open allows subsequent queries to run', function () {
-          if (isWebSql) {
-            ok('skipped'); // close and delete are non-standard
-            return;
-          }
+        if (!isWebSql) test(suiteName + ' close, then delete then re-open allows subsequent queries to run', function () {
 
           // asynch test coming up
           stop(1);
@@ -1364,12 +1264,9 @@
           });
         });
 
+        // XXX ???:
         // This kills the current android client, possibly due to incomplete implemention of closeDatabaseNow
-        test(suiteName + ' repeatedly open and delete database succeeds', function () {
-          if (isWebSql) {
-            ok('skipped'); // delete not in standard websql
-            return;
-          }
+        if (!isWebSql) test(suiteName + ' repeatedly open and delete database succeeds', function () {
 
           // asynch test coming up
           stop(5);
