@@ -58,27 +58,20 @@
           var db2 = openDatabase("DB2", "1.0", "Demo", DEFAULT_SIZE);
           db2.executeSql('CREATE TABLE IF NOT EXISTS test2 (x int)');
 
-          // two queries and one commit each
-          stop(6);
+          // two databases that perform two queries and one commit each, then repeat
+          stop(12);
 
           // create overlapping transactions
           db1.transaction(function (tx1) {
             db2.transaction(function (tx2) {
-              tx1.executeSql('INSERT INTO test1 VALUES (1)', [], function (tx, result) {
-                ok(true, 'inserted into first database');
-                start(1);
-                tx1.executeSql('SELECT * from test1', [], function (tx, result) {
-                  equal(result.rows.item(0).x, 1, 'selected from first database');
-                  start(1);
-                });
-              });
+
               tx2.executeSql('INSERT INTO test2 VALUES (2)', [], function (tx, result) {
                 ok(true, 'inserted into second database');
                 start(1);
-                tx2.executeSql('SELECT * from test2', [], function (tx, result) {
-                  equal(result.rows.item(0).x, 2, 'selected from second database');
-                  start(1);
-                });
+              });
+              tx2.executeSql('SELECT * from test2', [], function (tx, result) {
+                equal(result.rows.item(0).x, 2, 'selected from second database');
+                start(1);
               });
             }, function (error) {
               ok(false, 'transaction 2 failed ' + error);
@@ -86,7 +79,54 @@
             }, function () {
               ok(true, 'transaction 2 committed');
               start(1);
-            })
+            });
+
+            tx1.executeSql('INSERT INTO test1 VALUES (1)', [], function (tx, result) {
+              ok(true, 'inserted into first database');
+              start(1);
+            });
+
+            tx1.executeSql('SELECT * from test1', [], function (tx, result) {
+              equal(result.rows.item(0).x, 1, 'selected from first database');
+              start(1);
+            });
+          }, function (error) {
+            ok(false, 'transaction 1 failed ' + error);
+            start(1);
+          }, function () {
+            ok(true, 'transaction 1 committed');
+            start(1);
+          });
+
+          // now that the databases are truly open, do it again!
+          db1.transaction(function (tx1) {
+            db2.transaction(function (tx2) {
+
+              tx2.executeSql('INSERT INTO test2 VALUES (2)', [], function (tx, result) {
+                ok(true, 'inserted into second database');
+                start(1);
+              });
+              tx2.executeSql('SELECT * from test2', [], function (tx, result) {
+                equal(result.rows.item(0).x, 2, 'selected from second database');
+                start(1);
+              });
+            }, function (error) {
+              ok(false, 'transaction 2 failed ' + error);
+              start(1);
+            }, function () {
+              ok(true, 'transaction 2 committed');
+              start(1);
+            });
+
+            tx1.executeSql('INSERT INTO test1 VALUES (1)', [], function (tx, result) {
+              ok(true, 'inserted into first database');
+              start(1);
+            });
+
+            tx1.executeSql('SELECT * from test1', [], function (tx, result) {
+              equal(result.rows.item(0).x, 1, 'selected from first database');
+              start(1);
+            });
           }, function (error) {
             ok(false, 'transaction 1 failed ' + error);
             start(1);
