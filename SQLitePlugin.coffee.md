@@ -45,8 +45,6 @@ License for common Javascript: MIT or Apache
 #### SQLitePlugin object is defined by a constructor function and prototype member functions:
 
     SQLitePlugin = (openargs, openSuccess, openError) ->
-      console.log "SQLitePlugin openargs: #{JSON.stringify openargs}"
-
       if !(openargs and openargs['name'])
         throw new Error("Cannot create a SQLitePlugin instance without a db name")
 
@@ -86,10 +84,16 @@ License for common Javascript: MIT or Apache
       return
 
     SQLitePlugin::transaction = (fn, error, success) ->
+      if !@openDBs[@dbname]
+        error('database not open')
+        return
       @addTransaction new SQLitePluginTransaction(this, fn, error, success, true, false)
       return
 
     SQLitePlugin::readTransaction = (fn, error, success) ->
+      if !@openDBs[@dbname]
+        error('database not open')
+        return
       @addTransaction new SQLitePluginTransaction(this, fn, error, success, true, true)
       return
 
@@ -105,10 +109,17 @@ License for common Javascript: MIT or Apache
       return
 
     SQLitePlugin::open = (success, error) ->
+      onSuccess = () => success this
       unless @dbname of @openDBs
         @openDBs[@dbname] = true
-        cordova.exec success, error, "SQLitePlugin", "open", [ @openargs ]
-
+        cordova.exec onSuccess, error, "SQLitePlugin", "open", [ @openargs ]
+      else
+        ###
+        for a re-open run onSuccess async so that the openDatabase return value
+        can be used in the success handler as an alternative to the handler's
+        db argument
+        ###
+        nextTick () -> onSuccess();
       return
 
     SQLitePlugin::close = (success, error) ->
@@ -117,7 +128,7 @@ License for common Javascript: MIT or Apache
       if @dbname of @openDBs
         delete @openDBs[@dbname]
 
-        cordova.exec null, null, "SQLitePlugin", "close", [ { path: @dbname } ]
+        cordova.exec success, error, "SQLitePlugin", "close", [ { path: @dbname } ]
 
       return
 
@@ -381,6 +392,7 @@ License for common Javascript: MIT or Apache
         new SQLitePlugin openargs, okcb, errorcb
 
       deleteDb: (databaseName, success, error) ->
+        delete SQLitePlugin::openDBs[databaseName]
         cordova.exec success, error, "SQLitePlugin", "delete", [{ path: databaseName }]
 
 ### Exported API:

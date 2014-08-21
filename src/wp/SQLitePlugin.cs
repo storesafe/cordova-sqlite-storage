@@ -1,17 +1,15 @@
-﻿
-using System;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Windows;
+﻿using System;
 using System.Collections.Generic;
-using SQLite;
-using Microsoft.Phone.Controls;
-using Microsoft.Phone.Shell;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Threading;
+
+using SQLite;
+
 using WPCordovaClassLib.Cordova;
 using WPCordovaClassLib.Cordova.Commands;
 using WPCordovaClassLib.Cordova.JSON;
-using System.Text.RegularExpressions;
 
 namespace Cordova.Extension.Commands
 {
@@ -21,13 +19,20 @@ namespace Cordova.Extension.Commands
         #region SQLitePlugin options
 
         [DataContract]
-        public class SQLitePluginOpenCloseOptions
+        public class SQLitePluginOpenOptions
         {
             [DataMember(IsRequired = true, Name = "name")]
             public string name { get; set; }
 
             [DataMember(IsRequired = false, Name = "bgType", EmitDefaultValue = false)]
             public int bgType = 0;
+        }
+
+        [DataContract]
+        public class SQLitePluginCloseDeleteOptions
+        {
+            [DataMember(IsRequired = true, Name = "path")]
+            public string name { get; set; }
         }
 
         [DataContract]
@@ -63,29 +68,34 @@ namespace Cordova.Extension.Commands
             public string transId { get; set; }
 
             /// <summary>
-            /// Identifier for transaction
+            /// Callback identifer
             /// </summary>
             [DataMember(IsRequired = true, Name = "qid")]
             public string queryId { get; set; }
 
             /// <summary>
-            /// Identifier for transaction
+            /// Query string
             /// </summary>
             [DataMember(IsRequired = true, Name = "sql")]
             public string query { get; set; }
 
             /// <summary>
-            /// Identifier for transaction
+            /// Query parameters
             /// </summary>
+            /// <remarks>TODO: broken in WP8 & 8.1; interprets ["1.5"] as [1.5]</remarks>
             [DataMember(IsRequired = true, Name = "params")]
-            public string[] query_params { get; set; }
+            public object[] query_params { get; set; }
 
         }
 
         #endregion
 
-        private SQLitePluginOpenCloseOptions dbOptions = null;
-        private SQLiteConnection db;
+        private readonly DatabaseManager databaseManager;
+
+        public SQLitePlugin()
+        {
+            this.databaseManager = new DatabaseManager(this);
+        }
 
         public void open(string options)
         {
@@ -95,117 +105,355 @@ namespace Cordova.Extension.Commands
             try
             {
                 String [] jsonOptions = JsonHelper.Deserialize<string[]>(options);
-                dbOptions = JsonHelper.Deserialize<SQLitePluginOpenCloseOptions>(jsonOptions[0]);
                 mycbid = jsonOptions[1];
-                //System.Diagnostics.Debug.WriteLine("real cbid: " + mycbid);
+
+                var dbOptions = JsonHelper.Deserialize<SQLitePluginOpenOptions>(jsonOptions[0]);
+                this.databaseManager.Open(dbOptions.name, mycbid);
             }
             catch (Exception)
             {
                 DispatchCommandResult(new PluginResult(PluginResult.Status.JSON_EXCEPTION), mycbid);
-                return;
-            }
-
-            // check if options were valid
-            if (dbOptions != null)
-            {
-
-                //System.Diagnostics.Debug.WriteLine("SQLitePlugin.open() dbname:" + dbOptions.name);
-
-                DispatchCommandResult(new PluginResult(PluginResult.Status.OK), mycbid);
-
-            }
-            else
-            {
-                DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR, "Invalid openDatabase parameters"), mycbid);
             }
         }
 
         public void close(string options)
         {
             string mycbid = this.CurrentCommandCallbackId;
-            //System.Diagnostics.Debug.WriteLine("SQLitePlugin.close() with cbid " + mycbid + " options:" + options);
 
             try
             {
                 String[] jsonOptions = JsonHelper.Deserialize<string[]>(options);
                 mycbid = jsonOptions[1];
-                //System.Diagnostics.Debug.WriteLine("real cbid: " + mycbid);
+
+                var dbOptions = JsonHelper.Deserialize<SQLitePluginCloseDeleteOptions>(jsonOptions[0]);
+                this.databaseManager.Close(dbOptions.name, mycbid);
             }
             catch (Exception)
             {
                 DispatchCommandResult(new PluginResult(PluginResult.Status.JSON_EXCEPTION), mycbid);
-                return;
             }
-
-            /* check we have a database, and close it
-            if (this.db != null)
-                this.db.Close();
-             */
-
-            DispatchCommandResult(new PluginResult(PluginResult.Status.OK), mycbid);
         }
 
         public void delete(string options)
         {
             string mycbid = this.CurrentCommandCallbackId;
 
-            //System.Diagnostics.Debug.WriteLine("SQLitePlugin.delete() with cbid " + mycbid + " options:" + options);
             try
             {
                 String[] jsonOptions = JsonHelper.Deserialize<string[]>(options);
                 mycbid = jsonOptions[1];
-                //System.Diagnostics.Debug.WriteLine("real cbid: " + mycbid);
+
+                var dbOptions = JsonHelper.Deserialize<SQLitePluginCloseDeleteOptions>(jsonOptions[0]);
+                this.databaseManager.Delete(dbOptions.name, mycbid);
             }
             catch (Exception)
             {
                 DispatchCommandResult(new PluginResult(PluginResult.Status.JSON_EXCEPTION), mycbid);
-                return;
             }
-
-            //DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR, "Sorry SQLitePlugin.delete() not implemented"), mycbid);
-            DispatchCommandResult(new PluginResult(PluginResult.Status.OK), mycbid);
         }
 
         public void backgroundExecuteSqlBatch(string options)
         {
             string mycbid = this.CurrentCommandCallbackId;
-            //System.Diagnostics.Debug.WriteLine("SQLitePlugin.backgroundExecuteSqlBatch() with cbid " + mycbid + " options:" + options);
-            executeSqlBatch(options);
+
+            try
+            {
+                String[] jsonOptions = JsonHelper.Deserialize<string[]>(options);
+                mycbid = jsonOptions[1];
+
+                SQLitePluginExecuteSqlBatchOptions batch = JsonHelper.Deserialize<SQLitePluginExecuteSqlBatchOptions>(jsonOptions[0]);
+                this.databaseManager.Query(batch.dbargs.name, batch.executes, mycbid);
+            }
+            catch (Exception)
+            {
+                DispatchCommandResult(new PluginResult(PluginResult.Status.JSON_EXCEPTION), mycbid);
+            }
         }
 
-        public void executeSqlBatch(string options)
+        /// <summary>
+        /// Manage the collection of currently open databases and queue requests for them
+        /// </summary>
+        public class DatabaseManager
         {
-            string mycbid = this.CurrentCommandCallbackId;
-            //System.Diagnostics.Debug.WriteLine("SQLitePlugin.executeSqlBatch() with cbid " + mycbid + " options:" + options);
+            private readonly BaseCommand plugin;
+            private readonly IDictionary<string, DBRunner> runners = new Dictionary<string, DBRunner>();
+            private readonly object runnersLock = new object();
 
-            //Deployment.Current.Dispatcher.BeginInvoke(() =>
+            public DatabaseManager(BaseCommand plugin)
             {
-                List<string> opt = JsonHelper.Deserialize<List<string>>(options);
-                SQLitePluginExecuteSqlBatchOptions batch = JsonHelper.Deserialize<SQLitePluginExecuteSqlBatchOptions>(opt[0]);
+                this.plugin = plugin;
+            }
 
-                mycbid = opt[1];
-                //System.Diagnostics.Debug.WriteLine("real cbid: " + mycbid);
-
-                // XXX TODO keep in a map:
-                // check our db is not null, create a new connection
-                if (this.db == null || !this.db.DatabasePath.Equals(dbOptions.name))
+            public void Open(string dbname, string cbc)
+            {
+                DBRunner runner;
+                lock (runnersLock)
                 {
-                    // close open database to be safe
-                    if (this.db != null)
+                    if (!runners.TryGetValue(dbname, out runner))
                     {
-                        this.db.Close();
+                        runner = new DBRunner(this, dbname, cbc);
+                        runner.Start();
+                        runners[dbname] = runner;
+                    }
+                    else
+                    {
+                        // acknowledge open if it is scheduled after first query.
+                        // Also works for re-opening a database, but means that one cannot close a single instance of a database.
+                        this.Ok(cbc);
+                    }
+                }
+            }
+
+            public void Query(string dbname, TransactionsCollection queries, string callbackId)
+            {
+                lock (runnersLock)
+                {
+                    DBRunner runner;
+                    if (!runners.TryGetValue(dbname, out runner))
+                    {
+                        // query may start before open is scheduled
+                        runner = new DBRunner(this, dbname, null);
+                        runner.Start();
+                        runners[dbname] = runner;
                     }
 
-                    // open database
-                    this.db = new SQLiteConnection(dbOptions.name);
+                    var query = new DBQuery(queries, callbackId);
+                    runner.Enqueue(query);
+                }
+            }
+
+            public void Close(string dbname, string callbackId)
+            {
+                lock (runnersLock)
+                {
+                    DBRunner runner;
+                    if (runners.TryGetValue(dbname, out runner))
+                    {
+                        var query = new DBQuery(false, callbackId);
+                        runner.Enqueue(query);
+
+                        // As we cannot determine the order in which query/open requests arrive,
+                        // any such requests should start a new thread rather than being lost on the dying queue.
+                        // Hence synchronoous wait for thread-end within request and within lock.
+                        runner.WaitForStopped();
+                        runners.Remove(dbname);
+                    }
+                    else
+                    {
+                        // closing a closed database is trivial
+                        Ok(callbackId);
+                    }
+                }
+            }
+
+            public void Delete(string dbname, string callbackId)
+            {
+                var query = new DBQuery(false, callbackId);
+                lock (runnersLock)
+                {
+                    DBRunner runner;
+                    if (runners.TryGetValue(dbname, out runner))
+                    {
+                        runner.Enqueue(query);
+
+                        // As we cannot determine the order in which query/open requests arrive,
+                        // any such requests should start a new thread rather than being lost on the dying queue.
+                        // Hence synchronoous wait for thread-end within request and within lock.
+                        runner.WaitForStopped();
+                        runners.Remove(dbname);
+                    }
+                    else
+                    {
+                        // Deleting a closed database, so no runner to queue the request on
+                        // Must be inside lock so databases are not opened while being deleted
+                        DBRunner.DeleteDatabaseNow(this, dbname, callbackId);
+                    }
+                }
+            }
+
+            public void Finished(DBRunner runner)
+            {
+                lock (runnersLock)
+                {
+                    runners.Remove(runner.DatabaseName);
+                }
+            }
+
+            public void Ok(string callbackId, string result)
+            {
+                this.plugin.DispatchCommandResult(new PluginResult(PluginResult.Status.OK, result), callbackId);
+            }
+
+            public void Ok(string callbackId)
+            {
+                this.plugin.DispatchCommandResult(new PluginResult(PluginResult.Status.OK), callbackId);
+            }
+
+            public void Error(string callbackId, string message)
+            {
+                this.plugin.DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR, message), callbackId);
+            }
+        }
+
+        /// <summary>
+        /// Maintain a single database with a thread/queue pair to feed requests to it
+        /// </summary>
+        public class DBRunner
+        {
+            private DatabaseManager databases;
+            private SQLiteConnection db;
+            public string DatabaseName { get; private set; }
+            private readonly string openCalllbackId;
+            private readonly Thread thread;
+            private readonly BlockingQueue<DBQuery> queue;
+
+            public DBRunner(DatabaseManager databases, string dbname, string cbc)
+            {
+                this.databases = databases;
+                this.DatabaseName = dbname;
+                this.queue = new BlockingQueue<DBQuery>();
+                this.openCalllbackId = cbc;
+                this.thread = new Thread(this.Run) { Name = dbname };
+            }
+
+            public void Start()
+            {
+                this.thread.Start();
+            }
+
+            public void WaitForStopped()
+            {
+                this.thread.Join();
+            }
+
+            public void Enqueue(DBQuery dbq)
+            {
+                this.queue.Enqueue(dbq);
+            }
+
+            private void Run()
+            {
+                try
+                {
+                    // As a query can be requested for the callback for "open" has been completed, 
+                    // the thread may not be started by the open request, in which case no open callback id
+                    this.db = new SQLiteConnection(this.DatabaseName);
+
+                    if (openCalllbackId != null)
+                    {
+                        this.databases.Ok(openCalllbackId);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogError("Failed to open database " + DatabaseName, ex);
+                    if (openCalllbackId != null)
+                    {
+                        this.databases.Error(openCalllbackId, "Failed to open database " + ex.Message);
+                    }
+                    databases.Finished(this);
+                    return;
                 }
 
-				string batchResultsStr = "";
+                DBQuery dbq = queue.Take();
+                while (!dbq.Stop)
+                {
+                    executeSqlBatch(dbq);
+                    dbq = queue.Take();
+                }
+
+                if (!dbq.Delete)
+                {
+                    // close and callback
+                    CloseDatabaseNow(dbq.CallbackId);
+                }
+                else
+                {
+                    // close, then delete and callback
+                    CloseDatabaseNow(null);
+                    DeleteDatabaseNow(this.databases, DatabaseName, dbq.CallbackId);
+                }
+            }
+
+            public void CloseDatabaseNow(string callBackId)
+            {
+                bool success = true;
+                string error = null;
+
+                try
+                {
+                    this.db.Close();
+                }
+                catch (Exception e)
+                {
+                    LogError("couldn't close " + this.DatabaseName, e);
+                    success = false;
+                    error = e.Message;
+                }
+
+                if (callBackId != null)
+                {
+                    if (success)
+                    {
+                        this.databases.Ok(callBackId);
+                    }
+                    else
+                    {
+                        this.databases.Error(callBackId, error);
+                    }
+                }
+            }
+
+            // Needs to be static to support deleting closed databases
+            public static void DeleteDatabaseNow(DatabaseManager databases, string dbname, string callBackId)
+            {
+                bool success = true;
+                string error = null;
+                try
+                {
+                    var folderPath = Path.GetDirectoryName(dbname);
+                    if (folderPath == "")
+                    {
+                        folderPath = Windows.Storage.ApplicationData.Current.LocalFolder.Path;
+                    }
+                    var fileName = Path.GetFileName(dbname);
+
+                    if (!System.IO.File.Exists(Path.Combine(folderPath, fileName)))
+                    {
+                        databases.Error(callBackId, "Database does not exist: " + dbname);
+                    }
+
+                    var fileExtension = new[] { "", "-journal", "-wal", "-shm" };
+                    foreach (var extension in fileExtension)
+                    {
+                        var fullPath = Path.Combine(folderPath, fileName + extension);
+                        System.IO.File.Delete(fullPath);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    error = ex.Message;
+                    success = false;
+                }
+
+                if (success)
+                {
+                    databases.Ok(callBackId);
+                }
+                else
+                {
+                    databases.Error(callBackId, error);
+                }
+            }
+
+            public void executeSqlBatch(DBQuery dbq)
+            {
+                string batchResultsStr = "";
 
                 // loop through the sql in the transaction
-                foreach (SQLitePluginTransaction transaction in batch.executes)
+                foreach (SQLitePluginTransaction transaction in dbq.Queries)
                 {
-					string resultString = "";
+                    string resultString = "";
                     string errorMessage = "unknown";
                     bool needQuery = true;
 
@@ -243,7 +491,6 @@ namespace Cordova.Extension.Commands
                         {
                             errorMessage = e.Message;
                         }
-
                     }
 
                     // rollback
@@ -344,7 +591,7 @@ namespace Cordova.Extension.Commands
                                         else
                                         {
                                             rowString += String.Format("\"{0}\":\"{1}\"",
-                                                column.Key, column.Value.ToString().Replace("\\","\\\\").Replace("\"","\\\""));
+                                                column.Key, column.Value.ToString().Replace("\\", "\\\\").Replace("\"", "\\\""));
                                         }
                                     }
                                     else
@@ -357,7 +604,7 @@ namespace Cordova.Extension.Commands
                                 rowsString += "{" + rowString + "}";
                             }
 
-                            resultString = "\"rows\":["+rowsString+"]";
+                            resultString = "\"rows\":[" + rowsString + "]";
                         }
                         catch (Exception e)
                         {
@@ -374,12 +621,94 @@ namespace Cordova.Extension.Commands
                     }
                     else
                     {
-						batchResultsStr += "{\"qid\":\"" + transaction.queryId + "\",\"type\":\"error\",\"result\":{\"message\":\"" + errorMessage.Replace("\\","\\\\").Replace("\"","\\\"") + "\"}}";
+                        batchResultsStr += "{\"qid\":\"" + transaction.queryId + "\",\"type\":\"error\",\"result\":{\"message\":\"" + errorMessage.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"}}";
                     }
                 }
 
-                DispatchCommandResult(new PluginResult(PluginResult.Status.OK, "["+batchResultsStr+"]"), mycbid);
-            }//);
+                this.databases.Ok(dbq.CallbackId, "[" + batchResultsStr + "]");
+            }
+
+
+            private static void LogError(string message, Exception e)
+            {
+                // TODO - good place for a breakpoint
+            }
+
+            private static void LogWarning(string message)
+            {
+                // TODO - good place for a breakpoint
+            }
+        }
+
+        /// <summary>
+        /// A single, queueable, request for a database
+        /// </summary>
+        public class DBQuery
+        {
+            public bool Stop { get; private set; }
+            public bool Delete { get; private set; }
+            public TransactionsCollection Queries { get; private set; }
+            public string CallbackId { get; private set; }
+
+            /// <summary>
+            /// Create a request to run a query
+            /// </summary>
+            public DBQuery(TransactionsCollection queries, string callbackId)
+            {
+                this.Stop = false;
+                this.Delete = false;
+
+                this.Queries = queries;
+
+                this.CallbackId = callbackId;
+            }
+
+            /// <summary>
+            /// Create a request to close, and optionally delete, a database
+            /// </summary>
+            public DBQuery(bool delete, string callbackId)
+            {
+                this.Stop = true;
+                this.Delete = delete;
+
+                this.Queries = null;
+
+                this.CallbackId = callbackId;
+            }
+        }
+
+        /// <summary>
+        /// Minimal blocking queue
+        /// </summary>
+        /// <remarks>
+        /// Expects one reader and n writers - no support for a reader closing down the queue and releasing other readers.
+        /// </remarks>
+        /// <typeparam name="T"></typeparam>
+        class BlockingQueue<T>
+        {
+            private readonly Queue<T> items = new Queue<T>();
+            private readonly object locker = new object();
+
+            public T Take()
+            {
+                lock (locker)
+                {
+                    while (items.Count == 0)
+                    {
+                        Monitor.Wait(locker);
+                    }
+                    return items.Dequeue();
+                }
+            }
+
+            public void Enqueue(T value)
+            {
+                lock (locker)
+                {
+                    items.Enqueue(value);
+                    Monitor.PulseAll(locker);
+                }
+            }
         }
     }
 }
