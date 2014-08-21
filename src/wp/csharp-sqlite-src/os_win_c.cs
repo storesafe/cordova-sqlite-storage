@@ -2642,7 +2642,11 @@ dwFlagsAndAttributes |= FileOptions.RandomAccess; // FILE_FLAG_RANDOM_ACCESS;
           {
             retries--;
 //#if !NOT_WINDOWS_PHONE || SQLITE_SILVERLIGHT  
- fs = new IsolatedStorageFileStream(zConverted, dwCreationDisposition, dwDesiredAccess, dwShareMode, IsolatedStorageFile.GetUserStoreForApplication());
+            if (!Path.IsPathRooted(zConverted))
+            {
+                zConverted = Path.Combine(Windows.Storage.ApplicationData.Current.LocalFolder.Path, zConverted);
+            }
+            fs = new FileStream(zConverted, dwCreationDisposition, dwDesiredAccess, dwShareMode, 4096);
 //#elif !(SQLITE_SILVERLIGHT || WINDOWS_MOBILE)
 //            fs = new FileStream( zConverted, dwCreationDisposition, dwDesiredAccess, dwShareMode, 4096, dwFlagsAndAttributes );
 //#else
