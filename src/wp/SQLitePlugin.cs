@@ -418,7 +418,7 @@ namespace Cordova.Extension.Commands
                     }
                     var fileName = Path.GetFileName(dbname);
 
-                    if (!File.Exists(Path.Combine(folderPath, fileName)))
+                    if (!System.IO.File.Exists(Path.Combine(folderPath, fileName)))
                     {
                         databases.Error(callBackId, "Database does not exist: " + dbname);
                     }
@@ -427,7 +427,7 @@ namespace Cordova.Extension.Commands
                     foreach (var extension in fileExtension)
                     {
                         var fullPath = Path.Combine(folderPath, fileName + extension);
-                        File.Delete(fullPath);
+                        System.IO.File.Delete(fullPath);
                     }
                 }
                 catch (Exception ex)
