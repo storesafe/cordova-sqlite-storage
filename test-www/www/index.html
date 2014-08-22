@@ -580,8 +580,9 @@
                 tx.executeSql("select * from test_table", [], function(tx, res) {
                   start();
                   var row = res.rows.item(0);
-                  strictEqual(row.data_text, "3.14159", "data_text should have inserted data as text");
-                  if (!/MSIE/.test(navigator.userAgent)) strictEqual(row.data_int, 314159, "data_int should have inserted data as an integer");
+                  if (!/MSIE/.test(navigator.userAgent)) // JSON issue in WP(8) version
+                    strictEqual(row.data_text, "3.14159", "data_text should have inserted data as text");
+                  strictEqual(row.data_int, 314159, "data_int should have inserted data as an integer");
                   ok(Math.abs(row.data_real - 3.14159) < 0.000001, "data_real should have inserted data as a real");
                 });
               });
@@ -882,10 +883,12 @@
             }, function(tx, error) {
               ok(!!error, "valid error object");
 
+              // XXX NOT WORKING for Android or WP(8) version of plugin:
               if (isWebSql || (!/Android/.test(navigator.userAgent) && !/MSIE/.test(navigator.userAgent)))
                 ok(!!error['code'], "valid error.code exists");
 
               ok(error.hasOwnProperty('message'), "error.message exists");
+              // XXX NOT WORKING for Android or WP(8) version of plugin:
               if (isWebSql || (!/Android/.test(navigator.userAgent) && !/MSIE/.test(navigator.userAgent)))
                 strictEqual(error.code, 5, "error.code === SQLException.SYNTAX_ERR (5)");
               //equal(error.message, "Request failed: insert into test_table (data) VALUES ,123", "error.message");
@@ -923,6 +926,7 @@
             }, function(tx, error) {
               ok(!!error, "valid error object");
 
+              // XXX NOT WORKING for Android or WP(8) version of plugin:
               if (isWebSql || (!/Android/.test(navigator.userAgent) && !/MSIE/.test(navigator.userAgent)))
                 ok(!!error['code'], "valid error.code exists");
 
@@ -938,6 +942,97 @@
             ok(!!error, "valid error object");
             ok(error.hasOwnProperty('message'), "error.message exists");
             start();
+          });
+        });
+
+        test(suiteName + ' can open two databases at the same time', function () {
+          // create databases and tables
+          var db1 = openDatabase("DB1", "1.0", "Demo", DEFAULT_SIZE);
+          db1.transaction(function (tx1) {
+            tx1.executeSql('CREATE TABLE IF NOT EXISTS test1 (x int)');
+          });
+          
+
+          var db2 = openDatabase("DB2", "1.0", "Demo", DEFAULT_SIZE);
+          db2.transaction(function (tx2) {
+            tx2.executeSql('CREATE TABLE IF NOT EXISTS test2 (x int)');
+          });
+
+          // two databases that perform two queries and one commit each, then repeat
+          stop(12);
+
+          // create overlapping transactions
+          db1.transaction(function (tx1) {
+            db2.transaction(function (tx2) {
+
+              tx2.executeSql('INSERT INTO test2 VALUES (2)', [], function (tx, result) {
+                ok(true, 'inserted into second database');
+                start(1);
+              });
+              tx2.executeSql('SELECT * from test2', [], function (tx, result) {
+                equal(result.rows.item(0).x, 2, 'selected from second database');
+                start(1);
+              });
+            }, function (error) {
+              ok(false, 'transaction 2 failed ' + error);
+              start(1);
+            }, function () {
+              ok(true, 'transaction 2 committed');
+              start(1);
+            });
+
+            tx1.executeSql('INSERT INTO test1 VALUES (1)', [], function (tx, result) {
+              ok(true, 'inserted into first database');
+              start(1);
+            });
+
+            tx1.executeSql('SELECT * from test1', [], function (tx, result) {
+              equal(result.rows.item(0).x, 1, 'selected from first database');
+              start(1);
+            });
+          }, function (error) {
+            ok(false, 'transaction 1 failed ' + error);
+            start(1);
+          }, function () {
+            ok(true, 'transaction 1 committed');
+            start(1);
+          });
+
+          // now that the databases are truly open, do it again!
+          db1.transaction(function (tx1) {
+            db2.transaction(function (tx2) {
+
+              tx2.executeSql('INSERT INTO test2 VALUES (2)', [], function (tx, result) {
+                ok(true, 'inserted into second database');
+                start(1);
+              });
+              tx2.executeSql('SELECT * from test2', [], function (tx, result) {
+                equal(result.rows.item(0).x, 2, 'selected from second database');
+                start(1);
+              });
+            }, function (error) {
+              ok(false, 'transaction 2 failed ' + error);
+              start(1);
+            }, function () {
+              ok(true, 'transaction 2 committed');
+              start(1);
+            });
+
+            tx1.executeSql('INSERT INTO test1 VALUES (1)', [], function (tx, result) {
+              ok(true, 'inserted into first database');
+              start(1);
+            });
+
+            tx1.executeSql('SELECT * from test1', [], function (tx, result) {
+              equal(result.rows.item(0).x, 1, 'selected from first database');
+              start(1);
+            });
+          }, function (error) {
+            ok(false, 'transaction 1 failed ' + error);
+            start(1);
+          }, function () {
+            ok(true, 'transaction 1 committed');
+            start(1);
           });
         });
 
@@ -1017,7 +1112,7 @@
           });
         });
 
-        if (!isWebSql && !/MSIE/.test(navigator.userAgent)) test(suiteName + ' test sqlitePlugin.deleteDatabase()', function () {
+        if (!isWebSql) test(suiteName + ' test sqlitePlugin.deleteDatabase()', function () {
 
           stop();
           var db = openDatabase("DB-Deletable", "1.0", "Demo", DEFAULT_SIZE);
@@ -1087,7 +1182,7 @@
           });
         });
 
-        if (!isWebSql && !/MSIE/.test(navigator.userAgent)) test(suiteName + ' database.close calls its success callback', function () {
+        if (!isWebSql) test(suiteName + ' database.close calls its success callback', function () {
 
           // asynch test coming up
           stop(1);
@@ -1105,7 +1200,7 @@
           });
         });
 
-        if (!isWebSql && !/MSIE/.test(navigator.userAgent)) test(suiteName + ' open same database twice works', function () {
+        if (!isWebSql) test(suiteName + ' open same database twice works', function () {
 
           stop(2);
 
@@ -1141,7 +1236,7 @@
           });
         });
 
-        if (!isWebSql && !/MSIE/.test(navigator.userAgent)) test(suiteName + ' close then re-open allows subsequent queries to run', function () {
+        if (!isWebSql) test(suiteName + ' close then re-open allows subsequent queries to run', function () {
 
           // asynch test coming up
           stop(1);
@@ -1187,7 +1282,7 @@
           });
         });
 
-        if (!isWebSql && !/MSIE/.test(navigator.userAgent)) test(suiteName + ' delete then re-open allows subsequent queries to run', function () {
+        if (!isWebSql) test(suiteName + ' delete then re-open allows subsequent queries to run', function () {
 
           // asynch test coming up
           stop(1);
@@ -1226,7 +1321,7 @@
           });
         });
 
-        if (!isWebSql && !/MSIE/.test(navigator.userAgent)) test(suiteName + ' close, then delete then re-open allows subsequent queries to run', function () {
+        if (!isWebSql) test(suiteName + ' close, then delete then re-open allows subsequent queries to run', function () {
 
           // asynch test coming up
           stop(1);

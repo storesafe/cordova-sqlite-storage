@@ -27,4 +27,5 @@
 - Original author: @marcucio
 - Enhancements for background processing & improved transaction support by @Gillardo (Darren Gillard)
 - DLL integration by @nadyaA (Nadezhda Atanasova) & @Gillardo (Darren Gillard)
+- DB threading and open/close/delete fixes by mark.oppenheim@mnetics.co.uk
 
