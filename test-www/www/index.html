@@ -20,7 +20,7 @@
       document.addEventListener("deviceready", doAllTests, false);
 
       function doAllTests() {
-        QUnit.config.testTimeout = 5000; // 5 sec.
+        QUnit.config.testTimeout = 25000; // 25 sec.
         doTest(false, 'Plugin: ', window.sqlitePlugin.openDatabase);
         doTest(true, 'HTML5: ', window.openDatabase);
       }
@@ -1264,8 +1264,6 @@
           });
         });
 
-        // XXX ???:
-        // This kills the current android client, possibly due to incomplete implemention of closeDatabaseNow
         if (!isWebSql) test(suiteName + ' repeatedly open and delete database succeeds', function () {
 
           // asynch test coming up
