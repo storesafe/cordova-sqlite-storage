@@ -12,7 +12,7 @@
     <author>Various</author>
 
     <engines>
-        <engine name="cordova" version=">=3.4.0" />
+        <engine name="cordova" version=">=3.3.0" />
     </engines>
 
     <js-module src="www/SQLitePlugin.js" name="SQLitePlugin">
@@ -27,7 +27,7 @@
             </activity>
         </config-file>
 
-        <!-- Cordova >= 3.4.0 -->
+        <!-- Cordova >= 3.3.0 -->
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="SQLitePlugin">
                 <param name="android-package" value="org.pgsqlite.SQLitePlugin"/>
@@ -45,7 +45,7 @@
             </activity>
         </config-file>
 
-        <!-- Cordova >= 3.4.0 -->
+        <!-- Cordova >= 3.3.0 -->
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="SQLitePlugin">
                 <param name="android-package" value="org.pgsqlite.SQLitePlugin"/>
