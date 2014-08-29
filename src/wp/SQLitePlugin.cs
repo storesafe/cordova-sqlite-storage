@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -585,8 +586,8 @@ namespace Cordova.Extension.Commands
                                         }
                                         else if (column.Value.GetType().Equals(typeof(Double)))
                                         {
-                                            rowString += String.Format("\"{0}\":{1}",
-                                                column.Key, Convert.ToDouble(column.Value));
+                                            rowString += String.Format(CultureInfo.InvariantCulture, "\"{0}\":{1}",
+                                                column.Key, Convert.ToDouble(column.Value, CultureInfo.InvariantCulture));
                                         }
                                         else
                                         {
