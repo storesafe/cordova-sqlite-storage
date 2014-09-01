@@ -159,13 +159,14 @@ public class SQLitePlugin extends CordovaPlugin {
                 DBQuery q = new DBQuery(queries, queryIDs, jsonparams, cbc);
                 DBRunner r = rmap.get(dbname);
                 if (r != null) {
-            		// missing DB should be handled in javascript
                 	try {
                 		r.q.put(q); 
                 	} catch(Exception e) {
                 		Log.e(SQLitePlugin.class.getSimpleName(), "couldn't add to queue", e);
                 		cbc.error("couldn't add to queue");
                 	}
+                } else {
+            		cbc.error("database not open");
                 }
                 break;
         }
@@ -352,7 +353,8 @@ public class SQLitePlugin extends CordovaPlugin {
         SQLiteDatabase mydb = getDatabase(dbname);
 
         if (mydb == null) {
-        	// should never happen - blocked in javascript
+        	// not allowed - can only happen if someone has closed (and possibly deleted) a database and then re-used the database
+        	cbc.error("database has been closed");
         	return;
         }
 
@@ -425,16 +427,21 @@ public class SQLitePlugin extends CordovaPlugin {
 
                     try {
                         insertId = myStatement.executeInsert();
+
+                        // statement has finished with no constraint violation:
+                        queryResult = new JSONObject();
+                        if (insertId != -1) {
+                            queryResult.put("insertId", insertId);
+                            queryResult.put("rowsAffected", 1);
+                        } else {
+                            queryResult.put("rowsAffected", 0);
+                        }
                     } catch (SQLiteException ex) {
+                        // report error result with the error message
+                        // could be constraint violation or some other error
                         ex.printStackTrace();
                         errorMessage = ex.getMessage();
                         Log.v("executeSqlBatch", "SQLiteDatabase.executeInsert(): Error=" + errorMessage);
-                    }
-
-                    if (insertId != -1) {
-                        queryResult = new JSONObject();
-                        queryResult.put("insertId", insertId);
-                        queryResult.put("rowsAffected", 1);
                     }
                 }
 

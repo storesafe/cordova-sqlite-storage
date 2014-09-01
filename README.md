@@ -6,38 +6,29 @@ License for Android & WP(8) versions: MIT or Apache 2.0
 
 License for iOS version: MIT only
 
-## WARNING: breaking change for Android version
-
-The automatic "`.db`" database file extension is [now removed](https://github.com/brodysoft/Cordova-SQLitePlugin/commit/3723cfc2dc933ae128fe9d5998efe4d76fcb0370) for the Android version, for consistency with the other versions. For an existing app, you may have to open an existing database like:
-
-```js
-var db = window.sqlitePlugin.openDatabase({name: "my.db"});
-```
-
-Also the threading model is changed as described below.
-
 ## Status
 
-- WP8 version is now integrated for the PhoneGap build (ref: #99)
+- [Available at PhoneGap build](https://build.phonegap.com/plugins/977)
 - Please use the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin) for community support
 - Commercial support is available for SQLCipher integration with Android & iOS versions
 
 ## Announcements
 
+- Open/close/delete callbacks working
+- WP(8) deleteDatabase() is now working
+- WP(8) INTEGER binding is now fixed
+- Accepted by PhoneGap build
 - WP(8) version is now working with CSharp-SQLite library classes (which are embedded & built from source) and passing most of the tests.
 - Changes to background processing:
   - The `dbType` option is now removed;
-  - Android version is now using one thread per db;
-  - for iOS version backround processing using a thread pool is now mandatory;
-  - for WP(8) version, background processing with one thread per transaction.
+  - Android and WP(8) versions are now using one thread per db;
+  - for iOS version backround processing using a thread pool is mandatory;
 - Fixes to work with PouchDB by [@nolanlawson](https://github.com/nolanlawson)
-- Forum renamed to: [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin)
-- New location: https://github.com/brodysoft/Cordova-SQLitePlugin
 - iOS version can now be built with either ARC or MRC.
 
 ## Highlights
 
-- Works with Cordova 3.x tooling
+- Works with Cordova 3.x tooling and [Available at PhoneGap build](https://build.phonegap.com/plugins/977)
 - Drop-in replacement for HTML5 SQL API, the only change should be `window.openDatabase()` --> `sqlitePlugin.openDatabase()`
 - Failure-safe nested transactions with batch processing optimizations
 - As described in [this posting](http://brodyspark.blogspot.com/2012/12/cordovaphonegap-sqlite-plugins-offer.html):
@@ -55,9 +46,6 @@ Also the threading model is changed as described below.
 
 ## Known issues
 
-- Deleting a database is not (yet) implemented for WP(8).
-- db.executeSql() calls callback multiple times
-- issues with db.close() & sqlitePlugin.deleteDatabase()
 - using web workers is currently not supported and known to be broken on Android
 
 ## Other limitations
@@ -109,9 +97,8 @@ function onDeviceReady() {
 ## Background processing
 
 The threading model depens on which version is used:
-- For Android, one background thread per db, always;
-- for iOS, background processing using a thread pool (always);
-- for WP(8) version, background processing with one thread per transaction, which is internally spawned by the Cordova library.
+- For Android & WP(8), one background thread per db (always);
+- for iOS, background processing using a thread pool (always).
 
 # Sample with PRAGMA feature
 
@@ -191,8 +178,6 @@ This case will also works with Safari (WebKit), assuming you replace window.sqli
 ```js
 window.sqlitePlugin.deleteDatabase("my.db", successcb, errorcb);
 ```
-
-**NOTE:** This is not implemented for WP(8).
 
 # Installing
 
@@ -447,10 +432,10 @@ The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawso
 
 # Contributing
 
-**IMPORTANT NOTE:** It is better to push your change(s) from a separate branch. Sometimes they need to be reworked before acceptance. Otherwise your `master` branch could become a real mess if rework is needed.
+**WARNING:** Please do NOT propose changes from your `master` branch. In general changes will be rebased using `git rebase` or `git cherry-pick` and not merged.
 
 - Testimonials of apps that are using this plugin would be especially helpful.
-- Reporting issues to the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin) can help improve the quality of this plugin.
+- Reporting issues at [brodysoft / Cordova-SQLitePlugin / issues](https://github.com/brodysoft/Cordova-SQLitePlugin/issues) or to the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin) can help improve the quality of this plugin.
 - Patches with bug fixes are helpful, especially when submitted with test code.
 - Other enhancements welcome for consideration, when submitted with test code and will work for all supported platforms. Increase of complexity should be avoided.
 - All contributions may be reused by [@brodybits (Chris Brody)](https://github.com/brodybits) under another license in the future. Efforts will be taken to give credit for major contributions but it will not be guaranteed.
