@@ -42,10 +42,10 @@
 
           var dbName = "Database-Open-callback";
           openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function (db) {
-            ok(true, 'expected close success callback to be called after database is closed');
+            ok(true, 'expected open success callback to be called after database is opened');
             start(1);
           }, function (error) {
-            ok(false, 'expected close error callback not to be called after database is closed');
+            ok(false, 'expected open error callback not to be called after database is opened');
             start(1);
           });
         });
