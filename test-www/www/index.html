@@ -1036,6 +1036,38 @@
           });
         });
 
+        test(suiteName + 'Multiple updates with key', function () {
+          var db = openDatabase("MultipleUpdatesWithKey", "1.0",
+"Demo", DEFAULT_SIZE);
+
+          stop();
+
+          db.transaction(function (tx) {
+            tx.executeSql('DROP TABLE IF EXISTS Task');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS Task (id primary key, subject)');
+            tx.executeSql('INSERT INTO Task VALUES (?,?)', ['928238b3-a227-418f-aa15-12bb1943c1f2', 'test1']);
+            tx.executeSql('INSERT INTO Task VALUES (?,?)', ['511e3fb7-5aed-4c1a-b1b7-96bf9c5012e2', 'test2']);
+
+            tx.executeSql('UPDATE Task SET subject="Send reminder", id="928238b3-a227-418f-aa15-12bb1943c1f2" WHERE id = "928238b3-a227-418f-aa15-12bb1943c1f2"', [], function(tx, res) {
+              equal(res.rowsAffected, 1);
+            }, function (error) {
+              ok(false, '1st update failed ' + error);
+            });
+
+            tx.executeSql('UPDATE Task SET subject="Task", id="511e3fb7-5aed-4c1a-b1b7-96bf9c5012e2" WHERE id = "511e3fb7-5aed-4c1a-b1b7-96bf9c5012e2"', [], function(tx, res) {
+              equal(res.rowsAffected, 1);
+            }, function (error) {
+              ok(false, '2nd update failed ' + error);
+            });
+          }, function (error) {
+            ok(false, 'transaction failed ' + error);
+            start(1);
+          }, function () {
+            ok(true, 'transaction committed ok');
+            start(1);
+          });
+        });
+
         if (!isWebSql) test(suiteName + "DB String result test", function() {
           var db = openDatabase("String-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
