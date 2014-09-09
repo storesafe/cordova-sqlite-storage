@@ -51,6 +51,9 @@ public class SQLitePlugin extends CordovaPlugin {
     private static final Pattern DELETE_TABLE_NAME = Pattern.compile("^\\s*DELETE\\s+FROM\\s+(\\S+)",
             Pattern.CASE_INSENSITIVE);
 
+    private static final Pattern ALTER_TABLE_NAME = Pattern.compile("^\\s*ALTER\\s+TABLE\\s+(\\S+)",
+            Pattern.CASE_INSENSITIVE);
+
     /**
      * Multiple database map (static).
      * TBD: restructure to keep only map with the DBRunner; may not need ConcurrentHashMap.
@@ -436,6 +439,25 @@ public class SQLitePlugin extends CordovaPlugin {
                         } else {
                             queryResult.put("rowsAffected", 0);
                         }
+                    } catch (SQLiteException ex) {
+                        // report error result with the error message
+                        // could be constraint violation or some other error
+                        ex.printStackTrace();
+                        errorMessage = ex.getMessage();
+                        Log.v("executeSqlBatch", "SQLiteDatabase.executeInsert(): Error=" + errorMessage);
+                    }
+                }
+                
+                // ALTER:
+                if (queryType == QueryType.alter) {
+                    Log.d("executeSqlBatch","ALTER");
+                    needRawQuery = false;
+
+                    try {
+                        mydb.execSQL(query);
+
+                        queryResult = new JSONObject();
+                        queryResult.put("rowsAffected", 0);
                     } catch (SQLiteException ex) {
                         // report error result with the error message
                         // could be constraint violation or some other error
@@ -853,6 +875,7 @@ public class SQLitePlugin extends CordovaPlugin {
         insert,
         delete,
         select,
+        alter,
         begin,
         commit,
         rollback,
