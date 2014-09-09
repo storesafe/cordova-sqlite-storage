@@ -568,20 +568,21 @@
 
         test(suiteName + "number values inserted using number bindings", function() {
           stop();
-          var db = openDatabase("DB", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase("Value-binding-test.db", "1.0", "Demo", DEFAULT_SIZE);
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data_text, data_int, data_real)');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data_text1, data_text2, data_int, data_real)');
           }, function(err) { ok(false, err.message) }, function() {
             db.transaction(function(tx) {
               // create columns with no type affinity
-              tx.executeSql("insert into test_table (data_text, data_int, data_real) VALUES (?,?,?)", ["3.14159", 314159, 3.14159], function(tx, res) {
+              tx.executeSql("insert into test_table (data_text1, data_text2, data_int, data_real) VALUES (?,?,?,?)", ["314159", "3.14159", 314159, 3.14159], function(tx, res) {
                 equal(res.rowsAffected, 1, "row inserted");
                 tx.executeSql("select * from test_table", [], function(tx, res) {
                   start();
                   var row = res.rows.item(0);
+                  strictEqual(row.data_text1, "314159", "data_text1 should have inserted data as text");
                   if (!/MSIE/.test(navigator.userAgent)) // JSON issue in WP(8) version
-                    strictEqual(row.data_text, "3.14159", "data_text should have inserted data as text");
+                    strictEqual(row.data_text2, "3.14159", "data_text2 should have inserted data as text");
                   strictEqual(row.data_int, 314159, "data_int should have inserted data as an integer");
                   ok(Math.abs(row.data_real - 3.14159) < 0.000001, "data_real should have inserted data as a real");
                 });
