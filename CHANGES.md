@@ -1,13 +1,12 @@
 # Changes
 
-## Current
+## 1.0.2
 
 - Workaround for issue with multiple UPDATE statements WP(8) (#128)
-- Support Cordova 3.3.0 to support Amazon-FireOS
 
 ## 1.0.1
 
-- Support Cordova 3.4.0
+- Support Cordova 3.3.0/3.4.0 to support Amazon-FireOS
 - Fixes for WP(8):
   - use one thread per db to solve open/close/delete issues
   - fix integer data binding
