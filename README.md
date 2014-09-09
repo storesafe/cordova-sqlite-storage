@@ -48,6 +48,7 @@ License for iOS version: MIT only
 
 - Using web workers is currently not supported and known to be broken on Android.
 - Does not work with the PhoneGap Build Hydration feature.
+- Triggers are only supported for iOS, known to be broken on Android.
 
 ## Other limitations
 
