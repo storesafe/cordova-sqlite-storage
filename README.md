@@ -46,7 +46,8 @@ License for iOS version: MIT only
 
 ## Known issues
 
-- using web workers is currently not supported and known to be broken on Android
+- Using web workers is currently not supported and known to be broken on Android.
+- Does not work with the PhoneGap Build Hydration feature.
 
 ## Other limitations
 
@@ -190,6 +191,13 @@ window.sqlitePlugin.deleteDatabase("my.db", successcb, errorcb);
     cordova plugin add https://github.com/brodysoft/Cordova-SQLitePlugin
 
 You can find more details at [this writeup](http://iphonedevlog.wordpress.com/2014/04/07/installing-chris-brodys-sqlite-database-with-cordova-cli-android/).
+
+**IMPORTANT:** sometimes you have to update the version for a platform before you can build, like: `cordova prepare ios`
+
+**NOTE:** If you cannot build for a platform after `cordova prepare`, you may have to remove the platform and add it again, such as:
+
+    cordova platform rm ios
+    cordova platform add ios
 
 ## Source tree
 
