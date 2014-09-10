@@ -6,6 +6,10 @@ License for Android & WP(8) versions: MIT or Apache 2.0
 
 License for iOS version: MIT only
 
+## Support September 2014
+
+[@brodybits (Chris Brody)](https://github.com/brodybits) is away on vacation until September 18th. Support will be provided on a limited basis.
+
 ## Status
 
 - [Available at PhoneGap build](https://build.phonegap.com/plugins/977)
