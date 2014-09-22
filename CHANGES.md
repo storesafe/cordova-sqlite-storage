@@ -1,5 +1,9 @@
 # Changes
 
+## Current
+
+- Fixed issue with multi-page apps on Android
+
 ## 1.0.2
 
 - Workaround for issue with multiple UPDATE statements WP(8) (#128)
