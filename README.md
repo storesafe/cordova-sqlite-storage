@@ -23,6 +23,7 @@ Also the threading model is changed as described below.
 
 ## Announcements
 
+- Issue with multi-page apps is fixed for Android
 - WP(8) version is now working with CSharp-SQLite library (may use DLL or rebuild from source) and passing most of the tests.
 - Changes to background processing:
   - The `dbType` option is now removed;
@@ -58,6 +59,7 @@ Also the threading model is changed as described below.
 - db.executeSql() calls callback multiple times
 - issues with db.close() & sqlitePlugin.deleteDatabase()
 - using web workers is currently not supported and known to be broken on Android
+- INSERT statement that affects multiple rows (due to SELECT cause or using triggers, for example) does not report proper rowsAffected on Android
 
 ## Other limitations
 
@@ -66,7 +68,11 @@ Also the threading model is changed as described below.
 - For iOS, iCloud backup is NOT optional and should be.
 - The Android version cannot work with more than 100 open db files due to its threading model.
 - Missing db creation callback
-- Multi-page architecture is not (yet) supported.
+
+## Limited support (testing needed)
+
+- Multi-page apps on WP(8)
+- DB Triggers
 
 ## Other versions
 
