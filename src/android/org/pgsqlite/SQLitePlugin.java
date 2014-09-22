@@ -179,6 +179,8 @@ public class SQLitePlugin extends CordovaPlugin {
      */
     @Override
     public void onDestroy() {
+        rmap.clear();
+    
         while (!dbmap.isEmpty()) {
             String dbname = dbmap.keySet().iterator().next();
             // TODO should stop the db thread(s) instead (!!)
