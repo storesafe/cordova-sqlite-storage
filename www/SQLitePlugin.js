@@ -36,13 +36,18 @@
 
   SQLitePlugin = function(openargs, openSuccess, openError) {
     var dbname;
+    var dbpath;
     console.log("SQLitePlugin openargs: " + (JSON.stringify(openargs)));
     if (!(openargs && openargs['name'])) {
       throw new Error("Cannot create a SQLitePlugin instance without a db name");
     }
     dbname = openargs.name;
+    if (openargs && openargs['path']) {
+      dbpath = openargs.path;
+    }
     this.openargs = openargs;
     this.dbname = dbname;
+    this.dbpath = dbpath;
     this.openSuccess = openSuccess;
     this.openError = openError;
     this.openSuccess || (this.openSuccess = function() {
@@ -128,7 +133,8 @@
       delete this.openDBs[this.dbname];
       cordova.exec(success, error, "SQLitePlugin", "close", [
         {
-          path: this.dbname
+          path: this.dbname,
+          dbpath: this.dbpath
         }
       ]);
     }
@@ -321,7 +327,8 @@
     cordova.exec(mycb, null, "SQLitePlugin", "backgroundExecuteSqlBatch", [
       {
         dbargs: {
-          dbname: this.db.dbname
+          dbname: this.db.dbname,
+          dbpath: this.db.dbpath
         },
         executes: tropts
       }

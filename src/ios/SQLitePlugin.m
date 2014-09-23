@@ -159,9 +159,11 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 
 @synthesize openDBs;
 @synthesize appDocsPath;
+@synthesize appLibPath;
+@synthesize appCachesPath;
+@synthesize appTmpPath;
 
--(CDVPlugin*) initWithWebView:(UIWebView*)theWebView
-{
+-(CDVPlugin*) initWithWebView: (UIWebView*)theWebView {
     self = (SQLitePlugin*)[super initWithWebView:theWebView];
     if (self) {
         openDBs = [NSMutableDictionary dictionaryWithCapacity:0];
@@ -172,24 +174,53 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
         NSString *docs = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
         NSLog(@"Detected docs path: %@", docs);
         [self setAppDocsPath:docs];
+
+        NSString *lib = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
+        NSLog(@"Detected lib path: %@", lib);
+        [self setAppLibPath:lib];
+
+        NSString *caches = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
+        BOOL isDir = NO;
+        NSError *error;
+        if (! [[NSFileManager defaultManager] fileExistsAtPath:caches isDirectory:&isDir] && isDir == NO) {
+            [[NSFileManager defaultManager] createDirectoryAtPath:caches withIntermediateDirectories:NO attributes:nil error:&error];
+        }
+        NSLog(@"Detected caches path: %@", caches);
+        [self setAppCachesPath:caches];
+
+        NSString *tmp = NSTemporaryDirectory();
+        NSLog(@"Detected tmp path: %@", tmp);
+        [self setAppTmpPath:tmp];
+
     }
     return self;
 }
 
--(id) getDBPath:(id)dbFile {
+-(id) getDBPath: (id)dbFile : (NSString *)path {
     if (dbFile == NULL) {
         return NULL;
     }
-    NSString *dbPath = [NSString stringWithFormat:@"%@/%@", appDocsPath, dbFile];
-    return dbPath;
+
+    if ([path isEqualToString:@"lib"]) {
+        NSString *dbPath = [NSString stringWithFormat:@"%@/%@", appLibPath, dbFile];
+        return dbPath;
+    } else if ([path isEqualToString:@"caches"]) {
+        NSString *dbPath = [NSString stringWithFormat:@"%@/%@", appCachesPath, dbFile];
+        return dbPath;
+    } else if ([path isEqualToString:@"tmp"]) {
+        NSString *dbPath = [NSString stringWithFormat:@"%@/%@", appTmpPath, dbFile];
+        return dbPath;
+    } else {
+        NSString *dbPath = [NSString stringWithFormat:@"%@/%@", appDocsPath, dbFile];
+        return dbPath;
+    }
 }
 
--(void)open: (CDVInvokedUrlCommand*)command
-{
+-(void) open: (CDVInvokedUrlCommand*)command {
     CDVPluginResult* pluginResult = nil;
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
 
-    NSString *dbname = [self getDBPath:[options objectForKey:@"name"]];
+    NSString *dbname = [self getDBPath:[options objectForKey:@"name"]:[options objectForKey:@"path"]];
     NSValue *dbPointer;
 
     if (dbname == NULL) {
@@ -215,7 +246,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
                 // const char *key = [@"your_key_here" UTF8String];
                 // if(key != NULL) sqlite3_key(db, key, strlen(key));
 
-		sqlite3_create_function(db, "regexp", 2, SQLITE_ANY, NULL, &sqlite_regexp, NULL, NULL);
+                sqlite3_create_function(db, "regexp", 2, SQLITE_ANY, NULL, &sqlite_regexp, NULL, NULL);
 	
                 // Attempt to read the SQLite master table (test for SQLCipher version):
                 if(sqlite3_exec(db, (const char*)"SELECT count(*) FROM sqlite_master;", NULL, NULL, NULL) == SQLITE_OK) {
@@ -241,12 +272,11 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     // NSLog(@"open cb finished ok");
 }
 
--(void) close: (CDVInvokedUrlCommand*)command
-{
+-(void) close: (CDVInvokedUrlCommand*)command {
     CDVPluginResult* pluginResult = nil;
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
 
-    NSString *dbPath = [self getDBPath:[options objectForKey:@"path"]];
+    NSString *dbPath = [self getDBPath:[options objectForKey:@"name"]:[options objectForKey:@"path"]];
     if (dbPath == NULL) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify database path"];
     }
@@ -265,12 +295,11 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
 }
 
--(void) delete: (CDVInvokedUrlCommand*)command
-{
+-(void) delete: (CDVInvokedUrlCommand*)command {
     CDVPluginResult* pluginResult = nil;
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
     
-    NSString *dbPath = [self getDBPath:[options objectForKey:@"path"]];
+    NSString *dbPath = [self getDBPath:[options objectForKey:@"name"]:[options objectForKey:@"path"]];
     if(dbPath==NULL) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify database path"];
     } else {
@@ -286,15 +315,13 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 }
 
 
--(void) backgroundExecuteSqlBatch: (CDVInvokedUrlCommand*)command
-{
+-(void) backgroundExecuteSqlBatch: (CDVInvokedUrlCommand*)command {
     [self.commandDelegate runInBackground:^{
         [self executeSqlBatch: command];
     }];
 }
 
--(void) executeSqlBatch: (CDVInvokedUrlCommand*)command
-{
+-(void) executeSqlBatch: (CDVInvokedUrlCommand*)command {
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
     NSMutableArray *results = [NSMutableArray arrayWithCapacity:0];
     NSMutableDictionary *dbargs = [options objectForKey:@"dbargs"];
@@ -329,15 +356,13 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
--(void) backgroundExecuteSql: (CDVInvokedUrlCommand*)command
-{
+-(void) backgroundExecuteSql: (CDVInvokedUrlCommand*)command {
     [self.commandDelegate runInBackground:^{
         [self executeSql:command];
     }];
 }
 
--(void) executeSql: (CDVInvokedUrlCommand*)command
-{
+-(void) executeSql: (CDVInvokedUrlCommand*)command {
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
     NSMutableDictionary *dbargs = [options objectForKey:@"dbargs"];
     NSMutableDictionary *ex = [options objectForKey:@"ex"];
@@ -349,9 +374,8 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
--(CDVPluginResult*) executeSqlWithDict: (NSMutableDictionary*)options andArgs: (NSMutableDictionary*)dbargs
-{
-    NSString *dbPath = [self getDBPath:[dbargs objectForKey:@"dbname"]];
+-(CDVPluginResult*) executeSqlWithDict: (NSMutableDictionary*)options andArgs: (NSMutableDictionary*)dbargs {
+    NSString *dbPath = [self getDBPath:[dbargs objectForKey:@"dbname"]:[dbargs objectForKey:@"dbpath"]];
 
     NSMutableArray *query_parts = [options objectForKey:@"query"];
     NSString *query = [query_parts objectAtIndex:0];
@@ -475,8 +499,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     return [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultSet];
 }
 
--(void)bindStatement:(sqlite3_stmt *)statement withArg:(NSObject *)arg atIndex:(NSUInteger)argIndex
-{
+-(void) bindStatement: (sqlite3_stmt *)statement withArg: (NSObject *)arg atIndex: (NSUInteger)argIndex {
     if ([arg isEqual:[NSNull null]]) {
         sqlite3_bind_null(statement, argIndex);
     } else if ([arg isKindOfClass:[NSNumber class]]) {
@@ -499,8 +522,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     }
 }
 
--(void)dealloc
-{
+-(void) dealloc {
     int i;
     NSArray *keys = [openDBs allKeys];
     NSValue *pointer;
@@ -518,12 +540,14 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 #if !__has_feature(objc_arc)
     [openDBs release];
     [appDocsPath release];
+    [appLibPath release];
+    [appCachesPath release];
+    [appTmpPath release];
     [super dealloc];
 #endif
 }
 
-+(NSDictionary *)captureSQLiteErrorFromDb:(sqlite3 *)db
-{
++(NSDictionary *) captureSQLiteErrorFromDb: (sqlite3 *)db {
     int code = sqlite3_errcode(db);
     int webSQLCode = [SQLitePlugin mapSQLiteErrorCode:code];
 #if INCLUDE_SQLITE_ERROR_INFO
@@ -545,8 +569,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     return error;
 }
 
-+(int)mapSQLiteErrorCode:(int)code
-{
++(int) mapSQLiteErrorCode: (int)code {
     // map the sqlite error code to
     // the websql error code
     switch(code) {
@@ -561,32 +584,29 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     }
 }
 
-+(id) getBlobAsBase64String:(const char*) blob_chars
-                                    withlength: (int) blob_length
-{
++(id) getBlobAsBase64String: (const char*) blob_chars withlength: (int) blob_length {
       base64_encodestate b64state;
 	
       base64_init_encodestate(&b64state);
 
       //2* ensures 3 bytes -> 4 Base64 characters + null for NSString init
-			char* code = malloc (2*blob_length*sizeof(char));
+      char* code = malloc (2*blob_length*sizeof(char));
   
-			int codelength;
+      int codelength;
       int endlength;
 
       codelength = base64_encode_block(blob_chars,blob_length,code,&b64state,0);
   
-			endlength = base64_encode_blockend(&code[codelength], &b64state);
+      endlength = base64_encode_blockend(&code[codelength], &b64state);
 
       //Adding in a null in order to use initWithUTF8String, expecting null terminated char* string
       code[codelength+endlength] = '\0';
 
       NSString* result = [NSString stringWithUTF8String: code];
 
-			free(code);
+      free(code);
   
       return result;
 }
-
 
 @end
