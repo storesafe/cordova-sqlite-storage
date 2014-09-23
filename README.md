@@ -47,17 +47,10 @@ License for iOS version: MIT only
 
 ## Known issues
 
-<<<<<<< HEAD
 - Using web workers is currently not supported and known to be broken on Android.
 - Does not work with the PhoneGap Build Hydration feature.
 - Triggers are only supported for iOS, known to be broken on Android.
-=======
-- Deleting a database is not (yet) implemented for WP(8).
-- db.executeSql() calls callback multiple times
-- issues with db.close() & sqlitePlugin.deleteDatabase()
-- using web workers is currently not supported and known to be broken on Android
 - INSERT statement that affects multiple rows (due to SELECT cause or using triggers, for example) does not report proper rowsAffected on Android
->>>>>>> master-src
 
 ## Other limitations
 
