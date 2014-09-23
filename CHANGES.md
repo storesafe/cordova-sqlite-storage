@@ -1,8 +1,8 @@
 # Changes
 
-## Current
+## 1.0.3
 
-- Fixed issue with multi-page apps on Android
+- Fixed issue with multi-page apps on Android (due to problem when closing & re-opening app)
 
 ## 1.0.2
 
