@@ -531,10 +531,20 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 #endif
     const char *message = sqlite3_errmsg(db);
 
-    NSMutableDictionary *error = [NSMutableDictionary dictionaryWithCapacity:4];
+    NSMutableDictionary *error = [NSMutableDictionary dictionaryWithCapacity:13];
 
     [error setObject:[NSNumber numberWithInt:webSQLCode] forKey:@"code"];
     [error setObject:[NSString stringWithUTF8String:message] forKey:@"message"];
+
+    // Keep synced with WebSQLError in SQLitePlugin.h
+    [error setObject:[NSNumber numberWithInt:UNKNOWN_ERR] forKey:@"UNKNOWN_ERR"];
+    [error setObject:[NSNumber numberWithInt:DATABASE_ERR] forKey:@"DATABASE_ERR"];
+    [error setObject:[NSNumber numberWithInt:VERSION_ERR] forKey:@"VERSION_ERR"];
+    [error setObject:[NSNumber numberWithInt:TOO_LARGE_ERR] forKey:@"TOO_LARGE_ERR"];
+    [error setObject:[NSNumber numberWithInt:QUOTA_ERR] forKey:@"QUOTA_ERR"];
+    [error setObject:[NSNumber numberWithInt:SYNTAX_ERR] forKey:@"SYNTAX_ERR"];
+    [error setObject:[NSNumber numberWithInt:CONSTRAINT_ERR] forKey:@"CONSTRAINT_ERR"];
+    [error setObject:[NSNumber numberWithInt:TIMEOUT_ERR] forKey:@"TIMEOUT_ERR"];
 
 #if INCLUDE_SQLITE_ERROR_INFO
     [error setObject:[NSNumber numberWithInt:code] forKey:@"sqliteCode"];
