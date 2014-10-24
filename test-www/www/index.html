@@ -891,7 +891,7 @@
               ok(error.hasOwnProperty('message'), "error.message exists");
               // XXX NOT WORKING for Android or WP(8) version of plugin:
               if (isWebSql || (!/Android/.test(navigator.userAgent) && !/MSIE/.test(navigator.userAgent)))
-                strictEqual(error.code, 5, "error.code === SQLException.SYNTAX_ERR (5)");
+                strictEqual(error.code, error.SYNTAX_ERR, "error.code === SQLException.SYNTAX_ERR (5)");
               //equal(error.message, "Request failed: insert into test_table (data) VALUES ,123", "error.message");
               start();
 
@@ -932,7 +932,7 @@
                 ok(!!error['code'], "valid error.code exists");
 
               ok(error.hasOwnProperty('message'), "error.message exists");
-              //strictEqual(error.code, 6, "error.code === SQLException.CONSTRAINT_ERR (6)");
+              //strictEqual(error.code, error.CONSTRAINT_ERR, "error.code === SQLException.CONSTRAINT_ERR (6)");
               //equal(error.message, "Request failed: insert into test_table (data) VALUES (?),123", "error.message");
               start();
 
