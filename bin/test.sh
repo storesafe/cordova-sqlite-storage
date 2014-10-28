@@ -22,6 +22,19 @@ if [[ ! -x $(which coffee) ]]; then
   exit 1
 fi
 
+# take the last part of coffee -v which is the version number
+version="${$(coffee -v)##* }"
+
+# compare version to 1.7.0 which supports the --no-header option
+# the trick here is to make a string comparison by removing the dot
+# if version is 1.6.3 then ${version//\./} will equal 163
+if [[ "${version//\./}" -lt "170" ]]; then
+  echo "you have an older version (<1.7.0) of coffeescript which does not support --no-header option"
+  echo "Upgrade your coffeescript:"
+  echo "npm install -g coffee-script"
+  exit 1
+fi
+
 if [[ ! -x $(which cordova) ]]; then
   echo "you need cordova. please install with:"
   echo "npm install -g cordova"
