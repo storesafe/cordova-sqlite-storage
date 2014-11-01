@@ -799,9 +799,10 @@ public class SQLitePlugin extends CordovaPlugin {
 
             if (dbq != null && dbq.close) {
                 try {
-                    dbrmap.remove(dbname); // (should) remove ourself
-
-                    closeDatabaseNow(dbname);
+                    
+					closeDatabaseNow(dbname);
+                    
+					dbrmap.remove(dbname); // (should) remove ourself
 
                     if (!dbq.delete) {
                     	 dbq.cbc.success();
