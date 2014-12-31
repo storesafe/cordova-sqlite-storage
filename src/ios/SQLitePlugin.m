@@ -419,7 +419,12 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
                             columnValue = [NSNumber numberWithDouble: sqlite3_column_double(statement, i)];
                             break;
                         case SQLITE_TEXT:
-                            columnValue = [NSString stringWithUTF8String:(char *)sqlite3_column_text(statement, i)];
+                            columnValue = [[NSString alloc] initWithBytes:(char *)sqlite3_column_text(statement, i)
+                                                                   length:sqlite3_column_bytes(statement, i)
+                                                                 encoding:NSUTF8StringEncoding];
+#if !__has_feature(objc_arc)
+                            [columnValue autorelease];
+#endif
                             break;
                         case SQLITE_BLOB:
                             //LIBB64
