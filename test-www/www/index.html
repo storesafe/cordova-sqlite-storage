@@ -1232,6 +1232,33 @@
             start(1);
           });
         });
+        
+        if (!isWebSql) test (suiteName + ' database.close fails in transaction', function () {
+          stop(1);
+          
+          var dbName = "Database-Close-fail";
+          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+
+          db.readTransaction(function(tx) {
+            tx.executeSql('SELECT 1', [], function(tx, results) {
+              // close database - need to run tests directly in callbacks as nothing is guarenteed to be queued after a close
+              db.close(function () {
+                ok(false, 'expect close to fail during transaction');
+                start(1);
+              }, function (error) {
+                ok(true, 'expect close to fail during transaction');
+                start(1);
+              });
+              start(1);
+            }, function(error) {
+              ok(false, error);
+              start(2);
+            });
+          }, function(error) {
+            ok(false, error);
+            start(2);
+          });
+        });
 
         if (!isWebSql) test(suiteName + ' open same database twice works', function () {
 
@@ -1275,15 +1302,14 @@
           stop(1);
         
           var dbName = "Database-Close-and-Reopen";
-          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
+          openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function (db) {
             db.close(function () {
-              db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
+              openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function (db) {
                 db.close(function () {
-                  db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
+                  openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function (db) {
                     db.readTransaction(function (tx) {
                       tx.executeSql('SELECT 1', [], function (tx, results) {
                         ok(true, 'database re-opened succesfully');
-                        db.close();
                         start(1);
                       }, function (error) {
                         ok(false, error.message);
@@ -1292,6 +1318,10 @@
                     }, function (error) {
                       ok(false, error.message);
                       start(1);
+                    }, function(tx) {
+                      // close on transaction success not while executing
+                      // or commit will fail
+                      db.close(); 
                     });
                   }, function (error) {
                     ok(false, error.message);
