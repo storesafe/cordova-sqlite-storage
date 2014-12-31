@@ -134,10 +134,12 @@ static int base64_encode_blockend(char* code_out,
 static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** values) {
     int ret;
     regex_t regex;
-    char* reg = (char*)sqlite3_value_text(values[0]);
-    char* text = (char*)sqlite3_value_text(values[1]);
+    char* reg;
+    char* text;
     
-    if ( argc != 2 || reg == 0 || text == 0) {
+    if ( argc != 2
+        || (reg = (char*)sqlite3_value_text(values[0])) == 0
+        || (text = (char*)sqlite3_value_text(values[1])) == 0) {
         sqlite3_result_error(context, "SQL function regexp() called with invalid arguments.\n", -1);
         return;
     }
