@@ -125,6 +125,10 @@
 
   SQLitePlugin.prototype.close = function(success, error) {
     if (this.dbname in this.openDBs) {
+      if (txLocks[this.dbname] && txLocks[this.dbname].inProgress) {
+        error(new Error('database cannot be closed while a transaction is in progress'));
+        return;
+      }
       delete this.openDBs[this.dbname];
       cordova.exec(success, error, "SQLitePlugin", "close", [
         {
