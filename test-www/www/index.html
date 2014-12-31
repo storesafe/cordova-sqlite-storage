@@ -592,6 +592,40 @@
           });
         });
 
+        // This test shows that the plugin does not throw an error when trying to serialize
+        // an unsupported parameter type. Blob becomes an empty dictionary on iOS, for example,
+        // and so this verifies the type is converted to a string and continues. Web SQL does
+        // the same but on the JavaScript side and converts to a string like `[object Blob]`.
+        if (typeof ArrayBuffer !== "undefined") test(suiteName + "unsupported parameter type as string", function() {
+          var db = openDatabase("Blob-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          ok(!!db, "db object");
+          stop(1);
+
+          db.transaction(function(tx) {
+            ok(!!tx, "tx object");
+
+            var buffer = new ArrayBuffer(5);
+            var view   = new Uint8Array(buffer);
+            view[0] = 'h'.charCodeAt();
+            view[1] = 'e'.charCodeAt();
+            view[2] = 'l'.charCodeAt();
+            view[3] = 'l'.charCodeAt();
+            view[4] = 'o'.charCodeAt();
+            var blob = new Blob([view.buffer], { type:"application/octet-stream" });
+            
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (foo blob)');
+            tx.executeSql('INSERT INTO test_table VALUES (?)', [blob], function(tx, res) {
+              ok(true, "insert as string succeeds");
+              start(1);
+            });
+            start(1);
+          }, function(err) { 
+            ok(false, "transaction does not serialize real data but still should not fail: " + err.message);
+            start(2);
+          });
+        });
+
         test(suiteName + "readTransaction should throw on modification", function() {
           stop();
           var db = openDatabase("Database-readonly", "1.0", "Demo", DEFAULT_SIZE);

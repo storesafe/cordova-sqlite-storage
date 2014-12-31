@@ -308,8 +308,6 @@ License for common Javascript: MIT or Apache
 
         tropts.push
           qid: qid
-          # for ios version:
-          query: [request.sql].concat(request.params)
           sql: request.sql
           params: request.params
 

@@ -352,16 +352,16 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 -(CDVPluginResult*) executeSqlWithDict: (NSMutableDictionary*)options andArgs: (NSMutableDictionary*)dbargs
 {
     NSString *dbPath = [self getDBPath:[dbargs objectForKey:@"dbname"]];
-
-    NSMutableArray *query_parts = [options objectForKey:@"query"];
-    NSString *query = [query_parts objectAtIndex:0];
-
     if (dbPath == NULL) {
         return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify database path"];
     }
-    if (query == NULL) {
-        return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify a query to execute"];
+    
+    NSString *sql = [options objectForKey:@"sql"];
+    if (sql == NULL) {
+        return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify a sql query to execute"];
     }
+
+    NSMutableArray *params = [options objectForKey:@"params"]; // optional
 
     NSValue *dbPointer = [openDBs objectForKey:dbPath];
     if (dbPointer == NULL) {
@@ -369,7 +369,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     }
     sqlite3 *db = [dbPointer pointerValue];
 
-    const char *sql_stmt = [query UTF8String];
+    const char *sql_stmt = [sql UTF8String];
     NSDictionary *error = nil;
     sqlite3_stmt *statement;
     int result, i, column_type, count;
@@ -392,9 +392,9 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     if (sqlite3_prepare_v2(db, sql_stmt, -1, &statement, NULL) != SQLITE_OK) {
         error = [SQLitePlugin captureSQLiteErrorFromDb:db];
         keepGoing = NO;
-    } else {
-        for (int b = 1; b < query_parts.count; b++) {
-            [self bindStatement:statement withArg:[query_parts objectAtIndex:b] atIndex:b];
+    } else if(params != NULL) {
+        for (int b = 0; b < params.count; b++) {
+            [self bindStatement:statement withArg:[params objectAtIndex:b] atIndex:(b+1)];
         }
     }
 
@@ -489,13 +489,19 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
         } else if (strcmp(numberType, @encode(double)) == 0) {
             sqlite3_bind_double(statement, argIndex, [numberArg doubleValue]);
         } else {
-            sqlite3_bind_text(statement, argIndex, [[NSString stringWithFormat:@"%@", arg] UTF8String], -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(statement, argIndex, [[arg description] UTF8String], -1, SQLITE_TRANSIENT);
         }
     } else { // NSString
-        NSString *stringArg = (NSString *)arg;
+        NSString *stringArg;
+        
+        if ([arg isKindOfClass:[NSString class]]) {
+            stringArg = (NSString *)arg;
+        } else {
+            stringArg = [arg description]; // convert to text
+        }
+        
         NSData *data = [stringArg dataUsingEncoding:NSUTF8StringEncoding];
-
-          sqlite3_bind_text(statement, argIndex, data.bytes, data.length, SQLITE_TRANSIENT);
+        sqlite3_bind_text(statement, argIndex, data.bytes, data.length, SQLITE_TRANSIENT);
     }
 }
 
