@@ -233,7 +233,7 @@ License for common Javascript: MIT or Apache
     SQLitePluginTransaction::handleStatementFailure = (handler, response) ->
       if !handler
         throw new Error "a statement with no error handler failed: " + response.message
-      if handler(this, response)
+      if handler(this, response) isnt false
         throw new Error "a statement error callback did not return false"
       return
 

@@ -509,11 +509,12 @@
                 }, function(tx, err) {
                   start();
                   ok(!!err.message, "should report a valid error message");
+                  return false;
                 });
               });
             }, function(err) {
               start();
-              ok(false, "transaction was supposed to succeed");
+              ok(false, "transaction was supposed to succeed: " + err.message);
             }, function() {
               db.transaction(function(tx) {
                 tx.executeSql("select count(*) as cnt from test_table", [], function(tx, res) {
