@@ -111,17 +111,18 @@ License for common Javascript: MIT or Apache
       return
 
     SQLitePlugin::open = (success, error) ->
-      onSuccess = () => success this
+      onSuccess = () => if !!success then success this
+      onError = (errMessage) -> if !!error then error new Error(errMessage)
       unless @dbname of @openDBs
         @openDBs[@dbname] = true
-        cordova.exec onSuccess, error, "SQLitePlugin", "open", [ @openargs ]
+        cordova.exec onSuccess, onError, "SQLitePlugin", "open", [ @openargs ]
       else
         ###
         for a re-open run onSuccess async so that the openDatabase return value
         can be used in the success handler as an alternative to the handler's
         db argument
         ###
-        nextTick () -> onSuccess();
+        nextTick () -> onSuccess()
       return
 
     SQLitePlugin::close = (success, error) ->
@@ -133,9 +134,8 @@ License for common Javascript: MIT or Apache
           return
 
         delete @openDBs[@dbname]
-
-        cordova.exec success, error, "SQLitePlugin", "close", [ { path: @dbname } ]
-
+        onError = (errMessage) -> if !!error then error new Error(errMessage)
+        cordova.exec success, onError, "SQLitePlugin", "close", [ { path: @dbname } ]
       return
 
     SQLitePlugin::executeSql = (statement, params, success, error) ->
@@ -399,7 +399,8 @@ License for common Javascript: MIT or Apache
 
       deleteDb: (databaseName, success, error) ->
         delete SQLitePlugin::openDBs[databaseName]
-        cordova.exec success, error, "SQLitePlugin", "delete", [{ path: databaseName }]
+        onError = (errMessage) -> if !!error then error new Error("error while trying to delete database: " + errMessage)
+        cordova.exec success, onError, "SQLitePlugin", "delete", [{ path: databaseName }]
 
 ### Exported API:
 
