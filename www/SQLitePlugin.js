@@ -1,11 +1,35 @@
 (function() {
-  var READ_ONLY_REGEX, SQLiteFactory, SQLitePlugin, SQLitePluginTransaction, argsArray, dblocations, nextTick, root, txLocks;
+  var READ_ONLY_REGEX, SQLiteFactory, SQLitePlugin, SQLitePluginTransaction, argsArray, dblocations, nextTick, root, toSQLError, txLocks;
 
   root = this;
 
   READ_ONLY_REGEX = /^\s*(?:drop|delete|insert|update|create)\s/i;
 
   txLocks = {};
+
+  toSQLError = function(error, code) {
+    var sqlError;
+    sqlError = error;
+    if (!code) {
+      code = 0;
+    }
+    if (!sqlError) {
+      sqlError = new Error("a plugin had an error but provided no response");
+      sqlError.code = code;
+    }
+    if (typeof sqlError === "string") {
+      sqlError = new Error(error);
+      sqlError.code = code;
+    }
+    if (!sqlError.code && sqlError.message) {
+      sqlError.code = code;
+    }
+    if (!sqlError.code && !sqlError.message) {
+      sqlError = new Error("an unknown error was returned: " + JSON.stringify(sqlError));
+      sqlError.code = code;
+    }
+    return sqlError;
+  };
 
   nextTick = window.setImmediate || function(fun) {
     window.setTimeout(fun, 0);
@@ -73,7 +97,7 @@
 
   SQLitePlugin.prototype.transaction = function(fn, error, success) {
     if (!this.openDBs[this.dbname]) {
-      error('database not open');
+      error(toSQLError('database not open'));
       return;
     }
     this.addTransaction(new SQLitePluginTransaction(this, fn, error, success, true, false));
@@ -81,7 +105,7 @@
 
   SQLitePlugin.prototype.readTransaction = function(fn, error, success) {
     if (!this.openDBs[this.dbname]) {
-      error('database not open');
+      error(toSQLError('database not open'));
       return;
     }
     this.addTransaction(new SQLitePluginTransaction(this, fn, error, success, true, true));
@@ -181,7 +205,7 @@
     this.executes = [];
     if (txlock) {
       this.executeSql("BEGIN", [], null, function(tx, err) {
-        throw new Error("unable to begin transaction: " + err.message);
+        throw toSQLError("unable to begin transaction: " + err.message, err.code);
       });
     }
   };
@@ -200,7 +224,7 @@
       txLocks[this.db.dbname].inProgress = false;
       this.db.startNextTransaction();
       if (this.error) {
-        this.error(err);
+        this.error(toSQLError(err));
       }
     }
   };
@@ -244,10 +268,10 @@
 
   SQLitePluginTransaction.prototype.handleStatementFailure = function(handler, response) {
     if (!handler) {
-      throw new Error("a statement with no error handler failed: " + response.message);
+      throw toSQLError("a statement with no error handler failed: " + response.message, response.code);
     }
     if (handler(this, response) !== false) {
-      throw new Error("a statement error callback did not return false");
+      throw toSQLError("a statement error callback did not return false: " + response.message, response.code);
     }
   };
 
@@ -266,12 +290,12 @@
           if (didSucceed) {
             tx.handleStatementSuccess(batchExecutes[index].success, response);
           } else {
-            tx.handleStatementFailure(batchExecutes[index].error, response);
+            tx.handleStatementFailure(batchExecutes[index].error, toSQLError(response));
           }
         } catch (_error) {
           err = _error;
           if (!txFailure) {
-            txFailure = err;
+            txFailure = toSQLError(err);
           }
         }
         if (--waiting === 0) {
@@ -348,7 +372,7 @@
       txLocks[tx.db.dbname].inProgress = false;
       tx.db.startNextTransaction();
       if (tx.error) {
-        tx.error(new Error("error while trying to roll back: " + err.message));
+        tx.error(toSQLError("error while trying to roll back: " + err.message, err.code));
       }
     };
     this.finalized = true;
@@ -377,7 +401,7 @@
       txLocks[tx.db.dbname].inProgress = false;
       tx.db.startNextTransaction();
       if (tx.error) {
-        tx.error(new Error("error while trying to commit: " + err.message));
+        tx.error(toSQLError("error while trying to commit: " + err.message, err.code));
       }
     };
     this.finalized = true;

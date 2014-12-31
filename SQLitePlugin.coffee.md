@@ -20,6 +20,29 @@
 
 ## utility functions:
 
+    # Errors returned to callbacks must conform to `SqlError` with a code and message.
+    # Some errors are of type `Error` or `string` and must be converted.
+    toSQLError = (error, code) ->
+      sqlError = error
+      code = 0 if !code # unknown by default
+            
+      if !sqlError
+        sqlError = new Error "a plugin had an error but provided no response"
+        sqlError.code = code
+      
+      if typeof sqlError is "string"
+        sqlError = new Error error
+        sqlError.code = code
+      
+      if !sqlError.code && sqlError.message
+        sqlError.code = code
+        
+      if !sqlError.code && !sqlError.message
+        sqlError = new Error "an unknown error was returned: " + JSON.stringify(sqlError)
+        sqlError.code = code
+      
+      return sqlError
+      
     nextTick = window.setImmediate || (fun) ->
       window.setTimeout(fun, 0)
       return
@@ -87,14 +110,14 @@
 
     SQLitePlugin::transaction = (fn, error, success) ->
       if !@openDBs[@dbname]
-        error('database not open')
+        error(toSQLError('database not open'))
         return
       @addTransaction new SQLitePluginTransaction(this, fn, error, success, true, false)
       return
 
     SQLitePlugin::readTransaction = (fn, error, success) ->
       if !@openDBs[@dbname]
-        error('database not open')
+        error(toSQLError('database not open'))
         return
       @addTransaction new SQLitePluginTransaction(this, fn, error, success, true, true)
       return
@@ -174,7 +197,7 @@
 
       if txlock
         @executeSql "BEGIN", [], null, (tx, err) ->
-          throw new Error("unable to begin transaction: " + err.message)
+          throw toSQLError("unable to begin transaction: " + err.message, err.code)
 
       return
 
@@ -189,7 +212,7 @@
         txLocks[@db.dbname].inProgress = false
         @db.startNextTransaction()
         if @error
-          @error err
+          @error toSQLError(err)
       return
 
     SQLitePluginTransaction::executeSql = (sql, values, success, error) ->
@@ -232,9 +255,9 @@
 
     SQLitePluginTransaction::handleStatementFailure = (handler, response) ->
       if !handler
-        throw new Error "a statement with no error handler failed: " + response.message
+        throw toSQLError("a statement with no error handler failed: " + response.message, response.code)
       if handler(this, response) isnt false
-        throw new Error "a statement error callback did not return false"
+        throw toSQLError("a statement error callback did not return false: " + response.message, response.code)
       return
 
     SQLitePluginTransaction::run = ->
@@ -252,9 +275,9 @@
             if didSucceed
               tx.handleStatementSuccess batchExecutes[index].success, response
             else
-              tx.handleStatementFailure batchExecutes[index].error, response
+              tx.handleStatementFailure batchExecutes[index].error, toSQLError(response)
           catch err
-            txFailure = err  unless txFailure
+            txFailure = toSQLError(err)  unless txFailure
 
           if --waiting == 0
             if txFailure
@@ -323,7 +346,7 @@
       failed = (tx, err) ->
         txLocks[tx.db.dbname].inProgress = false
         tx.db.startNextTransaction()
-        if tx.error then tx.error new Error("error while trying to roll back: " + err.message)
+        if tx.error then tx.error toSQLError("error while trying to roll back: " + err.message, err.code)
         return
 
       @finalized = true
@@ -349,7 +372,7 @@
       failed = (tx, err) ->
         txLocks[tx.db.dbname].inProgress = false
         tx.db.startNextTransaction()
-        if tx.error then tx.error new Error("error while trying to commit: " + err.message)
+        if tx.error then tx.error toSQLError("error while trying to commit: " + err.message, err.code)
         return
 
       @finalized = true
