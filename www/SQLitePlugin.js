@@ -300,7 +300,6 @@
       };
       tropts.push({
         qid: qid,
-        query: [request.sql].concat(request.params),
         sql: request.sql,
         params: request.params
       });
