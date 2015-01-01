@@ -320,7 +320,8 @@ License for common Javascript: MIT or Apache
         tropts.push
           qid: qid
           sql: request.sql
-          params: request.params
+          # only primitives are supported by Web SQL so call valueOf
+          params: ((if p then p.valueOf() else p) for p in request.params)
 
         i++
 

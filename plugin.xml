@@ -18,6 +18,10 @@
     <js-module src="www/SQLitePlugin.js" name="SQLitePlugin">
         <clobbers target="SQLitePlugin" />
     </js-module>
+    
+    <js-module src="www/SQLBlob.js" name="SQLBlob">
+        <merges target="SQLBlob" />
+    </js-module>
 
     <!-- android -->
     <platform name="android">

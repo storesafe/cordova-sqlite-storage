@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
+import org.apache.http.util.EncodingUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -633,7 +634,28 @@ public class SQLitePlugin extends CordovaPlugin {
             } else if (sqlArgs.isNull(i)) {
                 myStatement.bindNull(i + 1);
             } else {
-                myStatement.bindString(i + 1, sqlArgs.getString(i));
+                String text = sqlArgs.getString(i);
+
+                int commaIndex;
+                if(text.startsWith("sqlblob:") && (commaIndex = text.indexOf(',')) != -1) {
+                    String[] mimeParts = text.substring(0, commaIndex).split(";");
+                    String contentType = mimeParts.length > 0 ? mimeParts[0] : null;
+                    boolean base64 = false;
+                    for (int j = 1; j < mimeParts.length; ++j) {
+                        if ("base64".equalsIgnoreCase(mimeParts[j])) {
+                            base64 = true;
+                        }
+                    }
+                    String dataText = text.substring(commaIndex + 1);
+                    
+                    byte[] data = base64 ? Base64.decode(dataText, Base64.DEFAULT) :
+                        EncodingUtils.getBytes(dataText, "UTF-8");
+                    
+                    myStatement.bindBlob(i + 1, data);
+                }
+                else {
+                    myStatement.bindString(i + 1, text);
+                }
             }
         }
     }
@@ -732,7 +754,7 @@ public class SQLitePlugin extends CordovaPlugin {
                 row.put(key, cur.getDouble(i));
                 break;
             case Cursor.FIELD_TYPE_BLOB:
-                row.put(key, new String(Base64.encode(cur.getBlob(i), Base64.DEFAULT)));
+                row.put(key, "sqlblob:;base64,".concat(new String(Base64.encode(cur.getBlob(i), Base64.DEFAULT))));
                 break;
             case Cursor.FIELD_TYPE_STRING:
             default: /* (not expected) */
@@ -755,7 +777,7 @@ public class SQLitePlugin extends CordovaPlugin {
         } else if (cursorWindow.isFloat(pos, i)) {
             row.put(key, cursor.getDouble(i));
         } else if (cursorWindow.isBlob(pos, i)) {
-            row.put(key, new String(Base64.encode(cursor.getBlob(i), Base64.DEFAULT)));
+            row.put(key, "sqlblob:;base64,".concat(new String(Base64.encode(cursor.getBlob(i), Base64.DEFAULT))));
         } else { // string
             row.put(key, cursor.getString(i));
         }

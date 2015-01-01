@@ -12,6 +12,7 @@
 
 #import <Cordova/CDVPlugin.h>
 #import <Cordova/CDVJSON.h>
+#import <Cordova/NSData+Base64.h>
 
 #import "AppDelegate.h"
 
@@ -56,9 +57,6 @@ typedef int WebSQLError;
 
 +(int)mapSQLiteErrorCode:(int)code;
 
-// LIBB64
-+(id) getBlobAsBase64String:(const char*) blob_chars
-                            withlength: (int) blob_length;
-// LIBB64---END
-
++(NSString*)getBlobAsBase64String:(const char*) blob_chars
+                       withlength:(int) blob_length;
 @end

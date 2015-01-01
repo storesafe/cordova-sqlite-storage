@@ -10,6 +10,7 @@
 
     <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
     <script type="text/javascript" charset="utf-8" src="SQLitePlugin.js"></script>
+    <script type="text/javascript" charset="utf-8" src="SQLBlob.js"></script>
     <script type="text/javascript" charset="utf-8" src="qunit-1.5.0.js"></script>
     <script type="text/javascript">
     (function () {
@@ -623,7 +624,272 @@
             });
           });
         });
+        
+        if (typeof ArrayBuffer !== "undefined") test(suiteName + "SQLBlob tests without db", function() {
+          var buffer = new ArrayBuffer(8);
+          var view   = new Uint8Array(buffer);
+          view[0] = 'h'.charCodeAt();
+          view[1] = 'e'.charCodeAt();
+          view[2] = 'l'.charCodeAt();
+          view[3] = 'l'.charCodeAt();
+          view[4] = 'o'.charCodeAt();
+          view[5] = '\u0000'.charCodeAt();
+          view[6] = '\u0001'.charCodeAt();
+          view[7] = '!'.charCodeAt();
+          
+          var base64Encoding = { encoding: "base64" };
+          var urlEncoding = { encoding: "url" };
+          
+          var blobs = [
+            // auto
+            { blob: new SQLBlob(), description: "undefined" },
+            { blob: new SQLBlob(null), description: "null" },
+            { blob: new SQLBlob(view.buffer), description: "arraybuffer" },
+            { blob: new SQLBlob("sqlblob:;base64,aGVsbG8AASE="), description: "sqlblob-base64" },
+            { blob: new SQLBlob("sqlblob:,hello%00%01!"), description: "sqlblob-url" },
+            { blob: new SQLBlob("data:;base64,aGVsbG8AASE="), description: "datauri-base64" },
+            { blob: SQLBlob.createFromBinaryString(unescape(encodeURIComponent("hello\u0000\u0001!"))), description: "binarystring" },
+            { blob: SQLBlob.createFromUnicodeString("hello\u0000\u0001!"), description: "unicodestring" },
+            { blob: SQLBlob.createFromBase64("aGVsbG8AASE="), description: "base64" },
+            // base64
+            { blob: new SQLBlob(undefined, base64Encoding), description: "undefined, base64Encoding" },
+            { blob: new SQLBlob(null, base64Encoding), description: "null, base64Encoding" },
+            { blob: new SQLBlob(view.buffer, base64Encoding), description: "arraybuffer, base64Encoding" },
+            { blob: new SQLBlob("sqlblob:;base64,aGVsbG8AASE=", base64Encoding), description: "sqlblob-base64, base64Encoding" },
+            { blob: new SQLBlob("sqlblob:,hello%00%01!", base64Encoding), description: "sqlblob-url, base64Encoding" },
+            { blob: new SQLBlob("data:;base64,aGVsbG8AASE=", base64Encoding), description: "datauri-base64, base64Encoding" },
+            { blob: SQLBlob.createFromBinaryString(unescape(encodeURIComponent("hello\u0000\u0001!")), base64Encoding), description: "binarystring, base64Encoding" },
+            { blob: SQLBlob.createFromUnicodeString("hello\u0000\u0001!", base64Encoding), description: "unicodestring, base64Encoding" },
+            { blob: SQLBlob.createFromBase64("aGVsbG8AASE=", base64Encoding), description: "base64, base64Encoding" },
+            // url
+            { blob: new SQLBlob(undefined, urlEncoding), description: "undefined, urlEncoding" },
+            { blob: new SQLBlob(null, urlEncoding), description: "null, urlEncoding" },
+            { blob: new SQLBlob(view.buffer, urlEncoding), description: "arraybuffer, urlEncoding" },
+            { blob: new SQLBlob("sqlblob:;base64,aGVsbG8AASE=", urlEncoding), description: "sqlblob-base64, urlEncoding" },
+            { blob: new SQLBlob("sqlblob:,hello%00%01!", urlEncoding), description: "sqlblob-url, urlEncoding" },
+            { blob: new SQLBlob("data:;base64,aGVsbG8AASE=", urlEncoding), description: "datauri-base64, urlEncoding" },
+            { blob: SQLBlob.createFromBinaryString(unescape(encodeURIComponent("hello\u0000\u0001!")), urlEncoding), description: "binarystring, urlEncoding" },
+            { blob: SQLBlob.createFromUnicodeString("hello\u0000\u0001!", urlEncoding), description: "unicodestring, urlEncoding" },
+            { blob: SQLBlob.createFromBase64("aGVsbG8AASE=", urlEncoding), description: "base64, urlEncoding" }
+          ];
 
+          // Verify outputs
+          for (var i = 0; i < blobs.length; ++i) {
+            var b = blobs[i];
+            var blob = b.blob;
+            
+            if (b.description.indexOf("undefined") === 0) {
+              equal(blob.toBinaryString(), undefined, b.description + ": check toBinaryString() is undefined");
+              equal(blob.toBase64(), undefined, b.description + ": check toBase64() is undefined");
+              equal(blob.toArrayBuffer(), undefined, b.description + ": check toArrayBuffer() is undefined");
+              equal(blob.toString(), undefined, b.description + ": check toString() is undefined");
+              equal(blob.valueOf(), undefined, b.description + ": check valueOf() is undefined");
+              continue;
+            }
+
+            if (b.description.indexOf("null") === 0) {
+              equal(blob.toBinaryString(), null, b.description + ": check toBinaryString() is null");
+              equal(blob.toBase64(), null, b.description + ": check toBase64() is null");
+              equal(blob.toArrayBuffer(), null, b.description + ": check toArrayBuffer() is null");
+              equal(blob.toString(), null, b.description + ": check toString() is null");
+              equal(blob.valueOf(), null, b.description + ": check valueOf() is null");
+              continue;
+            }
+            
+            var binary = blob.toBinaryString();
+            strictEqual(binary, "hello\u0000\u0001!", b.description + ": check blob is returned as string encode of bytes");
+
+            var unicode = blob.toUnicodeString();
+            strictEqual(unicode, "hello\u0000\u0001!", b.description + ": check blob is returned as unicode");
+            
+            var base64 = blob.toBase64();
+            ok(/aGVsbG8AASE=[\r\n]*/.test(base64), 
+              b.description + ": check blob is returned as base64 encode of bytes: expected = 'aGVsbG8AASE=' returned = '" + base64 + "'");
+
+            var arrayBuffer = blob.toArrayBuffer();
+            var resultView = new Uint8Array(arrayBuffer);
+            ok(resultView[0] == 'h'.charCodeAt(), b.description + ": check resultView[0] == 'h'");
+            ok(resultView[1] == 'e'.charCodeAt(), b.description + ": check resultView[1] == 'e'");
+            ok(resultView[2] == 'l'.charCodeAt(), b.description + ": check resultView[2] == 'l'");
+            ok(resultView[3] == 'l'.charCodeAt(), b.description + ": check resultView[3] == 'l'");
+            ok(resultView[4] == 'o'.charCodeAt(), b.description + ": check resultView[4] == 'o'");
+            ok(resultView[5] == '\u0000'.charCodeAt(), b.description + ": check resultView[5] == '\\u0000'");
+            ok(resultView[6] == '\u0001'.charCodeAt(), b.description + ": check resultView[6] == '\\u0001'");
+            ok(resultView[7] == '!'.charCodeAt(), b.description + ": check resultView[7] == '!'");
+          
+            var blobUrl = blob.toString();
+            if(blob.isBase64) {
+              ok(/sqlblob:;base64,aGVsbG8AASE=[\r\n]*/.test(blobUrl), b.description + ": check sqlblob URL === sqlblob:;base64,aGVsbG8AASE=: " + blobUrl);
+            }
+            else {
+              ok(/sqlblob:,hello%00%01![\r\n]*/.test(blobUrl), b.description + ": check sqlblob URL === sqlblob:,hello%00%01!: " + blobUrl);
+            }
+          
+            strictEqual(blob.toString(), blob.valueOf(), b.description + ": check toString() === valueOf()");
+            strictEqual(blob.toString(), blob.toJSON(), b.description + ": check toString() === toJSON()");
+          }
+          
+          // test multi-byte with \uABCD
+          try {
+            var mb = SQLBlob.createFromBinaryString(unescape(encodeURIComponent("hello\u0000\u0001!\uABCD")));
+            equal(mb.toBinaryString(), unescape(encodeURIComponent("hello\u0000\u0001!\uABCD")), 
+              "check binary string with multi-byte works when pre-expanded");
+          } catch(err) {
+            ok(false, "check binary string with multi-byte works when pre-expanded");
+          }
+
+          try {
+            var mb = SQLBlob.createFromBinaryString("hello\u0000\u0001!\uABCD");
+            ok(false, "check binary string with multi-byte fails when not pre-expanded");
+          } catch(err) {
+            ok(true, "check binary string with multi-byte fails when not pre-expanded");
+          }
+
+          try {
+            var mb = SQLBlob.createFromUnicodeString("hello\u0000\u0001!\uABCD");
+            ok(!mb.isBase64, "check not base64");
+            equal(mb.toString(), "sqlblob:,hello%00%01!%EA%AF%8D",
+              "check unicode string with multi-byte works when not pre-expanded; URL format");
+            equal(mb.toBinaryString(), unescape(encodeURIComponent("hello\u0000\u0001!\uABCD")), 
+              "check unicode string with multi-byte works when not pre-expanded; binary decode");
+            equal(mb.toUnicodeString(), "hello\u0000\u0001!\uABCD", "check unicode string with multi-byte works when not pre-expanded; unicode decode");
+          } catch(err) {
+            ok(false, "check unicode string with multi-byte works when not pre-expanded");
+          }
+          
+          try {
+            var mb = SQLBlob.createFromUnicodeString("hello\u0000\u0001!\uABCD", { encoding: "base64" });
+            ok(mb.isBase64, "check is base64");
+            equal(mb.toString(), "sqlblob:;base64,aGVsbG8AASHqr40=",
+              "base64: check unicode string with multi-byte works when not pre-expanded; URL format");
+            equal(mb.toBinaryString(), unescape(encodeURIComponent("hello\u0000\u0001!\uABCD")), 
+              "base64: check unicode string with multi-byte works when not pre-expanded; binary decode");
+            equal(mb.toUnicodeString(), "hello\u0000\u0001!\uABCD", "base64: check unicode string with multi-byte works when not pre-expanded; unicode decode");
+          } catch(err) {
+            ok(false, "base64: check unicode string with multi-byte works when not pre-expanded");
+          }
+        });
+        
+        if (typeof ArrayBuffer !== "undefined") test(suiteName + "ArrayBuffer to SQL Blob and back as Base64", function() {
+          var db = openDatabase("Blob-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          ok(!!db, "db object");
+          stop(2);
+
+          db.transaction(function(tx) {
+            ok(!!tx, "tx object");
+
+            var buffer = new ArrayBuffer(5);
+            var view   = new Uint8Array(buffer);
+            view[0] = 'h'.charCodeAt();
+            view[1] = 'e'.charCodeAt();
+            view[2] = 'l'.charCodeAt();
+            view[3] = 'l'.charCodeAt();
+            view[4] = 'o'.charCodeAt();
+            var sqlBlob = new SQLBlob(view.buffer);
+            strictEqual(sqlBlob.toString(), "sqlblob:;base64,aGVsbG8=", "check blob is returned as sqlblob url");
+            strictEqual(sqlBlob.valueOf(), "sqlblob:;base64,aGVsbG8=", "check blob is returned as sqlblob url");
+            
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (foo blob)');
+            tx.executeSql('INSERT INTO test_table VALUES (?)', [sqlBlob], function(tx, res) {
+              strictEqual(res.rowsAffected, 1, "res.rowsAffected === 1");
+              tx.executeSql("SELECT * FROM test_table", [], function(tx, res) {
+                var foo = new SQLBlob(res.rows.item(0).foo);
+                var base64 = foo.toBase64()
+                ok(/aGVsbG8=[\r\n]*/.test(base64), 
+                  "check blob is returned as base64 encode of bytes: expected = 'aGVsbG8=' returned = '" + base64 + "'");
+                strictEqual(atob(base64), "hello", "check base64 decode is accurate");
+                start(1);
+              });
+              start(1);
+            });
+            start(1);
+          }, function(err) { 
+            ok(false, err.message);
+            start(3);
+          });
+        });
+        
+        if (typeof ArrayBuffer !== "undefined") test(suiteName + "ArrayBuffer to SQL Blob and back as binary string", function() {
+          var db = openDatabase("Blob-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          ok(!!db, "db object");
+          stop(2);
+
+          db.transaction(function(tx) {
+            ok(!!tx, "tx object");
+
+            var buffer = new ArrayBuffer(5);
+            var view   = new Uint8Array(buffer);
+            view[0] = 'h'.charCodeAt();
+            view[1] = 'e'.charCodeAt();
+            view[2] = 'l'.charCodeAt();
+            view[3] = 'l'.charCodeAt();
+            view[4] = 'o'.charCodeAt();
+            
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (foo blob)');
+            tx.executeSql('INSERT INTO test_table VALUES (?)', [new SQLBlob(view.buffer)], function(tx, res) {
+              strictEqual(res.rowsAffected, 1, "res.rowsAffected === 1");
+              tx.executeSql("SELECT * FROM test_table", [], function(tx, res) {
+                var foo = new SQLBlob(res.rows.item(0).foo);
+                var binary = foo.toBinaryString();
+                strictEqual(binary, "hello", "check blob is returned as string encode of bytes");
+                start(1);
+              });
+              start(1);
+            });
+            start(1);
+          }, function(err) { 
+            ok(false, err.message);
+            start(3);
+          });
+        });
+        
+        if (typeof ArrayBuffer !== "undefined") test(suiteName + "ArrayBuffer to SQL Blob and back as ArrayBuffer", function() {
+          var db = openDatabase("Blob-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          ok(!!db, "db object");
+          stop(2);
+
+          db.transaction(function(tx) {
+            ok(!!tx, "tx object");
+
+            var buffer = new ArrayBuffer(5);
+            var view   = new Uint8Array(buffer);
+            view[0] = 'h'.charCodeAt();
+            view[1] = 'e'.charCodeAt();
+            view[2] = 'l'.charCodeAt();
+            view[3] = 'l'.charCodeAt();
+            view[4] = 'o'.charCodeAt();
+            
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (foo blob)');
+            tx.executeSql('INSERT INTO test_table VALUES (?)', [new SQLBlob(view.buffer)], function(tx, res) {
+              strictEqual(res.rowsAffected, 1, "res.rowsAffected === 1");
+              tx.executeSql("SELECT * FROM test_table", [], function(tx, res) {
+                var foo = new SQLBlob(res.rows.item(0).foo);
+                var arrayBuffer = foo.toArrayBuffer();
+                ok(arrayBuffer instanceof ArrayBuffer, "check arraybuffer type is valid");
+                if(arrayBuffer instanceof ArrayBuffer) {
+                  strictEqual(arrayBuffer.byteLength, 5, "check result is correct length: " + JSON.stringify(arrayBuffer));
+          
+                  var resultView = new Uint8Array(arrayBuffer);
+                  ok(resultView[0] == 'h'.charCodeAt(), "check resultView[0] == 'h'");
+                  ok(resultView[1] == 'e'.charCodeAt(), "check resultView[1] == 'e'");
+                  ok(resultView[2] == 'l'.charCodeAt(), "check resultView[2] == 'l'");
+                  ok(resultView[3] == 'l'.charCodeAt(), "check resultView[3] == 'l'");
+                  ok(resultView[4] == 'o'.charCodeAt(), "check resultView[4] == 'o'");
+                }
+                start(1);
+              });
+              start(1);
+            });         
+            start(1);
+          }, function(err) { 
+            ok(false, err.message);
+            start(3);
+          });
+        });
+        
         // This test shows that the plugin does not throw an error when trying to serialize
         // an unsupported parameter type. Blob becomes an empty dictionary on iOS, for example,
         // and so this verifies the type is converted to a string and continues. Web SQL does
