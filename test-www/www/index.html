@@ -550,6 +550,38 @@
             });
           });
         });
+        
+        test(suiteName + "executeSql fails outside transaction", function() {
+          withTestTable(function(db) {
+            expect(5);
+            ok(!!db, "db ok");            
+            var txg;
+            stop(2);
+            db.transaction(function(tx) {
+              ok(!!tx, "tx ok");
+              txg = tx;
+              tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ['test', null], function(tx, res) {
+                equal(res.rowsAffected, 1, 'row inserted');
+              });
+              start(1);
+            }, function(err) {
+              ok(false, err);
+              start(1);
+            }, function() {
+              // this simulates what would happen if a Promise ran on the next tick
+              // and invoked an execute on the transaction
+              try {
+                txg.executeSql("select count(*) as cnt from test_table", [], null, null);
+                ok(false, "executeSql should have thrown but continued instead");
+              } catch(err) {
+                ok(!!err.message, "error had valid message");
+                ok(/InvalidStateError|SQLTransaction/.test(err.message), 
+                  "execute must throw InvalidStateError; actual error: " + err.message);
+              }
+              start(1);
+            });            
+          });
+        });
 
         test(suiteName + "all columns should be included in result set (including 'null' columns)", function() {
           withTestTable(function(db) {

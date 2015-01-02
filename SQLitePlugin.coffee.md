@@ -217,6 +217,17 @@ License for common Javascript: MIT or Apache
 
     SQLitePluginTransaction::executeSql = (sql, values, success, error) ->
 
+      if @finalized
+        throw {message: 'InvalidStateError: DOM Exception 11: This transaction is already finalized. Transactions are committed after its success or failure handlers are called. If you are using a Promise to handle callbacks, be aware that implementations following the A+ standard adhere to run-to-completion semantics and so Promise resolution occurs on a subsequent tick and therefore after the transaction commits.', code: 11}
+        return
+
+      @_executeSqlInternal(sql, values, success, error)
+      return
+
+    # This method performs the actual execute but does not check for
+    # finalization since it is used to execute COMMIT and ROLLBACK.
+    SQLitePluginTransaction::_executeSqlInternal = (sql, values, success, error) ->
+
       if @readOnly && READ_ONLY_REGEX.test(sql)
         @handleStatementFailure(error, {message: 'invalid sql for a read-only transaction'})
         return
@@ -352,7 +363,7 @@ License for common Javascript: MIT or Apache
       @finalized = true
 
       if @txlock
-        @executeSql "ROLLBACK", [], succeeded, failed
+        @_executeSqlInternal "ROLLBACK", [], succeeded, failed
         @run()
       else
         succeeded(tx)
@@ -378,7 +389,7 @@ License for common Javascript: MIT or Apache
       @finalized = true
 
       if @txlock
-        @executeSql "COMMIT", [], succeeded, failed
+        @_executeSqlInternal "COMMIT", [], succeeded, failed
         @run()
       else
         succeeded(tx)
