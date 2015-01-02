@@ -230,6 +230,17 @@
   };
 
   SQLitePluginTransaction.prototype.executeSql = function(sql, values, success, error) {
+    if (this.finalized) {
+      throw {
+        message: 'InvalidStateError: DOM Exception 11: This transaction is already finalized. Transactions are committed after its success or failure handlers are called. If you are using a Promise to handle callbacks, be aware that implementations following the A+ standard adhere to run-to-completion semantics and so Promise resolution occurs on a subsequent tick and therefore after the transaction commits.',
+        code: 11
+      };
+      return;
+    }
+    this._executeSqlInternal(sql, values, success, error);
+  };
+
+  SQLitePluginTransaction.prototype._executeSqlInternal = function(sql, values, success, error) {
     var qid;
     if (this.readOnly && READ_ONLY_REGEX.test(sql)) {
       this.handleStatementFailure(error, {
@@ -377,7 +388,7 @@
     };
     this.finalized = true;
     if (this.txlock) {
-      this.executeSql("ROLLBACK", [], succeeded, failed);
+      this._executeSqlInternal("ROLLBACK", [], succeeded, failed);
       this.run();
     } else {
       succeeded(tx);
@@ -406,7 +417,7 @@
     };
     this.finalized = true;
     if (this.txlock) {
-      this.executeSql("COMMIT", [], succeeded, failed);
+      this._executeSqlInternal("COMMIT", [], succeeded, failed);
       this.run();
     } else {
       succeeded(tx);
