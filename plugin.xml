@@ -70,4 +70,11 @@
 
     </platform>
 
+    <platform name="windows">
+        <js-module src="src/windows/SQLiteProxy.js" name="SQLiteProxy">
+            <merges target="" />
+        </js-module>
+
+    </platform>
+
 </plugin> <!-- vim: set expandtab : -->
