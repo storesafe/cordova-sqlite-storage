@@ -6,29 +6,15 @@ License for Android version: MIT or Apache 2.0
 
 License for iOS version: MIT only
 
-## WARNING: breaking change for Android version
-
-The automatic "`.db`" database file extension is [now removed](https://github.com/brodysoft/Cordova-SQLitePlugin/commit/3723cfc2dc933ae128fe9d5998efe4d76fcb0370) for the Android version, for consistency with the other versions. For an existing app, you may have to open an existing database like:
-
-```js
-var db = window.sqlitePlugin.openDatabase({name: "my.db"});
-```
-
-Also the threading model is changed as described below.
-
 ## Status
 
-- Please use the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin) for community support
+- Please use the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin) or [raise a new issue](https://github.com/brodysoft/Cordova-SQLitePlugin/issues/new) for community support
 - Commercial support is available for SQLCipher integration with Android & iOS versions
 
 ## Announcements
 
-- Issue with multi-page apps is fixed for Android
+- **COMING SOON:** ~~New `openDatabase` `location` option to select database location (iOS *only) and disable cloud backup~~ (*coming soon*)
 - Fixes to work with PouchDB by [@nolanlawson](https://github.com/nolanlawson)
-- Forum renamed to: [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin)
-- New location: https://github.com/brodysoft/Cordova-SQLitePlugin
-- iOS version can now be built with either ARC or MRC.
-- Android version is now using one thread per db, regardless of the `dbType` option.
 
 ## Highlights
 
@@ -50,23 +36,21 @@ Also the threading model is changed as described below.
 
 ## Known issues
 
-- db.executeSql() calls callback multiple times
-- issues with db.close() & sqlitePlugin.deleteDatabase()
-- using web workers is currently not supported and known to be broken on Android
-- INSERT statement that affects multiple rows (due to SELECT cause or using triggers, for example) does not report proper rowsAffected on Android
+- Using web workers is currently not supported and known to be broken on Android.
+- Triggers are only supported for iOS, known to be broken on Android.
+- INSERT statement that affects multiple rows (due to SELECT cause or using triggers, for example) does not report proper rowsAffected on Android.
 
 ## Other limitations
 
 - The db version, display name, and size parameter values are not supported and will be ignored.
 - The sqlite plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**.
-- For iOS, iCloud backup is NOT optional and should be.
+- **GOING AWAY:** For iOS, iCloud backup is NOT optional and should be.
 - The Android version cannot work with more than 100 open db files due to its threading model.
 - Missing db creation callback
 
 ## Limited support (testing needed)
 
-- Multi-page apps on WP(8)
-- DB Triggers
+- DB Triggers (as described above - known to be broken for Android)
 
 ## Other versions
 
@@ -108,16 +92,8 @@ function onDeviceReady() {
 ## Background processing
 
 The threading model depens on which version is used:
-- For Android, one background thread per db, always;
-- for iOS, background processing using a thread pool is enabled by default;
-
-**DEV OPTION (already removed from release version):** To disable background processing for the iOS version:
-
-```js
-var db = window.sqlitePlugin.openDatabase({name: "my.db", bgType: 0});
-```
-
-**WARNING:** The iOS version has a memory leak if background processing is disabled. This option is not recommended.
+- For Android, one background thread per db (always);
+- for iOS, background processing using a thread pool (always).
 
 # Sample with PRAGMA feature
 
@@ -385,8 +361,8 @@ Available for integration with SQLCipher.
 
 # Unit test(s)
 
-Unit testing is done in `test-www/`. To run the tests, simply do either:
-
+Unit testing is done in `test-www/`. To run the tests from *nix shell, simply do either:
+ 
     ./bin/test.sh ios
 
 or in Android:
