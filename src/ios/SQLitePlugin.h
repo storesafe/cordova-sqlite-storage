@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2013 Chris Brody
+ * Copyright (C) 2012-2015 Chris Brody
  * Copyright (C) 2011 Davide Bertola
  *
  * This library is available under the terms of the MIT License (2008).

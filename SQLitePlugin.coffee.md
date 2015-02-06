@@ -1,25 +1,24 @@
 # SQLitePlugin in Markdown (litcoffee)
 
-New coffee compiler can compile this directly into Javascript
+#### Use coffee compiler to compile this directly into Javascript
 
-License for common Javascript: MIT or Apache
+#### License for common script: MIT or Apache
 
-## Top-level SQLitePlugin objects
+# Top-level SQLitePlugin objects
 
-### root window object:
+## root window object:
 
     root = @
 
-### constants:
+## constant(s):
 
     READ_ONLY_REGEX = /^\s*(?:drop|delete|insert|update|create)\s/i
-    IOS_REGEX = /iP(?:ad|hone|od)/
 
-### globals:
+## global(s):
 
     txLocks = {}
 
-### utility functions:
+## utility functions:
 
     nextTick = window.setImmediate || (fun) ->
       window.setTimeout(fun, 0)
@@ -41,7 +40,7 @@ License for common Javascript: MIT or Apache
         else
           return fun.call this, []
 
-### SQLitePlugin db-connection
+## SQLitePlugin db-connection
 
 #### SQLitePlugin object is defined by a constructor function and prototype member functions:
 
@@ -68,14 +67,6 @@ License for common Javascript: MIT or Apache
         @openError = (e) ->
           console.log e.message
           return
-
-      #@bg = !!openargs.bgType and openargs.bgType == 1
-      @bg =
-        if !openargs.bgType
-          # default to true for iOS only (due to memory issue)
-          IOS_REGEX.test(navigator.userAgent)
-        else
-          openargs.bgType == 1
 
       @open @openSuccess, @openError
       return
@@ -154,7 +145,7 @@ License for common Javascript: MIT or Apache
       @addTransaction new SQLitePluginTransaction(this, myfn, null, null, false, false)
       return
 
-### SQLitePluginTransaction object for batching:
+## SQLitePluginTransaction object for batching:
 
     ###
     Transaction batching object:
@@ -311,8 +302,7 @@ License for common Javascript: MIT or Apache
 
         return
 
-      mycommand = if @db.bg then "backgroundExecuteSqlBatch" else "executeSqlBatch"
-      cordova.exec mycb, null, "SQLitePlugin", mycommand, [{dbargs: {dbname: @db.dbname}, executes: tropts}]
+      cordova.exec mycb, null, "SQLitePlugin", "backgroundExecuteSqlBatch", [{dbargs: {dbname: @db.dbname}, executes: tropts}]
 
       return
 
@@ -368,7 +358,7 @@ License for common Javascript: MIT or Apache
 
       return
 
-### SQLite plugin object factory:
+## SQLite plugin object factory:
 
     SQLiteFactory =
       ###
@@ -405,7 +395,7 @@ License for common Javascript: MIT or Apache
         delete SQLitePlugin::openDBs[databaseName]
         cordova.exec success, error, "SQLitePlugin", "delete", [{ path: databaseName }]
 
-### Exported API:
+## Exported API:
 
     root.sqlitePlugin =
       sqliteFeatures:

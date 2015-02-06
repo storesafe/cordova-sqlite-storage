@@ -14,6 +14,7 @@
 - Transaction batch processing of Android version by @marcucio
 - Maintained by @brodybits (Chris Brody)
 - Fixes to support old Android versions by @nolanlawson
+- Thanks to Mark Oppenheim <mark.oppenheim@mnetics.co.uk> for fixes to open/close callbacks and repeated open/close/delete operations
 
 ## iOS version
 
@@ -21,10 +22,4 @@
 - Cordova 2.7+ port with background processing by @j3k0 (Jean-Christophe Hoelt <hoelt@fovea.cc>)
 - Embedded public domain LIBB64 encoding routines from http://libb64.sourceforge.net by @tbbdeveloper (Chris Robertson <oztexan@gmail.com>)
 - Maintained by @brodybits (Chris Brody)
-
-## WP version
-
-- Original author: @marcucio
-- Enhancements for background processing & improved transaction support by @Gillardo (Darren Gillard)
-- DLL integration by @nadyaA (Nadezhda Atanasova) & @Gillardo (Darren Gillard)
 

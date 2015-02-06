@@ -1,11 +1,9 @@
 (function() {
-  var IOS_REGEX, READ_ONLY_REGEX, SQLiteFactory, SQLitePlugin, SQLitePluginTransaction, argsArray, nextTick, root, txLocks;
+  var READ_ONLY_REGEX, SQLiteFactory, SQLitePlugin, SQLitePluginTransaction, argsArray, nextTick, root, txLocks;
 
   root = this;
 
   READ_ONLY_REGEX = /^\s*(?:drop|delete|insert|update|create)\s/i;
-
-  IOS_REGEX = /iP(?:ad|hone|od)/;
 
   txLocks = {};
 
@@ -53,7 +51,6 @@
     this.openError || (this.openError = function(e) {
       console.log(e.message);
     });
-    this.bg = !openargs.bgType ? IOS_REGEX.test(navigator.userAgent) : openargs.bgType === 1;
     this.open(this.openSuccess, this.openError);
   };
 
@@ -251,7 +248,7 @@
   };
 
   SQLitePluginTransaction.prototype.run = function() {
-    var batchExecutes, handlerFor, i, mycb, mycbmap, mycommand, qid, request, tropts, tx, txFailure, waiting;
+    var batchExecutes, handlerFor, i, mycb, mycbmap, qid, request, tropts, tx, txFailure, waiting;
     txFailure = null;
     tropts = [];
     batchExecutes = this.executes;
@@ -320,8 +317,7 @@
         }
       }
     };
-    mycommand = this.db.bg ? "backgroundExecuteSqlBatch" : "executeSqlBatch";
-    cordova.exec(mycb, null, "SQLitePlugin", mycommand, [
+    cordova.exec(mycb, null, "SQLitePlugin", "backgroundExecuteSqlBatch", [
       {
         dbargs: {
           dbname: this.db.dbname
