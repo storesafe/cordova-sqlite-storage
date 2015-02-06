@@ -297,6 +297,34 @@ Enable the SQLitePlugin in `config.xml` (Cordova/PhoneGap 2.x):
 
 TODO
 
+## Manual installation - windows platform version
+
+### SQLite library
+
+Download and isntall precompiled binaries for Windows Runtime 8.1 from http://www.sqlite.org/download.html, or install within Visual Studio Menu TOOLS->"Extensions and Upgrades..."->Online section of dialog.
+
+### SQLite Plugin
+
+Install plugin sources to you cordova application by running the following commands in top folder of your application:
+
+cordova plugin add <path to plugin repository>
+cordova prepare windows
+
+Add new project to your windows solution name SQLitePlugin.Windows, template "Visual C#->Store Apps->Windows Apps->Windows Runtime Component", set path at top inside <you application root>/platforms/windows.
+
+Right click on SQLitePlugin.Windows project, select 'Add->Existing Item...', locate SQLitePluginRT.cs and SQLite.cs in platforms/windows/plugins/com.brodysoft.sqlitePlugin, select "Add As Link" drop down menu.
+
+Right click on Class1.cs inside SQLitePlugin.Windows project and select 'Delete'.
+
+Double click on 'Properties' inside SQLitePlugin.Windows project and enter SQLitePluginRT into 'Default namespace:' field.
+
+Righ click on References inside SQLitePlugin.Windows project, select "Add Reference..."->Windows 8.1->Extensions->SQLite for Windows Runtime (Windows 8.1). This will also automatically select "Microsoft Visual C++ Runtime..." -- remove that reference from SQLitePlugin.Windows project and add it to your application project instead, otherwise you will get compile errors in SQLitePlugin.Windows project. Also add reference to SQLitePlugin.Windows and to SQLite inside you application project.
+
+Righ click on References inside you application project, select "Add Reference..."->Solution->Projects->SQLitePlugin.Windows.
+
+SQLite package uses native code, so you can not target "Any CPU", instead target one of specific architectures.
+
+
 ## Quick installation test
 
 Make a change like this to index.html (or use the sample code) verify proper installation:
