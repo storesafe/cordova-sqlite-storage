@@ -582,23 +582,28 @@ namespace SQLitePluginRT
                                 foreach (SQLiteQueryColumn column in res.column)
                                 {
                                     if (rowString.Length != 0) rowString += ",";
-
+                                    string key = column.Key
+                                                    .Replace("\\","\\\\")
+                                                    .Replace("\"","\\\"")
+                                                    .Replace("\t","\\t")
+                                                    .Replace("\r","\\r")
+                                                    .Replace("\n","\\n");
                                     if (column.Value != null)
                                     {
                                         if (column.Value.GetType().Equals(typeof(Int64)))
                                         {
                                             rowString += String.Format("\"{0}\":{1}",
-                                                column.Key, Convert.ToInt64(column.Value));
+                                                key, Convert.ToInt64(column.Value));
                                         }
                                         else if (column.Value.GetType().Equals(typeof(Double)))
                                         {
                                             rowString += String.Format(CultureInfo.InvariantCulture, "\"{0}\":{1}",
-                                                column.Key, Convert.ToDouble(column.Value, CultureInfo.InvariantCulture));
+                                                key, Convert.ToDouble(column.Value, CultureInfo.InvariantCulture));
                                         }
                                         else
                                         {
                                             rowString += String.Format("\"{0}\":\"{1}\"",
-                                                column.Key,
+                                                key,
                                                 column.Value.ToString()
                                                     .Replace("\\","\\\\")
                                                     .Replace("\"","\\\"")
@@ -610,7 +615,7 @@ namespace SQLitePluginRT
                                     }
                                     else
                                     {
-                                        rowString += String.Format("\"{0}\":null", column.Key);
+                                        rowString += String.Format("\"{0}\":null", key);
                                     }
 
                                 }
