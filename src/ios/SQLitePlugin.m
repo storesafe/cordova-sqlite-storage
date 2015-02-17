@@ -158,29 +158,64 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 @implementation SQLitePlugin
 
 @synthesize openDBs;
-@synthesize appDocsPath;
+@synthesize appDBPaths;
 
 -(CDVPlugin*) initWithWebView:(UIWebView*)theWebView
 {
     self = (SQLitePlugin*)[super initWithWebView:theWebView];
     if (self) {
         openDBs = [NSMutableDictionary dictionaryWithCapacity:0];
+        appDBPaths = [NSMutableDictionary dictionaryWithCapacity:0];
 #if !__has_feature(objc_arc)
         [openDBs retain];
+        [appDBPaths retain];
 #endif
 
         NSString *docs = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
         NSLog(@"Detected docs path: %@", docs);
-        [self setAppDocsPath:docs];
+        [appDBPaths setObject: docs forKey:@"docs"];
+
+        NSString *libs = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
+        NSLog(@"Detected Library path: %@", libs);
+        [appDBPaths setObject: libs forKey:@"libs"];
+
+        NSString *nosync = [libs stringByAppendingPathComponent:@"LocalDatabase"];
+        NSError *err;
+        if ([[NSFileManager defaultManager] fileExistsAtPath: nosync])
+        {
+            NSLog(@"no cloud sync at path: %@", nosync);
+            [appDBPaths setObject: nosync forKey:@"nosync"];
+        }
+        else
+        {
+            if ([[NSFileManager defaultManager] createDirectoryAtPath: nosync withIntermediateDirectories:NO attributes: nil error:&err])
+            {
+                NSURL *nosyncURL = [ NSURL fileURLWithPath: nosync];
+                if (![nosyncURL setResourceValue: [NSNumber numberWithBool: YES] forKey: NSURLIsExcludedFromBackupKey error: &err])
+                {
+                    NSLog(@"IGNORED: error setting nobackup flag in LocalDatabase directory: %@", err);
+                }
+                NSLog(@"no cloud sync at path: %@", nosync);
+                [appDBPaths setObject: nosync forKey:@"nosync"];
+            }
+            else
+            {
+                // fallback:
+                NSLog(@"WARNING: error adding LocalDatabase directory: %@", err);
+                [appDBPaths setObject: libs forKey:@"nosync"];
+            }
+        }
     }
     return self;
 }
 
--(id) getDBPath:(id)dbFile {
+-(id) getDBPath:(NSString *)dbFile at:(NSString *)atkey {
     if (dbFile == NULL) {
         return NULL;
     }
-    NSString *dbPath = [NSString stringWithFormat:@"%@/%@", appDocsPath, dbFile];
+
+    NSString *dbdir = [appDBPaths objectForKey:atkey];
+    NSString *dbPath = [NSString stringWithFormat:@"%@/%@", dbdir, dbFile];
     return dbPath;
 }
 
@@ -189,29 +224,36 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     CDVPluginResult* pluginResult = nil;
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
 
-    NSString *dbname = [self getDBPath:[options objectForKey:@"name"]];
-    NSValue *dbPointer;
+    NSString *dbfilename = [options objectForKey:@"name"];
+
+    NSString *dblocation = [options objectForKey:@"dblocation"];
+    if (dblocation == NULL) dblocation = @"docs";
+    //NSLog(@"using db location: %@", dblocation);
+
+    NSString *dbname = [self getDBPath:dbfilename at:dblocation];
 
     if (dbname == NULL) {
+        NSLog(@"No db name specified for open");
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"You must specify database name"];
     }
     else {
-        dbPointer = [openDBs objectForKey:dbname];
+        NSValue *dbPointer = [openDBs objectForKey:dbfilename];
+
         if (dbPointer != NULL) {
-            // NSLog(@"Reusing existing database connection");
+            NSLog(@"Reusing existing database connection for db name %@", dbfilename);
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Database opened"];
         }
         else {
             const char *name = [dbname UTF8String];
-            // NSLog(@"using db name: %@", dbname);
             sqlite3 *db;
 
+            NSLog(@"open full db path: %@", dbname);
             if (sqlite3_open(name, &db) != SQLITE_OK) {
                 pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unable to open DB"];
                 return;
             }
             else {
-                // Extra for SQLCipher:
+                // Extra test for SQLCipher:
                 // const char *key = [@"your_key_here" UTF8String];
                 // if(key != NULL) sqlite3_key(db, key, strlen(key));
 
@@ -220,10 +262,11 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
                 // Attempt to read the SQLite master table (test for SQLCipher version):
                 if(sqlite3_exec(db, (const char*)"SELECT count(*) FROM sqlite_master;", NULL, NULL, NULL) == SQLITE_OK) {
                     dbPointer = [NSValue valueWithPointer:db];
-                    [openDBs setObject: dbPointer forKey: dbname];
+                    [openDBs setObject: dbPointer forKey: dbfilename];
                     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Database opened"];
                 } else {
-                    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unable to encrypt DB"];
+                    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unable to open DB"];
+                    // XXX TODO: close the db handle & [perhaps] remove from openDBs!!
                 }
             }
         }
@@ -246,22 +289,29 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     CDVPluginResult* pluginResult = nil;
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
 
-    NSString *dbPath = [self getDBPath:[options objectForKey:@"path"]];
-    if (dbPath == NULL) {
+    NSString *dbFileName = [options objectForKey:@"path"];
+
+    if (dbFileName == NULL) {
+        // Should not happen:
+        NSLog(@"No db name specified for close");
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify database path"];
-    }
-    else {
-        NSValue *val = [openDBs objectForKey:dbPath];
+    } else {
+        NSValue *val = [openDBs objectForKey:dbFileName];
         sqlite3 *db = [val pointerValue];
+
         if (db == NULL) {
+            // Should not happen:
+            NSLog(@"close: db name was not open: %@", dbFileName);
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Specified db was not open"];
         }
         else {
+            NSLog(@"close db name: %@", dbFileName);
             sqlite3_close (db);
-            [openDBs removeObjectForKey:dbPath];
+            [openDBs removeObjectForKey:dbFileName];
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"DB closed"];
         }
     }
+
     [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
 }
 
@@ -269,16 +319,26 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 {
     CDVPluginResult* pluginResult = nil;
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
-    
-    NSString *dbPath = [self getDBPath:[options objectForKey:@"path"]];
-    if(dbPath==NULL) {
+
+    NSString *dbFileName = [options objectForKey:@"path"];
+
+    NSString *dblocation = [options objectForKey:@"dblocation"];
+    if (dblocation == NULL) dblocation = @"docs";
+
+    if (dbFileName==NULL) {
+        // Should not happen:
+	NSLog(@"No db name specified for delete");
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify database path"];
     } else {
-        if([[NSFileManager defaultManager]fileExistsAtPath:dbPath]) {
+        NSString *dbPath = [self getDBPath:dbFileName at:dblocation];
+
+        if ([[NSFileManager defaultManager]fileExistsAtPath:dbPath]) {
+            NSLog(@"delete full db path: %@", dbPath);
             [[NSFileManager defaultManager]removeItemAtPath:dbPath error:nil];
-            [openDBs removeObjectForKey:dbPath];
+            [openDBs removeObjectForKey:dbFileName];
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"DB deleted"];
         } else {
+            NSLog(@"delete: db was not found: %@", dbPath);
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"The database does not exist on that path"];
         }
     }
@@ -351,23 +411,23 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 
 -(CDVPluginResult*) executeSqlWithDict: (NSMutableDictionary*)options andArgs: (NSMutableDictionary*)dbargs
 {
-    NSString *dbPath = [self getDBPath:[dbargs objectForKey:@"dbname"]];
-    if (dbPath == NULL) {
+    NSString *dbFileName = [dbargs objectForKey:@"dbname"];
+    if (dbFileName == NULL) {
         return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify database path"];
-    }
-    
-    NSString *sql = [options objectForKey:@"sql"];
-    if (sql == NULL) {
-        return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify a sql query to execute"];
     }
 
     NSMutableArray *params = [options objectForKey:@"params"]; // optional
 
-    NSValue *dbPointer = [openDBs objectForKey:dbPath];
+    NSValue *dbPointer = [openDBs objectForKey:dbFileName];
     if (dbPointer == NULL) {
         return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"No such database, you must open it first"];
     }
     sqlite3 *db = [dbPointer pointerValue];
+
+    NSString *sql = [options objectForKey:@"sql"];
+    if (sql == NULL) {
+        return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify a sql query to execute"];
+    }
 
     const char *sql_stmt = [sql UTF8String];
     NSDictionary *error = nil;
@@ -392,7 +452,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     if (sqlite3_prepare_v2(db, sql_stmt, -1, &statement, NULL) != SQLITE_OK) {
         error = [SQLitePlugin captureSQLiteErrorFromDb:db];
         keepGoing = NO;
-    } else if(params != NULL) {
+    } else if (params != NULL) {
         for (int b = 0; b < params.count; b++) {
             [self bindStatement:statement withArg:[params objectAtIndex:b] atIndex:(b+1)];
         }
@@ -523,7 +583,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 
 #if !__has_feature(objc_arc)
     [openDBs release];
-    [appDocsPath release];
+    [appDBPaths release];
     [super dealloc];
 #endif
 }

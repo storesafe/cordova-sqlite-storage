@@ -13,7 +13,7 @@ License for iOS version: MIT only
 
 ## Announcements
 
-- **COMING SOON:** ~~New `openDatabase` `location` option to select database location (iOS *only) and disable cloud backup~~ (*coming soon*)
+- New `openDatabase` and `deleteDatabase` `location` option to select database location (iOS *only*) and disable iCloud backup
 - Fixes to work with PouchDB by [@nolanlawson](https://github.com/nolanlawson)
 
 ## Highlights
@@ -44,9 +44,7 @@ License for iOS version: MIT only
 
 - The db version, display name, and size parameter values are not supported and will be ignored.
 - The sqlite plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**.
-- **GOING AWAY:** For iOS, iCloud backup is NOT optional and should be.
 - The Android version cannot work with more than 100 open db files due to its threading model.
-- Missing db creation callback
 
 ## Limited support (testing needed)
 
@@ -55,7 +53,7 @@ License for iOS version: MIT only
 ## Other versions
 
 - Pre-populated database support for Android & iOS: https://github.com/RikshaDriver/Cordova-PrePopulated-SQLitePlugin
-- Original version for iOS, with a different API: https://github.com/davibe/Phonegap-SQLitePlugin
+- Original version for iOS (with a different API): https://github.com/davibe/Phonegap-SQLitePlugin
 
 ## Using with SQLCipher
 
@@ -71,8 +69,13 @@ The idea is to emulate the HTML5 SQL API as closely as possible. The only major 
 ## Opening a database
 
 There are two options to open a database:
-- Recommended: `var db = window.sqlitePlugin.openDatabase({name: "my.db"});`
+- Recommended: `var db = window.sqlitePlugin.openDatabase({name: "my.db", location: 1});`
 - Classical: `var db = window.sqlitePlugin.openDatabase("myDatabase.db", "1.0", "Demo", -1);`
+
+The new `location` option is used to select the database subdirectory location (iOS *only*) with the following choices:
+- `0` (default): `Documents` - will be visible to iTunes and backed up by iCloud
+- `1`: `Library` - backed up by iCloud, *NOT* visible to iTunes
+- `2`: `Library/LocalDatabase` - *NOT* visible to iTunes and *NOT* backed up by iCloud
 
 **IMPORTANT:** Please wait for the "deviceready" event, as in the following example:
 
@@ -171,8 +174,10 @@ This case will also works with Safari (WebKit), assuming you replace window.sqli
 ## Delete a database
 
 ```js
-window.sqlitePlugin.deleteDatabase("my.db", successcb, errorcb);
+window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, errorcb);
 ```
+
+`location` as described above for `openDatabase` (iOS *only*)
 
 # Installing
 

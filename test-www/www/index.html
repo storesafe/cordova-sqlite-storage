@@ -1264,12 +1264,13 @@
             start(1);
           });
         });
-        
+
         if (!isWebSql) test (suiteName + ' database.close fails in transaction', function () {
           stop(1);
-          
+
           var dbName = "Database-Close-fail";
-          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+          //var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase({name: dbName, location: 1});
 
           db.readTransaction(function(tx) {
             tx.executeSql('SELECT 1', [], function(tx, results) {
@@ -1292,14 +1293,16 @@
           });
         });
 
-        if (!isWebSql) test(suiteName + ' open same database twice works', function () {
+        // XXX TODO same db name, different location [BROKEN]
+
+        if (!isWebSql) test(suiteName + ' open same database twice [same location] works', function () {
 
           stop(2);
 
           var dbName = 'open-twice';
 
-          var db1 = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
-            var db2 = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
+          var db1 = openDatabase({name: dbName, location: 2}, function () {
+            var db2 = openDatabase({name: dbName, location: 2}, function () {
               db1.readTransaction(function(tx1) {
                 tx1.executeSql('SELECT 1', [], function(tx1d, results) {
                   ok(true, 'db1 transaction working');
@@ -1383,10 +1386,11 @@
           stop(1);
 
           var dbName = "Database-delete-and-Reopen";
-          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
+          var dbLocation = 2;
+          var db = openDatabase({name: dbName, location: dbLocation}, function () {
             // success CB
-            window.sqlitePlugin.deleteDatabase(dbName, function () {
-              db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
+            window.sqlitePlugin.deleteDatabase({name: dbName, location: dbLocation}, function () {
+              db = openDatabase({name: dbName, location: dbLocation}, function () {
                 db.readTransaction(function (tx) {
                   tx.executeSql('SELECT 1', [], function (tx, results) {
                     ok(true, 'database re-opened succesfully');

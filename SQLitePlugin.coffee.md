@@ -364,6 +364,8 @@
 
 ## SQLite plugin object factory:
 
+    dblocations = [ "docs", "libs", "nosync" ]
+
     SQLiteFactory =
       ###
       NOTE: this function should NOT be translated from Javascript
@@ -393,11 +395,28 @@
             okcb = args[1]
             if args.length > 2 then errorcb = args[2]
 
+        dblocation = if !!openargs.location then dblocations[openargs.location] else null
+        openargs.dblocation = dblocation || dblocations[0]
+
         new SQLitePlugin openargs, okcb, errorcb
 
-      deleteDb: (databaseName, success, error) ->
-        delete SQLitePlugin::openDBs[databaseName]
-        cordova.exec success, error, "SQLitePlugin", "delete", [{ path: databaseName }]
+      deleteDb: (first, success, error) ->
+        args = {}
+
+        if first.constructor == String
+          #console.log "delete db name: #{first}"
+          args.path = first
+          args.dblocation = dblocations[0]
+
+        else
+          #console.log "delete db args: #{JSON.stringify first}"
+          if !(first and first['name']) then throw new Error("Please specify db name")
+          args.path = first.name
+          dblocation = if !!first.location then dblocations[first.location] else null
+          args.dblocation = dblocation || dblocations[0]
+
+        delete SQLitePlugin::openDBs[args.path]
+        cordova.exec success, error, "SQLitePlugin", "delete", [ args ]
 
 ## Exported API:
 

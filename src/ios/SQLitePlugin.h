@@ -32,7 +32,7 @@ typedef int WebSQLError;
 }
 
 @property (nonatomic, copy) NSMutableDictionary *openDBs;
-@property (nonatomic, retain) NSString *appDocsPath;
+@property (nonatomic, copy) NSMutableDictionary *appDBPaths;
 
 // Open / Close
 -(void) open: (CDVInvokedUrlCommand*)command;
@@ -50,7 +50,7 @@ typedef int WebSQLError;
 // Perform the SQL request
 -(CDVPluginResult*) executeSqlWithDict: (NSMutableDictionary*)dict andArgs: (NSMutableDictionary*)dbargs;
 
--(id) getDBPath:(id)dbFile;
+-(id) getDBPath:(NSString *)dbFile at:(NSString *)atkey;
 
 +(NSDictionary *)captureSQLiteErrorFromDb:(sqlite3 *)db;
 
