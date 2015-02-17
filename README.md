@@ -71,8 +71,8 @@ Also the threading model is changed as described below.
 
 ## Limited support (testing needed)
 
+- DB Triggers (...)
 - Multi-page apps on WP(8)
-- DB Triggers
 
 ## Other versions
 
@@ -113,10 +113,9 @@ function onDeviceReady() {
 
 ## Background processing
 
-The threading model depens on which version is used:
-- For Android, one background thread per db, always;
-- for iOS, background processing using a thread pool (always);
-- for WP(8) version, background processing with one thread per transaction, which is internally spawned by the Cordova library.
+The threading model depends on which version is used:
+- For Android & WP(8), one background thread per db (always);
+- for iOS, background processing using a thread pool (always).
 
 # Sample with PRAGMA feature
 
@@ -196,8 +195,6 @@ This case will also works with Safari (WebKit), assuming you replace window.sqli
 ```js
 window.sqlitePlugin.deleteDatabase("my.db", successcb, errorcb);
 ```
-
-**NOTE:** This is not implemented for WP(8).
 
 # Installing
 
