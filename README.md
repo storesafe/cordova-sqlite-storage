@@ -100,7 +100,7 @@ For Android & iOS (*only*): put the database file in the `www` directory and ope
 
 ## Background processing
 
-The threading model depens on which version is used:
+The threading model depends on which version is used:
 - For Android, one background thread per db (always);
 - for iOS, background processing using a thread pool (always).
 
@@ -366,13 +366,17 @@ If you have any questions about the plugin please post it to the [Cordova-SQLite
 
 **Low priority:** issues with the API or application integration will be given lower priority until the Cordova 3.0 integration is finished for Windows Phone 8. Pull requests are very welcome for these kinds of issues.
 
-# Unit test(s)
+# Unit tests
 
-Unit testing is done in `test-www/`. To run the tests from *nix shell, simply do either:
+Unit testing is done in `test-www/`.
+
+## running tests from shell
+
+To run the tests from \*nix shell, simply do either:
  
     ./bin/test.sh ios
 
-or in Android:
+or for Android:
 
     ./bin/test.sh android
 
