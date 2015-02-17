@@ -1,24 +1,24 @@
 # SQLitePlugin in Markdown (litcoffee)
 
-New coffee compiler can compile this directly into Javascript
+#### Use coffee compiler to compile this directly into Javascript
 
-License for common Javascript: MIT or Apache
+#### License for common script: MIT or Apache
 
-## Top-level SQLitePlugin objects
+# Top-level SQLitePlugin objects
 
-### root window object:
+## root window object:
 
     root = @
 
-### constant(s):
+## constant(s):
 
     READ_ONLY_REGEX = /^\s*(?:drop|delete|insert|update|create)\s/i
 
-### global(s):
+## global(s):
 
     txLocks = {}
 
-### utility function(s):
+## utility functions:
 
     nextTick = window.setImmediate || (fun) ->
       window.setTimeout(fun, 0)
@@ -40,7 +40,7 @@ License for common Javascript: MIT or Apache
         else
           return fun.call this, []
 
-### SQLitePlugin db-connection
+## SQLitePlugin db-connection
 
 #### SQLitePlugin object is defined by a constructor function and prototype member functions:
 
@@ -128,6 +128,10 @@ License for common Javascript: MIT or Apache
       #console.log "SQLitePlugin.prototype.close"
 
       if @dbname of @openDBs
+        if txLocks[@dbname] && txLocks[@dbname].inProgress
+          error(new Error('database cannot be closed while a transaction is in progress'))
+          return
+
         delete @openDBs[@dbname]
 
         cordova.exec success, error, "SQLitePlugin", "close", [ { path: @dbname } ]
@@ -145,7 +149,7 @@ License for common Javascript: MIT or Apache
       @addTransaction new SQLitePluginTransaction(this, myfn, null, null, false, false)
       return
 
-### SQLitePluginTransaction object for batching:
+## SQLitePluginTransaction object for batching:
 
     ###
     Transaction batching object:
@@ -281,8 +285,6 @@ License for common Javascript: MIT or Apache
 
         tropts.push
           qid: qid
-          # for ios version:
-          query: [request.sql].concat(request.params)
           sql: request.sql
           params: request.params
 
@@ -360,7 +362,9 @@ License for common Javascript: MIT or Apache
 
       return
 
-### SQLite plugin object factory:
+## SQLite plugin object factory:
+
+    dblocations = [ "docs", "libs", "nosync" ]
 
     SQLiteFactory =
       ###
@@ -391,13 +395,33 @@ License for common Javascript: MIT or Apache
             okcb = args[1]
             if args.length > 2 then errorcb = args[2]
 
+        dblocation = if !!openargs.location then dblocations[openargs.location] else null
+        openargs.dblocation = dblocation || dblocations[0]
+
+        if !!openargs.createFromLocation and openargs.createFromLocation == 1
+          openargs.createFromResource = "1"
+
         new SQLitePlugin openargs, okcb, errorcb
 
-      deleteDb: (databaseName, success, error) ->
-        delete SQLitePlugin::openDBs[databaseName]
-        cordova.exec success, error, "SQLitePlugin", "delete", [{ path: databaseName }]
+      deleteDb: (first, success, error) ->
+        args = {}
 
-### Exported API:
+        if first.constructor == String
+          #console.log "delete db name: #{first}"
+          args.path = first
+          args.dblocation = dblocations[0]
+
+        else
+          #console.log "delete db args: #{JSON.stringify first}"
+          if !(first and first['name']) then throw new Error("Please specify db name")
+          args.path = first.name
+          dblocation = if !!first.location then dblocations[first.location] else null
+          args.dblocation = dblocation || dblocations[0]
+
+        delete SQLitePlugin::openDBs[args.path]
+        cordova.exec success, error, "SQLitePlugin", "delete", [ args ]
+
+## Exported API:
 
     root.sqlitePlugin =
       sqliteFeatures:

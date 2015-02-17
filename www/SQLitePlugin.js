@@ -1,5 +1,5 @@
 (function() {
-  var READ_ONLY_REGEX, SQLiteFactory, SQLitePlugin, SQLitePluginTransaction, argsArray, nextTick, root, txLocks;
+  var READ_ONLY_REGEX, SQLiteFactory, SQLitePlugin, SQLitePluginTransaction, argsArray, dblocations, nextTick, root, txLocks;
 
   root = this;
 
@@ -125,6 +125,10 @@
 
   SQLitePlugin.prototype.close = function(success, error) {
     if (this.dbname in this.openDBs) {
+      if (txLocks[this.dbname] && txLocks[this.dbname].inProgress) {
+        error(new Error('database cannot be closed while a transaction is in progress'));
+        return;
+      }
       delete this.openDBs[this.dbname];
       cordova.exec(success, error, "SQLitePlugin", "close", [
         {
@@ -297,7 +301,6 @@
       };
       tropts.push({
         qid: qid,
-        query: [request.sql].concat(request.params),
         sql: request.sql,
         params: request.params
       });
@@ -386,6 +389,8 @@
     }
   };
 
+  dblocations = ["docs", "libs", "nosync"];
+
   SQLiteFactory = {
 
     /*
@@ -395,7 +400,7 @@
     have to translate it back to CoffeeScript by hand.
      */
     opendb: argsArray(function(args) {
-      var errorcb, first, okcb, openargs;
+      var dblocation, errorcb, first, okcb, openargs;
       if (args.length < 1) {
         return null;
       }
@@ -422,15 +427,29 @@
           }
         }
       }
+      dblocation = !!openargs.location ? dblocations[openargs.location] : null;
+      openargs.dblocation = dblocation || dblocations[0];
+      if (!!openargs.createFromLocation && openargs.createFromLocation === 1) {
+        openargs.createFromResource = "1";
+      }
       return new SQLitePlugin(openargs, okcb, errorcb);
     }),
-    deleteDb: function(databaseName, success, error) {
-      delete SQLitePlugin.prototype.openDBs[databaseName];
-      return cordova.exec(success, error, "SQLitePlugin", "delete", [
-        {
-          path: databaseName
+    deleteDb: function(first, success, error) {
+      var args, dblocation;
+      args = {};
+      if (first.constructor === String) {
+        args.path = first;
+        args.dblocation = dblocations[0];
+      } else {
+        if (!(first && first['name'])) {
+          throw new Error("Please specify db name");
         }
-      ]);
+        args.path = first.name;
+        dblocation = !!first.location ? dblocations[first.location] : null;
+        args.dblocation = dblocation || dblocations[0];
+      }
+      delete SQLitePlugin.prototype.openDBs[args.path];
+      return cordova.exec(success, error, "SQLitePlugin", "delete", [args]);
     }
   };
 

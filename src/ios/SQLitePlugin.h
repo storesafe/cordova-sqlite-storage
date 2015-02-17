@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2013 Chris Brody
+ * Copyright (C) 2012-2015 Chris Brody
  * Copyright (C) 2011 Davide Bertola
  *
  * This library is available under the terms of the MIT License (2008).
@@ -32,7 +32,7 @@ typedef int WebSQLError;
 }
 
 @property (nonatomic, copy) NSMutableDictionary *openDBs;
-@property (nonatomic, retain) NSString *appDocsPath;
+@property (nonatomic, copy) NSMutableDictionary *appDBPaths;
 
 // Open / Close
 -(void) open: (CDVInvokedUrlCommand*)command;
@@ -50,7 +50,7 @@ typedef int WebSQLError;
 // Perform the SQL request
 -(CDVPluginResult*) executeSqlWithDict: (NSMutableDictionary*)dict andArgs: (NSMutableDictionary*)dbargs;
 
--(id) getDBPath:(id)dbFile;
+-(id) getDBPath:(NSString *)dbFile at:(NSString *)atkey;
 
 +(NSDictionary *)captureSQLiteErrorFromDb:(sqlite3 *)db;
 
