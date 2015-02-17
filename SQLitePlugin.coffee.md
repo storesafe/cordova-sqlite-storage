@@ -398,6 +398,9 @@
         dblocation = if !!openargs.location then dblocations[openargs.location] else null
         openargs.dblocation = dblocation || dblocations[0]
 
+        if !!openargs.createFromLocation and openargs.createFromLocation == 1
+          openargs.createFromResource = "1"
+
         new SQLitePlugin openargs, okcb, errorcb
 
       deleteDb: (first, success, error) ->

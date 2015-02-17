@@ -215,7 +215,8 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     }
 
     NSString *dbdir = [appDBPaths objectForKey:atkey];
-    NSString *dbPath = [NSString stringWithFormat:@"%@/%@", dbdir, dbFile];
+    //NSString *dbPath = [NSString stringWithFormat:@"%@/%@", dbdir, dbFile];
+    NSString *dbPath = [dbdir stringByAppendingPathComponent: dbFile];
     return dbPath;
 }
 
@@ -242,30 +243,38 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
         if (dbPointer != NULL) {
             NSLog(@"Reusing existing database connection for db name %@", dbfilename);
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Database opened"];
-        }
-        else {
+        } else {
             const char *name = [dbname UTF8String];
             sqlite3 *db;
 
             NSLog(@"open full db path: %@", dbname);
+
+            /* Option to create from resource (pre-populated) if db does not exist: */
+            if (![[NSFileManager defaultManager] fileExistsAtPath:dbname]) {
+                NSString *createFromResource = [options objectForKey:@"createFromResource"];
+                if (createFromResource != NULL)
+            	    [self createFromResource:dbfilename withDbname:dbname];
+            }
+
             if (sqlite3_open(name, &db) != SQLITE_OK) {
                 pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unable to open DB"];
                 return;
-            }
-            else {
-                // Extra test for SQLCipher:
-                // const char *key = [@"your_key_here" UTF8String];
-                // if(key != NULL) sqlite3_key(db, key, strlen(key));
-
+            } else {
 		sqlite3_create_function(db, "regexp", 2, SQLITE_ANY, NULL, &sqlite_regexp, NULL, NULL);
-	
-                // Attempt to read the SQLite master table (test for SQLCipher version):
+
+                // for SQLCipher version:
+                // NSString *dbkey = [options objectForKey:@"key"];
+                // const char *key = NULL;
+                // if (dbkey != NULL) key = [dbkey UTF8String];
+                // if (key != NULL) sqlite3_key(db, key, strlen(key));
+
+                // Attempt to read the SQLite master table [to support SQLCipher version]:
                 if(sqlite3_exec(db, (const char*)"SELECT count(*) FROM sqlite_master;", NULL, NULL, NULL) == SQLITE_OK) {
                     dbPointer = [NSValue valueWithPointer:db];
                     [openDBs setObject: dbPointer forKey: dbfilename];
                     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Database opened"];
                 } else {
-                    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unable to open DB"];
+                    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unable to open DB with key"];
                     // XXX TODO: close the db handle & [perhaps] remove from openDBs!!
                 }
             }
@@ -283,6 +292,26 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 
     // NSLog(@"open cb finished ok");
 }
+
+
+-(void)createFromResource:(NSString *)dbfile withDbname:(NSString *)dbname {
+    NSString *bundleRoot = [[NSBundle mainBundle] resourcePath];
+    NSString *www = [bundleRoot stringByAppendingPathComponent:@"www"];
+    NSString *prepopulatedDb = [www stringByAppendingPathComponent: dbfile];
+    // NSLog(@"Look for prepopulated DB at: %@", prepopulatedDb);
+
+    if ([[NSFileManager defaultManager] fileExistsAtPath:prepopulatedDb]) {
+        NSLog(@"Found prepopulated DB: %@", prepopulatedDb);
+        NSError *error;
+        BOOL success = [[NSFileManager defaultManager] copyItemAtPath:prepopulatedDb toPath:dbname error:&error];
+        
+        if(success)
+            NSLog(@"Copied prepopulated DB content to: %@", dbname);
+        else
+            NSLog(@"Unable to copy DB file: %@", [error localizedDescription]);
+    }
+}
+
 
 -(void) close: (CDVInvokedUrlCommand*)command
 {
