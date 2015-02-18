@@ -591,6 +591,45 @@
           });
         });
 
+        // This test shows that the plugin does not throw an error when trying to serialize
+        // an unsupported parameter type. Blob becomes an empty dictionary on iOS, for example,
+        // and so this verifies the type is converted to a string and continues. Web SQL does
+        // the same but on the JavaScript side and converts to a string like `[object Blob]`.
+        if (typeof ArrayBuffer !== "undefined") test(suiteName + "unsupported parameter type as string", function() {
+          // XXX TODO: investigate why this does not work for WP(8):
+          if (/MSIE/.test(navigator.userAgent)) {
+              ok(true, "SKIP for WP(8)");
+              return;
+          }
+          var db = openDatabase("Blob-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          ok(!!db, "db object");
+          stop(1);
+
+          db.transaction(function(tx) {
+            ok(!!tx, "tx object");
+
+            var buffer = new ArrayBuffer(5);
+            var view   = new Uint8Array(buffer);
+            view[0] = 'h'.charCodeAt();
+            view[1] = 'e'.charCodeAt();
+            view[2] = 'l'.charCodeAt();
+            view[3] = 'l'.charCodeAt();
+            view[4] = 'o'.charCodeAt();
+            var blob = new Blob([view.buffer], { type:"application/octet-stream" });
+            
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (foo blob)');
+            tx.executeSql('INSERT INTO test_table VALUES (?)', [blob], function(tx, res) {
+              ok(true, "insert as string succeeds");
+              start(1);
+            });
+            start(1);
+          }, function(err) { 
+            ok(false, "transaction does not serialize real data but still should not fail: " + err.message);
+            start(2);
+          });
+        });
+
         test(suiteName + "readTransaction should throw on modification", function() {
           stop();
           var db = openDatabase("Database-readonly", "1.0", "Demo", DEFAULT_SIZE);
@@ -1233,14 +1272,44 @@
           });
         });
 
-        if (!isWebSql) test(suiteName + ' open same database twice works', function () {
+        if (!isWebSql) test (suiteName + ' database.close fails in transaction', function () {
+          stop(1);
+
+          var dbName = "Database-Close-fail";
+          //var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase({name: dbName, location: 1});
+
+          db.readTransaction(function(tx) {
+            tx.executeSql('SELECT 1', [], function(tx, results) {
+              // close database - need to run tests directly in callbacks as nothing is guarenteed to be queued after a close
+              db.close(function () {
+                ok(false, 'expect close to fail during transaction');
+                start(1);
+              }, function (error) {
+                ok(true, 'expect close to fail during transaction');
+                start(1);
+              });
+              start(1);
+            }, function(error) {
+              ok(false, error);
+              start(2);
+            });
+          }, function(error) {
+            ok(false, error);
+            start(2);
+          });
+        });
+
+        // XXX TODO same db name, different location [BROKEN]
+
+        if (!isWebSql) test(suiteName + ' open same database twice [same location] works', function () {
 
           stop(2);
 
           var dbName = 'open-twice';
 
-          var db1 = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
-            var db2 = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
+          var db1 = openDatabase({name: dbName, location: 2}, function () {
+            var db2 = openDatabase({name: dbName, location: 2}, function () {
               db1.readTransaction(function(tx1) {
                 tx1.executeSql('SELECT 1', [], function(tx1d, results) {
                   ok(true, 'db1 transaction working');
@@ -1275,15 +1344,14 @@
           stop(1);
         
           var dbName = "Database-Close-and-Reopen";
-          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
+          openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function (db) {
             db.close(function () {
-              db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
+              openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function (db) {
                 db.close(function () {
-                  db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
+                  openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function (db) {
                     db.readTransaction(function (tx) {
                       tx.executeSql('SELECT 1', [], function (tx, results) {
                         ok(true, 'database re-opened succesfully');
-                        db.close();
                         start(1);
                       }, function (error) {
                         ok(false, error.message);
@@ -1292,6 +1360,10 @@
                     }, function (error) {
                       ok(false, error.message);
                       start(1);
+                    }, function(tx) {
+                      // close on transaction success not while executing
+                      // or commit will fail
+                      db.close(); 
                     });
                   }, function (error) {
                     ok(false, error.message);
@@ -1321,10 +1393,11 @@
           stop(1);
 
           var dbName = "Database-delete-and-Reopen";
-          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
+          var dbLocation = 2;
+          var db = openDatabase({name: dbName, location: dbLocation}, function () {
             // success CB
-            window.sqlitePlugin.deleteDatabase(dbName, function () {
-              db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
+            window.sqlitePlugin.deleteDatabase({name: dbName, location: dbLocation}, function () {
+              db = openDatabase({name: dbName, location: dbLocation}, function () {
                 db.readTransaction(function (tx) {
                   tx.executeSql('SELECT 1', [], function (tx, results) {
                     ok(true, 'database re-opened succesfully');

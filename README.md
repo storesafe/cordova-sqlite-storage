@@ -9,23 +9,14 @@ License for iOS version: MIT only
 ## Status
 
 - [Available at PhoneGap build](https://build.phonegap.com/plugins/977)
-- Please use the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin) for community support
-- Commercial support is available for SQLCipher integration with Android & iOS versions
+- Please use the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin) or [raise a new issue](https://github.com/brodysoft/Cordova-SQLitePlugin/issues/new) for community support
+- SQLCipher integration is not supported by this project, will be supported in a separate project.
 
 ## Announcements
 
-- Issue with multi-page apps is fixed for Android
-- Open/close/delete callbacks working
-- WP(8) deleteDatabase() is now working
-- WP(8) INTEGER binding is now fixed
-- Accepted by PhoneGap build
-- WP(8) version is now working with CSharp-SQLite library classes (which are embedded & built from source) and passing most of the tests.
-- Changes to background processing:
-  - The `dbType` option is now removed;
-  - Android and WP(8) versions are now using one thread per db;
-  - for iOS version backround processing using a thread pool is mandatory;
+- New `openDatabase` and `deleteDatabase` `location` option to select database location (iOS *only*) and disable iCloud backup
+- Pre-populated databases support for Android & iOS is now integrated, usage described below
 - Fixes to work with PouchDB by [@nolanlawson](https://github.com/nolanlawson)
-- iOS version can now be built with either ARC or MRC.
 
 ## Highlights
 
@@ -35,8 +26,8 @@ License for iOS version: MIT only
 - As described in [this posting](http://brodyspark.blogspot.com/2012/12/cordovaphonegap-sqlite-plugins-offer.html):
   - Keeps sqlite database in a user data location that is known, can be reconfigured, and iOS will be backed up by iCloud.
   - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
-- Android & iOS working with [SQLCipher](http://sqlcipher.net) for encryption (see below)
 - Android is supported back to SDK 10 (a.k.a. Gingerbread, Android 2.3.3); Support for older versions is available upon request.
+- Pre-populated database option (usage described below)
 
 ## Some apps using Cordova/PhoneGap SQLitePlugin
 
@@ -47,35 +38,25 @@ License for iOS version: MIT only
 
 ## Known issues
 
-- Using web workers is currently not supported and known to be broken on Android.
 - Does not work with the PhoneGap Build Hydration feature.
+- Using web workers is currently not supported and known to be broken on Android.
 - Triggers are only supported for iOS, known to be broken on Android.
-- INSERT statement that affects multiple rows (due to SELECT cause or using triggers, for example) does not report proper rowsAffected on Android
+- INSERT statement that affects multiple rows (due to SELECT cause or using triggers, for example) does not report proper rowsAffected on Android.
 
 ## Other limitations
 
 - The db version, display name, and size parameter values are not supported and will be ignored.
 - The sqlite plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**.
-- For iOS, iCloud backup is NOT optional and should be.
 - The Android version cannot work with more than 100 open db files due to its threading model.
-- Missing db creation callback
 
 ## Limited support (testing needed)
 
 - Multi-page apps on WP(8)
-- DB Triggers
+- DB Triggers (as described above - known to be broken for Android)
 
 ## Other versions
 
-- Pre-populated database support for Android & iOS: https://github.com/RikshaDriver/Cordova-PrePopulated-SQLitePlugin
-- Original version for iOS, with a different API: https://github.com/davibe/Phonegap-SQLitePlugin
-
-## Using with SQLCipher
-
-- for Android version: [this blog posting](http://brodyspark.blogspot.com/2012/12/using-sqlcipher-for-android-with.html) & [enhancements to SQLCipher db classes for Android](http://brodyspark.blogspot.com/2012/12/enhancements-to-sqlcipher-db-classes.html)
-- for iOS version: [this posting](http://brodyspark.blogspot.com/2012/12/integrating-sqlcipher-with.html)
-
-**NOTE:** This documentation is out-of-date and to be replaced very soon.
+- Original version for iOS (with a different API): https://github.com/davibe/Phonegap-SQLitePlugin
 
 # Usage
 
@@ -84,8 +65,13 @@ The idea is to emulate the HTML5 SQL API as closely as possible. The only major 
 ## Opening a database
 
 There are two options to open a database:
-- Recommended: `var db = window.sqlitePlugin.openDatabase({name: "my.db"});`
+- Recommended: `var db = window.sqlitePlugin.openDatabase({name: "my.db", location: 1});`
 - Classical: `var db = window.sqlitePlugin.openDatabase("myDatabase.db", "1.0", "Demo", -1);`
+
+The new `location` option is used to select the database subdirectory location (iOS *only*) with the following choices:
+- `0` (default): `Documents` - will be visible to iTunes and backed up by iCloud
+- `1`: `Library` - backed up by iCloud, *NOT* visible to iTunes
+- `2`: `Library/LocalDatabase` - *NOT* visible to iTunes and *NOT* backed up by iCloud
 
 **IMPORTANT:** Please wait for the "deviceready" event, as in the following example:
 
@@ -102,9 +88,22 @@ function onDeviceReady() {
 
 **NOTE:** The database file name should include the extension, if desired.
 
+### Pre-populated database
+
+For Android & iOS (*only*): put the database file in the `www` directory and open the database like:
+
+```js
+  var db = window.sqlitePlugin.openDatabase({name: "my.db", createFromLocation: 1});
+```
+
+**IMPORTANT NOTES:**
+
+- Put the pre-populated database file in the `www` subdirectory. This should work well with using the Cordova CLI to support both Android & iOS versions.
+- The pre-populated database file name must match **exactly** the file name given in `openDatabase`. The automatic extension has been completely eliminated.
+
 ## Background processing
 
-The threading model depens on which version is used:
+The threading model depends on which version is used:
 - For Android & WP(8), one background thread per db (always);
 - for iOS, background processing using a thread pool (always).
 
@@ -184,8 +183,10 @@ This case will also works with Safari (WebKit), assuming you replace window.sqli
 ## Delete a database
 
 ```js
-window.sqlitePlugin.deleteDatabase("my.db", successcb, errorcb);
+window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, errorcb);
 ```
+
+`location` as described above for `openDatabase` (iOS *only*)
 
 # Installing
 
@@ -379,17 +380,17 @@ If you have any questions about the plugin please post it to the [Cordova-SQLite
 
 **Low priority:** issues with the API or application integration will be given lower priority until the Cordova 3.0 integration is finished for Windows Phone 8. Pull requests are very welcome for these kinds of issues.
 
-## Professional support
+# Unit tests
 
-Available for integration with SQLCipher.
+Unit testing is done in `test-www/`.
 
-# Unit test(s)
+## running tests from shell
 
-Unit testing is done in `test-www/`. To run the tests from *nix shell, simply do either:
-
+To run the tests from \*nix shell, simply do either:
+ 
     ./bin/test.sh ios
 
-or in Android:
+or for Android:
 
     ./bin/test.sh android
 

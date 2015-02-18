@@ -49,6 +49,6 @@ cp -r ../src ../plugin.xml ../www ../.plugin
 
 # update the plugin, run the test app
 cordova platform add $platform
-cordova plugin rm com.phonegap.plugins.sqlite
+cordova plugin rm com.brodysoft.sqlitePlugin
 cordova plugin add ../.plugin
 cordova run $platform
