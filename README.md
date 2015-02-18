@@ -38,7 +38,7 @@ License for iOS version: MIT only
 
 ## Known issues
 
-- Does not work with the PhoneGap Build Hydration feature.
+- Issue reported with PhoneGap Build Hydration.
 - Using web workers is currently not supported and known to be broken on Android.
 - Triggers are only supported for iOS, known to be broken on Android.
 - INSERT statement that affects multiple rows (due to SELECT cause or using triggers, for example) does not report proper rowsAffected on Android.
@@ -378,7 +378,7 @@ If you have any questions about the plugin please post it to the [Cordova-SQLite
 1. Stability is first: immediate resolution or workaround for stability issues (crashing) is the goal.
 2. Correctness: any issue with correctness should result in a new testcase together with the bug fix.
 
-**Low priority:** issues with the API or application integration will be given lower priority until the Cordova 3.0 integration is finished for Windows Phone 8. Pull requests are very welcome for these kinds of issues.
+**Low priority:** issues with the API or application integration will be given lower priority until the Cordova CLI integration is finished for Windows (8+). Pull requests are very welcome for these kinds of issues.
 
 # Unit tests
 
