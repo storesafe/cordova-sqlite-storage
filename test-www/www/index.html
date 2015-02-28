@@ -590,16 +590,24 @@
         });
 
         // This test shows that the plugin does not throw an error when trying to serialize
-        // an unsupported parameter type. Blob becomes an empty dictionary on iOS, for example,
+        // a non-standard parameter type. Blob becomes an empty dictionary on iOS, for example,
         // and so this verifies the type is converted to a string and continues. Web SQL does
         // the same but on the JavaScript side and converts to a string like `[object Blob]`.
-        if (typeof ArrayBuffer !== "undefined") test(suiteName + "unsupported parameter type as string", function() {
+        test(suiteName + "INSERT Blob from ArrayBuffer (non-standard parameter type)", function() {
+
+          ok(typeof ArrayBuffer !== "undefined", "ArrayBuffer type exists");
+
+          // abort the test if ArrayBuffer is undefined
+          // TODO: consider trying this for multiple non-standard parameter types instead
+          if (typeof ArrayBuffer === "undefined") return;
+
           var db = openDatabase("Blob-test.db", "1.0", "Demo", DEFAULT_SIZE);
           ok(!!db, "db object");
           stop(1);
 
           db.transaction(function(tx) {
             ok(!!tx, "tx object");
+            stop(1);
 
             var buffer = new ArrayBuffer(5);
             var view   = new Uint8Array(buffer);
@@ -609,17 +617,20 @@
             view[3] = 'l'.charCodeAt();
             view[4] = 'o'.charCodeAt();
             var blob = new Blob([view.buffer], { type:"application/octet-stream" });
-            
+
             tx.executeSql('DROP TABLE IF EXISTS test_table');
             tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (foo blob)');
             tx.executeSql('INSERT INTO test_table VALUES (?)', [blob], function(tx, res) {
-              ok(true, "insert as string succeeds");
+              ok(true, "INSERT blob OK");
+              start(1);
+            }, function(tx, error) {
+              ok(false, "INSERT blob FAILED");
               start(1);
             });
             start(1);
           }, function(err) { 
-            ok(false, "transaction does not serialize real data but still should not fail: " + err.message);
-            start(2);
+            ok(false, "transaction failure with message: " + err.message);
+            start(1);
           });
         });
 
@@ -1266,10 +1277,9 @@
         });
 
         if (!isWebSql) test (suiteName + ' database.close fails in transaction', function () {
-          stop(1);
+          stop(2);
 
           var dbName = "Database-Close-fail";
-          //var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
           var db = openDatabase({name: dbName, location: 1});
 
           db.readTransaction(function(tx) {
