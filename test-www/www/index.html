@@ -589,6 +589,30 @@
           });
         });
 
+        // XXX reproduce issue #140:
+        test(suiteName + "executeSql parameter as array", function() {
+          stop();
+          var db = openDatabase("array-parameter.db", "1.0", "Demo", DEFAULT_SIZE);
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data1, data2)');
+          }, function(err) { ok(false, err.message) }, function() {
+            db.transaction(function(tx) {
+              // create columns with no type affinity
+              tx.executeSql("insert into test_table (data1, data2) VALUES (?,?)", ['abc', [1,2,3]], function(tx, res) {
+                equal(res.rowsAffected, 1, "row inserted");
+                tx.executeSql("select * from test_table", [], function(tx, res) {
+                  start();
+                  var row = res.rows.item(0);
+                  strictEqual(row.data1, 'abc', "data1: string");
+                  // XXX #140 - only works with Web SQL:
+                  if (isWebSql) strictEqual(row.data2, '1,2,3', "data2: array should have been inserted as text (string)");
+                });
+              });
+            });
+          });
+        });
+
         // This test shows that the plugin does not throw an error when trying to serialize
         // a non-standard parameter type. Blob becomes an empty dictionary on iOS, for example,
         // and so this verifies the type is converted to a string and continues. Web SQL does
