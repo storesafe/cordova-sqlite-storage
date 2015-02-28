@@ -934,6 +934,43 @@
           });
         }
 
+        // XXX #147 iOS version of plugin BROKEN:
+        if (isWebSql || /Android/.test(navigator.userAgent)) test(suiteName + ' handles unicode line separator correctly', function () {
+          stop(2);
+
+          var dbName = "Unicode-line-separator.db";
+          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function (tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test', [], function () {
+              tx.executeSql('CREATE TABLE test (name, id)', [], function() {
+                tx.executeSql('INSERT INTO test VALUES (?, "id1")', ['hello\u2028world'], function () {
+                  tx.executeSql('SELECT name FROM test', [], function (tx, res) {
+                    var name = res.rows.item(0).name;
+
+                    var expected = [
+                      'hello\u2028world'
+                    ];
+
+                    ok(expected.indexOf(name) !== -1, 'field value: ' +
+                       JSON.stringify(name) + ' should be in ' +
+                       JSON.stringify(expected));
+
+                    equal(name.length, 11, 'length of field should be 15');
+                    start();
+                  })
+                });
+              });
+            });
+          }, function(err) {
+            ok(false, 'unexpected error: ' + err.message);
+            start(2);
+          }, function () {
+            ok(true, 'transaction ok');
+            start();
+          });
+        });
+
         test(suiteName + "syntax error", function() {
           var db = openDatabase("Syntax-error-test.db", "1.0", "Demo", DEFAULT_SIZE);
           ok(!!db, "db object");
