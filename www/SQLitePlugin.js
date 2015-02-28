@@ -1,5 +1,5 @@
 (function() {
-  var READ_ONLY_REGEX, SQLiteFactory, SQLitePlugin, SQLitePluginTransaction, argsArray, dblocations, nextTick, root, toSQLError, txLocks;
+  var READ_ONLY_REGEX, SQLiteFactory, SQLitePlugin, SQLitePluginTransaction, argsArray, dblocations, newSQLError, nextTick, root, txLocks;
 
   root = this;
 
@@ -7,7 +7,7 @@
 
   txLocks = {};
 
-  toSQLError = function(error, code) {
+  newSQLError = function(error, code) {
     var sqlError;
     sqlError = error;
     if (!code) {
@@ -62,7 +62,7 @@
     var dbname;
     console.log("SQLitePlugin openargs: " + (JSON.stringify(openargs)));
     if (!(openargs && openargs['name'])) {
-      throw new Error("Cannot create a SQLitePlugin instance without a db name");
+      throw newSQLError("Cannot create a SQLitePlugin db instance without a db name");
     }
     dbname = openargs.name;
     this.openargs = openargs;
@@ -97,7 +97,7 @@
 
   SQLitePlugin.prototype.transaction = function(fn, error, success) {
     if (!this.openDBs[this.dbname]) {
-      error(toSQLError('database not open'));
+      error(newSQLError('database not open'));
       return;
     }
     this.addTransaction(new SQLitePluginTransaction(this, fn, error, success, true, false));
@@ -105,7 +105,7 @@
 
   SQLitePlugin.prototype.readTransaction = function(fn, error, success) {
     if (!this.openDBs[this.dbname]) {
-      error(toSQLError('database not open'));
+      error(newSQLError('database not open'));
       return;
     }
     this.addTransaction(new SQLitePluginTransaction(this, fn, error, success, true, true));
@@ -131,10 +131,7 @@
         return success(_this);
       };
     })(this);
-    if (!(this.dbname in this.openDBs)) {
-      this.openDBs[this.dbname] = true;
-      cordova.exec(onSuccess, error, "SQLitePlugin", "open", [this.openargs]);
-    } else {
+    if (this.dbname in this.openDBs) {
 
       /*
       for a re-open run onSuccess async so that the openDatabase return value
@@ -144,13 +141,16 @@
       nextTick(function() {
         return onSuccess();
       });
+    } else {
+      this.openDBs[this.dbname] = true;
+      cordova.exec(onSuccess, error, "SQLitePlugin", "open", [this.openargs]);
     }
   };
 
   SQLitePlugin.prototype.close = function(success, error) {
     if (this.dbname in this.openDBs) {
       if (txLocks[this.dbname] && txLocks[this.dbname].inProgress) {
-        error(new Error('database cannot be closed while a transaction is in progress'));
+        error(newSQLError('database cannot be closed while a transaction is in progress'));
         return;
       }
       delete this.openDBs[this.dbname];
@@ -194,7 +194,7 @@
       prevents us from stalling our txQueue if somebody passes a
       false value for fn.
        */
-      throw new Error("transaction expected a function");
+      throw newSQLError("transaction expected a function");
     }
     this.db = db;
     this.fn = fn;
@@ -205,7 +205,7 @@
     this.executes = [];
     if (txlock) {
       this.executeSql("BEGIN", [], null, function(tx, err) {
-        throw toSQLError("unable to begin transaction: " + err.message, err.code);
+        throw newSQLError("unable to begin transaction: " + err.message, err.code);
       });
     }
   };
@@ -224,7 +224,7 @@
       txLocks[this.db.dbname].inProgress = false;
       this.db.startNextTransaction();
       if (this.error) {
-        this.error(toSQLError(err));
+        this.error(newSQLError(err));
       }
     }
   };
@@ -268,10 +268,10 @@
 
   SQLitePluginTransaction.prototype.handleStatementFailure = function(handler, response) {
     if (!handler) {
-      throw toSQLError("a statement with no error handler failed: " + response.message, response.code);
+      throw newSQLError("a statement with no error handler failed: " + response.message, response.code);
     }
     if (handler(this, response) !== false) {
-      throw toSQLError("a statement error callback did not return false: " + response.message, response.code);
+      throw newSQLError("a statement error callback did not return false: " + response.message, response.code);
     }
   };
 
@@ -290,12 +290,12 @@
           if (didSucceed) {
             tx.handleStatementSuccess(batchExecutes[index].success, response);
           } else {
-            tx.handleStatementFailure(batchExecutes[index].error, toSQLError(response));
+            tx.handleStatementFailure(batchExecutes[index].error, newSQLError(response));
           }
         } catch (_error) {
           err = _error;
           if (!txFailure) {
-            txFailure = toSQLError(err);
+            txFailure = newSQLError(err);
           }
         }
         if (--waiting === 0) {
@@ -372,7 +372,7 @@
       txLocks[tx.db.dbname].inProgress = false;
       tx.db.startNextTransaction();
       if (tx.error) {
-        tx.error(toSQLError("error while trying to roll back: " + err.message, err.code));
+        tx.error(newSQLError("error while trying to roll back: " + err.message, err.code));
       }
     };
     this.finalized = true;
@@ -401,7 +401,7 @@
       txLocks[tx.db.dbname].inProgress = false;
       tx.db.startNextTransaction();
       if (tx.error) {
-        tx.error(toSQLError("error while trying to commit: " + err.message, err.code));
+        tx.error(newSQLError("error while trying to commit: " + err.message, err.code));
       }
     };
     this.finalized = true;
