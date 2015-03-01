@@ -224,7 +224,7 @@ public class SQLitePlugin extends CordovaPlugin {
         try {
             if (this.getDatabase(dbname) != null) {
                 // this should not happen - should be blocked at the execute("open") level
-                cbc.error("database already open");
+                if (cbc != null) cbc.error("database already open");
                 throw new Exception("database already open");
             }
 
@@ -240,11 +240,11 @@ public class SQLitePlugin extends CordovaPlugin {
 
             SQLiteDatabase mydb = SQLiteDatabase.openOrCreateDatabase(dbfile, null);
 
-            cbc.success();
+            if (cbc != null) cbc.success();
 
             return mydb;
         } catch (SQLiteException e) {
-            cbc.error("can't open database " + e);
+            if (cbc != null) cbc.error("can't open database " + e);
             throw e;
         }
     }
@@ -847,6 +847,14 @@ public class SQLitePlugin extends CordovaPlugin {
 
                 while (!dbq.stop) {
                     executeSqlBatch(dbname, dbq.queries, dbq.jsonparams, dbq.queryIDs, dbq.cbc);
+
+                    // workaround:
+                    if (dbq.queries.length == 1 && dbq.queries[0] == "COMMIT") {
+                        Log.e(SQLitePlugin.class.getSimpleName(), "close and reopen db");
+                        closeDatabaseNow(dbname);
+                        this.mydb = openDatabase(dbname, false, null);
+                        Log.e(SQLitePlugin.class.getSimpleName(), "close and reopen db finished");
+                    }
 
                     dbq = q.take();
                 }
