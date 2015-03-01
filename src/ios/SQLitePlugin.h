@@ -6,15 +6,10 @@
  * See http://opensource.org/licenses/alphabetical for full text.
  */
 
-#import <Foundation/Foundation.h>
-
-#import "sqlite3.h"
-
 #import <Cordova/CDVPlugin.h>
-#import <Cordova/CDVJSON.h>
-#import <Cordova/NSData+Base64.h>
 
-#import "AppDelegate.h"
+// Used to remove dependency on sqlite3.h in this header:
+struct sqlite3;
 
 enum WebSQLError {
     UNKNOWN_ERR = 0,
@@ -53,7 +48,7 @@ typedef int WebSQLError;
 
 -(id) getDBPath:(NSString *)dbFile at:(NSString *)atkey;
 
-+(NSDictionary *)captureSQLiteErrorFromDb:(sqlite3 *)db;
++(NSDictionary *)captureSQLiteErrorFromDb:(struct sqlite3 *)db;
 
 +(int)mapSQLiteErrorCode:(int)code;
 
