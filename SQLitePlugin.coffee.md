@@ -170,7 +170,7 @@
       myerror = (t, e) -> if !!error then error e
 
       myfn = (tx) ->
-        tx.executeSql(statement, params, mysuccess, myerror)
+        tx.addStatement(statement, params, mysuccess, myerror)
         return
 
       @addTransaction new SQLitePluginTransaction(this, myfn, null, null, false, false)
@@ -200,7 +200,7 @@
       @executes = []
 
       if txlock
-        @executeSql "BEGIN", [], null, (tx, err) ->
+        @addStatement "BEGIN", [], null, (tx, err) ->
           throw newSQLError "unable to begin transaction: " + err.message, err.code
 
       return
@@ -225,17 +225,16 @@
         throw {message: 'InvalidStateError: DOM Exception 11: This transaction is already finalized. Transactions are committed after its success or failure handlers are called. If you are using a Promise to handle callbacks, be aware that implementations following the A+ standard adhere to run-to-completion semantics and so Promise resolution occurs on a subsequent tick and therefore after the transaction commits.', code: 11}
         return
 
-      @_executeSqlInternal(sql, values, success, error)
-      return
-
-    # This method performs the actual execute but does not check for
-    # finalization since it is used to execute COMMIT and ROLLBACK.
-    SQLitePluginTransaction::_executeSqlInternal = (sql, values, success, error) ->
-
       if @readOnly && READ_ONLY_REGEX.test(sql)
         @handleStatementFailure(error, {message: 'invalid sql for a read-only transaction'})
         return
 
+      @addStatement(sql, values, success, error)
+      return
+
+    # This method adds the SQL statement to the transaction queue but does not check for
+    # finalization since it is used to execute COMMIT and ROLLBACK.
+    SQLitePluginTransaction::addStatement = (sql, values, success, error) ->
 
       qid = @executes.length
 
@@ -368,7 +367,7 @@
       @finalized = true
 
       if @txlock
-        @_executeSqlInternal "ROLLBACK", [], succeeded, failed
+        @addStatement "ROLLBACK", [], succeeded, failed
         @run()
       else
         succeeded(tx)
@@ -394,7 +393,7 @@
       @finalized = true
 
       if @txlock
-        @_executeSqlInternal "COMMIT", [], succeeded, failed
+        @addStatement "COMMIT", [], succeeded, failed
         @run()
       else
         succeeded(tx)

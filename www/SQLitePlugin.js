@@ -175,7 +175,7 @@
       }
     };
     myfn = function(tx) {
-      tx.executeSql(statement, params, mysuccess, myerror);
+      tx.addStatement(statement, params, mysuccess, myerror);
     };
     this.addTransaction(new SQLitePluginTransaction(this, myfn, null, null, false, false));
   };
@@ -204,7 +204,7 @@
     this.readOnly = readOnly;
     this.executes = [];
     if (txlock) {
-      this.executeSql("BEGIN", [], null, function(tx, err) {
+      this.addStatement("BEGIN", [], null, function(tx, err) {
         throw newSQLError("unable to begin transaction: " + err.message, err.code);
       });
     }
@@ -237,17 +237,17 @@
       };
       return;
     }
-    this._executeSqlInternal(sql, values, success, error);
-  };
-
-  SQLitePluginTransaction.prototype._executeSqlInternal = function(sql, values, success, error) {
-    var qid;
     if (this.readOnly && READ_ONLY_REGEX.test(sql)) {
       this.handleStatementFailure(error, {
         message: 'invalid sql for a read-only transaction'
       });
       return;
     }
+    this.addStatement(sql, values, success, error);
+  };
+
+  SQLitePluginTransaction.prototype.addStatement = function(sql, values, success, error) {
+    var qid;
     qid = this.executes.length;
     this.executes.push({
       success: success,
@@ -388,7 +388,7 @@
     };
     this.finalized = true;
     if (this.txlock) {
-      this._executeSqlInternal("ROLLBACK", [], succeeded, failed);
+      this.addStatement("ROLLBACK", [], succeeded, failed);
       this.run();
     } else {
       succeeded(tx);
@@ -417,7 +417,7 @@
     };
     this.finalized = true;
     if (this.txlock) {
-      this._executeSqlInternal("COMMIT", [], succeeded, failed);
+      this.addStatement("COMMIT", [], succeeded, failed);
       this.run();
     } else {
       succeeded(tx);
