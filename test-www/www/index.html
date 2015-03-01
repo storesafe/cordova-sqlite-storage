@@ -552,7 +552,7 @@
         
         test(suiteName + "executeSql fails outside transaction", function() {
           withTestTable(function(db) {
-            expect(5);
+            expect(4);
             ok(!!db, "db ok");            
             var txg;
             stop(2);
@@ -574,8 +574,6 @@
                 ok(false, "executeSql should have thrown but continued instead");
               } catch(err) {
                 ok(!!err.message, "error had valid message");
-                ok(/InvalidStateError|SQLTransaction/.test(err.message), 
-                  "execute must throw InvalidStateError; actual error: " + err.message);
               }
               start(1);
             });            
