@@ -144,7 +144,7 @@
         can be used in the success handler as an alternative to the handler's
         db argument
         ###
-        nextTick () -> onSuccess();
+        nextTick () -> onSuccess()
       else
         @openDBs[@dbname] = true
         cordova.exec onSuccess, error, "SQLitePlugin", "open", [ @openargs ]
