@@ -620,6 +620,31 @@
           });
         });
 
+        // XXX reproduce issue #195 in WP(8) version ONLY:
+        test(suiteName + "Big number [integer] value(s)", function() {
+          stop();
+          var db = openDatabase("Big-number-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS tt');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (test_date INTEGER)');
+          }, function(err) { ok(false, err.message) }, function() {
+            db.transaction(function(tx) {
+              tx.executeSql("insert into tt (test_date) VALUES (?)", [1424174959894], function(tx, res) {
+                equal(res.rowsAffected, 1, "row inserted");
+                tx.executeSql("select * from tt", [], function(tx, res) {
+                  start();
+                  var row = res.rows.item(0);
+                  // XXX BUG in WP(8) version ONLY:
+                  //if (/MSIE/.test(navigator.userAgent)) // XXX BUG in WP(8) version
+                  //  ok(row.test_date < 0, "Reproducing big number bug");
+                  //else
+                    strictEqual(row.test_date, 1424174959894, "Big integer number inserted properly");
+                });
+              });
+            });
+          });
+        });
+
         // XXX reproduce issue #140:
         test(suiteName + "executeSql parameter as array", function() {
           stop();
