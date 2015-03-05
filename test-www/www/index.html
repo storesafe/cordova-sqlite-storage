@@ -137,6 +137,66 @@
           });
         });
 
+        test(suiteName + "UNICODE line separator string to hex", function() {
+          // NOTE: this test verifies that the UNICODE line separator (\u2028)
+          // is seen by the sqlite implementation OK:
+          var db = openDatabase("UNICODE-line-separator-string-1.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          ok(!!db, "db object");
+
+          stop(2);
+
+          db.transaction(function(tx) {
+
+            start(1);
+            ok(!!tx, "tx object");
+
+            var text = 'Abcd\u20281234';
+            tx.executeSql("select hex(?) as hexvalue", [text], function (tx, res) {
+              start(1);
+              var hexvalue = res.rows.item(0).hexvalue;
+
+              // varies between Chrome-like (UTF-8)
+              // and Safari-like (UTF-16)
+              var expected = [
+                '41626364E280A831323334',
+                '410062006300640028203100320033003400'
+              ];
+
+              ok(expected.indexOf(hexvalue) !== -1, 'hex matches: ' +
+                  JSON.stringify(hexvalue) + ' should be in ' +
+                  JSON.stringify(expected));
+            });
+          });
+        });
+
+        // XXX BUG #147 iOS version of plugin BROKEN (no callback received):
+        if (isWebSql || /Android/.test(navigator.userAgent)) test(suiteName +
+            ' handles unicode line separator correctly', function () {
+
+          // NOTE: since the above test shows the UNICODE line separator (\u2028)
+          // is seen by the sqlite implementation OK, it is now concluded that
+          // the failure is caused by the Objective-C JSON result encoding.
+          var db = openDatabase("UNICODE-line-separator-string-2.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          ok(!!db, "db object");
+
+          stop(2);
+
+          db.transaction(function(tx) {
+
+            start(1);
+            ok(!!tx, "tx object");
+
+            var text = 'Abcd\u20281234';
+            tx.executeSql("select lower(?) as lowertext", [text], function (tx, res) {
+              start(1);
+              ok(!!res, "res object");
+              equal(res.rows.item(0).lowertext, "abcd\u20281234", "lower case string test with UNICODE line separator");
+            });
+          });
+        });
+
         test(suiteName + "db transaction test", function() {
           var db = openDatabase("db-trx-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
@@ -1016,19 +1076,22 @@
                     // For now we expect this test to fail there, but when it is fixed
                     // we would like to know, so the test is coded to fail if it starts
                     // working there.
-                    if(!isWebSql) {
-                        ok(expected.indexOf(name) !== -1, 'field value: ' +
-                            JSON.stringify(name) + ' should be in ' +
-                            JSON.stringify(expected));
-
-                        equal(name.length, 4, 'length of field === 4');
-                    } else {
+                    if(isWebSql) {
                         ok(expected.indexOf(name) === -1, 'field value: ' +
                             JSON.stringify(name) + ' should not be in this until a bug is fixed ' +
                             JSON.stringify(expected));
 
                         equal(name.length, 0, 'length of field === 0'); 
+                        start();
+                        return;
                     }
+
+                    // correct result:
+                    ok(expected.indexOf(name) !== -1, 'field value: ' +
+                        JSON.stringify(name) + ' should be in ' +
+                        JSON.stringify(expected));
+
+                    equal(name.length, 4, 'length of field === 4');
                     start();
                   })
                 });
@@ -1040,12 +1103,16 @@
           });
         });
 
-        // XXX #147 iOS version of plugin BROKEN:
-        if (isWebSql || /Android/.test(navigator.userAgent)) test(suiteName + ' handles unicode line separator correctly', function () {
-          stop(2);
+        // XXX Brody NOTE: same issue is now reproduced in a string test.
+        //           TODO: combine with other test
+        // BUG #147 iOS version of plugin BROKEN:
+        if (isWebSql || /Android/.test(navigator.userAgent)) test(suiteName +
+            ' handles unicode line separator correctly', function () {
 
           var dbName = "Unicode-line-separator.db";
           var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+
+          stop(2);
 
           db.transaction(function (tx) {
             tx.executeSql('DROP TABLE IF EXISTS test', [], function () {
