@@ -701,11 +701,15 @@
                   //if (/MSIE/.test(navigator.userAgent)) // XXX BUG in WP(8) version
                   //  ok(row.test_date < 0, "Reproducing big number bug");
                   //else
-                  //  strictEqual(row.test_date, 1424174959894, "Big integer number inserted properly");
+                    strictEqual(row.test_date, 1424174959894, "Big integer number inserted properly");
 
                   // NOTE: storing big integer in TEXT field WORKING OK with WP(8) version.
                   // It is now suspected that the issue lies with the results handling.
-                  strictEqual(row.test_text, "1424174959894", "Big integer number inserted as string ok");
+                  // XXX Brody TODO: storing big number in TEXT field is different for Plugin vs. Web SQL!
+                  if (isWebSql)
+                    strictEqual(row.test_text, "1424174959894.0", "[Big] number inserted as string ok");
+                  else
+                    strictEqual(row.test_text, "1424174959894", "Big integer number inserted as string ok");
                 });
               });
             });

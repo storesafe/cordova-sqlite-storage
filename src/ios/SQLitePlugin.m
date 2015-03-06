@@ -410,7 +410,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 #endif
                             break;
                         case SQLITE_FLOAT:
-                            columnValue = [NSNumber numberWithFloat: sqlite3_column_double(statement, i)];
+                            columnValue = [NSNumber numberWithDouble: sqlite3_column_double(statement, i)];
                             break;
                         case SQLITE_NULL:
                             columnValue = [NSNull null];
