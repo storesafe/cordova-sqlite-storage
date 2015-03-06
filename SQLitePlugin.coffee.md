@@ -238,13 +238,24 @@
 
       qid = @executes.length
 
+      params = []
+      if !!values && values.constructor == Array
+        for v in values
+          t = typeof v
+          params.push (
+            if v == null || v == undefined || t == 'number' || t == 'string' then v
+            else if v instanceof Blob then v.valueOf()
+            else v.toString()
+          )
+
       @executes.push
         success: success
         error: error
         qid: qid
 
         sql: sql
-        params: values || []
+        #params: values || []
+        params: params
 
       return
 

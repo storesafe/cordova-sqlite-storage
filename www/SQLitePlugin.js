@@ -247,14 +247,22 @@
   };
 
   SQLitePluginTransaction.prototype.addStatement = function(sql, values, success, error) {
-    var qid;
+    var params, qid, t, v, _i, _len;
     qid = this.executes.length;
+    params = [];
+    if (!!values && values.constructor === Array) {
+      for (_i = 0, _len = values.length; _i < _len; _i++) {
+        v = values[_i];
+        t = typeof v;
+        params.push((v === null || v === void 0 || t === 'number' || t === 'string' ? v : v instanceof Blob ? v.valueOf() : v.toString()));
+      }
+    }
     this.executes.push({
       success: success,
       error: error,
       qid: qid,
       sql: sql,
-      params: values || []
+      params: params
     });
   };
 

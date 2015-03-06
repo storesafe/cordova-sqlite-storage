@@ -736,7 +736,6 @@
           });
         });
 
-        // XXX reproduce BUG #144:
         test(suiteName + "executeSql parameter as array", function() {
           stop();
           var db = openDatabase("array-parameter.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -752,8 +751,7 @@
                   start();
                   var row = res.rows.item(0);
                   strictEqual(row.data1, 'abc', "data1: string");
-                  // XXX BUG #144 - only works with Web SQL:
-                  if (isWebSql) strictEqual(row.data2, '1,2,3', "data2: array should have been inserted as text (string)");
+                  strictEqual(row.data2, '1,2,3', "data2: array should have been inserted as text (string)");
                 });
               });
             });
