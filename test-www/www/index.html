@@ -9,8 +9,11 @@
     <link rel="stylesheet" href="qunit-1.5.0.css" />
 
     <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
-    <script type="text/javascript" charset="utf-8" src="SQLitePlugin.js"></script>
     <script type="text/javascript" charset="utf-8" src="qunit-1.5.0.js"></script>
+
+    <!-- NOT required for Cordova 3.0(+): -->
+    <script type="text/javascript" charset="utf-8" src="SQLitePlugin.js"></script>
+
     <script type="text/javascript">
     (function () {
       'use strict';
@@ -114,7 +117,6 @@
             });
           });
         });
-
 
         test(suiteName + "CR-LF String test", function() {
           var db = openDatabase("CR-LF-String-test.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -680,32 +682,57 @@
           });
         });
 
-        // XXX reproduce issue #195 in WP(8) version ONLY:
-        test(suiteName + "Big number [integer] value(s)", function() {
+        // XXX reproduce BUG #195 in WP(8) version ONLY:
+        test(suiteName + "Big [integer] value bindings", function() {
           stop();
-          var db = openDatabase("Big-number-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase("Big-int-bindings.db", "1.0", "Demo", DEFAULT_SIZE);
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS tt');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (test_date INTEGER)');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (test_date INTEGER, test_text TEXT)');
           }, function(err) { ok(false, err.message) }, function() {
             db.transaction(function(tx) {
-              tx.executeSql("insert into tt (test_date) VALUES (?)", [1424174959894], function(tx, res) {
+              tx.executeSql("insert into tt (test_date, test_text) VALUES (?,?)",
+                  [1424174959894, 1424174959894], function(tx, res) {
                 equal(res.rowsAffected, 1, "row inserted");
                 tx.executeSql("select * from tt", [], function(tx, res) {
                   start();
                   var row = res.rows.item(0);
-                  // XXX BUG in WP(8) version ONLY:
+                  // XXX BUG #195 in WP(8) version ONLY:
                   //if (/MSIE/.test(navigator.userAgent)) // XXX BUG in WP(8) version
                   //  ok(row.test_date < 0, "Reproducing big number bug");
                   //else
-                    strictEqual(row.test_date, 1424174959894, "Big integer number inserted properly");
+                  //  strictEqual(row.test_date, 1424174959894, "Big integer number inserted properly");
+
+                  // NOTE: storing big integer in TEXT field WORKING OK with WP(8) version.
+                  // It is now suspected that the issue lies with the results handling.
+                  strictEqual(row.test_text, "1424174959894", "Big integer number inserted as string ok");
                 });
               });
             });
           });
         });
 
-        // XXX reproduce issue #140:
+        test(suiteName + "Double precision decimal number insertion", function() {
+          stop();
+          var db = openDatabase("Double-precision-number-insertion.db", "1.0", "Demo", DEFAULT_SIZE);
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS tt');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (tr REAL)');
+          }, function(err) { ok(false, err.message) }, function() {
+            db.transaction(function(tx) {
+              tx.executeSql("insert into tt (tr) VALUES (?)", [123456.789], function(tx, res) {
+                equal(res.rowsAffected, 1, "row inserted");
+                tx.executeSql("select * from tt", [], function(tx, res) {
+                  start();
+                  var row = res.rows.item(0);
+                  strictEqual(row.tr, 123456.789, "Decimal number inserted properly");
+                });
+              });
+            });
+          });
+        });
+
+        // XXX reproduce BUG #144:
         test(suiteName + "executeSql parameter as array", function() {
           stop();
           var db = openDatabase("array-parameter.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -721,7 +748,7 @@
                   start();
                   var row = res.rows.item(0);
                   strictEqual(row.data1, 'abc', "data1: string");
-                  // XXX #140 - only works with Web SQL:
+                  // XXX BUG #144 - only works with Web SQL:
                   if (isWebSql) strictEqual(row.data2, '1,2,3', "data2: array should have been inserted as text (string)");
                 });
               });
