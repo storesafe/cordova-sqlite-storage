@@ -8,6 +8,7 @@ License for iOS version: MIT only
 
 ## Status
 
+- [Available at PhoneGap build](https://build.phonegap.com/plugins/2097)
 - SQLCipher integration is not supported by this project, to be supported in a separate project.
 
 ## Announcements
@@ -18,7 +19,7 @@ License for iOS version: MIT only
 
 ## Highlights
 
-- Works with Cordova 3.x tooling
+- Works with Cordova 3.x tooling and [Available at PhoneGap build](https://build.phonegap.com/plugins/2097)
 - Drop-in replacement for HTML5 SQL API, the only change should be `window.openDatabase()` --> `sqlitePlugin.openDatabase()`
 - Failure-safe nested transactions with batch processing optimizations
 - As described in [this posting](http://brodyspark.blogspot.com/2012/12/cordovaphonegap-sqlite-plugins-offer.html):
@@ -363,7 +364,7 @@ If you still cannot get something to work:
   - if the issue is with *adding* data to a table, that the test program includes the statements you used to open the database and create the table;
   - if the issue is with *retrieving* data from a table, that the test program includes the statements you used to open the database, create the table, and enter the data you are trying to retrieve.
 
-Then you [raise the issue](https://github.com/brodysoft/Cordova-SQLitePlugin/issues/new).
+Then you can [raise the issue](https://github.com/brodysoft/Cordova-SQLitePlugin/issues/new).
 
 ## Community forum
 
