@@ -240,12 +240,12 @@ public class SQLitePlugin extends CordovaPlugin {
 
             SQLiteDatabase mydb = SQLiteDatabase.openOrCreateDatabase(dbfile, null);
 
-            //if (cbc != null) // needed for Android locking/closing workaround
+            if (cbc != null) // needed for Android locking/closing workaround
                 cbc.success();
 
             return mydb;
         } catch (SQLiteException e) {
-            //if (cbc != null) // needed for Android locking/closing workaround
+            if (cbc != null) // needed for Android locking/closing workaround
                 cbc.error("can't open database " + e);
             throw e;
         }
@@ -821,7 +821,7 @@ public class SQLitePlugin extends CordovaPlugin {
     private class DBRunner implements Runnable {
         final String dbname;
         private boolean createFromAssets;
-        //private boolean androidLockWorkaround;
+        private boolean androidLockWorkaround;
         final BlockingQueue<DBQuery> q;
         final CallbackContext openCbc;
 
@@ -830,7 +830,10 @@ public class SQLitePlugin extends CordovaPlugin {
         DBRunner(final String dbname, JSONObject options, CallbackContext cbc) {
             this.dbname = dbname;
             this.createFromAssets = options.has("createFromResource");
-            //this.androidLockWorkaround = options.has("androidLockWorkaround");
+            this.androidLockWorkaround = options.has("androidLockWorkaround");
+            if (this.androidLockWorkaround)
+                Log.v(SQLitePlugin.class.getSimpleName(), "Android db closing/locking workaround applied");
+
             this.q = new LinkedBlockingQueue<DBQuery>();
             this.openCbc = cbc;
         }
@@ -853,12 +856,12 @@ public class SQLitePlugin extends CordovaPlugin {
                     executeSqlBatch(dbname, dbq.queries, dbq.jsonparams, dbq.queryIDs, dbq.cbc);
 
                     // XXX workaround for Android locking/closing issue:
-                    //if (androidLockWorkaround && dbq.queries.length == 1 && dbq.queries[0] == "COMMIT") {
-                    //    Log.v(SQLitePlugin.class.getSimpleName(), "close and reopen db");
-                    //    closeDatabaseNow(dbname);
-                    //    this.mydb = openDatabase(dbname, false, null);
-                    //    Log.v(SQLitePlugin.class.getSimpleName(), "close and reopen db finished");
-                    //}
+                    if (androidLockWorkaround && dbq.queries.length == 1 && dbq.queries[0] == "COMMIT") {
+                        // Log.v(SQLitePlugin.class.getSimpleName(), "close and reopen db");
+                        closeDatabaseNow(dbname);
+                        this.mydb = openDatabase(dbname, false, null);
+                        // Log.v(SQLitePlugin.class.getSimpleName(), "close and reopen db finished");
+                    }
 
                     dbq = q.take();
                 }
