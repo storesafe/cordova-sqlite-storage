@@ -1,5 +1,14 @@
 # Changes
 
+## 1.0.5
+
+- Workaround for Android db locking/closing issue
+- Fix double-precision REAL values in result (iOS version)
+- Fix query result truncation in case of NULL character (\0 or \u0000) (iOS version)
+- Convert array SQL parameters to string, according to match Web SQL spec
+- Fix closing of Android database
+- Some fixes for SQL API error handling to be consistent with Web SQL
+
 ## 1.0.4
 
 - Pre-populated database option (Android/iOS)
