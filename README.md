@@ -51,13 +51,14 @@ License for iOS version: MIT only
 
 - DB Triggers (as described above - known to be broken for Android)
 
-## Other versions
+## Other versions and related projects
 
+- [MetaMemoryT / websql-client](https://github.com/MetaMemoryT/websql-client) - provides the same API and connects to [websql-server](https://github.com/MetaMemoryT/websql-server) through WebSockets.
 - Original version for iOS (with a different API): https://github.com/davibe/Phonegap-SQLitePlugin
 
 # Usage
 
-The idea is to emulate the HTML5 SQL API as closely as possible. The only major change is to use window.sqlitePlugin.openDatabase() (or sqlitePlugin.openDatabase()) instead of window.openDatabase(). If you see any other major change please report it, it is probably a bug.
+The idea is to emulate the [HTML5/Web SQL API](http://www.w3.org/TR/webdatabase/) as closely as possible. The only major change is to use `window.sqlitePlugin.openDatabase()` (or `sqlitePlugin.openDatabase()`) instead of `window.openDatabase()`. If you see any other major change please report it, it is probably a bug.
 
 ## Opening a database
 
@@ -189,7 +190,7 @@ function onDeviceReady() {
 }
 ```
 
-This case will also works with Safari (WebKit), assuming you replace window.sqlitePlugin.openDatabase with window.openDatabase.
+This case will also works with Safari (WebKit), assuming you replace `window.sqlitePlugin.openDatabase` with `window.openDatabase`.
 
 ## Delete a database
 
