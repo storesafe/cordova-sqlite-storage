@@ -47,14 +47,17 @@ License for iOS version: MIT only
 - The db version, display name, and size parameter values are not supported and will be ignored.
 - The sqlite plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**.
 - The Android version cannot work with more than 100 open db files due to its threading model.
+- UNICODE line separator (`\u2028`) is currently not supported and known to be broken in iOS version.
+- UNICODE characters not working with WP(8) version
 
 ## Limited support (testing needed)
 
 - Multi-page apps on WP(8)
 - DB Triggers (as described above - known to be broken for Android)
 
-## Other versions
+## Other versions and related projects
 
+- [MetaMemoryT / websql-client](https://github.com/MetaMemoryT/websql-client) - provides the same API and connects to [websql-server](https://github.com/MetaMemoryT/websql-server) through WebSockets.
 - Original version for iOS (with a different API): https://github.com/davibe/Phonegap-SQLitePlugin
 
 # Usage
@@ -86,6 +89,20 @@ function onDeviceReady() {
 ```
 
 **NOTE:** The database file name should include the extension, if desired.
+
+### Workaround for Android db locking issue
+
+An [issue was reported](https://github.com/brodysoft/Cordova-SQLitePlugin/issues/193), as observed by several people that on some newer versions of the Android, if the app is stopped or aborted without closing the db then:
+- (sometimes) there is an unexpected db lock
+- the data that was inserted before is lost.
+
+It is suspected that this issue is caused by [this Android sqlite commit](https://github.com/android/platform_external_sqlite/commit/d4f30d0d1544f8967ee5763c4a1680cb0553039f), which references and includes the sqlite commit at: http://www.sqlite.org/src/info/6c4c2b7dba
+
+The workaround is enabled by opening the database like:
+
+```js
+  var db = window.sqlitePlugin.openDatabase({name: "my.db", androidLockWorkaround: 1});
+```
 
 ### Pre-populated database
 
@@ -364,22 +381,13 @@ If you still cannot get something to work:
   - if the issue is with *adding* data to a table, that the test program includes the statements you used to open the database and create the table;
   - if the issue is with *retrieving* data from a table, that the test program includes the statements you used to open the database, create the table, and enter the data you are trying to retrieve.
 
-Then you can [raise the issue](https://github.com/brodysoft/Cordova-SQLitePlugin/issues/new).
+Then you can [raise the new issue](https://github.com/brodysoft/Cordova-SQLitePlugin/issues/new).
 
 ## Community forum
 
 If you have any questions about the plugin please post it to the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin).
 
 **NOTE:** Please report all bugs at [brodysoft / Cordova-SQLitePlugin / issues](https://github.com/brodysoft/Cordova-SQLitePlugin/issues) so they can be tracked properly.
-
-## Support priorities
-
-**High priority:**
-
-1. Stability is first: immediate resolution or workaround for stability issues (crashing) is the goal.
-2. Correctness: any issue with correctness should result in a new testcase together with the bug fix.
-
-**Low priority:** issues with the API or application integration will be given lower priority until the Cordova CLI integration is finished for Windows (8+). Pull requests are very welcome for these kinds of issues.
 
 # Unit tests
 

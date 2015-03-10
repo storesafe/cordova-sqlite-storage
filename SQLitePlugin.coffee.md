@@ -20,6 +20,29 @@
 
 ## utility functions:
 
+    # Errors returned to callbacks must conform to `SqlError` with a code and message.
+    # Some errors are of type `Error` or `string` and must be converted.
+    newSQLError = (error, code) ->
+      sqlError = error
+      code = 0 if !code # unknown by default
+
+      if !sqlError
+        sqlError = new Error "a plugin had an error but provided no response"
+        sqlError.code = code
+
+      if typeof sqlError is "string"
+        sqlError = new Error error
+        sqlError.code = code
+
+      if !sqlError.code && sqlError.message
+        sqlError.code = code
+
+      if !sqlError.code && !sqlError.message
+        sqlError = new Error "an unknown error was returned: " + JSON.stringify(sqlError)
+        sqlError.code = code
+
+      return sqlError
+
     nextTick = window.setImmediate || (fun) ->
       window.setTimeout(fun, 0)
       return
@@ -48,7 +71,7 @@
       console.log "SQLitePlugin openargs: #{JSON.stringify openargs}"
 
       if !(openargs and openargs['name'])
-        throw new Error("Cannot create a SQLitePlugin instance without a db name")
+        throw newSQLError "Cannot create a SQLitePlugin db instance without a db name"
 
       dbname = openargs.name
 
@@ -87,15 +110,17 @@
 
     SQLitePlugin::transaction = (fn, error, success) ->
       if !@openDBs[@dbname]
-        error('database not open')
+        error newSQLError 'database not open'
         return
+
       @addTransaction new SQLitePluginTransaction(this, fn, error, success, true, false)
       return
 
     SQLitePlugin::readTransaction = (fn, error, success) ->
       if !@openDBs[@dbname]
-        error('database not open')
+        error newSQLError 'database not open'
         return
+
       @addTransaction new SQLitePluginTransaction(this, fn, error, success, true, true)
       return
 
@@ -112,16 +137,18 @@
 
     SQLitePlugin::open = (success, error) ->
       onSuccess = () => success this
-      unless @dbname of @openDBs
-        @openDBs[@dbname] = true
-        cordova.exec onSuccess, error, "SQLitePlugin", "open", [ @openargs ]
-      else
+
+      if @dbname of @openDBs
         ###
         for a re-open run onSuccess async so that the openDatabase return value
         can be used in the success handler as an alternative to the handler's
         db argument
         ###
-        nextTick () -> onSuccess();
+        nextTick () -> onSuccess()
+      else
+        @openDBs[@dbname] = true
+        cordova.exec onSuccess, error, "SQLitePlugin", "open", [ @openargs ]
+
       return
 
     SQLitePlugin::close = (success, error) ->
@@ -129,7 +156,7 @@
 
       if @dbname of @openDBs
         if txLocks[@dbname] && txLocks[@dbname].inProgress
-          error(new Error('database cannot be closed while a transaction is in progress'))
+          error newSQLError 'database cannot be closed while a transaction is in progress'
           return
 
         delete @openDBs[@dbname]
@@ -143,7 +170,7 @@
       myerror = (t, e) -> if !!error then error e
 
       myfn = (tx) ->
-        tx.executeSql(statement, params, mysuccess, myerror)
+        tx.addStatement(statement, params, mysuccess, myerror)
         return
 
       @addTransaction new SQLitePluginTransaction(this, myfn, null, null, false, false)
@@ -162,7 +189,7 @@
         prevents us from stalling our txQueue if somebody passes a
         false value for fn.
         ###
-        throw new Error("transaction expected a function")
+        throw newSQLError "transaction expected a function"
 
       @db = db
       @fn = fn
@@ -173,8 +200,8 @@
       @executes = []
 
       if txlock
-        @executeSql "BEGIN", [], null, (tx, err) ->
-          throw new Error("unable to begin transaction: " + err.message)
+        @addStatement "BEGIN", [], null, (tx, err) ->
+          throw newSQLError "unable to begin transaction: " + err.message, err.code
 
       return
 
@@ -189,17 +216,37 @@
         txLocks[@db.dbname].inProgress = false
         @db.startNextTransaction()
         if @error
-          @error err
+          @error newSQLError err
       return
 
     SQLitePluginTransaction::executeSql = (sql, values, success, error) ->
+
+      if @finalized
+        throw {message: 'InvalidStateError: DOM Exception 11: This transaction is already finalized. Transactions are committed after its success or failure handlers are called. If you are using a Promise to handle callbacks, be aware that implementations following the A+ standard adhere to run-to-completion semantics and so Promise resolution occurs on a subsequent tick and therefore after the transaction commits.', code: 11}
+        return
 
       if @readOnly && READ_ONLY_REGEX.test(sql)
         @handleStatementFailure(error, {message: 'invalid sql for a read-only transaction'})
         return
 
+      @addStatement(sql, values, success, error)
+      return
+
+    # This method adds the SQL statement to the transaction queue but does not check for
+    # finalization since it is used to execute COMMIT and ROLLBACK.
+    SQLitePluginTransaction::addStatement = (sql, values, success, error) ->
 
       qid = @executes.length
+
+      params = []
+      if !!values && values.constructor == Array
+        for v in values
+          t = typeof v
+          params.push (
+            if v == null || v == undefined || t == 'number' || t == 'string' then v
+            else if v instanceof Blob then v.valueOf()
+            else v.toString()
+          )
 
       @executes.push
         success: success
@@ -207,7 +254,8 @@
         qid: qid
 
         sql: sql
-        params: values || []
+        #params: values || []
+        params: params
 
       return
 
@@ -232,9 +280,9 @@
 
     SQLitePluginTransaction::handleStatementFailure = (handler, response) ->
       if !handler
-        throw new Error "a statement with no error handler failed: " + response.message
-      if handler(this, response)
-        throw new Error "a statement error callback did not return false"
+        throw newSQLError "a statement with no error handler failed: " + response.message, response.code
+      if handler(this, response) isnt false
+        throw newSQLError "a statement error callback did not return false: " + response.message, response.code
       return
 
     SQLitePluginTransaction::run = ->
@@ -252,9 +300,10 @@
             if didSucceed
               tx.handleStatementSuccess batchExecutes[index].success, response
             else
-              tx.handleStatementFailure batchExecutes[index].error, response
+              tx.handleStatementFailure batchExecutes[index].error, newSQLError(response)
           catch err
-            txFailure = err  unless txFailure
+            if !txFailure
+              txFailure = newSQLError(err)
 
           if --waiting == 0
             if txFailure
@@ -323,13 +372,13 @@
       failed = (tx, err) ->
         txLocks[tx.db.dbname].inProgress = false
         tx.db.startNextTransaction()
-        if tx.error then tx.error new Error("error while trying to roll back: " + err.message)
+        if tx.error then tx.error newSQLError("error while trying to roll back: " + err.message, err.code)
         return
 
       @finalized = true
 
       if @txlock
-        @executeSql "ROLLBACK", [], succeeded, failed
+        @addStatement "ROLLBACK", [], succeeded, failed
         @run()
       else
         succeeded(tx)
@@ -349,13 +398,13 @@
       failed = (tx, err) ->
         txLocks[tx.db.dbname].inProgress = false
         tx.db.startNextTransaction()
-        if tx.error then tx.error new Error("error while trying to commit: " + err.message)
+        if tx.error then tx.error newSQLError("error while trying to commit: " + err.message, err.code)
         return
 
       @finalized = true
 
       if @txlock
-        @executeSql "COMMIT", [], succeeded, failed
+        @addStatement "COMMIT", [], succeeded, failed
         @run()
       else
         succeeded(tx)
@@ -401,6 +450,9 @@
         if !!openargs.createFromLocation and openargs.createFromLocation == 1
           openargs.createFromResource = "1"
 
+        if !!openargs.androidLockWorkaround and openargs.androidLockWorkaround == 1
+          openargs.androidLockWorkaround = 1
+
         new SQLitePlugin openargs, okcb, errorcb
 
       deleteDb: (first, success, error) ->
@@ -413,7 +465,7 @@
 
         else
           #console.log "delete db args: #{JSON.stringify first}"
-          if !(first and first['name']) then throw new Error("Please specify db name")
+          if !(first and first['name']) then throw new Error "Please specify db name"
           args.path = first.name
           dblocation = if !!first.location then dblocations[first.location] else null
           args.dblocation = dblocation || dblocations[0]
