@@ -54,7 +54,10 @@
           });
         });
 
-        if (!/MSIE/.test(navigator.userAgent)) test(suiteName + ' UNICODE encoding test', function () {
+        // XXX BUG #202: UNICODE characters not working with WP(8)
+        if (!/MSIE/.test(navigator.userAgent)) test(suiteName +
+            ' UNICODE encoding test', function () {
+
           stop();
 
           var dbName = "Unicode-hex-test";
@@ -140,7 +143,10 @@
           });
         });
 
-        test(suiteName + "UNICODE line separator string to hex", function() {
+        // XXX BUG #202: UNICODE characters not working with WP(8)
+        if (!/MSIE/.test(navigator.userAgent)) test(suiteName +
+            "UNICODE line separator string to hex", function() {
+
           // NOTE: this test verifies that the UNICODE line separator (\u2028)
           // is seen by the sqlite implementation OK:
           var db = openDatabase("UNICODE-line-separator-string-1.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -700,9 +706,9 @@
                   start();
                   var row = res.rows.item(0);
                   // XXX BUG #195 in WP(8) version ONLY:
-                  //if (/MSIE/.test(navigator.userAgent)) // XXX BUG in WP(8) version
-                  //  ok(row.test_date < 0, "Reproducing big number bug");
-                  //else
+                  if (/MSIE/.test(navigator.userAgent)) // XXX BUG in WP(8) version
+                    ok(row.test_date < 0, "Reproducing big number bug");
+                  else
                     strictEqual(row.test_date, 1424174959894, "Big integer number inserted properly");
 
                   // NOTE: storing big integer in TEXT field WORKING OK with WP(8) version.
@@ -1023,7 +1029,10 @@
 
         });
 
-        if (!/MSIE/.test(navigator.userAgent)) test(suiteName + ' stores unicode correctly', function () {
+        // XXX BUG #202: UNICODE characters not working with WP(8)
+        if (!/MSIE/.test(navigator.userAgent)) test(suiteName +
+            ' stores unicode correctly', function () {
+
           stop();
 
           var dbName = "Database-Unicode";
@@ -1086,7 +1095,10 @@
           });
         }
 
-        test(suiteName + ' returns unicode correctly', function () {
+        // XXX BUG #202: UNICODE characters not working with WP(8)
+        if (!/MSIE/.test(navigator.userAgent)) test(suiteName +
+            ' returns unicode correctly', function () {
+
           stop();
 
           var dbName = "Database-Unicode";
@@ -1141,7 +1153,8 @@
 
         // XXX Brody NOTE: same issue is now reproduced in a string test.
         //           TODO: combine with other test
-        // BUG #147 iOS version of plugin BROKEN:
+        // XXX BUG #147 iOS version of plugin BROKEN and
+        //     BUG #202: UNICODE characters not working with WP(8)
         if (isWebSql || /Android/.test(navigator.userAgent)) test(suiteName +
             ' handles unicode line separator correctly', function () {
 

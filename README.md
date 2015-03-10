@@ -46,6 +46,7 @@ License for iOS version: MIT only
 - The sqlite plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**.
 - The Android version cannot work with more than 100 open db files due to its threading model.
 - UNICODE line separator (`\u2028`) is currently not supported and known to be broken in iOS version.
+- UNICODE characters not working with WP(8) version
 
 ## Limited support (testing needed)
 
