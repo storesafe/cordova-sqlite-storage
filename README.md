@@ -45,6 +45,7 @@ License for iOS version: MIT only
 - The db version, display name, and size parameter values are not supported and will be ignored.
 - The sqlite plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**.
 - The Android version cannot work with more than 100 open db files due to its threading model.
+- UNICODE line separator (`\u2028`) is currently not supported and known to be broken in iOS version.
 
 ## Limited support (testing needed)
 
