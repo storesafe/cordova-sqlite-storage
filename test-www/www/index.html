@@ -30,7 +30,7 @@
 
       function doTest(isWebSql, suiteName, openDatabase) {
 
-        test(suiteName + "US-ASCII String test", function() {
+        test(suiteName + "US-ASCII String manipulation test", function() {
 
           var db = openDatabase("String-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
@@ -53,7 +53,32 @@
           });
         });
 
-        test(suiteName + ' UNICODE encoding test', function () {
+        // Only test ICU-UNICODE with Android 5.0(+):
+        if (/Android [5-9]/.test(navigator.userAgent)) test(suiteName +
+            "ICU-UNICODE string manipulation test", function() {
+
+          var db = openDatabase("UNICODE-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          ok(!!db, "db object");
+
+          stop(2);
+
+          db.transaction(function(tx) {
+
+            start(1);
+            ok(!!tx, "tx object");
+
+            tx.executeSql("select UPPER('Какой-то кириллический текст') as uppertext", [], function (tx, res) {
+              start(1);
+
+              console.log("res.rows.item(0).uppertext: " + res.rows.item(0).uppertext);
+
+              equal(res.rows.item(0).uppertext, "КАКОЙ-ТО КИРИЛЛИЧЕСКИЙ ТЕКСТ", "Try select UPPER('Какой-то кириллический текст') ['Some Cyrillic text']");
+            });
+          });
+        });
+
+        test(suiteName + ' UNICODE string encoding test', function () {
           stop();
 
           var dbName = "Unicode-hex-test";
@@ -92,29 +117,6 @@
           }, function(err) {
             ok(false, 'unexpected error: ' + err.message);
           }, function () {
-          });
-        });
-
-        // ICU-UNICODE only functional on recent versions of Android:
-        if (/Android 4\.[3-9]/.test(navigator.userAgent)) test(suiteName + "ICU-UNICODE String test", function() {
-          var db = openDatabase("String-test.db", "1.0", "Demo", DEFAULT_SIZE);
-
-          ok(!!db, "db object");
-
-          stop(2);
-
-          db.transaction(function(tx) {
-
-            start(1);
-            ok(!!tx, "tx object");
-
-            tx.executeSql("select UPPER('Какой-то кириллический текст') as uppertext", [], function (tx, res) {
-              start(1);
-
-              console.log("res.rows.item(0).uppertext: " + res.rows.item(0).uppertext);
-
-              equal(res.rows.item(0).uppertext, "КАКОЙ-ТО КИРИЛЛИЧЕСКИЙ ТЕКСТ", "Try ''Some Cyrillic text''");
-            });
           });
         });
 
