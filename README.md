@@ -53,8 +53,9 @@ License for iOS version: MIT only
 - Multi-page apps on WP(8)
 - DB Triggers (as described above - known to be broken for Android)
 
-## Other versions
+## Other versions and related projects
 
+- [MetaMemoryT / websql-client](https://github.com/MetaMemoryT/websql-client) - provides the same API and connects to [websql-server](https://github.com/MetaMemoryT/websql-server) through WebSockets.
 - Original version for iOS (with a different API): https://github.com/davibe/Phonegap-SQLitePlugin
 
 # Usage
