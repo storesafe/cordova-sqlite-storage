@@ -1,6 +1,6 @@
 # Cordova/PhoneGap SQLitePlugin
 
-Native interface to sqlite in a Cordova/PhoneGap plugin for Android/iOS/WP(8), with HTML5 Web SQL API
+Native interface to sqlite in a Cordova/PhoneGap plugin for Android/iOS/WP(8), with API similar to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/) 
 
 License for Android & WP(8) versions: MIT or Apache 2.0
 
@@ -9,17 +9,17 @@ License for iOS version: MIT only
 ## Status
 
 - [Available at PhoneGap build](https://build.phonegap.com/plugins/2097)
-- SQLCipher integration is not supported by this project, to be supported in a separate project.
 
 ## Announcements
 
+- [SQLCipher](https://www.zetetic.net/sqlcipher/) for Android & iOS is now supported by [brodysoft / Cordova-sqlcipher-adaptor](https://github.com/brodysoft/Cordova-sqlcipher-adaptor)
 - New `openDatabase` and `deleteDatabase` `location` option to select database location (iOS *only*) and disable iCloud backup
 - Pre-populated databases support for Android & iOS is now integrated, usage described below
 - Fixes to work with PouchDB by [@nolanlawson](https://github.com/nolanlawson)
 
 ## Highlights
 
-- Works with Cordova 3.x tooling and [Available at PhoneGap build](https://build.phonegap.com/plugins/2097)
+- Works with Cordova 3.x tooling and [available at PhoneGap build](https://build.phonegap.com/plugins/2097)
 - Drop-in replacement for HTML5 SQL API, the only change should be `window.openDatabase()` --> `sqlitePlugin.openDatabase()`
 - Failure-safe nested transactions with batch processing optimizations
 - As described in [this posting](http://brodyspark.blogspot.com/2012/12/cordovaphonegap-sqlite-plugins-offer.html):
@@ -57,12 +57,13 @@ License for iOS version: MIT only
 
 ## Other versions and related projects
 
+- [brodysoft / Cordova-sqlcipher-adaptor](https://github.com/brodysoft/Cordova-sqlcipher-adaptor) - supports [SQLCipher](https://www.zetetic.net/sqlcipher/) for Android & iOS.
 - [MetaMemoryT / websql-client](https://github.com/MetaMemoryT/websql-client) - provides the same API and connects to [websql-server](https://github.com/MetaMemoryT/websql-server) through WebSockets.
-- Original version for iOS (with a different API): https://github.com/davibe/Phonegap-SQLitePlugin
+- Original version for iOS (with a different API): [davibe / Phonegap-SQLitePlugin](https://github.com/davibe/Phonegap-SQLitePlugin)
 
 # Usage
 
-The idea is to emulate the [HTML5/Web SQL API](http://www.w3.org/TR/webdatabase/) as closely as possible. The only major change is to use `window.sqlitePlugin.openDatabase()` (or `sqlitePlugin.openDatabase()`) instead of `window.openDatabase()`. If you see any other major change please report it, it is probably a bug.
+The idea is to emulate the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/) as closely as possible. The only major change is to use `window.sqlitePlugin.openDatabase()` (or `sqlitePlugin.openDatabase()`) instead of `window.openDatabase()`. If you see any other major change please report it, it is probably a bug.
 
 ## Opening a database
 
