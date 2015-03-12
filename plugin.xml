@@ -81,4 +81,4 @@
         <framework src="src/wp/cs-sqlite-dll/Newtonsoft.Json.dll" custom="true" />
         <framework src="src/wp/cs-sqlite-dll/SQLiteWPNative.dll" custom="true" />
     </platform>
-</plugin>
+</plugin> <!-- vim: set expandtab : -->

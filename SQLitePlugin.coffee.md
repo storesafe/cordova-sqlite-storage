@@ -482,3 +482,8 @@
       openDatabase: SQLiteFactory.opendb
       deleteDatabase: SQLiteFactory.deleteDb
 
+## vim directives
+
+#### vim: set filetype=coffee :
+#### vim: set expandtab :
+

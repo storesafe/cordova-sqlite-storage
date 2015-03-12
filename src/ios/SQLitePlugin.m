@@ -586,4 +586,4 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     return result;
 }
 
-@end
+@end /* vim: set expandtab : */
