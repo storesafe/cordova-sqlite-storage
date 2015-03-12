@@ -183,4 +183,14 @@
 
     </platform>
 
+    <platform name="windows">
+        <js-module src="src/windows/SQLiteProxy.js" name="SQLiteProxy">
+            <merges target="" />
+        </js-module>
+        
+        <source-file src="src/windows/SQLitePluginRT.cs" />
+        <source-file src="src/windows/SQLite.cs" />
+
+    </platform>
+
 </plugin>
