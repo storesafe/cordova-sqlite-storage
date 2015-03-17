@@ -1345,6 +1345,73 @@
           });
         });
 
+        // XXX Brody TODO [BROKEN]: try closing the writer db handle before reading from the db reader handle.
+        test(suiteName + ' same database file with separate writer/reader db handles', function () {
+          var dbname = 'writer-reader-test.db';
+          var dbw = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
+          var dbr = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
+
+          stop(1);
+
+          dbw.transaction(function (tx) {
+            tx.executeSql('DROP TABLE IF EXISTS tt');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (test_data)');
+            tx.executeSql('INSERT INTO tt VALUES (?)', ['My-test-data']);
+          }, function(error) {
+            console.log("ERROR: " + error.message);
+            ok(false, error.message);
+            start(1);
+          }, function() {
+            dbr.readTransaction(function (tx) {
+              tx.executeSql('SELECT test_data from tt', [], function (tx, result) {
+                equal(result.rows.item(0).test_data, 'My-test-data', 'read data from reader handle');
+                start(1);
+              });
+            }, function(error) {
+              console.log("ERROR: " + error.message);
+              ok(false, error.message);
+              start(1);
+            });
+          });
+        });
+
+        test(suiteName + ' same database file with multiple writer db handles', function () {
+          var dbname = 'multi-writer-test.db';
+          var dbw1 = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
+          var dbw2 = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
+          var dbr = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
+
+          stop(1);
+
+          dbw1.transaction(function (tx) {
+            tx.executeSql('DROP TABLE IF EXISTS tt');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (test_data)');
+          }, function(error) {
+            console.log("ERROR: " + error.message);
+            ok(false, error.message);
+            start(1);
+          }, function() {
+            dbw2.transaction(function (tx) {
+              tx.executeSql('INSERT INTO tt VALUES (?)', ['My-test-data']);
+            }, function(error) {
+              console.log("ERROR: " + error.message);
+              ok(false, error.message);
+              start(1);
+            }, function() {
+              dbr.readTransaction(function (tx) {
+                tx.executeSql('SELECT test_data from tt', [], function (tx, result) {
+                  equal(result.rows.item(0).test_data, 'My-test-data', 'read data from reader handle');
+                  start(1);
+                });
+              }, function(error) {
+                console.log("ERROR: " + error.message);
+                ok(false, error.message);
+                start(1);
+              });
+            });
+          });
+        });
+
         test(suiteName + 'Multiple updates with key', function () {
           var db = openDatabase("MultipleUpdatesWithKey", "1.0",
 "Demo", DEFAULT_SIZE);
