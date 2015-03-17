@@ -1345,7 +1345,6 @@
           });
         });
 
-        // XXX Brody TODO [BROKEN]: try closing the writer db handle before reading from the db reader handle.
         test(suiteName + ' same database file with separate writer/reader db handles', function () {
           var dbname = 'writer-reader-test.db';
           var dbw = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
@@ -1370,6 +1369,44 @@
             }, function(error) {
               console.log("ERROR: " + error.message);
               ok(false, error.message);
+              start(1);
+            });
+          });
+        });
+
+        // XXX BROKEN [BUG #209]:
+        if (!isWebSql) test(suiteName + ' close one of multiple db handle', function () {
+          var dbname = 'multi-handle-db-close-one.db';
+          var dbw = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
+          var dbr = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
+
+          stop(1);
+
+          dbw.transaction(function (tx) {
+            tx.executeSql('DROP TABLE IF EXISTS tt');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (test_data)');
+            tx.executeSql('INSERT INTO tt VALUES (?)', ['My-test-data']);
+          }, function(error) {
+            console.log("ERROR: " + error.message);
+            ok(false, error.message);
+            start(1);
+          }, function() {
+            dbw.close(function () {
+              // XXX dbr no longer working [BUG #209]:
+              dbr.readTransaction(function (tx) {
+                ok(false, "Behavior changed - please update this test");
+                tx.executeSql('SELECT test_data from tt', [], function (tx, result) {
+                  equal(result.rows.item(0).test_data, 'My-test-data', 'read data from reader handle');
+                  start(1);
+                });
+              }, function(error) {
+                console.log("ERROR reading db handle: " + error.message);
+                //ok(false, "ERROR reading db handle: " + error.message);
+                ok(true, "BUG REPRODUCED");
+                start(1);
+              });
+            }, function (error) {
+              ok(false, 'close error callback not to be called after database is closed');
               start(1);
             });
           });
