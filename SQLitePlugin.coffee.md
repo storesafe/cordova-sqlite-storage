@@ -1,10 +1,10 @@
-# SQLitePlugin in Markdown (litcoffee)
+# SQLite plugin in Markdown (litcoffee)
 
 #### Use coffee compiler to compile this directly into Javascript
 
 #### License for common script: MIT or Apache
 
-# Top-level SQLitePlugin objects
+# Top-level SQLite plugin objects
 
 ## root window object:
 
@@ -63,12 +63,12 @@
         else
           return fun.call this, []
 
-## SQLitePlugin db-connection
+## SQLite plugin db-connection handle
 
-#### SQLitePlugin object is defined by a constructor function and prototype member functions:
+#### SQLite plugin db connection handle object is defined by a constructor function and prototype member functions:
 
     SQLitePlugin = (openargs, openSuccess, openError) ->
-      console.log "SQLitePlugin openargs: #{JSON.stringify openargs}"
+      # console.log "SQLitePlugin openargs: #{JSON.stringify openargs}"
 
       if !(openargs and openargs['name'])
         throw newSQLError "Cannot create a SQLitePlugin db instance without a db name"
@@ -152,8 +152,6 @@
       return
 
     SQLitePlugin::close = (success, error) ->
-      #console.log "SQLitePlugin.prototype.close"
-
       if @dbname of @openDBs
         if txLocks[@dbname] && txLocks[@dbname].inProgress
           error newSQLError 'database cannot be closed while a transaction is in progress'
@@ -162,6 +160,9 @@
         delete @openDBs[@dbname]
 
         cordova.exec success, error, "SQLitePlugin", "close", [ { path: @dbname } ]
+
+      else
+        nextTick -> error()
 
       return
 
@@ -176,11 +177,8 @@
       @addTransaction new SQLitePluginTransaction(this, myfn, null, null, false, false)
       return
 
-## SQLitePluginTransaction object for batching:
+## SQLite plugin transaction object for batching:
 
-    ###
-    Transaction batching object:
-    ###
     SQLitePluginTransaction = (db, fn, error, success, txlock, readOnly) ->
       if typeof(fn) != "function"
         ###
@@ -210,9 +208,7 @@
         @fn this
         @run()
       catch err
-        ###
-        If "fn" throws, we must report the whole transaction as failed.
-        ###
+        # If "fn" throws, we must report the whole transaction as failed.
         txLocks[@db.dbname].inProgress = false
         @db.startNextTransaction()
         if @error
@@ -254,7 +250,6 @@
         qid: qid
 
         sql: sql
-        #params: values || []
         params: params
 
       return
@@ -309,10 +304,8 @@
             if txFailure
               tx.abort txFailure
             else if tx.executes.length > 0
-              ###
-              new requests have been issued by the callback
-              handlers, so run another batch.
-              ###
+              # new requests have been issued by the callback
+              # handlers, so run another batch.
               tx.run()
             else
               tx.finish()

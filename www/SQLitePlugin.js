@@ -60,7 +60,6 @@
 
   SQLitePlugin = function(openargs, openSuccess, openError) {
     var dbname;
-    console.log("SQLitePlugin openargs: " + (JSON.stringify(openargs)));
     if (!(openargs && openargs['name'])) {
       throw newSQLError("Cannot create a SQLitePlugin db instance without a db name");
     }
@@ -159,6 +158,10 @@
           path: this.dbname
         }
       ]);
+    } else {
+      nextTick(function() {
+        return error();
+      });
     }
   };
 
@@ -179,11 +182,6 @@
     };
     this.addTransaction(new SQLitePluginTransaction(this, myfn, null, null, false, false));
   };
-
-
-  /*
-  Transaction batching object:
-   */
 
   SQLitePluginTransaction = function(db, fn, error, success, txlock, readOnly) {
     if (typeof fn !== "function") {
@@ -217,10 +215,6 @@
       this.run();
     } catch (_error) {
       err = _error;
-
-      /*
-      If "fn" throws, we must report the whole transaction as failed.
-       */
       txLocks[this.db.dbname].inProgress = false;
       this.db.startNextTransaction();
       if (this.error) {
@@ -321,11 +315,6 @@
           if (txFailure) {
             tx.abort(txFailure);
           } else if (tx.executes.length > 0) {
-
-            /*
-            new requests have been issued by the callback
-            handlers, so run another batch.
-             */
             tx.run();
           } else {
             tx.finish();

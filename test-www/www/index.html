@@ -1672,6 +1672,30 @@
           });
         });
 
+        if (!isWebSql) test (suiteName + ' attempt db.close() twice', function () {
+          var dbName = "Database-close-twice.db";
+
+          stop(1);
+
+          openDatabase({name: dbName}, function(db) {
+            ok(!!db, 'valid db object');
+            db.close(function () {
+              ok(true, 'db.close() success callback (first time)');
+              //start(1);
+              db.close(function () {
+                ok(false, 'db.close() second time should not have succeeded');
+                start(1);
+              }, function (error) {
+                ok(true, 'db.close() second time reported error ok');
+                start(1);
+              });
+            }, function (error) {
+              ok(false, 'expected close error callback not to be called after database is closed');
+              start(1);
+            });
+          });
+        });
+
         // XXX TODO same db name, different location [BROKEN]
 
         if (!isWebSql) test(suiteName + ' open same database twice [same location] works', function () {
