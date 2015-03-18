@@ -1,6 +1,6 @@
 # Cordova/PhoneGap SQLitePlugin
 
-Native interface to sqlite in a Cordova/PhoneGap plugin for Android/iOS/WP(8), with HTML5 Web SQL API
+Native interface to sqlite in a Cordova/PhoneGap plugin for Android/iOS/WP(8), with API similar to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
 
 License for Android & WP(8) versions: MIT or Apache 2.0
 
@@ -8,10 +8,11 @@ License for iOS version: MIT only
 
 ## Status
 
-- SQLCipher integration is not supported by this project, to be supported in a separate project.
+TBD
 
 ## Announcements
 
+- [SQLCipher](https://www.zetetic.net/sqlcipher/) for Android & iOS is now supported by [brodysoft / Cordova-sqlcipher-adaptor](https://github.com/brodysoft/Cordova-sqlcipher-adaptor)
 - New `openDatabase` and `deleteDatabase` `location` option to select database location (iOS *only*) and disable iCloud backup
 - Pre-populated databases support for Android & iOS is now integrated, usage described below
 - Fixes to work with PouchDB by [@nolanlawson](https://github.com/nolanlawson)
@@ -55,12 +56,13 @@ License for iOS version: MIT only
 
 ## Other versions and related projects
 
+- [brodysoft / Cordova-sqlcipher-adaptor](https://github.com/brodysoft/Cordova-sqlcipher-adaptor) - supports [SQLCipher](https://www.zetetic.net/sqlcipher/) for Android & iOS.
 - [MetaMemoryT / websql-client](https://github.com/MetaMemoryT/websql-client) - provides the same API and connects to [websql-server](https://github.com/MetaMemoryT/websql-server) through WebSockets.
-- Original version for iOS (with a different API): https://github.com/davibe/Phonegap-SQLitePlugin
+- Original version for iOS (with a different API): [davibe / Phonegap-SQLitePlugin](https://github.com/davibe/Phonegap-SQLitePlugin)
 
 # Usage
 
-The idea is to emulate the HTML5 SQL API as closely as possible. The only major change is to use window.sqlitePlugin.openDatabase() (or sqlitePlugin.openDatabase()) instead of window.openDatabase(). If you see any other major change please report it, it is probably a bug.
+The idea is to emulate the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/) as closely as possible. The only major change is to use `window.sqlitePlugin.openDatabase()` (or `sqlitePlugin.openDatabase()`) instead of `window.openDatabase()`. If you see any other major change please report it, it is probably a bug.
 
 ## Opening a database
 
@@ -96,30 +98,41 @@ An [issue was reported](https://github.com/brodysoft/Cordova-SQLitePlugin/issues
 
 It is suspected that this issue is caused by [this Android sqlite commit](https://github.com/android/platform_external_sqlite/commit/d4f30d0d1544f8967ee5763c4a1680cb0553039f), which references and includes the sqlite commit at: http://www.sqlite.org/src/info/6c4c2b7dba
 
-The workaround is enabled by opening the database like:
+There is an optional workaround that simply closes and reopens the database file at the end of every transaction that is committed. The workaround is enabled by opening the database like:
 
 ```js
-  var db = window.sqlitePlugin.openDatabase({name: "my.db", androidLockWorkaround: 1});
+var db = window.sqlitePlugin.openDatabase({name: "my.db", androidLockWorkaround: 1});
 ```
+
+**NOTE:** This workaround is *only* applied when using `db.transaction()` or `db.readTransaction()`, *not* applied when running `executeSql()` on the database object.
 
 ### Pre-populated database
 
 For Android & iOS (*only*): put the database file in the `www` directory and open the database like:
 
 ```js
-  var db = window.sqlitePlugin.openDatabase({name: "my.db", createFromLocation: 1});
+var db = window.sqlitePlugin.openDatabase({name: "my.db", createFromLocation: 1});
+```
+
+or to disable iCloud backup:
+
+```js
+db = sqlitePlugin.openDatabase({name: "my.db", location: 2, createFromLocation: 1});
 ```
 
 **IMPORTANT NOTES:**
 
 - Put the pre-populated database file in the `www` subdirectory. This should work well with using the Cordova CLI to support both Android & iOS versions.
 - The pre-populated database file name must match **exactly** the file name given in `openDatabase`. The automatic extension has been completely eliminated.
+- The pre-populated database file is ignored if the database file with the same name already exists in your database file location.
+
+**TIP:** If you don't see the data from the pre-populated database file, completely remove your app and try it again!
 
 ## Background processing
 
 The threading model depends on which version is used:
-- For Android & WP(8), one background thread per db (always);
-- for iOS, background processing using a thread pool (always).
+- For Android & WP(8), one background thread per db;
+- for iOS, background processing using a thread pool.
 
 # Sample with PRAGMA feature
 
@@ -192,7 +205,7 @@ function onDeviceReady() {
 }
 ```
 
-This case will also works with Safari (WebKit), assuming you replace window.sqlitePlugin.openDatabase with window.openDatabase.
+This case will also works with Safari (WebKit), assuming you replace `window.sqlitePlugin.openDatabase` with `window.openDatabase`.
 
 ## Delete a database
 
@@ -204,15 +217,30 @@ window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, erro
 
 # Installing
 
-**NOTE:** This plugin is now prepared to be installed using the `cordova` tool.
+## Easy install with plugman tool
 
-## Easy install with cordova tool
+For Android:
+
+    plugman install --platform android --project path.to.my.project.folder --plugin https://github.com/brodysoft/Cordova-sqlcipher-adaptor
+
+For iOS:
+
+    plugman install --platform ios --project path.to.my.project.folder --plugin https://github.com/brodysoft/Cordova-sqlcipher-adaptor
+
+## Easy install with Cordova CLI tool
 
     npm install -g cordova # if you don't have cordova
     cordova create MyProjectFolder com.my.project MyProject && cd MyProjectFolder # if you are just starting
     cordova plugin add https://github.com/brodysoft/Cordova-SQLitePlugin
 
 You can find more details at [this writeup](http://iphonedevlog.wordpress.com/2014/04/07/installing-chris-brodys-sqlite-database-with-cordova-cli-android/).
+
+**IMPORTANT:** sometimes you have to update the version for a platform before you can build, like: `cordova prepare ios`
+
+**NOTE:** If you cannot build for a platform after `cordova prepare`, you may have to remove the platform and add it again, such as:
+
+    cordova platform rm ios
+    cordova platform add ios
 
 ## Source tree
 
@@ -448,7 +476,7 @@ The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawso
 
 # Contributing
 
-**IMPORTANT NOTE:** It is better to push your change(s) from a separate branch. Sometimes they need to be reworked before acceptance. Otherwise your `master` branch could become a real mess if rework is needed.
+**WARNING:** Please do NOT propose changes from your `master` branch. In general changes will be rebased using `git rebase` or `git cherry-pick` and not merged.
 
 - Testimonials of apps that are using this plugin would be especially helpful.
 - Reporting issues at [brodysoft / Cordova-SQLitePlugin / issues](https://github.com/brodysoft/Cordova-SQLitePlugin/issues) can help improve the quality of this plugin.

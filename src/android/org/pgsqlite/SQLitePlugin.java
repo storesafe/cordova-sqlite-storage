@@ -960,4 +960,4 @@ public class SQLitePlugin extends CordovaPlugin {
         rollback,
         other
     }
-}
+} /* vim: set expandtab : */
