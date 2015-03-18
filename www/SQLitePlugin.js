@@ -1,9 +1,13 @@
 (function() {
-  var READ_ONLY_REGEX, SQLiteFactory, SQLitePlugin, SQLitePluginTransaction, argsArray, dblocations, newSQLError, nextTick, root, txLocks;
+  var DB_STATE_INIT, DB_STATE_OPEN, READ_ONLY_REGEX, SQLiteFactory, SQLitePlugin, SQLitePluginTransaction, argsArray, dblocations, newSQLError, nextTick, root, txLocks;
 
   root = this;
 
   READ_ONLY_REGEX = /^\s*(?:drop|delete|insert|update|create)\s/i;
+
+  DB_STATE_INIT = "INIT";
+
+  DB_STATE_OPEN = "OPEN";
 
   txLocks = {};
 
@@ -91,7 +95,9 @@
       };
     }
     txLocks[this.dbname].queue.push(t);
-    this.startNextTransaction();
+    if (this.dbname in this.openDBs && this.openDBs[this.dbname] !== DB_STATE_INIT) {
+      this.startNextTransaction();
+    }
   };
 
   SQLitePlugin.prototype.transaction = function(fn, error, success) {
@@ -116,7 +122,9 @@
     nextTick(function() {
       var txLock;
       txLock = txLocks[self.dbname];
-      if (txLock.queue.length > 0 && !txLock.inProgress) {
+      if (!txLock) {
+        return;
+      } else if (txLock.queue.length > 0 && !txLock.inProgress) {
         txLock.inProgress = true;
         txLock.queue.shift().start();
       }
@@ -124,25 +132,29 @@
   };
 
   SQLitePlugin.prototype.open = function(success, error) {
-    var onSuccess;
-    onSuccess = (function(_this) {
-      return function() {
-        return success(_this);
-      };
-    })(this);
+    var opensuccesscb;
     if (this.dbname in this.openDBs) {
-
-      /*
-      for a re-open run onSuccess async so that the openDatabase return value
-      can be used in the success handler as an alternative to the handler's
-      db argument
-       */
-      nextTick(function() {
-        return onSuccess();
-      });
+      nextTick((function(_this) {
+        return function() {
+          success(_this);
+        };
+      })(this));
     } else {
-      this.openDBs[this.dbname] = true;
-      cordova.exec(onSuccess, error, "SQLitePlugin", "open", [this.openargs]);
+      opensuccesscb = (function(_this) {
+        return function() {
+          var txLock;
+          if (_this.dbname in _this.openDBs) {
+            _this.openDBs[_this.dbname] = DB_STATE_OPEN;
+          }
+          success(_this);
+          txLock = txLocks[_this.dbname];
+          if (!!txLock && txLock.queue.length > 0 && !txLock.inProgress) {
+            _this.startNextTransaction();
+          }
+        };
+      })(this);
+      this.openDBs[this.dbname] = DB_STATE_INIT;
+      cordova.exec(opensuccesscb, error, "SQLitePlugin", "open", [this.openargs]);
     }
   };
 
