@@ -67,6 +67,7 @@
         <header-file src="src/ios/SQLitePlugin.h" />
         <source-file src="src/ios/SQLitePlugin.m" />
         <framework src="libsqlite3.dylib" />
+
     </platform>
 
     <!-- wp8 using dlls [should work but not tested on wp7]
@@ -81,6 +82,7 @@
 
         <source-file src="src/wp/SQLitePlugin.cs" />
         <framework src="src/wp/cs-sqlite-dll/SQLiteWPNative.dll" custom="true" />
+
     </platform>
     -->
 
@@ -183,4 +185,4 @@
 
     </platform>
 
-</plugin>
+</plugin> <!-- vim: set expandtab : -->

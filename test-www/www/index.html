@@ -24,25 +24,26 @@
 
       function doAllTests() {
         QUnit.config.testTimeout = 25000; // 25 sec.
-        doTest(false, 'Plugin: ', window.sqlitePlugin.openDatabase);
+        doSqlTests(false, 'Plugin: ', window.sqlitePlugin.openDatabase);
+        doPluginTests();
         if (!/MSIE/.test(navigator.userAgent))
-          doTest(true, 'HTML5: ', window.openDatabase);
+          doSqlTests(true, 'HTML5: ', window.openDatabase);
       }
 
-      function doTest(isWebSql, suiteName, openDatabase) {
+      function doSqlTests(isWebSql, suiteName, openDatabase) {
 
-        test(suiteName + "US-ASCII String test", function() {
+        test(suiteName + "US-ASCII String manipulation test", function() {
 
-          var db = openDatabase("String-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase("ASCII-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
-          ok(!!db, "db object");
+          ok(!!db, 'valid db object');
 
           stop(2);
 
           db.transaction(function(tx) {
 
             start(1);
-            ok(!!tx, "tx object");
+            ok(!!tx, 'valid tx object');
 
             tx.executeSql("select upper('Some US-ASCII text') as uppertext", [], function(tx, res) {
               start(1);
@@ -54,9 +55,34 @@
           });
         });
 
+        // Only test ICU-UNICODE with Android 5.0(+):
+        if (/Android [5-9]/.test(navigator.userAgent)) test(suiteName +
+            "ICU-UNICODE string manipulation test", function() {
+
+          var db = openDatabase("UNICODE-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          ok(!!db, 'valid db object');
+
+          stop(2);
+
+          db.transaction(function(tx) {
+
+            start(1);
+            ok(!!tx, 'valid tx object');
+
+            tx.executeSql("select UPPER('Какой-то кириллический текст') as uppertext", [], function (tx, res) {
+              start(1);
+
+              console.log("res.rows.item(0).uppertext: " + res.rows.item(0).uppertext);
+
+              equal(res.rows.item(0).uppertext, "КАКОЙ-ТО КИРИЛЛИЧЕСКИЙ ТЕКСТ", "Try select UPPER('Какой-то кириллический текст') ['Some Cyrillic text']");
+            });
+          });
+        });
+
         // XXX BUG #202: UNICODE characters not working with WP(8)
         if (!/MSIE/.test(navigator.userAgent)) test(suiteName +
-            ' UNICODE encoding test', function () {
+            ' UNICODE string encoding test', function () {
 
           stop();
 
@@ -96,29 +122,6 @@
           }, function(err) {
             ok(false, 'unexpected error: ' + err.message);
           }, function () {
-          });
-        });
-
-        // ICU-UNICODE only functional on recent versions of Android:
-        if (/Android 4\.[3-9]/.test(navigator.userAgent)) test(suiteName + "ICU-UNICODE String test", function() {
-          var db = openDatabase("String-test.db", "1.0", "Demo", DEFAULT_SIZE);
-
-          ok(!!db, "db object");
-
-          stop(2);
-
-          db.transaction(function(tx) {
-
-            start(1);
-            ok(!!tx, "tx object");
-
-            tx.executeSql("select UPPER('Какой-то кириллический текст') as uppertext", [], function (tx, res) {
-              start(1);
-
-              console.log("res.rows.item(0).uppertext: " + res.rows.item(0).uppertext);
-
-              equal(res.rows.item(0).uppertext, "КАКОЙ-ТО КИРИЛЛИЧЕСКИЙ ТЕКСТ", "Try ''Some Cyrillic text''");
-            });
           });
         });
 
@@ -203,6 +206,43 @@
               ok(!!res, "res object");
               equal(res.rows.item(0).lowertext, "abcd\u20281234", "lower case string test with UNICODE line separator");
             });
+          });
+        });
+
+        test(suiteName + ' open same db twice with string test', function () {
+          var dbName = 'open-same-db-twice-string-test.db';
+
+          var db1 = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+          var db2 = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+
+          ok(!!db1, 'valid db1 database handle object');
+          ok(!!db2, 'valid db2 database handle object');
+
+          stop(2);
+
+          db1.readTransaction(function(tx) {
+            ok(!!tx, 'valid db1 tx object');
+            tx.executeSql("select upper('first') as uppertext", [], function(tx, result) {
+              ok(!!result, 'valid db1 read tx result object');
+              equal(result.rows.item(0).uppertext, 'FIRST', 'check db1 read tx result');
+              start(1);
+            }, function(error) {
+              ok(false, error);
+            });
+          }, function(error) {
+            ok(false, error);
+          });
+          db2.readTransaction(function(tx) {
+            ok(!!tx, 'valid db2 tx object');
+            tx.executeSql("select upper('second') as uppertext", [], function(tx, result) {
+              ok(!!result, 'valid db2 read tx result object');
+              equal(result.rows.item(0).uppertext, 'SECOND', 'check db2 read tx result');
+              start(1);
+            }, function(error) {
+              ok(false, error);
+            });
+          }, function(error) {
+            ok(false, error);
           });
         });
 
@@ -1363,6 +1403,72 @@
           });
         });
 
+        test(suiteName + ' same database file with separate writer/reader db handles', function () {
+          var dbname = 'writer-reader-test.db';
+          var dbw = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
+          var dbr = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
+
+          stop(1);
+
+          dbw.transaction(function (tx) {
+            tx.executeSql('DROP TABLE IF EXISTS tt');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (test_data)');
+            tx.executeSql('INSERT INTO tt VALUES (?)', ['My-test-data']);
+          }, function(error) {
+            console.log("ERROR: " + error.message);
+            ok(false, error.message);
+            start(1);
+          }, function() {
+            dbr.readTransaction(function (tx) {
+              tx.executeSql('SELECT test_data from tt', [], function (tx, result) {
+                equal(result.rows.item(0).test_data, 'My-test-data', 'read data from reader handle');
+                start(1);
+              });
+            }, function(error) {
+              console.log("ERROR: " + error.message);
+              ok(false, error.message);
+              start(1);
+            });
+          });
+        });
+
+        test(suiteName + ' same database file with multiple writer db handles', function () {
+          var dbname = 'multi-writer-test.db';
+          var dbw1 = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
+          var dbw2 = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
+          var dbr = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
+
+          stop(1);
+
+          dbw1.transaction(function (tx) {
+            tx.executeSql('DROP TABLE IF EXISTS tt');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (test_data)');
+          }, function(error) {
+            console.log("ERROR: " + error.message);
+            ok(false, error.message);
+            start(1);
+          }, function() {
+            dbw2.transaction(function (tx) {
+              tx.executeSql('INSERT INTO tt VALUES (?)', ['My-test-data']);
+            }, function(error) {
+              console.log("ERROR: " + error.message);
+              ok(false, error.message);
+              start(1);
+            }, function() {
+              dbr.readTransaction(function (tx) {
+                tx.executeSql('SELECT test_data from tt', [], function (tx, result) {
+                  equal(result.rows.item(0).test_data, 'My-test-data', 'read data from reader handle');
+                  start(1);
+                });
+              }, function(error) {
+                console.log("ERROR: " + error.message);
+                ok(false, error.message);
+                start(1);
+              });
+            });
+          });
+        });
+
         test(suiteName + 'Multiple updates with key', function () {
           var db = openDatabase("MultipleUpdatesWithKey", "1.0",
 "Demo", DEFAULT_SIZE);
@@ -1395,29 +1501,37 @@
           });
         });
 
-        if (!isWebSql) test(suiteName + "DB String result test", function() {
-          var db = openDatabase("String-test.db", "1.0", "Demo", DEFAULT_SIZE);
+      }
+
+      function doPluginTests() {
+        var suiteName = "plugin: ";
+        var openDatabase = window.sqlitePlugin.openDatabase;
+
+        test(suiteName + "DB String result test", function() {
+          // NOTE: this test checks that for db.executeSql(), the result callback is
+          // called exactly once, with the proper result:
+          var db = openDatabase("DB-String-result-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           var expected = [ 'FIRST', 'SECOND' ];
           var i=0;
 
-          ok(!!db, "db object");
+          ok(!!db, 'valid db object');
 
           stop(2);
 
-          var okcb = function(res) {
+          var okcb = function(result) {
             if (i > 1) {
-              ok(false, "unexpected result: " + JSON.stringify(res));
-              console.log("discarding unexpected result: " + JSON.stringify(res))
+              ok(false, "unexpected result: " + JSON.stringify(result));
+              console.log("discarding unexpected result: " + JSON.stringify(result))
               return;
             }
 
-            ok(!!res, "valid object");
+            ok(!!result, "valid result object");
 
-            // do not count res if undefined:
-            if (!!res) { // will freeze the test if res is undefined:
-              console.log("res.rows.item(0).uppertext: " + res.rows.item(0).uppertext);
-              equal(res.rows.item(0).uppertext, expected[i], "Check result " + i);
+            // ignore cb (and do not count) if result is undefined:
+            if (!!result) {
+              console.log("result.rows.item(0).uppertext: " + result.rows.item(0).uppertext);
+              equal(result.rows.item(0).uppertext, expected[i], "Check result " + i);
               i++;
               start(1);
             }
@@ -1427,7 +1541,7 @@
           db.executeSql("select upper('second') as uppertext", [], okcb);
         });
 
-        if (!isWebSql) test(suiteName + "PRAGMAs & multiple databases", function() {
+        test(suiteName + "PRAGMAs and multiple databases", function() {
           var db = openDatabase("DB1", "1.0", "Demo", DEFAULT_SIZE);
 
           var db2 = openDatabase("DB2", "1.0", "Demo", DEFAULT_SIZE);
@@ -1471,7 +1585,7 @@
           });
         });
 
-        if (!isWebSql) test(suiteName + ' test sqlitePlugin.deleteDatabase()', function () {
+        test(suiteName + ' test sqlitePlugin.deleteDatabase()', function () {
 
           stop();
           var db = openDatabase("DB-Deletable", "1.0", "Demo", DEFAULT_SIZE);
@@ -1526,7 +1640,7 @@
           createAndInsertStuff();
         });
 
-        if (!isWebSql) test(suiteName + ' database.open calls its success callback', function () {
+        test(suiteName + ' database.open calls its success callback', function () {
 
           // asynch test coming up
           stop(1);
@@ -1541,7 +1655,7 @@
           });
         });
 
-        if (!isWebSql) test(suiteName + ' database.close calls its success callback', function () {
+        test(suiteName + ' database.close calls its success callback', function () {
 
           // asynch test coming up
           stop(1);
@@ -1559,7 +1673,7 @@
           });
         });
 
-        if (!isWebSql) test (suiteName + ' database.close fails in transaction', function () {
+        test (suiteName + ' database.close fails in transaction', function () {
           stop(2);
 
           var dbName = "Database-Close-fail";
@@ -1586,13 +1700,98 @@
           });
         });
 
-        // XXX TODO same db name, different location [BROKEN]
+        test (suiteName + ' attempt to close db twice', function () {
+          var dbName = "close-db-twice.db";
 
-        if (!isWebSql) test(suiteName + ' open same database twice [same location] works', function () {
+          stop(1);
+
+          openDatabase({name: dbName}, function(db) {
+            ok(!!db, 'valid db object');
+            db.close(function () {
+              ok(true, 'db.close() success callback (first time)');
+              db.close(function () {
+                ok(false, 'db.close() second time should not have succeeded');
+                start(1);
+              }, function (error) {
+                ok(true, 'db.close() second time reported error ok');
+                start(1);
+              });
+            }, function (error) {
+              ok(false, 'expected close error callback not to be called after database is closed');
+              start(1);
+            });
+          });
+        });
+
+        // XXX BROKEN [BUG #209]:
+        test(suiteName + ' close writer db handle should not close reader db handle [BROKEN]', function () {
+          var dbname = 'close-one-db-handle.db';
+          var dbw = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
+          var dbr = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
+
+          stop(1);
+
+          dbw.transaction(function (tx) {
+            tx.executeSql('DROP TABLE IF EXISTS tt');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (test_data)');
+            tx.executeSql('INSERT INTO tt VALUES (?)', ['My-test-data']);
+          }, function(error) {
+            console.log("ERROR: " + error.message);
+            ok(false, error.message);
+            start(1);
+          }, function() {
+            dbw.close(function () {
+              // XXX dbr no longer working [BUG #209]:
+              dbr.readTransaction(function (tx) {
+                ok(false, "Behavior changed - please update this test");
+                tx.executeSql('SELECT test_data from tt', [], function (tx, result) {
+                  equal(result.rows.item(0).test_data, 'My-test-data', 'read data from reader handle');
+                  start(1);
+                });
+              }, function(error) {
+                console.log("ERROR reading db handle: " + error.message);
+                //ok(false, "ERROR reading db handle: " + error.message);
+                ok(true, "BUG REPRODUCED");
+                start(1);
+              });
+            }, function (error) {
+              ok(false, 'close error callback not to be called after database is closed');
+              start(1);
+            });
+          });
+        });
+
+        // XXX BROKEN [BUG #204]:
+        test(suiteName + ' close DB in db.executeSql() callback [BROKEN]', function () {
+          var dbName = "Close-DB-in-db-executeSql-callback.db";
+
+          // async test coming up
+          stop(1);
+
+          openDatabase({name: dbName}, function (db) {
+            db.executeSql("CREATE TABLE IF NOT EXISTS tt (test_data)", [], function() {
+              db.close(function () {
+                ok(false, "Behavior changed - please update this test");
+                ok(true, 'DB close OK');
+                start(1);
+              }, function (error) {
+                //ok(false, "Could not close DB: " + error.message);
+                ok(true, "BUG REPRODUCED");
+                start(1);
+              });
+            });
+          }, function (error) {
+            ok(false, error.message);
+            start(1);
+          });
+        });
+
+        // Needed to support some large-scale applications:
+        test(suiteName + ' open same database twice in [same] specified location works', function () {
+          // XXX TODO [BROKEN]: same db name, different location should be different db!
+          var dbName = 'open-twice-same-location.db';
 
           stop(2);
-
-          var dbName = 'open-twice';
 
           var db1 = openDatabase({name: dbName, location: 2}, function () {
             var db2 = openDatabase({name: dbName, location: 2}, function () {
@@ -1624,7 +1823,8 @@
           });
         });
 
-        if (!isWebSql) test(suiteName + ' close then re-open allows subsequent queries to run', function () {
+        // Needed to support some large-scale applications:
+        test(suiteName + ' close then re-open allows subsequent queries to run', function () {
 
           // asynch test coming up
           stop(1);
@@ -1673,13 +1873,14 @@
           });
         });
 
-        if (!isWebSql) test(suiteName + ' delete then re-open allows subsequent queries to run', function () {
+        // Needed to support some large-scale applications:
+        test(suiteName + ' delete then re-open allows subsequent queries to run', function () {
+          var dbName = "Database-delete-and-Reopen.db";
+          var dbLocation = 2;
 
-          // asynch test coming up
+          // async test coming up
           stop(1);
 
-          var dbName = "Database-delete-and-Reopen";
-          var dbLocation = 2;
           var db = openDatabase({name: dbName, location: dbLocation}, function () {
             // success CB
             window.sqlitePlugin.deleteDatabase({name: dbName, location: dbLocation}, function () {
@@ -1713,16 +1914,18 @@
           });
         });
 
-        if (!isWebSql) test(suiteName + ' close, then delete then re-open allows subsequent queries to run', function () {
+        // Needed to support some large-scale applications:
+        test(suiteName + ' close, then delete then re-open allows subsequent queries to run', function () {
+          var dbName = "Database-Close-delete-Reopen.db";
 
           // asynch test coming up
           stop(1);
 
-          var dbName = "Database-Close-delete-Reopen";
-          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
-          db.close(function () {
+          var db1 = openDatabase({name: dbName});
+
+          db1.close(function () {
             window.sqlitePlugin.deleteDatabase(dbName, function () {
-              db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function () {
+              openDatabase({name: dbName}, function(db) {
                 db.readTransaction(function (tx) {
                   tx.executeSql('SELECT 1', [], function (tx, results) {
                     ok(true, 'database re-opened succesfully');
@@ -1749,26 +1952,212 @@
           });
         });
 
-        if (!isWebSql) test(suiteName + ' repeatedly open and delete database succeeds', function () {
+        test(suiteName + ' repeatedly open and close database (4x)', function () {
+          var dbName = "repeatedly-open-and-close-db-4x.db";
 
-          // asynch test coming up
-          stop(5);
+          // async test coming up
+          stop(1);
 
-          var dbName = "repeatedly-open-and-delete";
+          openDatabase({name: dbName}, function(db) {
+            ok(!!db, 'valid db object 1/4');
+            db.close(function () {
+              ok(true, 'success 1/4');
 
-          var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
-          window.sqlitePlugin.deleteDatabase(dbName, function () {
+              openDatabase({name: dbName}, function(db) {
+                ok(!!db, 'valid db object 2/4');
+                db.close(function () {
+                  ok(true, 'success 2/4');
 
-            db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+                  openDatabase({name: dbName}, function(db) {
+                    ok(!!db, 'valid db object 3/4');
+                    db.close(function () {
+                      ok(true, 'success 3/4');
+
+                      openDatabase({name: dbName}, function(db) {
+                        ok(!!db, 'valid db object 4/4');
+                        db.close(function () {
+                          ok(true, 'success 4/4');
+
+                          start(1);
+                        }, function (error) {
+                          ok(false, 'close 4/4: unexpected close error callback: ' + error);
+                          start(1);
+                        });
+                      }, function (error) {
+                        ok(false, 'open 4/4: unexpected open error callback: ' + error);
+                        start(1);
+                      });
+                    }, function (error) {
+                      ok(false, 'close 3/4: unexpected close error callback: ' + error);
+                      start(1);
+                    });
+                  }, function (error) {
+                    ok(false, 'open 3/4: unexpected open error callback: ' + error);
+                    start(1);
+                  });
+                }, function (error) {
+                  ok(false, 'close 2/4: unexpected delete close callback: ' + error);
+                  start(1);
+                });
+              }, function (error) {
+                ok(false, 'close 2/4: unexpected open close callback: ' + error);
+                start(1);
+              });
+            }, function (error) {
+              ok(false, 'close 1/4: unexpected delete close callback: ' + error);
+              start(1);
+            });
+          }, function (error) {
+            ok(false, 'open 1/4: unexpected open error callback: ' + error);
+            start(1);
+          });
+        });
+
+        test(suiteName + ' repeatedly open and close database faster (5x)', function () {
+          var dbName = "repeatedly-open-and-close-faster-5x.db";
+
+          // async test coming up
+          stop(1);
+
+          var db = openDatabase({name: dbName});
+          ok(!!db, 'valid db object 1/5');
+          db.close(function () {
+            ok(true, 'success 1/5');
+
+            db = openDatabase({name: dbName});
+            ok(!!db, 'valid db object 2/5');
+            db.close(function () {
+              ok(true, 'success 2/5');
+
+              db = openDatabase({name: dbName});
+              ok(!!db, 'valid db object 3/5');
+              db.close(function () {
+                ok(true, 'success 3/5');
+
+                db = openDatabase({name: dbName});
+                ok(!!db, 'valid db object 4/5');
+                db.close(function () {
+                  ok(true, 'success 4/5');
+
+                  db = openDatabase({name: dbName});
+                  ok(!!db, 'valid db object 5/5');
+                  db.close(function () {
+                    ok(true, 'success 5/5');
+
+                    start(1);
+                  }, function (error) {
+                    ok(false, 'close 5/5: unexpected close error callback: ' + error);
+                    start(1);
+                  });
+                }, function (error) {
+                  ok(false, 'close 4/5: unexpected close error callback: ' + error);
+                  start(1);
+                });
+              }, function (error) {
+                ok(false, 'close 3/5: unexpected close error callback: ' + error);
+                start(1);
+              });
+            }, function (error) {
+              ok(false, 'close 2/5: unexpected close error callback: ' + error);
+              start(1);
+            });
+          }, function (error) {
+            ok(false, 'close 1/5: unexpected close error callback: ' + error);
+            start(1);
+          });
+        });
+
+        // Needed to support some large-scale applications:
+        test(suiteName + ' repeatedly open and delete database (4x)', function () {
+          var dbName = "repeatedly-open-and-delete-4x.db";
+
+          // async test coming up
+          stop(1);
+
+          openDatabase({name: dbName}, function(db) {
+            ok(true, 'valid db object 1/4');
             window.sqlitePlugin.deleteDatabase(dbName, function () {
+              ok(true, 'success 1/4');
 
-              db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
-              window.sqlitePlugin.deleteDatabase(dbName, function () {
-
-                db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+              openDatabase({name: dbName}, function(db) {
+                ok(true, 'valid db object 2/4');
                 window.sqlitePlugin.deleteDatabase(dbName, function () {
+                  ok(true, 'success 2/4');
 
-                  db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
+                  openDatabase({name: dbName}, function(db) {
+                    ok(true, 'valid db object 3/4');
+                    window.sqlitePlugin.deleteDatabase(dbName, function () {
+                      ok(true, 'success 3/4');
+
+                      openDatabase({name: dbName}, function(db) {
+                        ok(true, 'valid db object 4/4');
+                        window.sqlitePlugin.deleteDatabase(dbName, function () {
+                          ok(true, 'success 4/4');
+
+                          start(1);
+                        }, function (error) {
+                          ok(false, 'delete 4/4: unexpected delete error callback: ' + error);
+                          start(1);
+                        });
+                      }, function (error) {
+                        ok(false, 'open 4/4: unexpected open error callback: ' + error);
+                        start(1);
+                      });
+                    }, function (error) {
+                      ok(false, 'delete 3/4: unexpected delete error callback: ' + error);
+                      start(1);
+                    });
+                  }, function (error) {
+                    ok(false, 'open 3/4: unexpected open error callback: ' + error);
+                    start(1);
+                  });
+                }, function (error) {
+                  ok(false, 'delete 2/4: unexpected delete error callback: ' + error);
+                  start(1);
+                });
+              }, function (error) {
+                ok(false, 'open 2/4: unexpected open error callback: ' + error);
+                start(1);
+              });
+            }, function (error) {
+              ok(false, 'delete 1/4: unexpected delete error callback: ' + error);
+              start(1);
+            });
+          }, function (error) {
+            ok(false, 'open 1/4: unexpected open error callback: ' + error);
+            start(1);
+          });
+        });
+
+        // Needed to support some large-scale applications:
+        test(suiteName + ' repeatedly open and delete database faster (5x)', function () {
+          var dbName = "repeatedly-open-and-delete-faster-5x.db";
+
+          // async test coming up
+          stop(1);
+
+          var db = openDatabase({name: dbName});
+          ok(!!db, 'valid db object 1/5');
+          window.sqlitePlugin.deleteDatabase(dbName, function () {
+            ok(true, 'success 1/5');
+
+            db = openDatabase({name: dbName});
+            ok(!!db, 'valid db object 2/5');
+            window.sqlitePlugin.deleteDatabase(dbName, function () {
+              ok(true, 'success 2/5');
+
+              db = openDatabase({name: dbName});
+              ok(!!db, 'valid db object 3/5');
+              window.sqlitePlugin.deleteDatabase(dbName, function () {
+                ok(true, 'success 3/5');
+
+                db = openDatabase({name: dbName});
+                ok(!!db, 'valid db object 4/5');
+                window.sqlitePlugin.deleteDatabase(dbName, function () {
+                  ok(true, 'success 4/5');
+
+                  db = openDatabase({name: dbName});
+                  ok(!!db, 'valid db object 5/5');
                   window.sqlitePlugin.deleteDatabase(dbName, function () {
                     ok(true, 'success 5/5');
 
@@ -1777,29 +2166,21 @@
                     ok(false, 'expected delete 5/5 error callback not to be called for an open database' + error);
                     start(1);
                   });
-
-                  start(1);
                 }, function (error) {
                   ok(false, 'expected delete 4/5 error callback not to be called for an open database' + error);
                   start(1);
                 });
-
-                start(1);
               }, function (error) {
                 ok(false, 'expected delete 3/5 error callback not to be called for an open database' + error);
                 start(1);
               });
-
-              start(1);
             }, function (error) {
               ok(false, 'expected delete 2/5 error callback not to be called for an open database' + error);
               start(1);
             });
-
-            start(1);
           }, function (error) {
             ok(false, 'expected delete 1/5 error callback not to be called for an open database' + error);
-            start(5);
+            start(1);
           });
         });
 
@@ -1811,4 +2192,4 @@
   <body>
     <div id="qunit"></div>
   </body>
-</html>
+</html> <!-- vim: set expandtab : -->

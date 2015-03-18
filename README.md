@@ -1,6 +1,6 @@
 # Cordova/PhoneGap SQLitePlugin
 
-Native interface to sqlite in a Cordova/PhoneGap plugin for Android/iOS/WP(8), with API similar to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/) 
+Native interface to sqlite in a Cordova/PhoneGap plugin for Android/iOS/WP(8), with API similar to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
 
 License for Android & WP(8) versions: MIT or Apache 2.0
 
@@ -99,30 +99,41 @@ An [issue was reported](https://github.com/brodysoft/Cordova-SQLitePlugin/issues
 
 It is suspected that this issue is caused by [this Android sqlite commit](https://github.com/android/platform_external_sqlite/commit/d4f30d0d1544f8967ee5763c4a1680cb0553039f), which references and includes the sqlite commit at: http://www.sqlite.org/src/info/6c4c2b7dba
 
-The workaround is enabled by opening the database like:
+There is an optional workaround that simply closes and reopens the database file at the end of every transaction that is committed. The workaround is enabled by opening the database like:
 
 ```js
-  var db = window.sqlitePlugin.openDatabase({name: "my.db", androidLockWorkaround: 1});
+var db = window.sqlitePlugin.openDatabase({name: "my.db", androidLockWorkaround: 1});
 ```
+
+**NOTE:** This workaround is *only* applied when using `db.transaction()` or `db.readTransaction()`, *not* applied when running `executeSql()` on the database object.
 
 ### Pre-populated database
 
 For Android & iOS (*only*): put the database file in the `www` directory and open the database like:
 
 ```js
-  var db = window.sqlitePlugin.openDatabase({name: "my.db", createFromLocation: 1});
+var db = window.sqlitePlugin.openDatabase({name: "my.db", createFromLocation: 1});
+```
+
+or to disable iCloud backup:
+
+```js
+db = sqlitePlugin.openDatabase({name: "my.db", location: 2, createFromLocation: 1});
 ```
 
 **IMPORTANT NOTES:**
 
 - Put the pre-populated database file in the `www` subdirectory. This should work well with using the Cordova CLI to support both Android & iOS versions.
 - The pre-populated database file name must match **exactly** the file name given in `openDatabase`. The automatic extension has been completely eliminated.
+- The pre-populated database file is ignored if the database file with the same name already exists in your database file location.
+
+**TIP:** If you don't see the data from the pre-populated database file, completely remove your app and try it again!
 
 ## Background processing
 
 The threading model depends on which version is used:
-- For Android & WP(8), one background thread per db (always);
-- for iOS, background processing using a thread pool (always).
+- For Android & WP(8), one background thread per db;
+- for iOS, background processing using a thread pool.
 
 # Sample with PRAGMA feature
 
@@ -195,7 +206,7 @@ function onDeviceReady() {
 }
 ```
 
-This case will also works with Safari (WebKit), assuming you replace window.sqlitePlugin.openDatabase with window.openDatabase.
+This case will also works with Safari (WebKit), assuming you replace `window.sqlitePlugin.openDatabase` with `window.openDatabase`.
 
 ## Delete a database
 
@@ -207,9 +218,17 @@ window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, erro
 
 # Installing
 
-**NOTE:** This plugin is now prepared to be installed using the `cordova` tool.
+## Easy install with plugman tool
 
-## Easy install with cordova tool
+For Android:
+
+    plugman install --platform android --project path.to.my.project.folder --plugin https://github.com/brodysoft/Cordova-sqlcipher-adaptor
+
+For iOS:
+
+    plugman install --platform ios --project path.to.my.project.folder --plugin https://github.com/brodysoft/Cordova-sqlcipher-adaptor
+
+## Easy install with Cordova CLI tool
 
     npm install -g cordova # if you don't have cordova
     cordova create MyProjectFolder com.my.project MyProject && cd MyProjectFolder # if you are just starting
