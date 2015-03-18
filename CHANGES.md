@@ -1,5 +1,10 @@
 # Changes
 
+## 1.0.6
+
+- Proper handling of transactions that may be requested before the database open operation is completed
+- Report an error upon attempt to close a database handle object multiple times.
+
 ## 1.0.5
 
 - Workaround for Android db locking/closing issue
