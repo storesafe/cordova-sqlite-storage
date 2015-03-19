@@ -220,13 +220,11 @@ window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, erro
 
 ## Easy install with plugman tool
 
-For Android:
+```shell
+plugman install --platform MYPLATFORM --project path.to.my.project.folder --plugin https://github.com/brodysoft/Cordova-SQLitePlugin
+```
 
-    plugman install --platform android --project path.to.my.project.folder --plugin https://github.com/brodysoft/Cordova-SQLitePlugin
-
-For iOS:
-
-    plugman install --platform ios --project path.to.my.project.folder --plugin https://github.com/brodysoft/Cordova-SQLitePlugin
+where MYPLATFORM is `android`, `ios`, or `wp8`.
 
 ## Easy install with Cordova CLI tool
 
