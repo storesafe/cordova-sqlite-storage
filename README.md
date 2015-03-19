@@ -222,11 +222,11 @@ window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, erro
 
 For Android:
 
-    plugman install --platform android --project path.to.my.project.folder --plugin https://github.com/brodysoft/Cordova-sqlcipher-adaptor
+    plugman install --platform android --project path.to.my.project.folder --plugin https://github.com/brodysoft/Cordova-SQLitePlugin
 
 For iOS:
 
-    plugman install --platform ios --project path.to.my.project.folder --plugin https://github.com/brodysoft/Cordova-sqlcipher-adaptor
+    plugman install --platform ios --project path.to.my.project.folder --plugin https://github.com/brodysoft/Cordova-SQLitePlugin
 
 ## Easy install with Cordova CLI tool
 
