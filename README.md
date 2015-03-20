@@ -439,37 +439,35 @@ Please look at the `Lawnchair-adapter` tree that contains a common adapter, whic
 
 ### Included files
 
-Include the following js files in your html:
+Include the following Javascript files in your HTML:
 
--  lawnchair.js (you provide)
--  SQLitePlugin.js
--  Lawnchair-sqlitePlugin.js (must come after SQLitePlugin.js)
+- `cordova.js` (don't forget!)
+- `lawnchair.js` (you provide)
+- `SQLitePlugin.js` (in case of Cordova pre-3.0)
+- `Lawnchair-sqlitePlugin.js` (must come after `SQLitePlugin.js` in case of Cordova pre-3.0)
 
 ### Sample
 
-The `name` option will determine the sqlite filename. Optionally, you can change it using the `db` option.
+The `name` option will determine the sqlite database filename, *with no extension automatically added*. Optionally, you can change it using the `db` option.
 
-In this example, you would be using/creating the database at: *Documents/kvstore.sqlite3* (all db's in SQLitePlugin are in the Documents folder)
+In this example, you would be using/creating a database with filename `kvstore`:
 
-```coffee
-kvstore = new Lawnchair { name: "kvstore" }, () ->
-  # do stuff
+```Javascript
+kvstore = new Lawnchair({name: "kvstore"}, function() {
+  // do stuff
+);
 ```
 
-Using the `db` option you can create multiple stores in one sqlite file. (There will be one table per store.)
+Using the `db` option you can specify the filename with the desired extension and be able to create multiple stores in the same database file. (There will be one table per store.)
 
-```coffee
-recipes = new Lawnchair {db: "cookbook", name: "recipes", ...}
-ingredients = new Lawnchair {db: "cookbook", name: "ingredients", ...}
+```Javascript
+recipes = new Lawnchair({db: "cookbook", name: "recipes", ...}, myCallback());
+ingredients = new Lawnchair({db: "cookbook", name: "ingredients", ...}, myCallback());
 ```
 
-It also supports bgType argument:
+**KNOWN ISSUE:** the new db options are *not* supported by the Lawnchair adapter. The workaround is to first open the database file using `sqlitePlugin.openDatabase()`.
 
-```coffee
-users = new Lawnchair {name: "users", bgType: 1, ...}
-```
-
-### PouchDB
+## PouchDB
 
 The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawson](https://github.com/nolanlawson), see [PouchDB FAQ](http://pouchdb.com/faq.html).
 
