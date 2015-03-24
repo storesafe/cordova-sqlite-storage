@@ -226,6 +226,8 @@ plugman install --platform MYPLATFORM --project path.to.my.project.folder --plug
 
 where MYPLATFORM is `android`, `ios`, or `wp8`.
 
+Here is a posting how to get started on Windows without the Cordova CLI tool: http://brodybits.blogspot.com/2015/03/trying-cordova-for-android-on-windows-without-cordova-cli.html
+
 ## Easy install with Cordova CLI tool
 
     npm install -g cordova # if you don't have cordova
