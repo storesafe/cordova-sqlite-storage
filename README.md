@@ -8,7 +8,7 @@ License for iOS version: MIT only
 
 ## Status
 
-- [Available at PhoneGap build](https://build.phonegap.com/plugins/2097)
+- [Available at PhoneGap build](https://build.phonegap.com/plugins/2368)
 
 ## Announcements
 
@@ -19,7 +19,7 @@ License for iOS version: MIT only
 
 ## Highlights
 
-- Works with Cordova 3.x tooling and [available at PhoneGap build](https://build.phonegap.com/plugins/2097)
+- Works with Cordova 3.x tooling and [available at PhoneGap build](https://build.phonegap.com/plugins/2368)
 - Drop-in replacement for HTML5 SQL API, the only change should be `window.openDatabase()` --> `sqlitePlugin.openDatabase()`
 - Failure-safe nested transactions with batch processing optimizations
 - As described in [this posting](http://brodyspark.blogspot.com/2012/12/cordovaphonegap-sqlite-plugins-offer.html):
