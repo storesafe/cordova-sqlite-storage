@@ -55,11 +55,18 @@ License for iOS version: MIT only
 - Multi-page apps on WP(8)
 - DB Triggers (as described above - known to be broken for Android)
 
-## Other versions and related projects
+## Other versions
 
+- [pull request #157](https://github.com/brodysoft/Cordova-SQLitePlugin/pull/157) - contribution of Windows version in C# (manual installation required)
 - [brodysoft / Cordova-sqlcipher-adaptor](https://github.com/brodysoft/Cordova-sqlcipher-adaptor) - supports [SQLCipher](https://www.zetetic.net/sqlcipher/) for Android & iOS.
-- [MetaMemoryT / websql-client](https://github.com/MetaMemoryT/websql-client) - provides the same API and connects to [websql-server](https://github.com/MetaMemoryT/websql-server) through WebSockets.
 - Original version for iOS (with a different API): [davibe / Phonegap-SQLitePlugin](https://github.com/davibe/Phonegap-SQLitePlugin)
+
+## Other SQLite adapter projects
+
+- [EionRobb / phonegap-win8-sqlite](https://github.com/EionRobb/phonegap-win8-sqlite) - WebSQL add-on for Win8/Metro apps (perhaps with a different API), using C++ library from [SQLite3-WinRT C++ Component](https://github.com/doo/SQLite3-WinRT) (as referenced by [01org / cordova-win8](https://github.com/01org/cordova-win8))
+- [01org / cordova-win8](https://github.com/01org/cordova-win8) - unofficial version of Cordova for Windows 8 Metro that includes the [SQLite3-WinRT C++ Component](https://github.com/doo/SQLite3-WinRT)
+- [MSOpenTech / cordova-plugin-websql](https://github.com/MSOpenTech/cordova-plugin-websql) - Windows 8(+) and Windows Phone 8(+) WebSQL plugin versions in C#
+- [MetaMemoryT / websql-client](https://github.com/MetaMemoryT/websql-client) - provides the same API and connects to [websql-server](https://github.com/MetaMemoryT/websql-server) through WebSockets.
 
 # Usage
 
