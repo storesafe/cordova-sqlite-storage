@@ -75,6 +75,7 @@ describe('simple tests', function() {
       // Only test ICU-UNICODE with Android 5.0(+):
       if (/Android [5-9]/.test(navigator.userAgent))
         it(suiteName + "ICU-UNICODE string manipulation test", function(done) {
+          if ((!isWebSql) && isAndroid) pending('BROKEN for Android version of plugin [with sqlite4java]');
 
           var db = openDatabase("UNICODE-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
 

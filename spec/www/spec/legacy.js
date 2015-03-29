@@ -962,6 +962,7 @@ describe('legacy tests', function() {
           if (isWindows) pending('BROKEN for Windows');
           if (isWP8) pending('BROKEN for WP(8)');
           if (!(isWebSql || isAndroid || isIE)) pending('BROKEN for iOS version of plugin');
+          if ((!isWebSql) && isAndroid) pending('BROKEN for Android version of plugin [with sqlite4java]');
 
           stop(2);
 

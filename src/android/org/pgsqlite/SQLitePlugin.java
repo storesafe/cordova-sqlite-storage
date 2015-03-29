@@ -7,12 +7,8 @@
 package org.pgsqlite;
 
 import android.annotation.SuppressLint;
-import android.database.Cursor;
-import android.database.CursorWindow;
-import android.database.sqlite.SQLiteCursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteStatement;
+
+import com.almworks.sqlite4java.*;
 
 import android.util.Base64;
 import android.util.Log;
@@ -220,13 +216,10 @@ public class SQLitePlugin extends CordovaPlugin {
      *
      * @param dbName   The name of the database file
      */
-    private SQLiteDatabase openDatabase(String dbname, boolean createFromAssets, CallbackContext cbc) throws Exception {
+    private SQLiteConnection openDatabase(String dbname, boolean createFromAssets, CallbackContext cbc) throws Exception {
         try {
-            if (this.getDatabase(dbname) != null) {
-                // this should not happen - should be blocked at the execute("open") level
-                if (cbc != null) cbc.error("database already open");
-                throw new Exception("database already open");
-            }
+            // ASSUMPTION: no db (connection/handle) is already stored in the map
+            // [should be true according to the code in DBRunner.run()]
 
             File dbfile = this.cordova.getActivity().getDatabasePath(dbname);
 
@@ -238,14 +231,15 @@ public class SQLitePlugin extends CordovaPlugin {
 
             Log.v("info", "Open sqlite db: " + dbfile.getAbsolutePath());
 
-            SQLiteDatabase mydb = SQLiteDatabase.openOrCreateDatabase(dbfile, null);
+            SQLiteConnection mydb = new SQLiteConnection(dbfile);
+            mydb.open(true); /* create if db does not exist */
 
-            if (cbc != null) // needed for Android locking/closing workaround
+            //if (cbc != null) // (not needed - no Android locking/closing workaround in this version)
                 cbc.success();
 
             return mydb;
         } catch (SQLiteException e) {
-            if (cbc != null) // needed for Android locking/closing workaround
+            //if (cbc != null) // (not needed - no Android locking/closing workaround in this version)
                 cbc.error("can't open database " + e);
             throw e;
         }
@@ -304,8 +298,8 @@ public class SQLitePlugin extends CordovaPlugin {
      *
      * @param dbName   The name of the database file
      */
-    private void closeDatabase(String dbName, CallbackContext cbc) {
-        DBRunner r = dbrmap.get(dbName);
+    private void closeDatabase(String dbname, CallbackContext cbc) {
+        DBRunner r = dbrmap.get(dbname);
         if (r != null) {
             try {
                 r.q.put(new DBQuery(false, cbc));
@@ -325,13 +319,16 @@ public class SQLitePlugin extends CordovaPlugin {
     /**
      * Close a database (in the current thread).
      *
-     * @param dbName   The name of the database file
+     * @param dbname   The name of the database file
      */
-    private void closeDatabaseNow(String dbName) {
-        SQLiteDatabase mydb = this.getDatabase(dbName);
+    private void closeDatabaseNow(String dbname) {
+        DBRunner r = dbrmap.get(dbname);
 
-        if (mydb != null) {
-            mydb.close();
+        if (r != null) {
+            SQLiteConnection mydb = r.mydb;
+
+            if (mydb != null)
+                mydb.dispose();
         }
     }
 
@@ -362,41 +359,15 @@ public class SQLitePlugin extends CordovaPlugin {
      *
      * @return true if successful or false if an exception was encountered
      */
-    @SuppressLint("NewApi")
     private boolean deleteDatabaseNow(String dbname) {
         File dbfile = this.cordova.getActivity().getDatabasePath(dbname);
 
-        if (android.os.Build.VERSION.SDK_INT >= 11) {
-            // Use try & catch just in case android.os.Build.VERSION.SDK_INT >= 16 was lying:
-            try {
-                return SQLiteDatabase.deleteDatabase(dbfile);
-            } catch (Exception e) {
-                Log.e(SQLitePlugin.class.getSimpleName(), "couldn't delete because old SDK_INT", e);
-                return deleteDatabasePreHoneycomb(dbfile);
-            }
-        } else {
-            // use old API
-            return deleteDatabasePreHoneycomb(dbfile);
-        }
-    }
-
-    private boolean deleteDatabasePreHoneycomb(File dbfile) {
         try {
             return cordova.getActivity().deleteDatabase(dbfile.getAbsolutePath());
         } catch (Exception e) {
             Log.e(SQLitePlugin.class.getSimpleName(), "couldn't delete database", e);
             return false;
         }
-    }
-
-    /**
-     * Get a database from the db map.
-     *
-     * @param dbname The name of the database.
-     */
-    private SQLiteDatabase getDatabase(String dbname) {
-        DBRunner r = dbrmap.get(dbname);
-        return (r == null) ? null :  r.mydb;
     }
 
     /**
@@ -408,18 +379,18 @@ public class SQLitePlugin extends CordovaPlugin {
      * @param queryIDs   Array of query ids
      * @param cbc        Callback context from Cordova API
      */
-    @SuppressLint("NewApi")
     private void executeSqlBatch(String dbname, String[] queryarr, JSONArray[] jsonparams,
                                  String[] queryIDs, CallbackContext cbc) {
 
-        SQLiteDatabase mydb = getDatabase(dbname);
+        DBRunner dbr = dbrmap.get(dbname);
 
-        if (mydb == null) {
+        if (dbr == null) {
             // not allowed - can only happen if someone has closed (and possibly deleted) a database and then re-used the database
             cbc.error("database has been closed");
             return;
         }
 
+        SQLiteConnection mydb = dbr.mydb;
 
         String query = "";
         String query_id = "";
@@ -442,75 +413,33 @@ public class SQLitePlugin extends CordovaPlugin {
                 QueryType queryType = getQueryType(query);
 
                 if (queryType == QueryType.update || queryType == queryType.delete) {
-                    if (android.os.Build.VERSION.SDK_INT >= 11) {
-                        SQLiteStatement myStatement = mydb.compileStatement(query);
-
-                        if (jsonparams != null) {
-                            bindArgsToStatement(myStatement, jsonparams[i]);
-                        }
-
-                        int rowsAffected = -1; // (assuming invalid)
-
-                        // Use try & catch just in case android.os.Build.VERSION.SDK_INT >= 11 is lying:
-                        try {
-                            rowsAffected = myStatement.executeUpdateDelete();
-                            // Indicate valid results:
-                            needRawQuery = false;
-                        } catch (SQLiteException ex) {
-                            // Indicate problem & stop this query:
-                            ex.printStackTrace();
-                            errorMessage = ex.getMessage();
-                            Log.v("executeSqlBatch", "SQLiteStatement.executeUpdateDelete(): Error=" + errorMessage);
-                            needRawQuery = false;
-                        } catch (Exception ex) {
-                            // Assuming SDK_INT was lying & method not found:
-                            // do nothing here & try again with raw query.
-                        }
-
-                        if (rowsAffected != -1) {
-                            queryResult = new JSONObject();
-                            queryResult.put("rowsAffected", rowsAffected);
-                        }
-                    } else { // pre-honeycomb
-                        rowsAffectedCompat = countRowsAffectedCompat(queryType, query, jsonparams, mydb, i);
-                        needRowsAffectedCompat = true;
-                    }
-                }
-
-                // INSERT:
-                if (queryType == QueryType.insert && jsonparams != null) {
                     needRawQuery = false;
+                    long lastTotal = mydb.getTotalChanges();
+                    Log.v("info", "lastTotal: " + lastTotal);
+                    queryResult = this.executeSqlStatementQuery(mydb, query, jsonparams[i], cbc);
 
-                    SQLiteStatement myStatement = mydb.compileStatement(query);
+                    long newTotal = mydb.getTotalChanges();
+                    Log.v("info", "newTotal: " + newTotal);
+                    queryResult.put("rowsAffected", newTotal - lastTotal);
+                }
 
-                    bindArgsToStatement(myStatement, jsonparams[i]);
+                if (queryType == QueryType.insert) {
+                    needRawQuery = false;
+                    queryResult = this.executeSqlStatementQuery(mydb, query, jsonparams[i], cbc);
 
-                    long insertId = -1; // (invalid)
-
-                    try {
-                        insertId = myStatement.executeInsert();
-
-                        // statement has finished with no constraint violation:
-                        queryResult = new JSONObject();
-                        if (insertId != -1) {
-                            queryResult.put("insertId", insertId);
-                            queryResult.put("rowsAffected", 1);
-                        } else {
-                            queryResult.put("rowsAffected", 0);
-                        }
-                    } catch (SQLiteException ex) {
-                        // report error result with the error message
-                        // could be constraint violation or some other error
-                        ex.printStackTrace();
-                        errorMessage = ex.getMessage();
-                        Log.v("executeSqlBatch", "SQLiteDatabase.executeInsert(): Error=" + errorMessage);
+                    queryResult.put("rowsAffected", mydb.getChanges());
+                    long insertId = mydb.getLastInsertId();
+                    if (insertId > 0) {
+                        queryResult.put("insertId", insertId);
                     }
                 }
 
+                // XXX TODO COMBINE THESE:
+                // can be removed???
                 if (queryType == QueryType.begin) {
                     needRawQuery = false;
                     try {
-                        mydb.beginTransaction();
+                        mydb.exec(query);
 
                         queryResult = new JSONObject();
                         queryResult.put("rowsAffected", 0);
@@ -524,8 +453,7 @@ public class SQLitePlugin extends CordovaPlugin {
                 if (queryType == QueryType.commit) {
                     needRawQuery = false;
                     try {
-                        mydb.setTransactionSuccessful();
-                        mydb.endTransaction();
+                        mydb.exec(query);
 
                         queryResult = new JSONObject();
                         queryResult.put("rowsAffected", 0);
@@ -539,7 +467,7 @@ public class SQLitePlugin extends CordovaPlugin {
                 if (queryType == QueryType.rollback) {
                     needRawQuery = false;
                     try {
-                        mydb.endTransaction();
+                        mydb.exec(query);
 
                         queryResult = new JSONObject();
                         queryResult.put("rowsAffected", 0);
@@ -594,81 +522,6 @@ public class SQLitePlugin extends CordovaPlugin {
         cbc.success(batchResults);
     }
 
-    private int countRowsAffectedCompat(QueryType queryType, String query, JSONArray[] jsonparams,
-                                         SQLiteDatabase mydb, int i) throws JSONException {
-        // quick and dirty way to calculate the rowsAffected in pre-Honeycomb.  just do a SELECT
-        // beforehand using the same WHERE clause. might not be perfect, but it's better than nothing
-        Matcher whereMatcher = WHERE_CLAUSE.matcher(query);
-
-        String where = "";
-
-        int pos = 0;
-        while (whereMatcher.find(pos)) {
-            where = " WHERE " + whereMatcher.group(1);
-            pos = whereMatcher.start(1);
-        }
-        // WHERE clause may be omitted, and also be sure to find the last one,
-        // e.g. for cases where there's a subquery
-
-        // bindings may be in the update clause, so only take the last n
-        int numQuestionMarks = 0;
-        for (int j = 0; j < where.length(); j++) {
-            if (where.charAt(j) == '?') {
-                numQuestionMarks++;
-            }
-        }
-
-        JSONArray subParams = null;
-
-        if (jsonparams != null) {
-            // only take the last n of every array of sqlArgs
-            JSONArray origArray = jsonparams[i];
-            subParams = new JSONArray();
-            int startPos = origArray.length() - numQuestionMarks;
-            for (int j = startPos; j < origArray.length(); j++) {
-                subParams.put(j - startPos, origArray.get(j));
-            }
-        }
-
-        if (queryType == QueryType.update) {
-            Matcher tableMatcher = UPDATE_TABLE_NAME.matcher(query);
-            if (tableMatcher.find()) {
-                String table = tableMatcher.group(1);
-                try {
-                    SQLiteStatement statement = mydb.compileStatement(
-                            "SELECT count(*) FROM " + table + where);
-
-                    if (subParams != null) {
-                        bindArgsToStatement(statement, subParams);
-                    }
-
-                    return (int)statement.simpleQueryForLong();
-                } catch (Exception e) {
-                    // assume we couldn't count for whatever reason, keep going
-                    Log.e(SQLitePlugin.class.getSimpleName(), "uncaught", e);
-                }
-            }
-        } else { // delete
-            Matcher tableMatcher = DELETE_TABLE_NAME.matcher(query);
-            if (tableMatcher.find()) {
-                String table = tableMatcher.group(1);
-                try {
-                    SQLiteStatement statement = mydb.compileStatement(
-                            "SELECT count(*) FROM " + table + where);
-                    bindArgsToStatement(statement, subParams);
-
-                    return (int)statement.simpleQueryForLong();
-                } catch (Exception e) {
-                    // assume we couldn't count for whatever reason, keep going
-                    Log.e(SQLitePlugin.class.getSimpleName(), "uncaught", e);
-
-                }
-            }
-        }
-
-        return 0;
-    }
-
     private QueryType getQueryType(String query) {
         Matcher matcher = FIRST_WORD.matcher(query);
         if (matcher.find()) {
@@ -681,75 +534,81 @@ public class SQLitePlugin extends CordovaPlugin {
         return QueryType.other;
     }
 
-    private void bindArgsToStatement(SQLiteStatement myStatement, JSONArray sqlArgs) throws JSONException {
-        for (int i = 0; i < sqlArgs.length(); i++) {
-            if (sqlArgs.get(i) instanceof Float || sqlArgs.get(i) instanceof Double) {
-                myStatement.bindDouble(i + 1, sqlArgs.getDouble(i));
-            } else if (sqlArgs.get(i) instanceof Number) {
-                myStatement.bindLong(i + 1, sqlArgs.getLong(i));
-            } else if (sqlArgs.isNull(i)) {
-                myStatement.bindNull(i + 1);
-            } else {
-                myStatement.bindString(i + 1, sqlArgs.getString(i));
-            }
-        }
-    }
-
     /**
      * Get rows results from query cursor.
      *
      * @param cur Cursor into query results
      * @return results in string form
      */
-    private JSONObject executeSqlStatementQuery(SQLiteDatabase mydb,
+    private JSONObject executeSqlStatementQuery(SQLiteConnection mydb,
                                                 String query, JSONArray paramsAsJson,
                                                 CallbackContext cbc) throws Exception {
         JSONObject rowsResult = new JSONObject();
 
-        Cursor cur = null;
+        boolean hasRows = false;
+
+        SQLiteStatement myStatement = mydb.prepare(query);
+
         try {
             String[] params = null;
 
             params = new String[paramsAsJson.length()];
 
-            for (int j = 0; j < paramsAsJson.length(); j++) {
-                if (paramsAsJson.isNull(j))
-                    params[j] = "";
-                else
-                    params[j] = paramsAsJson.getString(j);
+            for (int i = 0; i < paramsAsJson.length(); ++i) {
+                if (paramsAsJson.isNull(i)) {
+                    myStatement.bindNull(i + 1);
+                } else {
+                    Object p = paramsAsJson.get(i);
+                    if (p instanceof Float || p instanceof Double) 
+                        myStatement.bind(i + 1, paramsAsJson.getDouble(i));
+                    else if (p instanceof Number) 
+                        myStatement.bind(i + 1, paramsAsJson.getLong(i));
+                    else
+                        myStatement.bind(i + 1, paramsAsJson.getString(i));
+                }
             }
 
-            cur = mydb.rawQuery(query, params);
+            hasRows = myStatement.step();
         } catch (Exception ex) {
             ex.printStackTrace();
             String errorMessage = ex.getMessage();
             Log.v("executeSqlBatch", "SQLitePlugin.executeSql[Batch](): Error=" + errorMessage);
+
+            // cleanup statement and throw the exception:
+            myStatement.dispose();
             throw ex;
         }
 
         // If query result has rows
-        if (cur != null && cur.moveToFirst()) {
+        if (hasRows) {
             JSONArray rowsArrayResult = new JSONArray();
             String key = "";
-            int colCount = cur.getColumnCount();
+            int colCount = myStatement.columnCount();
 
             // Build up JSON result object for each row
             do {
                 JSONObject row = new JSONObject();
                 try {
                     for (int i = 0; i < colCount; ++i) {
-                        key = cur.getColumnName(i);
+                        key = myStatement.getColumnName(i);
 
-                        if (android.os.Build.VERSION.SDK_INT >= 11) {
+                        switch (myStatement.columnType(i)) {
+                        case 5: // SQLITE_NULL
+                            row.put(key, JSONObject.NULL);
+                            break;
 
-                            // Use try & catch just in case android.os.Build.VERSION.SDK_INT >= 11 is lying:
-                            try {
-                                bindPostHoneycomb(row, key, cur, i);
-                            } catch (Exception ex) {
-                                bindPreHoneycomb(row, key, cur, i);
-                            }
-                        } else {
-                            bindPreHoneycomb(row, key, cur, i);
+                        case 2: // SQLITE_FLOAT
+                            row.put(key, myStatement.columnDouble(i));
+                            break;
+
+                        case 1: // SQLITE_INTEGER
+                            row.put(key, myStatement.columnLong(i));
+                            break;
+
+                        case 4: // [XXX TODO] SQLITE_BLOB
+                        case 3: // SQLITE3_TEXT
+                        default: // (just in case)
+                            row.put(key, myStatement.columnString(i));
                         }
                     }
 
@@ -758,7 +617,7 @@ public class SQLitePlugin extends CordovaPlugin {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-            } while (cur.moveToNext());
+            } while (myStatement.step());
 
             try {
                 rowsResult.put("rows", rowsArrayResult);
@@ -767,72 +626,22 @@ public class SQLitePlugin extends CordovaPlugin {
             }
         }
 
-        if (cur != null) {
-            cur.close();
-        }
+        myStatement.dispose();
 
         return rowsResult;
-    }
-
-    @SuppressLint("NewApi")
-    private void bindPostHoneycomb(JSONObject row, String key, Cursor cur, int i) throws JSONException {
-        int curType = cur.getType(i);
-
-        switch (curType) {
-            case Cursor.FIELD_TYPE_NULL:
-                row.put(key, JSONObject.NULL);
-                break;
-            case Cursor.FIELD_TYPE_INTEGER:
-                row.put(key, cur.getLong(i));
-                break;
-            case Cursor.FIELD_TYPE_FLOAT:
-                row.put(key, cur.getDouble(i));
-                break;
-            case Cursor.FIELD_TYPE_BLOB:
-                row.put(key, new String(Base64.encode(cur.getBlob(i), Base64.DEFAULT)));
-                break;
-            case Cursor.FIELD_TYPE_STRING:
-            default: /* (not expected) */
-                row.put(key, cur.getString(i));
-                break;
-        }
-    }
-
-    private void bindPreHoneycomb(JSONObject row, String key, Cursor cursor, int i) throws JSONException {
-        // Since cursor.getType() is not available pre-honeycomb, this is
-        // a workaround so we don't have to bind everything as a string
-        // Details here: http://stackoverflow.com/q/11658239
-        SQLiteCursor sqLiteCursor = (SQLiteCursor) cursor;
-        CursorWindow cursorWindow = sqLiteCursor.getWindow();
-        int pos = cursor.getPosition();
-        if (cursorWindow.isNull(pos, i)) {
-            row.put(key, JSONObject.NULL);
-        } else if (cursorWindow.isLong(pos, i)) {
-            row.put(key, cursor.getLong(i));
-        } else if (cursorWindow.isFloat(pos, i)) {
-            row.put(key, cursor.getDouble(i));
-        } else if (cursorWindow.isBlob(pos, i)) {
-            row.put(key, new String(Base64.encode(cursor.getBlob(i), Base64.DEFAULT)));
-        } else { // string
-            row.put(key, cursor.getString(i));
-        }
     }
 
     private class DBRunner implements Runnable {
         final String dbname;
         private boolean createFromAssets;
-        private boolean androidLockWorkaround;
         final BlockingQueue<DBQuery> q;
         final CallbackContext openCbc;
 
-        SQLiteDatabase mydb;
+        SQLiteConnection mydb;
 
         DBRunner(final String dbname, JSONObject options, CallbackContext cbc) {
             this.dbname = dbname;
             this.createFromAssets = options.has("createFromResource");
-            this.androidLockWorkaround = options.has("androidLockWorkaround");
-            if (this.androidLockWorkaround)
-                Log.v(SQLitePlugin.class.getSimpleName(), "Android db closing/locking workaround applied");
 
             this.q = new LinkedBlockingQueue<DBQuery>();
             this.openCbc = cbc;
@@ -855,13 +664,7 @@ public class SQLitePlugin extends CordovaPlugin {
                 while (!dbq.stop) {
                     executeSqlBatch(dbname, dbq.queries, dbq.jsonparams, dbq.queryIDs, dbq.cbc);
 
-                    // XXX workaround for Android locking/closing issue:
-                    if (androidLockWorkaround && dbq.queries.length == 1 && dbq.queries[0] == "COMMIT") {
-                        // Log.v(SQLitePlugin.class.getSimpleName(), "close and reopen db");
-                        closeDatabaseNow(dbname);
-                        this.mydb = openDatabase(dbname, false, null);
-                        // Log.v(SQLitePlugin.class.getSimpleName(), "close and reopen db finished");
-                    }
+                    // NOTE: androidLockWorkaround is not necessary and not supported for sqlite4java.
 
                     dbq = q.take();
                 }
