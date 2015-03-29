@@ -35,6 +35,13 @@
         </config-file>
 
         <source-file src="src/android/org/pgsqlite/SQLitePlugin.java" target-dir="src/org/pgsqlite"/>
+
+        <!-- sqlite4java distribution for Android:
+        <source-file src="src/android/sqlite4java/libs/sqlite4java.jar" target-dir="libs"/>
+        <source-file src="src/android/sqlite4java/libs/armeabi/libsqlite4java-android-armv7.so" target-dir="libs/armeabi"/>
+        <source-file src="src/android/sqlite4java/libs/x86/libsqlite4java-android-x86.so" target-dir="libs/armeabi-v7a"/>
+          -->
+
     </platform>
 
     <!-- amazon-fireos -->
