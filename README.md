@@ -14,6 +14,7 @@ License for iOS version: MIT only
   - Database close and delete operations not yet implemented
   - Very limited testing: tests are in `simple-test-windows`. Cannot be tested by existing QUnit test suite in `test-www` since QUnit cannot be run on Windows (8.1+).
   - Visual C++ build file is provided for Windows 8.1 only. Visual C++ build support for Windows Phone 8.1 will be added later.
+  - Not all Windows targets are supported by automatic installation
 
 ## Announcements
 
@@ -235,15 +236,48 @@ window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, erro
 
 # Installing
 
+## Windows target platform
+
+**WARNING:** This is still in experimental state. Please read and follow these items very carefully.
+- Please make sure your Cordova tooling is updated:
+    npm update -g cordova
+	npm update -g cordova-windows
+- To create a new project: `cordova create MyProjectFolder com.my.project MyProject` (and then `cd` into your project directory)
+- To add the plugin: `cordova plugin add https://github.com/brodysoft/Cordova-SQLitePlugin`
+- To add the Windows target platform (if it does not exist): `cordova platform add windows`
+- If you are using Visual Studio Express (2013), you may have to remove the Windows 8.0 build from the Visual Studio solution.
+- If you use Cordova CLI for fully-automatic installation (as described here), you cannot run the project for "Any CPU". Please specify a CPU type (such as x86 or x64).
+
+To target all CPUs: make a clone of this project and in your clone, remove (or comment out) the item that includes the `SQLite3-Windows8.1.vcxproj` framework project:
+```xml
+--- a/plugin.xml
++++ b/plugin.xml
+@@ -79,8 +79,6 @@
+         <js-module src="src/windows/SQLite3-WinRT/SQLite3JS/js/SQLite3.js" name="SQLite3">
+             <merges target="" />
+         </js-module>
+-        <!-- Thanks to AllJoyn-Cordova / cordova-plugin-alljoyn: -->
+-        <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3-Windows8.1.vcxproj" custom="true" type="projectReference" target="windows" />
+ 
+     </platform>
+```
+
+Then:
+- install the plugin from the location of your clone (can be in your filesystem);
+- add the Cordova `windows` target;
+- open the Windows target solution, and add the `SQLite3-Windows8.1.vcxproj` project (located in `path.to.plugin/src/windows/SQLite3-WinRT/SQLite3`) to your app solution project.
+
 ## Easy install with plugman tool
 
 ```shell
 plugman install --platform MYPLATFORM --project path.to.my.project.folder --plugin https://github.com/brodysoft/Cordova-SQLitePlugin
 ```
 
-where MYPLATFORM is `android`, `ios`, or `windows`, or `wp8`.
+where MYPLATFORM is `android`, `ios`, or `wp8`.
 
-A posting how to get started on Windows without the Cordova CLI tool (for Android target only) is available [here](http://brodybits.blogspot.com/2015/03/trying-cordova-for-android-on-windows-without-cordova-cli.html).
+A posting how to get started developing on Windows host without the Cordova CLI tool (for Android target only) is available [here](http://brodybits.blogspot.com/2015/03/trying-cordova-for-android-on-windows-without-cordova-cli.html).
+
+**NOTE:** Automatic installation for the Windows target platform is *not* properly supported by the `plugman` tool.
 
 ## Easy install with Cordova CLI tool
 
@@ -252,6 +286,8 @@ A posting how to get started on Windows without the Cordova CLI tool (for Androi
     cordova plugin add https://github.com/brodysoft/Cordova-SQLitePlugin
 
 You can find more details at [this writeup](http://iphonedevlog.wordpress.com/2014/04/07/installing-chris-brodys-sqlite-database-with-cordova-cli-android/).
+
+**WARNING:** for Windows target platform please read the section above.
 
 **IMPORTANT:** sometimes you have to update the version for a platform before you can build, like: `cordova prepare ios`
 
@@ -265,7 +301,8 @@ You can find more details at [this writeup](http://iphonedevlog.wordpress.com/20
 - `SQLitePlugin.coffee.md`: platform-independent (Literate coffee-script, can be read by recent coffee-script compiler)
 - `www`: `SQLitePlugin.js` now platform-independent
 - `src`: Java plugin code for Android; Objective-C plugin code for iOS; C-sharp code & DLLs for WP(8)
-- `test-www`: simple testing in `index.html` using qunit 1.5.0
+- `simple-test-windows`: simple test suite for Windows version using Jasmine (1.3.1)
+- `test-www`: simple testing in `index.html` using qunit 1.5.0 (does not work on Windows target platform)
 - `Lawnchair-adapter`: Lawnchair adaptor, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
 
 ## Manual installation - Android version
