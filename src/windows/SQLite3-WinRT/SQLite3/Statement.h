@@ -10,7 +10,7 @@ namespace SQLite3
   {
   public:
     Statement(Database^ database, Platform::String^ sql);
-    ~Statement();
+    virtual ~Statement();
 
     int Step();
 

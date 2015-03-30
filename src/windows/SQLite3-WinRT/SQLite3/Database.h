@@ -10,7 +10,7 @@ namespace SQLite3
   {
   public:
     Database(Platform::String^ dbPath);
-    ~Database();
+    virtual ~Database();
 
     Statement^ Prepare(Platform::String^ sql);
 
