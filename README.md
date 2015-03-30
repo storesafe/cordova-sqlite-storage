@@ -1,17 +1,22 @@
 # Cordova/PhoneGap SQLitePlugin
 
-Native interface to sqlite in a Cordova/PhoneGap plugin for Android & iOS, with API similar to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
+Native interface to sqlite in a Cordova/PhoneGap plugin for Android, iOS, and Windows, with API similar to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
 
-License for Android version: MIT or Apache 2.0
+License for Android and Windows versions: MIT or Apache 2.0
 
 License for iOS version: MIT only
 
 ## Status
 
-TBD
+- Windows (8.1) version is in experimental state:
+  - No background processing
+  - Database close and delete operations not yet implemented
+  - Very limited testing: tests are in `simple-test-windows`. Cannot be tested by existing QUnit test suite in `test-www` since QUnit cannot be run on Windows (8.1+).
+  - Visual C++ build file is provided for Windows 8.1 only. Visual C++ build support for Windows Phone 8.1 will be added later.
 
 ## Announcements
 
+- Windows (8.1) version is added, using the C++ SQLite-WinRT library
 - [SQLCipher](https://www.zetetic.net/sqlcipher/) for Android & iOS is now supported by [brodysoft / Cordova-sqlcipher-adaptor](https://github.com/brodysoft/Cordova-sqlcipher-adaptor)
 - New `openDatabase` and `deleteDatabase` `location` option to select database location (iOS *only*) and disable iCloud backup
 - Pre-populated databases support for Android & iOS is now integrated, usage described below
@@ -130,7 +135,8 @@ db = sqlitePlugin.openDatabase({name: "my.db", location: 2, createFromLocation: 
 
 The threading model depends on which version is used:
 - For Android, one background thread per db;
-- for iOS, background processing using a thread pool.
+- for iOS, background processing using a thread pool;
+- for Windows, no background processing (will be added).
 
 # Sample with PRAGMA feature
 
@@ -217,13 +223,13 @@ window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, erro
 
 ## Easy install with plugman tool
 
-For Android:
+```shell
+plugman install --platform MYPLATFORM --project path.to.my.project.folder --plugin https://github.com/brodysoft/Cordova-SQLitePlugin
+```
 
-    plugman install --platform android --project path.to.my.project.folder --plugin https://github.com/brodysoft/Cordova-sqlcipher-adaptor
+where MYPLATFORM is `android`, `ios`, or `windows`.
 
-For iOS:
-
-    plugman install --platform ios --project path.to.my.project.folder --plugin https://github.com/brodysoft/Cordova-sqlcipher-adaptor
+A posting how to get started on Windows without the Cordova CLI tool (for Android target only) is available [here](http://brodybits.blogspot.com/2015/03/trying-cordova-for-android-on-windows-without-cordova-cli.html).
 
 ## Easy install with Cordova CLI tool
 
@@ -326,6 +332,10 @@ Enable the SQLitePlugin in `config.xml` (Cordova/PhoneGap 2.x):
          <plugin name="Logger" value="CDVLogger" />
          <plugin name="Compass" value="CDVLocation" />
 ```
+
+## Manual installation - Windows version
+
+TODO
 
 ## Quick installation test
 
@@ -477,6 +487,8 @@ The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawso
 ## Major branches
 
 - `common-src` - source for Android & iOS versions
+- `new-src` - source for Android, iOS, and Windows (8.1) versions
+- `new-rc` - pre-release version for Windows (8.1), including source for SQLite-WinRT C++ library
 - `master-src` - source for Android, iOS, & WP(8) versions
 - `master-rc` - pre-release version, including source for CSharp-SQLite library classes
 - `master` - version for release, will be included in PhoneGap build.
