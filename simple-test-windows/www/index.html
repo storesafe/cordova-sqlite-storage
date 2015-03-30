@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>SQLite3JS</title>
+
+    <!-- source: https://github.com/doo/SQLite3-WinRT -->
+    <link href="lib/jasmine-1.3.1/jasmine.css" rel="stylesheet">
+    <script src="lib/jasmine-1.3.1/jasmine.js"></script>
+    <script src="lib/jasmine-1.3.1/jasmine-html.js"></script>
+
+    <script src="cordova.js"></script>
+    <script src="spec/SQLite3Spec.js"></script>
+
+    <script type="text/javascript">
+        (function () {
+            var jasmineEnv = jasmine.getEnv();
+            jasmineEnv.updateInterval = 1000;
+
+            var htmlReporter = new jasmine.HtmlReporter();
+
+            jasmineEnv.addReporter(htmlReporter);
+
+            jasmineEnv.specFilter = function (spec) {
+                return htmlReporter.specFilter(spec);
+            };
+
+            /**
+            var currentWindowOnload = window.onload;
+
+            window.onload = function () {
+                if (currentWindowOnload) {
+                    currentWindowOnload();
+                }
+                execJasmine();
+            };
+
+            function execJasmine() {
+                jasmineEnv.execute();
+            }
+            **/
+
+            document.addEventListener('deviceready', function () {
+                window.openDatabase = window.sqlitePlugin.openDatabase;
+                window.Tests = { TEST_TIMEOUT : 2500 };
+
+                jasmine.getEnv().execute();
+            });
+        })();
+    </script>
+</head>
+<body>
+</body>
+</html>
