@@ -23,3 +23,8 @@
 - Embedded public domain LIBB64 encoding routines from http://libb64.sourceforge.net by @tbbdeveloper (Chris Robertson <oztexan@gmail.com>)
 - Maintained by @brodybits (Chris Brody)
 
+## Windows version
+
+- SQLiteProxy.js by @vldmrrr (Vladimir Avdonin) and @brodybits (Chris Brody)
+- SQLite3-Windows8.1.vcxproj by @EionRobb
+- Uses SQLite-WinRT library (including SQLite3JS part) by @doo (doo GmbH)
