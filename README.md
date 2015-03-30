@@ -239,9 +239,7 @@ window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, erro
 ## Windows target platform
 
 **WARNING:** This is still in experimental state. Please read and follow these items very carefully.
-- Please make sure your Cordova tooling is updated:
-    npm update -g cordova
-	npm update -g cordova-windows
+- Please make sure your Cordova tooling is updated: `npm update -g cordova cordova-windows`
 - To create a new project: `cordova create MyProjectFolder com.my.project MyProject` (and then `cd` into your project directory)
 - To add the plugin: `cordova plugin add https://github.com/brodysoft/Cordova-SQLitePlugin`
 - To add the Windows target platform (if it does not exist): `cordova platform add windows`
