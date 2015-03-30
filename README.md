@@ -219,6 +219,8 @@ window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, erro
 
 `location` as described above for `openDatabase` (iOS *only*)
 
+**NOTE:** not yet implemented for Windows (8.1) version.
+
 # Installing
 
 ## Easy install with plugman tool
