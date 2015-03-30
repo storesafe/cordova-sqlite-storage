@@ -2,6 +2,7 @@
 
 ## 1.0.6
 
+- Initial version for Windows (8.1)
 - Proper handling of transactions that may be requested before the database open operation is completed
 - Report an error upon attempt to close a database handle object multiple times.
 
