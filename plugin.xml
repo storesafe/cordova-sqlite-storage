@@ -75,6 +75,15 @@
             <merges target="" />
         </js-module>
 
+        <!-- SQLite3 JS module from SQLite3-WinRT/SQLite3JS:
+        <js-module src="src/windows/SQLite3-WinRT/SQLite3JS/js/SQLite3.js" name="SQLite3">
+            <merges target="" />
+        </js-module>
+         -->
+        <!-- Thanks to AllJoyn-Cordova / cordova-plugin-alljoyn:
+        <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3-Windows8.1.vcxproj" custom="true" type="projectReference" target="windows" />
+         -->
+
     </platform>
 
 </plugin> <!-- vim: set expandtab : -->
