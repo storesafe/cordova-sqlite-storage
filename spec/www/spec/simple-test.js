@@ -11,7 +11,8 @@ function strictEqual(a, b, desc) { expect(a).toBe(b); } // '==='
 
 var isWindows = /Windows/.test(navigator.userAgent); // Windows [NT or Phone] (8.1)
 //var isMSIE = /MSIE/.test(navigator.userAgent); // WP(8)
-var isIE = isWindows ; // || isMSIE;
+var isMSIE = false; // WP(8) not expected, not supported in this branch
+var isIE = isWindows || isMSIE;
 var isWebKit = !isIE; // TBD [Android or iOS]
 
 var scenarioList = [ 'Plugin', 'HTML5' ];
@@ -91,6 +92,33 @@ describe('simple tests', function() {
           });
         });
 
+        it(suiteName + 'Simple INSERT test: check insertId & rowsAffected in result', function() {
+
+          if (isWindows) pending('Broken for Windows'); // XXX TODO
+
+          var db = openDatabase("INSERT-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          ok(!!db, "db object");
+
+          db.transaction(function(tx) {
+            ok(!!tx, "tx object");
+
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
+
+            tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
+              console.log("insertId: " + res.insertId + " -- probably 1");
+              console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
+
+              ok(!!res.insertId, "Valid res.insertId");
+              equal(res.rowsAffected, 1, "res rows affected");
+
+              done();
+            });
+
+          });
+        }, MYTIMEOUT);
+
       it(suiteName + "db transaction test",
         function(done) {
           var db = openDatabase("db-trx-test.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -144,7 +172,7 @@ describe('simple tests', function() {
                   console.log("UPDATE rowsAffected: " + res.rowsAffected + " -- should be 1");
 
                   if (!isWindows) // XXX TODO
-                    equal(res.rowsAffected, 1, "UPDATE res rows affected"); /* issue #22 (Android) */
+                    equal(res.rowsAffected, 1, "UPDATE res rows affected");
                 });
 
                 tx.executeSql("SELECT data_num from test_table;", [], function(tx, res) {
@@ -160,7 +188,7 @@ describe('simple tests', function() {
                   console.log("DELETE rowsAffected: " + res.rowsAffected + " -- should be 1");
 
                   if (!isWindows) // XXX TODO
-                    equal(res.rowsAffected, 1, "DELETE res rows affected"); /* issue #22 (Android) */
+                    equal(res.rowsAffected, 1, "DELETE res rows affected");
                 });
 
                 tx.executeSql("SELECT data_num from test_table;", [], function(tx, res) {
@@ -223,3 +251,4 @@ describe('simple tests', function() {
   };
 });
 
+/* vim: set expandtab : */
