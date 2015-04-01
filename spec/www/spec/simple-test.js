@@ -33,25 +33,25 @@ describe('check startup', function() {
 });
 
 describe('simple tests', function() {
+
   for (var i=0; i<scenarioCount; ++i) {
-    var scenarioName = scenarioList[i];
-    var suiteName = scenarioName + ': ';
-    var isWebSql = (i !== 0);
 
-    // NOTE: MUST be defined in function scope, NOT outer scope:
-    var openDatabase = function(name, ignored1, ignored2, ignored3) {
-      if (isWebSql) {
-        return window.openDatabase(name, "1.0", "Demo", DEFAULT_SIZE);
-      } else {
-        return window.sqlitePlugin.openDatabase(name, "1.0", "Demo", DEFAULT_SIZE);
+    describe(scenarioList[i] + ': simple test(s)', function() {
+      var scenarioName = scenarioList[i];
+      var suiteName = scenarioName + ': ';
+      var isWebSql = (i !== 0);
+
+      // NOTE: MUST be defined in function scope, NOT outer scope:
+      var openDatabase = function(name, ignored1, ignored2, ignored3) {
+        if (isWebSql) {
+          return window.openDatabase(name, "1.0", "Demo", DEFAULT_SIZE);
+        } else {
+          return window.sqlitePlugin.openDatabase(name, "1.0", "Demo", DEFAULT_SIZE);
+        }
       }
-    }
 
-    describe(suiteName + 'simple test(s)', function() {
-
-      describe(suiteName + 'simple string test(s)', function() {
-        it(suiteName + "US-ASCII String manipulation test", function(done) {
-
+      it(suiteName + "US-ASCII String manipulation test",
+        function(done) {
           var db = openDatabase("ASCII-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           expect(db).toBeDefined()
@@ -68,10 +68,31 @@ describe('simple tests', function() {
             });
           });
         }, MYTIMEOUT);
-      });
 
-      describe(suiteName + 'simple transaction test(s)', function() {
-        it(suiteName + "db transaction test", function(done) {
+      // Only test ICU-UNICODE with Android 5.0(+):
+      if (/Android [5-9]/.test(navigator.userAgent))
+        it(suiteName + "ICU-UNICODE string manipulation test", function(done) {
+
+          var db = openDatabase("UNICODE-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          expect(db).toBeDefined()
+
+          db.transaction(function(tx) {
+
+            expect(tx).toBeDefined()
+
+            // 'Some Cyrillic text'
+            tx.executeSql("select UPPER('Какой-то кириллический текст') as uppertext", [], function (tx, res) {
+              console.log("res.rows.item(0).uppertext: " + res.rows.item(0).uppertext);
+              expect(res.rows.item(0).uppertext).toEqual("КАКОЙ-ТО КИРИЛЛИЧЕСКИЙ ТЕКСТ");
+
+              done();
+            });
+          });
+        });
+
+      it(suiteName + "db transaction test",
+        function(done) {
           var db = openDatabase("db-trx-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           ok(!!db, "db object");
@@ -170,10 +191,9 @@ describe('simple tests', function() {
           });
 
         }, MYTIMEOUT);
-      });
 
-      describe(suiteName + 'simple number binding test(s)', function() {
-        it(suiteName + "number values inserted using number bindings", function(done) {
+      it(suiteName + "number values inserted using number bindings",
+        function(done) {
           var db = openDatabase("Value-binding-test.db", "1.0", "Demo", DEFAULT_SIZE);
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
@@ -198,7 +218,6 @@ describe('simple tests', function() {
             });
           });
         }, MYTIMEOUT);
-      });
 
     });
   };
