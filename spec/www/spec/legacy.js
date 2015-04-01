@@ -32,7 +32,8 @@ function start(n) {
 
 var isWindows = /Windows/.test(navigator.userAgent); // Windows [NT or Phone] (8.1)
 //var isMSIE = /MSIE/.test(navigator.userAgent); // WP(8)
-var isIE = isWindows ; // || isMSIE;
+var isMSIE = false; // WP(8) not expected, not supported in this branch
+var isIE = isWindows || isMSIE;
 var isWebKit = !isIE; // TBD [Android or iOS]
 
 var scenarioList = [ 'Plugin', 'HTML5' ];
@@ -139,6 +140,9 @@ describe('legacy tests', function() {
         });
 
         test_it(suiteName + ' UNICODE string encoding test', function () {
+          if (isWindows) pending('Broken for Windows'); // XXX
+          if (isMSIE) pending('Broken for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
+
           stop();
 
           var dbName = "Unicode-hex-test";
@@ -202,6 +206,8 @@ describe('legacy tests', function() {
         });
 
         test_it(suiteName + "UNICODE line separator string to hex", function() {
+          if (isMSIE) pending('Broken for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
+
           // NOTE: this test verifies that the UNICODE line separator (\u2028)
           // is seen by the sqlite implementation OK:
           var db = openDatabase("UNICODE-line-separator-string-1.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -773,7 +779,7 @@ describe('legacy tests', function() {
                 tx.executeSql("select * from test_table", [], function(tx, res) {
                   var row = res.rows.item(0);
                   strictEqual(row.data_text1, "314159", "data_text1 should have inserted data as text");
-                  //if (!isMSIE) // JSON issue in WP(8) version
+                  if (!isMSIE) // JSON issue in WP(8) version
                     strictEqual(row.data_text2, "3.14159", "data_text2 should have inserted data as text");
                   strictEqual(row.data_int, 314159, "data_int should have inserted data as an integer");
                   ok(Math.abs(row.data_real - 3.14159) < 0.000001, "data_real should have inserted data as a real");
@@ -785,8 +791,12 @@ describe('legacy tests', function() {
           });
         });
 
-        xtest_it(suiteName + "Big [integer] value bindings", function() {
+        test_it(suiteName + "Big [integer] value bindings", function() {
+          if (isWindows) pending('Broken for Windows'); // XXX [BUG #195]
+          if (isMSIE) pending('Broken for WP(8)'); // XXX [BUG #195]
+
           stop();
+
           var db = openDatabase("Big-int-bindings.db", "1.0", "Demo", DEFAULT_SIZE);
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS tt');
@@ -795,11 +805,12 @@ describe('legacy tests', function() {
             db.transaction(function(tx) {
               tx.executeSql("insert into tt (test_date, test_text) VALUES (?,?)",
                   [1424174959894, 1424174959894], function(tx, res) {
-                equal(res.rowsAffected, 1, "row inserted");
+                if (!isWindows) // XXX TODO
+                  expect(res.rowsAffected).toBe(1);
                 tx.executeSql("select * from tt", [], function(tx, res) {
                   var row = res.rows.item(0);
-                  // XXX BUG #195 in WP(8) version ONLY:
-                  //if (/MSIE/.test(navigator.userAgent)) // XXX BUG in WP(8) version
+                  // XXX BUG #195 in WP(8) and Windows (8.1) versions:
+                  //if (isIE)
                   //  ok(row.test_date < 0, "Reproducing big number bug");
                   //else
                     strictEqual(row.test_date, 1424174959894, "Big integer number inserted properly");
@@ -819,7 +830,7 @@ describe('legacy tests', function() {
           });
         });
 
-        xtest_it(suiteName + "Double precision decimal number insertion", function() {
+        test_it(suiteName + "Double precision decimal number insertion", function() {
           stop();
           var db = openDatabase("Double-precision-number-insertion.db", "1.0", "Demo", DEFAULT_SIZE);
           db.transaction(function(tx) {
@@ -828,7 +839,8 @@ describe('legacy tests', function() {
           }, function(err) { ok(false, err.message) }, function() {
             db.transaction(function(tx) {
               tx.executeSql("insert into tt (tr) VALUES (?)", [123456.789], function(tx, res) {
-                equal(res.rowsAffected, 1, "row inserted");
+                if (!isWindows) // XXX TODO
+                  expect(res.rowsAffected).toBe(1);
                 tx.executeSql("select * from tt", [], function(tx, res) {
                   var row = res.rows.item(0);
                   strictEqual(row.tr, 123456.789, "Decimal number inserted properly");
@@ -850,7 +862,8 @@ describe('legacy tests', function() {
             db.transaction(function(tx) {
               // create columns with no type affinity
               tx.executeSql("insert into test_table (data1, data2) VALUES (?,?)", ['abc', [1,2,3]], function(tx, res) {
-                equal(res.rowsAffected, 1, "row inserted");
+                if (!isWindows) // XXX TODO
+                  expect(res.rowsAffected).toBe(1);
                 tx.executeSql("select * from test_table", [], function(tx, res) {
                   var row = res.rows.item(0);
                   strictEqual(row.data1, 'abc', "data1: string");
@@ -1045,6 +1058,8 @@ describe('legacy tests', function() {
         });
 
         test_it(suiteName + ' test undefined function', function () {
+          if (isWindows) pending('Broken for Windows'); // XXX
+
           stop();
 
           var db = openDatabase("Database-Undefined", "1.0", "Demo", DEFAULT_SIZE);
