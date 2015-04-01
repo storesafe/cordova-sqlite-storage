@@ -1,3 +1,6 @@
+/* 'use strict'; */
+
+/**
 <!DOCTYPE HTML>
 <html>
   <head>
@@ -17,6 +20,7 @@
     <script type="text/javascript">
     (function () {
       'use strict';
+      **/
 
       var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 
@@ -2165,6 +2169,8 @@
         });
 
       }
+
+/**
     })();
     </script>
 
@@ -2172,4 +2178,4 @@
   <body>
     <div id="qunit"></div>
   </body>
-</html> <!-- vim: set expandtab : -->
+</html> <!-- vim: set expandtab : --> **/
