@@ -1,5 +1,44 @@
 /* 'use strict'; */
 
+var MYTIMEOUT = 4000;
+
+var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
+
+// XXX TODO replace in test(s):
+function ok(test, desc) { expect(test).toBe(true); }
+function equal(a, b, desc) { expect(a).toEqual(b); } // '=='
+function strictEqual(a, b, desc) { expect(a).toBe(b); } // '==='
+
+// XXX TODO NEED TO BE FIXED:
+var wait = 0;
+var test_it_done = null;
+function xtest_it(desc, fun) { xit(desc, fun); }
+function test_it(desc, fun) {
+  wait = 0;
+  it(desc, function(done) {
+    test_it_done = done;
+    fun();
+  }, MYTIMEOUT);
+}
+function stop(n) {
+  if (!!n) wait += n
+  else ++wait;
+}
+function start(n) {
+  if (!!n) wait -= n;
+  else --wait;
+  if (wait == 0) test_it_done();
+}
+
+var isWindows = /Windows/.test(navigator.userAgent); // Windows [NT or Phone] (8.1)
+//var isMSIE = /MSIE/.test(navigator.userAgent); // WP(8)
+var isIE = isWindows ; // || isMSIE;
+var isWebKit = !isIE; // TBD [Android or iOS]
+
+var scenarioList = [ 'Plugin', 'HTML5' ];
+
+var scenarioCount = isWebKit ? 2 : 1;
+
 /**
 <!DOCTYPE HTML>
 <html>
@@ -20,7 +59,6 @@
     <script type="text/javascript">
     (function () {
       'use strict';
-      **/
 
       var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 
@@ -32,34 +70,51 @@
         doPluginTests();
         doSqlTests(true, 'HTML5: ', window.openDatabase);
       }
+      **/
 
-      function doSqlTests(isWebSql, suiteName, openDatabase) {
+describe('legacy tests', function() {
 
-        test(suiteName + "US-ASCII String manipulation test", function() {
+  for (var i=0; i<scenarioCount; ++i) {
+    var scenarioName = scenarioList[i];
+    var suiteName = scenarioName + ': ';
+    var isWebSql = (i !== 0);
+
+    // NOTE: MUST be defined in function scope, NOT outer scope:
+    var openDatabase = function(name, ignored1, ignored2, ignored3) {
+      if (isWebSql) {
+        return window.openDatabase(name, "1.0", "Demo", DEFAULT_SIZE);
+      } else {
+        return window.sqlitePlugin.openDatabase(name, "1.0", "Demo", DEFAULT_SIZE);
+      }
+    }
+
+    describe(suiteName + 'legacy sql test(s)', function() {
+
+        test_it(suiteName + "US-ASCII String manipulation test", function() {
 
           var db = openDatabase("ASCII-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           ok(!!db, 'valid db object');
 
-          stop(2);
+          stop();
 
           db.transaction(function(tx) {
 
-            start(1);
             ok(!!tx, 'valid tx object');
 
             tx.executeSql("select upper('Some US-ASCII text') as uppertext", [], function(tx, res) {
-              start(1);
 
               console.log("res.rows.item(0).uppertext: " + res.rows.item(0).uppertext);
 
               equal(res.rows.item(0).uppertext, "SOME US-ASCII TEXT", "select upper('Some US-ASCII text')");
+
+              start(1);
             });
           });
         });
 
         // Only test ICU-UNICODE with Android 5.0(+):
-        if (/Android [5-9]/.test(navigator.userAgent)) test(suiteName +
+        if (/Android [5-9]/.test(navigator.userAgent)) xtest_it(suiteName +
             "ICU-UNICODE string manipulation test", function() {
 
           var db = openDatabase("UNICODE-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -83,7 +138,7 @@
           });
         });
 
-        test(suiteName + ' UNICODE string encoding test', function () {
+        test_it(suiteName + ' UNICODE string encoding test', function () {
           stop();
 
           var dbName = "Unicode-hex-test";
@@ -125,7 +180,7 @@
           });
         });
 
-        test(suiteName + "CR-LF String test", function() {
+        test_it(suiteName + "CR-LF String test", function() {
           var db = openDatabase("CR-LF-String-test.db", "1.0", "Demo", DEFAULT_SIZE);
           ok(!!db, "db object");
           stop();
@@ -146,23 +201,21 @@
           });
         });
 
-        test(suiteName + "UNICODE line separator string to hex", function() {
+        test_it(suiteName + "UNICODE line separator string to hex", function() {
           // NOTE: this test verifies that the UNICODE line separator (\u2028)
           // is seen by the sqlite implementation OK:
           var db = openDatabase("UNICODE-line-separator-string-1.db", "1.0", "Demo", DEFAULT_SIZE);
 
           ok(!!db, "db object");
 
-          stop(2);
+          stop();
 
           db.transaction(function(tx) {
 
-            start(1);
             ok(!!tx, "tx object");
 
             var text = 'Abcd\u20281234';
             tx.executeSql("select hex(?) as hexvalue", [text], function (tx, res) {
-              start(1);
               var hexvalue = res.rows.item(0).hexvalue;
 
               // varies between Chrome-like (UTF-8)
@@ -175,12 +228,14 @@
               ok(expected.indexOf(hexvalue) !== -1, 'hex matches: ' +
                   JSON.stringify(hexvalue) + ' should be in ' +
                   JSON.stringify(expected));
+
+              start();
             });
           });
         });
 
         // XXX BUG #147 iOS version of plugin BROKEN (no callback received):
-        if (isWebSql || /Android/.test(navigator.userAgent)) test(suiteName +
+        if (isWebSql || /Android/.test(navigator.userAgent)) xtest_it(suiteName +
             ' handles unicode line separator correctly', function () {
 
           // NOTE: since the above test shows the UNICODE line separator (\u2028)
@@ -206,7 +261,7 @@
           });
         });
 
-        test(suiteName + ' open same db twice with string test', function () {
+        xtest_it(suiteName + ' open same db twice with string test', function () {
           var dbName = 'open-same-db-twice-string-test.db';
 
           var db1 = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
@@ -243,7 +298,7 @@
           });
         });
 
-        test(suiteName + "db transaction test", function() {
+        xtest_it(suiteName + "db transaction test", function() {
           var db = openDatabase("db-trx-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           ok(!!db, "db object");
@@ -334,7 +389,7 @@
 
         });
 
-        test(suiteName + 'test rowsAffected', function () {
+        xtest_it(suiteName + 'test rowsAffected', function () {
           var db = openDatabase("RowsAffected", "1.0", "Demo", DEFAULT_SIZE);
 
           stop();
@@ -406,7 +461,7 @@
           })
         });
 
-        test(suiteName + 'test rowsAffected advanced', function () {
+        xtest_it(suiteName + 'test rowsAffected advanced', function () {
           var db = openDatabase("RowsAffectedAdvanced", "1.0", "Demo", DEFAULT_SIZE);
 
           stop();
@@ -451,7 +506,7 @@
           });
         });
 
-        test(suiteName + "nested transaction test", function() {
+        xtest_it(suiteName + "nested transaction test", function() {
 
           var db = openDatabase("Database2", "1.0", "Demo", DEFAULT_SIZE);
 
@@ -506,7 +561,7 @@
         };
 
         // XXX (Uncaught) Error is reported in the case of Web SQL, needs investigation!
-        if (!isWebSql) test(suiteName + "transaction encompasses all callbacks", function() {
+        if (!isWebSql) xtest_it(suiteName + "transaction encompasses all callbacks", function() {
           stop();
           var db = openDatabase("tx-all-callbacks.db", "1.0", "Demo", DEFAULT_SIZE);
 
@@ -544,7 +599,7 @@
         });
 
         // XXX (Uncaught) Error is reported in the case of Web SQL, needs investigation!
-        if (!isWebSql) test(suiteName + "exception from transaction handler causes failure", function() {
+        if (!isWebSql) xtest_it(suiteName + "exception from transaction handler causes failure", function() {
           stop();
           var db = openDatabase("exception-causes-failure.db", "1.0", "Demo", DEFAULT_SIZE);
 
@@ -566,7 +621,7 @@
           }
         });
 
-        test(suiteName + "error handler returning true causes rollback", function() {
+        xtest_it(suiteName + "error handler returning true causes rollback", function() {
           withTestTable(function(db) {
             stop(2);
             db.transaction(function(tx) {
@@ -600,7 +655,7 @@
           });
         });
 
-        test(suiteName + "error handler returning non-true lets transaction continue", function() {
+        xtest_it(suiteName + "error handler returning non-true lets transaction continue", function() {
           withTestTable(function(db) {
             stop(2);
             db.transaction(function(tx) {
@@ -631,7 +686,7 @@
           });
         });
 
-        test(suiteName + "missing error handler causes rollback", function() {
+        xtest_it(suiteName + "missing error handler causes rollback", function() {
           withTestTable(function(db) {
             stop();
             db.transaction(function(tx) {
@@ -656,7 +711,7 @@
           });
         });
         
-        test(suiteName + "executeSql fails outside transaction", function() {
+        xtest_it(suiteName + "executeSql fails outside transaction", function() {
           withTestTable(function(db) {
             expect(4);
             ok(!!db, "db ok");            
@@ -686,7 +741,7 @@
           });
         });
 
-        test(suiteName + "all columns should be included in result set (including 'null' columns)", function() {
+        xtest_it(suiteName + "all columns should be included in result set (including 'null' columns)", function() {
           withTestTable(function(db) {
             stop();
             db.transaction(function(tx) {
@@ -702,7 +757,7 @@
           });
         });
 
-        test(suiteName + "number values inserted using number bindings", function() {
+        test_it(suiteName + "number values inserted using number bindings", function() {
           stop();
           var db = openDatabase("Value-binding-test.db", "1.0", "Demo", DEFAULT_SIZE);
           db.transaction(function(tx) {
@@ -712,22 +767,25 @@
             db.transaction(function(tx) {
               // create columns with no type affinity
               tx.executeSql("insert into test_table (data_text1, data_text2, data_int, data_real) VALUES (?,?,?,?)", ["314159", "3.14159", 314159, 3.14159], function(tx, res) {
-                equal(res.rowsAffected, 1, "row inserted");
+                if (!isWindows) // XXX TODO
+                  expect(res.rowsAffected).toBe(1);
+
                 tx.executeSql("select * from test_table", [], function(tx, res) {
-                  start();
                   var row = res.rows.item(0);
                   strictEqual(row.data_text1, "314159", "data_text1 should have inserted data as text");
-                  strictEqual(row.data_text2, "3.14159", "data_text2 should have inserted data as text");
+                  //if (!isMSIE) // JSON issue in WP(8) version
+                    strictEqual(row.data_text2, "3.14159", "data_text2 should have inserted data as text");
                   strictEqual(row.data_int, 314159, "data_int should have inserted data as an integer");
                   ok(Math.abs(row.data_real - 3.14159) < 0.000001, "data_real should have inserted data as a real");
+
+                  start();
                 });
               });
             });
           });
         });
 
-        // XXX reproduce BUG #195 in WP(8) version ONLY:
-        test(suiteName + "Big [integer] value bindings", function() {
+        xtest_it(suiteName + "Big [integer] value bindings", function() {
           stop();
           var db = openDatabase("Big-int-bindings.db", "1.0", "Demo", DEFAULT_SIZE);
           db.transaction(function(tx) {
@@ -739,7 +797,6 @@
                   [1424174959894, 1424174959894], function(tx, res) {
                 equal(res.rowsAffected, 1, "row inserted");
                 tx.executeSql("select * from tt", [], function(tx, res) {
-                  start();
                   var row = res.rows.item(0);
                   // XXX BUG #195 in WP(8) version ONLY:
                   //if (/MSIE/.test(navigator.userAgent)) // XXX BUG in WP(8) version
@@ -754,13 +811,15 @@
                     strictEqual(row.test_text, "1424174959894.0", "[Big] number inserted as string ok");
                   else
                     strictEqual(row.test_text, "1424174959894", "Big integer number inserted as string ok");
+
+                  start();
                 });
               });
             });
           });
         });
 
-        test(suiteName + "Double precision decimal number insertion", function() {
+        xtest_it(suiteName + "Double precision decimal number insertion", function() {
           stop();
           var db = openDatabase("Double-precision-number-insertion.db", "1.0", "Demo", DEFAULT_SIZE);
           db.transaction(function(tx) {
@@ -771,16 +830,17 @@
               tx.executeSql("insert into tt (tr) VALUES (?)", [123456.789], function(tx, res) {
                 equal(res.rowsAffected, 1, "row inserted");
                 tx.executeSql("select * from tt", [], function(tx, res) {
-                  start();
                   var row = res.rows.item(0);
                   strictEqual(row.tr, 123456.789, "Decimal number inserted properly");
+
+                  start();
                 });
               });
             });
           });
         });
 
-        test(suiteName + "executeSql parameter as array", function() {
+        test_it(suiteName + "executeSql parameter as array", function() {
           stop();
           var db = openDatabase("array-parameter.db", "1.0", "Demo", DEFAULT_SIZE);
           db.transaction(function(tx) {
@@ -792,10 +852,11 @@
               tx.executeSql("insert into test_table (data1, data2) VALUES (?,?)", ['abc', [1,2,3]], function(tx, res) {
                 equal(res.rowsAffected, 1, "row inserted");
                 tx.executeSql("select * from test_table", [], function(tx, res) {
-                  start();
                   var row = res.rows.item(0);
                   strictEqual(row.data1, 'abc', "data1: string");
                   strictEqual(row.data2, '1,2,3', "data2: array should have been inserted as text (string)");
+
+                  start();
                 });
               });
             });
@@ -806,7 +867,7 @@
         // a non-standard parameter type. Blob becomes an empty dictionary on iOS, for example,
         // and so this verifies the type is converted to a string and continues. Web SQL does
         // the same but on the JavaScript side and converts to a string like `[object Blob]`.
-        test(suiteName + "INSERT Blob from ArrayBuffer (non-standard parameter type)", function() {
+        xtest_it(suiteName + "INSERT Blob from ArrayBuffer (non-standard parameter type)", function() {
 
           ok(typeof ArrayBuffer !== "undefined", "ArrayBuffer type exists");
 
@@ -847,7 +908,7 @@
           });
         });
 
-        test(suiteName + "readTransaction should throw on modification", function() {
+        test_it(suiteName + "readTransaction should throw on modification", function() {
           stop();
           var db = openDatabase("Database-readonly", "1.0", "Demo", DEFAULT_SIZE);
           db.transaction(function(tx) {
@@ -872,8 +933,9 @@
               function fail() {
                 if (!failed) {
                   failed = true;
-                  start();
                   ok(false, 'readTransaction was supposed to fail');
+
+                  start();
                 }
               }
               // all of these should throw an error
@@ -911,7 +973,7 @@
           });
         });
 
-        test(suiteName + ' test callback order', function () {
+        test_it(suiteName + ' test callback order', function () {
           stop();
           var db = openDatabase("Database-Callback-Order", "1.0", "Demo", DEFAULT_SIZE);
           var blocked = true;
@@ -922,13 +984,14 @@
               ok(!blocked, 'callback to the transaction shouldn\'t block (2)');
             });
           }, function(err) { ok(false, err.message) }, function() {
-            start();
             ok(!blocked, 'callback to the transaction shouldn\'t block (3)');
+
+            start();
           });
           blocked = false;
         });
 
-        test(suiteName + ' test simultaneous transactions', function () {
+        test_it(suiteName + ' test simultaneous transactions', function () {
           stop();
 
           var db = openDatabase("Database-Simultaneous-Tx", "1.0", "Demo", DEFAULT_SIZE);
@@ -981,7 +1044,7 @@
 
         });
 
-        test(suiteName + ' test undefined function', function () {
+        test_it(suiteName + ' test undefined function', function () {
           stop();
 
           var db = openDatabase("Database-Undefined", "1.0", "Demo", DEFAULT_SIZE);
@@ -996,13 +1059,14 @@
           // verify we can still continue
           db.transaction(function (tx) {
             tx.executeSql('SELECT 1 FROM sqlite_master', [], function (tx, res) {
-              start();
               equal(res.rows.item(0)['1'], 1);
+
+              start();
             });
           });
         });
 
-        test(suiteName + ' test simultaneous transactions, different dbs', function () {
+        test_it(suiteName + ' test simultaneous transactions, different dbs', function () {
           stop();
 
           var dbName = "Database-Simultaneous-Tx-Diff-DBs";
@@ -1060,7 +1124,7 @@
 
         });
 
-        test(suiteName + ' stores unicode correctly', function () {
+        xtest_it(suiteName + ' stores unicode correctly', function () {
           stop();
 
           var dbName = "Database-Unicode";
@@ -1123,7 +1187,7 @@
           });
         }
 
-        test(suiteName + ' returns unicode correctly', function () {
+        xtest_it(suiteName + ' returns unicode correctly', function () {
           stop();
 
           var dbName = "Database-Unicode";
@@ -1179,7 +1243,7 @@
         // XXX Brody NOTE: same issue is now reproduced in a string test.
         //           TODO: combine with other test
         // BUG #147 iOS version of plugin BROKEN:
-        if (isWebSql || /Android/.test(navigator.userAgent)) test(suiteName +
+        if (isWebSql || /Android/.test(navigator.userAgent)) xtest_it(suiteName +
             ' handles unicode line separator correctly', function () {
 
           var dbName = "Unicode-line-separator.db";
@@ -1217,7 +1281,7 @@
           });
         });
 
-        test(suiteName + "syntax error", function() {
+        xtest_it(suiteName + "syntax error", function() {
           var db = openDatabase("Syntax-error-test.db", "1.0", "Demo", DEFAULT_SIZE);
           ok(!!db, "db object");
 
@@ -1255,7 +1319,7 @@
           });
         });
 
-        test(suiteName + "constraint violation", function() {
+        xtest_it(suiteName + "constraint violation", function() {
           var db = openDatabase("Constraint-violation-test.db", "1.0", "Demo", DEFAULT_SIZE);
           ok(!!db, "db object");
 
@@ -1296,7 +1360,7 @@
           });
         });
 
-        test(suiteName + ' can open two databases at the same time', function () {
+        xtest_it(suiteName + ' can open two databases at the same time', function () {
           // create databases and tables
           var db1 = openDatabase("DB1", "1.0", "Demo", DEFAULT_SIZE);
           db1.transaction(function (tx1) {
@@ -1387,7 +1451,7 @@
           });
         });
 
-        test(suiteName + ' same database file with separate writer/reader db handles', function () {
+        xtest_it(suiteName + ' same database file with separate writer/reader db handles', function () {
           var dbname = 'writer-reader-test.db';
           var dbw = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
           var dbr = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
@@ -1416,7 +1480,7 @@
           });
         });
 
-        test(suiteName + ' same database file with multiple writer db handles', function () {
+        xtest_it(suiteName + ' same database file with multiple writer db handles', function () {
           var dbname = 'multi-writer-test.db';
           var dbw1 = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
           var dbw2 = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
@@ -1453,7 +1517,7 @@
           });
         });
 
-        test(suiteName + 'Multiple updates with key', function () {
+        xtest_it(suiteName + 'Multiple updates with key', function () {
           var db = openDatabase("MultipleUpdatesWithKey", "1.0",
 "Demo", DEFAULT_SIZE);
 
@@ -1485,13 +1549,21 @@
           });
         });
 
-      }
+    });
+  }
 
-      function doPluginTests() {
-        var suiteName = "plugin: ";
-        var openDatabase = window.sqlitePlugin.openDatabase;
+  describe('Plugin: plugin-specific test(s)', function() {
 
-        test(suiteName + "DB String result test", function() {
+    var suiteName = "plugin: ";
+
+    // NOTE: MUST be defined in function scope, NOT outer scope:
+    var openDatabase = function(name, ignored1, ignored2, ignored3) {
+      return window.sqlitePlugin.openDatabase(name, "1.0", "Demo", DEFAULT_SIZE);
+    }
+
+    describe('Plugin: plugin string test(s)',
+      function() {
+        test_it(suiteName + "DB String result test", function() {
           // NOTE: this test checks that for db.executeSql(), the result callback is
           // called exactly once, with the proper result:
           var db = openDatabase("DB-String-result-test.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -1524,11 +1596,14 @@
           db.executeSql("select upper('first') as uppertext", [], okcb);
           db.executeSql("select upper('second') as uppertext", [], okcb);
         });
+      });
 
-        test(suiteName + "PRAGMAs and multiple databases", function() {
+        test_it(suiteName + "PRAGMAs and multiple databases", function() {
           var db = openDatabase("DB1", "1.0", "Demo", DEFAULT_SIZE);
 
           var db2 = openDatabase("DB2", "1.0", "Demo", DEFAULT_SIZE);
+
+          stop(2);
 
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
@@ -1544,7 +1619,6 @@
             });
           });
 
-          stop(2);
           db2.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS tt2');
             tx.executeSql('CREATE TABLE IF NOT EXISTS tt2 (id2 integer primary key, data2 text, data_num2 integer)', [], function() {
@@ -1552,24 +1626,26 @@
             });
 
             db.executeSql("pragma table_info (test_table);", [], function(res) {
-              start();
               console.log("PRAGMA (db) res: " + JSON.stringify(res));
               equal(res.rows.item(0).name, "id", "DB1 table key field name");
               equal(res.rows.item(1).name, "data", "DB1 table text field name");
               equal(res.rows.item(2).name, "data_num", "DB1 table number field name");
+
+              start();
             });
 
             db2.executeSql("pragma table_info (tt2);", [], function(res) {
-              start();
               console.log("PRAGMA (tt2) res: " + JSON.stringify(res));
               equal(res.rows.item(0).name, "id2", "DB2 table key field name");
               equal(res.rows.item(1).name, "data2", "DB2 table text field name");
               equal(res.rows.item(2).name, "data_num2", "DB2 table number field name");
+
+              start();
             });
           });
         });
 
-        test(suiteName + ' test sqlitePlugin.deleteDatabase()', function () {
+        xtest_it(suiteName + ' test sqlitePlugin.deleteDatabase()', function () {
 
           stop();
           var db = openDatabase("DB-Deletable", "1.0", "Demo", DEFAULT_SIZE);
@@ -1624,22 +1700,22 @@
           createAndInsertStuff();
         });
 
-        test(suiteName + ' database.open calls its success callback', function () {
+        xtest_it(suiteName + ' database.open calls its success callback', function () {
 
           // asynch test coming up
           stop(1);
 
           var dbName = "Database-Open-callback";
           openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function (db) {
-            ok(true, 'expected close success callback to be called after database is closed');
+            ok(true, 'expected open success callback to be called after database is closed');
             start(1);
           }, function (error) {
-            ok(false, 'expected close error callback not to be called after database is closed');
+            ok(false, 'expected open error callback not to be called after database is closed');
             start(1);
           });
         });
 
-        test(suiteName + ' database.close calls its success callback', function () {
+        xtest_it(suiteName + ' database.close calls its success callback', function () {
 
           // asynch test coming up
           stop(1);
@@ -1657,7 +1733,7 @@
           });
         });
 
-        test (suiteName + ' database.close fails in transaction', function () {
+        xtest_it(suiteName + ' database.close fails in transaction', function () {
           stop(2);
 
           var dbName = "Database-Close-fail";
@@ -1684,7 +1760,7 @@
           });
         });
 
-        test (suiteName + ' attempt to close db twice', function () {
+        xtest_it(suiteName + ' attempt to close db twice', function () {
           var dbName = "close-db-twice.db";
 
           stop(1);
@@ -1708,7 +1784,7 @@
         });
 
         // XXX BROKEN [BUG #209]:
-        test(suiteName + ' close writer db handle should not close reader db handle [BROKEN]', function () {
+        xtest_it(suiteName + ' close writer db handle should not close reader db handle [BROKEN]', function () {
           var dbname = 'close-one-db-handle.db';
           var dbw = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
           var dbr = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
@@ -1746,7 +1822,7 @@
         });
 
         // XXX BROKEN [BUG #204]:
-        test(suiteName + ' close DB in db.executeSql() callback [BROKEN]', function () {
+        xtest_it(suiteName + ' close DB in db.executeSql() callback [BROKEN]', function () {
           var dbName = "Close-DB-in-db-executeSql-callback.db";
 
           // async test coming up
@@ -1771,7 +1847,7 @@
         });
 
         // Needed to support some large-scale applications:
-        test(suiteName + ' open same database twice in [same] specified location works', function () {
+        xtest_it(suiteName + ' open same database twice in [same] specified location works', function () {
           // XXX TODO [BROKEN]: same db name, different location should be different db!
           var dbName = 'open-twice-same-location.db';
 
@@ -1808,7 +1884,7 @@
         });
 
         // Needed to support some large-scale applications:
-        test(suiteName + ' close then re-open allows subsequent queries to run', function () {
+        xtest_it(suiteName + ' close then re-open allows subsequent queries to run', function () {
 
           // asynch test coming up
           stop(1);
@@ -1858,7 +1934,7 @@
         });
 
         // Needed to support some large-scale applications:
-        test(suiteName + ' delete then re-open allows subsequent queries to run', function () {
+        xtest_it(suiteName + ' delete then re-open allows subsequent queries to run', function () {
           var dbName = "Database-delete-and-Reopen.db";
           var dbLocation = 2;
 
@@ -1899,7 +1975,7 @@
         });
 
         // Needed to support some large-scale applications:
-        test(suiteName + ' close, then delete then re-open allows subsequent queries to run', function () {
+        xtest_it(suiteName + ' close, then delete then re-open allows subsequent queries to run', function () {
           var dbName = "Database-Close-delete-Reopen.db";
 
           // asynch test coming up
@@ -1936,7 +2012,7 @@
           });
         });
 
-        test(suiteName + ' repeatedly open and close database (4x)', function () {
+        xtest_it(suiteName + ' repeatedly open and close database (4x)', function () {
           var dbName = "repeatedly-open-and-close-db-4x.db";
 
           // async test coming up
@@ -1997,7 +2073,7 @@
           });
         });
 
-        test(suiteName + ' repeatedly open and close database faster (5x)', function () {
+        xtest_it(suiteName + ' repeatedly open and close database faster (5x)', function () {
           var dbName = "repeatedly-open-and-close-faster-5x.db";
 
           // async test coming up
@@ -2052,7 +2128,7 @@
         });
 
         // Needed to support some large-scale applications:
-        test(suiteName + ' repeatedly open and delete database (4x)', function () {
+        xtest_it(suiteName + ' repeatedly open and delete database (4x)', function () {
           var dbName = "repeatedly-open-and-delete-4x.db";
 
           // async test coming up
@@ -2114,7 +2190,7 @@
         });
 
         // Needed to support some large-scale applications:
-        test(suiteName + ' repeatedly open and delete database faster (5x)', function () {
+        xtest_it(suiteName + ' repeatedly open and delete database faster (5x)', function () {
           var dbName = "repeatedly-open-and-delete-faster-5x.db";
 
           // async test coming up
@@ -2168,7 +2244,9 @@
           });
         });
 
-      }
+  });
+
+});
 
 /**
     })();
