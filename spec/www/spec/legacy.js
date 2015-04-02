@@ -377,6 +377,10 @@ describe('legacy tests', function() {
           });
         });
 
+      describe(suiteName + 'legacy transaction semantics test(s)', function() {
+
+        // FUTURE TODO: fix these tests to follow the Jasmine style and move into a separate spec file:
+
         test_it(suiteName + "nested transaction test", function() {
 
           var db = openDatabase("Database2", "1.0", "Demo", DEFAULT_SIZE);
@@ -395,6 +399,7 @@ describe('legacy tests', function() {
               console.log("insertId: " + res.insertId + " -- probably 1");
               console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
 
+              expect(res).toBeDefined();
               if (!isWindows) // XXX TODO
                 expect(res.insertId).toBeDefined();
               if (!isWindows) // XXX TODO
@@ -417,13 +422,13 @@ describe('legacy tests', function() {
         });
 
         function withTestTable(func) {
-          stop();
+          //stop();
           var db = openDatabase("Database", "1.0", "Demo", DEFAULT_SIZE);
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
             tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
           }, function(err) { ok(false, err.message) }, function() {
-            start();
+            //start();
             func(db);
           });
         };
@@ -473,7 +478,6 @@ describe('legacy tests', function() {
               ok(!!err, "valid error object");
               ok(err.hasOwnProperty('message'), "error.message exists");
 
-              //if (!isWebSql) equal(err.message, 'boom');
               if (!isWebSql) expect(err.message).toEqual('boom');
 
               start();
@@ -488,19 +492,22 @@ describe('legacy tests', function() {
           }
         });
 
-        xtest_it(suiteName + "error handler returning true causes rollback", function() {
+        test_it(suiteName + "error handler returning true causes rollback", function() {
+          stop();
           withTestTable(function(db) {
-            stop(2);
+            //stop(2);
             db.transaction(function(tx) {
               tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ['test', null], function(tx, res) {
-                start();
-                equal(res.rowsAffected, 1, 'row inserted');
-                stop();
+                //start();
+                expect(res).toBeDefined();
+                if (!isWindows) // XXX TODO
+                  expect(res.rowsAffected).toEqual(1);
+                //stop();
                 tx.executeSql("select * from bogustable", [], function(tx, res) {
-                  start();
+                  //start();
                   ok(false, "select statement not supposed to succeed");
                 }, function(tx, err) {
-                  start();
+                  //start();
                   ok(!!err.message, "should report a valid error message");
                   return true;
                 });
@@ -524,12 +531,13 @@ describe('legacy tests', function() {
           });
         });
 
-        xtest_it(suiteName + "error handler returning non-true lets transaction continue", function() {
+        test_it(suiteName + "error handler returning non-true lets transaction continue", function() {
           withTestTable(function(db) {
             stop(2);
             db.transaction(function(tx) {
               tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ['test', null], function(tx, res) {
                 start();
+                expect(res).toBeDefined();
                 if (!isWindows) // XXX TODO
                   expect(res.rowsAffected).toBe(1);
                 stop();
@@ -557,12 +565,14 @@ describe('legacy tests', function() {
           });
         });
 
-        xtest_it(suiteName + "missing error handler causes rollback", function() {
+        test_it(suiteName + "missing error handler causes rollback", function() {
           withTestTable(function(db) {
             stop();
             db.transaction(function(tx) {
               tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ['test', null], function(tx, res) {
-                equal(res.rowsAffected, 1, 'row inserted');
+                expect(res).toBeDefined();
+                if (!isWindows) // XXX TODO
+                  expect(res.rowsAffected).toEqual(1);
                 tx.executeSql("select * from bogustable", [], function(tx, res) {
                   ok(false, "select statement not supposed to succeed");
                 });
@@ -584,7 +594,7 @@ describe('legacy tests', function() {
           });
         });
         
-        xtest_it(suiteName + "executeSql fails outside transaction", function() {
+        test_it(suiteName + "executeSql fails outside transaction", function() {
           withTestTable(function(db) {
             expect(4);
             ok(!!db, "db ok");            
@@ -594,7 +604,9 @@ describe('legacy tests', function() {
               ok(!!tx, "tx ok");
               txg = tx;
               tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ['test', null], function(tx, res) {
-                equal(res.rowsAffected, 1, 'row inserted');
+                expect(res).toBeDefined();
+                if (!isWindows) // XXX TODO
+                  expect(res.rowsAffected).toEqual(1);
               });
               start(1);
             }, function(err) {
@@ -614,21 +626,31 @@ describe('legacy tests', function() {
           });
         });
 
-        xtest_it(suiteName + "all columns should be included in result set (including 'null' columns)", function() {
+        // XXX NOTE: this test does not belong in this section but uses withTestTable():
+        test_it(suiteName + "all columns should be included in result set (including 'null' columns)", function() {
           withTestTable(function(db) {
             stop();
             db.transaction(function(tx) {
               tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ["test", null], function(tx, res) {
-                equal(res.rowsAffected, 1, "row inserted");
+                expect(res).toBeDefined();
+                if (!isWindows) // XXX TODO
+                  expect(res.rowsAffected).toEqual(1);
                 tx.executeSql("select * from test_table", [], function(tx, res) {
                   var row = res.rows.item(0);
-                  deepEqual(row, { id: 1, data: "test", data_num: null }, "all columns should be included in result set.");
+                  //deepEqual(row, { id: 1, data: "test", data_num: null }, "all columns should be included in result set.");
+                  expect(row.id).toBe(1);
+                  expect(row.data).toEqual('test');
+                  expect(row.data_num).toBeDefined();
+                  expect(row.data_num).toBeNull();
+
                   start();
                 });
               });
             });
           });
         });
+
+      });
 
         test_it(suiteName + "number values inserted using number bindings", function() {
           stop();
@@ -640,6 +662,7 @@ describe('legacy tests', function() {
             db.transaction(function(tx) {
               // create columns with no type affinity
               tx.executeSql("insert into test_table (data_text1, data_text2, data_int, data_real) VALUES (?,?,?,?)", ["314159", "3.14159", 314159, 3.14159], function(tx, res) {
+                expect(res).toBeDefined();
                 if (!isWindows) // XXX TODO
                   expect(res.rowsAffected).toBe(1);
 
@@ -672,6 +695,7 @@ describe('legacy tests', function() {
             db.transaction(function(tx) {
               tx.executeSql("insert into tt (test_date, test_text) VALUES (?,?)",
                   [1424174959894, 1424174959894], function(tx, res) {
+                expect(res).toBeDefined();
                 if (!isWindows) // XXX TODO
                   expect(res.rowsAffected).toBe(1);
                 tx.executeSql("select * from tt", [], function(tx, res) {
@@ -706,6 +730,7 @@ describe('legacy tests', function() {
           }, function(err) { ok(false, err.message) }, function() {
             db.transaction(function(tx) {
               tx.executeSql("insert into tt (tr) VALUES (?)", [123456.789], function(tx, res) {
+                expect(res).toBeDefined();
                 if (!isWindows) // XXX TODO
                   expect(res.rowsAffected).toBe(1);
                 tx.executeSql("select * from tt", [], function(tx, res) {
@@ -729,6 +754,7 @@ describe('legacy tests', function() {
             db.transaction(function(tx) {
               // create columns with no type affinity
               tx.executeSql("insert into test_table (data1, data2) VALUES (?,?)", ['abc', [1,2,3]], function(tx, res) {
+                expect(res).toBeDefined();
                 if (!isWindows) // XXX TODO
                   expect(res.rowsAffected).toBe(1);
                 tx.executeSql("select * from test_table", [], function(tx, res) {
@@ -1417,6 +1443,7 @@ describe('legacy tests', function() {
             tx.executeSql('INSERT INTO Task VALUES (?,?)', ['511e3fb7-5aed-4c1a-b1b7-96bf9c5012e2', 'test2']);
 
             tx.executeSql('UPDATE Task SET subject="Send reminder", id="928238b3-a227-418f-aa15-12bb1943c1f2" WHERE id = "928238b3-a227-418f-aa15-12bb1943c1f2"', [], function(tx, res) {
+              expect(res).toBeDefined();
               if (!isWindows) // XXX TODO
                 expect(res.rowsAffected).toEqual(1);
             }, function (error) {
