@@ -122,7 +122,15 @@
         }
       txLocks[@dbname].queue.push t
       if @dbname of @openDBs && @openDBs[@dbname] isnt DB_STATE_INIT
+        # XXX TODO: only when queue has length of 1 [and test it!!]
         @startNextTransaction()
+
+      else
+        if @dbname of @openDBs
+          console.log 'new transaction is waiting for open operation'
+        else
+          # XXX TBD TODO: in this case (which should not happen), should abort and discard the transaction.
+          console.log 'database is closed, new transaction is [stuck] waiting until db is opened again!'
       return
 
     SQLitePlugin::transaction = (fn, error, success) ->
@@ -144,21 +152,49 @@
     SQLitePlugin::startNextTransaction = ->
       self = @
 
-      nextTick () ->
+      nextTick =>
+        if !(@dbname of @openDBs) || @openDBs[@dbname] isnt DB_STATE_OPEN
+          console.log 'cannot start next transaction: database not open'
+          return
+
         txLock = txLocks[self.dbname]
         if !txLock
-          # XXX TBD TODO (BUG #210/??): abort all pending transactions with error cb
+          console.log 'cannot start next transaction: database connection is lost'
+          # XXX TBD TODO (BUG #210/??): abort all pending transactions with error cb [and test!!]
+          # @abortAllPendingTransactions()
           return
 
         else if txLock.queue.length > 0 && !txLock.inProgress
+          # start next transaction in q
           txLock.inProgress = true
           txLock.queue.shift().start()
         return
 
       return
 
+    SQLitePlugin::abortAllPendingTransactions = ->
+      # extra debug info:
+      # if txLocks[@dbname] then console.log 'abortAllPendingTransactions with transaction queue length: ' + txLocks[@dbname].queue.length
+      # else console.log 'abortAllPendingTransactions with no transaction lock state'
+
+      txLock = txLocks[@dbname]
+      if !!txLock && txLock.queue.length > 0
+        # XXX TODO: what to do in case there is a (stray) transaction in progress?
+        #console.log 'abortAllPendingTransactions - cleanup old transaction(s)'
+        for tx in txLock.queue
+          tx.abortFromQ newSQLError 'Invalid database handle'
+
+        # XXX TODO: consider cleaning up (delete) txLocks[@dbname] resource,
+        # in case it is known there are no more pending transactions
+        txLock.queue = []
+        txLock.inProgress = false
+
+      return
+
     SQLitePlugin::open = (success, error) ->
       if @dbname of @openDBs
+        console.log 'database already open: ' + @dbname
+
         # for a re-open run the success cb async so that the openDatabase return value
         # can be used in the success handler as an alternative to the handler's
         # db argument
@@ -167,42 +203,67 @@
           return
 
       else
+        console.log 'OPEN database: ' + @dbname
+
         opensuccesscb = =>
           # NOTE: the db state is NOT stored (in @openDBs) if the db was closed or deleted.
+          # console.log 'OPEN database: ' + @dbname + ' succeeded'
 
-          # XXX TODO [BUG #210]:
           #if !@openDBs[@dbname] then call open error cb, and abort pending tx if any
+          if !@openDBs[@dbname]
+            console.log 'database was closed during open operation'
+            # XXX TODO [BUG #210] (and test!!):
+            # if !!error then error newSQLError 'database closed during open operation'
+            # @abortAllPendingTransactions()
 
           if @dbname of @openDBs
             @openDBs[@dbname] = DB_STATE_OPEN
-          success @
+
+          if !!success then success @
 
           txLock = txLocks[@dbname]
           if !!txLock && txLock.queue.length > 0 && !txLock.inProgress
             @startNextTransaction()
           return
 
+        openerrorcb = =>
+          console.log 'OPEN database: ' + @dbname + ' failed, aborting any pending transactions'
+          # XXX TODO: newSQLError missing the message part!
+          if !!error then error newSQLError 'Could not open database'
+          delete @openDBs[@dbname]
+          @abortAllPendingTransactions()
+          return
+
         # store initial DB state:
         @openDBs[@dbname] = DB_STATE_INIT
 
-        cordova.exec opensuccesscb, error, "SQLitePlugin", "open", [ @openargs ]
+        cordova.exec opensuccesscb, openerrorcb, "SQLitePlugin", "open", [ @openargs ]
 
       return
 
     SQLitePlugin::close = (success, error) ->
       if @dbname of @openDBs
         if txLocks[@dbname] && txLocks[@dbname].inProgress
+          # XXX TBD: wait for current tx then close (??)
+          console.log 'cannot close: transaction is in progress'
           error newSQLError 'database cannot be closed while a transaction is in progress'
           return
+
+        console.log 'CLOSE database: ' + @dbname
 
         # XXX [BUG #209] closing one db handle disables other handles to same db
         delete @openDBs[@dbname]
 
-        # XXX [BUG #210] TODO: when closing or deleting a db, abort any pending transactions (with error callback)
+        if txLocks[@dbname] then console.log 'closing db with transaction queue length: ' + txLocks[@dbname].queue.length
+        else console.log 'closing db with no transaction lock state'
+
+        # XXX [BUG #210] TODO: when closing or deleting a db, abort any pending transactions [and test it!!]
+
         cordova.exec success, error, "SQLitePlugin", "close", [ { path: @dbname } ]
 
       else
-        nextTick -> error()
+        console.log 'cannot close: database is not open'
+        if error then nextTick -> error()
 
       return
 
@@ -444,6 +505,15 @@
         @run()
       else
         succeeded(tx)
+
+      return
+
+    SQLitePluginTransaction::abortFromQ = (sqlerror) ->
+      # NOTE: since the transaction is waiting in the queue,
+      # the transaction function containing the SQL statements
+      # would not be run yet. Simply report the transaction error.
+      if @error
+        @error sqlerror
 
       return
 

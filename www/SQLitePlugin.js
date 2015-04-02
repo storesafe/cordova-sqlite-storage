@@ -97,6 +97,12 @@
     txLocks[this.dbname].queue.push(t);
     if (this.dbname in this.openDBs && this.openDBs[this.dbname] !== DB_STATE_INIT) {
       this.startNextTransaction();
+    } else {
+      if (this.dbname in this.openDBs) {
+        console.log('new transaction is waiting for open operation');
+      } else {
+        console.log('database is closed, new transaction is [stuck] waiting until db is opened again!');
+      }
     }
   };
 
@@ -119,61 +125,109 @@
   SQLitePlugin.prototype.startNextTransaction = function() {
     var self;
     self = this;
-    nextTick(function() {
-      var txLock;
-      txLock = txLocks[self.dbname];
-      if (!txLock) {
-        return;
-      } else if (txLock.queue.length > 0 && !txLock.inProgress) {
-        txLock.inProgress = true;
-        txLock.queue.shift().start();
+    nextTick((function(_this) {
+      return function() {
+        var txLock;
+        if (!(_this.dbname in _this.openDBs) || _this.openDBs[_this.dbname] !== DB_STATE_OPEN) {
+          console.log('cannot start next transaction: database not open');
+          return;
+        }
+        txLock = txLocks[self.dbname];
+        if (!txLock) {
+          console.log('cannot start next transaction: database connection is lost');
+          return;
+        } else if (txLock.queue.length > 0 && !txLock.inProgress) {
+          txLock.inProgress = true;
+          txLock.queue.shift().start();
+        }
+      };
+    })(this));
+  };
+
+  SQLitePlugin.prototype.abortAllPendingTransactions = function() {
+    var tx, txLock, _i, _len, _ref;
+    txLock = txLocks[this.dbname];
+    if (!!txLock && txLock.queue.length > 0) {
+      _ref = txLock.queue;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        tx = _ref[_i];
+        tx.abortFromQ(newSQLError('Invalid database handle'));
       }
-    });
+      txLock.queue = [];
+      txLock.inProgress = false;
+    }
   };
 
   SQLitePlugin.prototype.open = function(success, error) {
-    var opensuccesscb;
+    var openerrorcb, opensuccesscb;
     if (this.dbname in this.openDBs) {
+      console.log('database already open: ' + this.dbname);
       nextTick((function(_this) {
         return function() {
           success(_this);
         };
       })(this));
     } else {
+      console.log('OPEN database: ' + this.dbname);
       opensuccesscb = (function(_this) {
         return function() {
           var txLock;
+          if (!_this.openDBs[_this.dbname]) {
+            console.log('database was closed during open operation');
+          }
           if (_this.dbname in _this.openDBs) {
             _this.openDBs[_this.dbname] = DB_STATE_OPEN;
           }
-          success(_this);
+          if (!!success) {
+            success(_this);
+          }
           txLock = txLocks[_this.dbname];
           if (!!txLock && txLock.queue.length > 0 && !txLock.inProgress) {
             _this.startNextTransaction();
           }
         };
       })(this);
+      openerrorcb = (function(_this) {
+        return function() {
+          console.log('OPEN database: ' + _this.dbname + ' failed, aborting any pending transactions');
+          if (!!error) {
+            error(newSQLError('Could not open database'));
+          }
+          delete _this.openDBs[_this.dbname];
+          _this.abortAllPendingTransactions();
+        };
+      })(this);
       this.openDBs[this.dbname] = DB_STATE_INIT;
-      cordova.exec(opensuccesscb, error, "SQLitePlugin", "open", [this.openargs]);
+      cordova.exec(opensuccesscb, openerrorcb, "SQLitePlugin", "open", [this.openargs]);
     }
   };
 
   SQLitePlugin.prototype.close = function(success, error) {
     if (this.dbname in this.openDBs) {
       if (txLocks[this.dbname] && txLocks[this.dbname].inProgress) {
+        console.log('cannot close: transaction is in progress');
         error(newSQLError('database cannot be closed while a transaction is in progress'));
         return;
       }
+      console.log('CLOSE database: ' + this.dbname);
       delete this.openDBs[this.dbname];
+      if (txLocks[this.dbname]) {
+        console.log('closing db with transaction queue length: ' + txLocks[this.dbname].queue.length);
+      } else {
+        console.log('closing db with no transaction lock state');
+      }
       cordova.exec(success, error, "SQLitePlugin", "close", [
         {
           path: this.dbname
         }
       ]);
     } else {
-      nextTick(function() {
-        return error();
-      });
+      console.log('cannot close: database is not open');
+      if (error) {
+        nextTick(function() {
+          return error();
+        });
+      }
     }
   };
 
@@ -430,6 +484,12 @@
       this.run();
     } else {
       succeeded(tx);
+    }
+  };
+
+  SQLitePluginTransaction.prototype.abortFromQ = function(sqlerror) {
+    if (this.error) {
+      this.error(sqlerror);
     }
   };
 

@@ -20,6 +20,9 @@
 
 - Original authors: @davibe (Davide Bertola <dade@dadeb.it>) and @joenoon (Joe Noon <joenoon@gmail.com>)
 - Cordova 2.7+ port with background processing by @j3k0 (Jean-Christophe Hoelt <hoelt@fovea.cc>)
-- Embedded public domain LIBB64 encoding routines from http://libb64.sourceforge.net by @tbbdeveloper (Chris Robertson <oztexan@gmail.com>)
 - Maintained by @brodybits (Chris Brody)
 
+## Windows version
+
+- SQLiteProxy.js by @vldmrrr (Vladimir Avdonin) and @brodybits (Chris Brody)
+- Using SQLite-WinRT library (including SQLite3JS part) by @doo (doo GmbH) [build using - SQLite3-8.1.vcxproj by @EionRobb]
