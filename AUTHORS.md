@@ -21,7 +21,7 @@
 - Cordova 2.7+ port with background processing by @j3k0 (Jean-Christophe Hoelt <hoelt@fovea.cc>)
 - Maintained by @brodybits (Chris Brody)
 
-## WP(8) version
+## WP(7/8) version
 
 - Original author: @marcucio (Mike Arcucio <mike@marcucio.com>)
 - Enhancements for background processing & improved transaction support by @Gillardo (Darren Gillard <darren.gillard81@gmail.com>)
