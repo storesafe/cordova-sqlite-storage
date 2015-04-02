@@ -1,8 +1,8 @@
 # Cordova/PhoneGap SQLitePlugin
 
-Native interface to sqlite in a Cordova/PhoneGap plugin for Android/iOS/WP(8), with API similar to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
+Native interface to sqlite in a Cordova/PhoneGap plugin for Android/iOS/WP(7/8), with API similar to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
 
-License for Android & WP(8) versions: MIT or Apache 2.0
+License for Android & WP(7/8) versions: MIT or Apache 2.0
 
 License for iOS version: MIT only
 
@@ -47,11 +47,11 @@ TBD
 - The sqlite plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**.
 - The Android version cannot work with more than 100 open db files due to its threading model.
 - UNICODE line separator (`\u2028`) is currently not supported and known to be broken in iOS version.
-- UNICODE characters not working with WP(8) version
+- UNICODE characters not working with WP(7/8) version
 
 ## Limited support (testing needed)
 
-- Multi-page apps on WP(8)
+- Multi-page apps on WP(7/8)
 - DB Triggers (as described above - known to be broken for Android)
 
 ## Other versions and related projects
@@ -131,7 +131,7 @@ db = sqlitePlugin.openDatabase({name: "my.db", location: 2, createFromLocation: 
 ## Background processing
 
 The threading model depends on which version is used:
-- For Android & WP(8), one background thread per db;
+- For Android & WP(7/8), one background thread per db;
 - for iOS, background processing using a thread pool.
 
 # Sample with PRAGMA feature
@@ -246,7 +246,7 @@ You can find more details at [this writeup](http://iphonedevlog.wordpress.com/20
 
 - `SQLitePlugin.coffee.md`: platform-independent (Literate coffee-script, can be read by recent coffee-script compiler)
 - `www`: `SQLitePlugin.js` now platform-independent
-- `src`: Java plugin code for Android; Objective-C plugin code for iOS; C-sharp code & DLLs for WP(8)
+- `src`: Java plugin code for Android; Objective-C plugin code for iOS; C-sharp code & DLLs for WP(7/8)
 - `test-www`: simple testing in `index.html` using qunit 1.5.0
 - `Lawnchair-adapter`: Lawnchair adaptor, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
 
@@ -329,7 +329,7 @@ Enable the SQLitePlugin in `config.xml` (Cordova/PhoneGap 2.x):
          <plugin name="Compass" value="CDVLocation" />
 ```
 
-## Manual installation - WP(8) version
+## Manual installation - WP(7/8) version
 
 TODO
 
@@ -491,7 +491,7 @@ The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawso
 ## Major branches
 
 - `common-src` - source for Android & iOS versions
-- `master-src` - source for Android, iOS, & WP(8) versions
+- `wp-src` - source for Android, iOS, & WP(7/8) versions
 - `master-rc` - pre-release version, including source for CSharp-SQLite library classes
 - `master` - version for release, will be included in PhoneGap build.
 

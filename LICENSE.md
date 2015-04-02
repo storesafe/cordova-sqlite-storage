@@ -8,27 +8,17 @@ MIT or Apache 2.0
 
 MIT or Apache 2.0
 
-- Extracted from DroidGap by @brodybits (Chris Brody)
-- Transaction batch processing of Android version by @marcucio
-- Maintained by @brodybits (Chris Brody)
-
 ## iOS version
 
 MIT only
 
-## WP version
+## WP(7/8) version
 
 MIT or Apache 2.0
 
-## DLLs for WP version
+## Class lib(s) used by WP(7/8) version
 
-### Newtonsoft.Json.dll: Json.NET
-
-MIT License
-
-Copyright (c) 2007 James Newton-King
-
-### SQLiteWPNative.DLL: C#-SQLite
+### C#-SQLite
 
 MIT License
 
