@@ -955,10 +955,13 @@ describe('legacy tests', function() {
 
         });
 
-        xtest_it(suiteName + ' test undefined function', function () {
-          if (isWindows) pending('BROKEN for Windows'); // XXX
+        // XXX [BUG #230] BROKEN for iOS, Windows, and WP(8) versions of the plugin
+        test_it(suiteName + 'empty transaction (no sql statements) and then SELECT transaction', function () {
+          if (isWindows) pending('BROKEN for Windows');
+          if (isWP8) pending('BROKEN for WP(8)');
+          if (!(isWebSql || isAndroid || isIE)) pending('BROKEN for iOS version of plugin');
 
-          stop();
+          stop(2);
 
           var db = openDatabase("Database-Undefined", "1.0", "Demo", DEFAULT_SIZE);
 
@@ -972,10 +975,17 @@ describe('legacy tests', function() {
           // verify we can still continue
           db.transaction(function (tx) {
             tx.executeSql('SELECT 1 FROM sqlite_master', [], function (tx, res) {
-              equal(res.rows.item(0)['1'], 1);
-
+              // same order as was found in test-www
               start();
+              equal(res.rows.item(0)['1'], 1);
             });
+          }, function (error) {
+            // XXX [BUG #230] iOS, Windows, and WP(8) versions of the plugin fail here:
+            ok(false, 'transaction failed ' + error);
+            start();
+          }, function () {
+            ok(true, 'transaction committed ok');
+            start();
           });
         });
 
