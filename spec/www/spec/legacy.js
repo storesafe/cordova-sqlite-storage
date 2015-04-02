@@ -85,7 +85,7 @@ describe('legacy tests', function() {
           });
         });
 
-        test_it(suiteName + ' UNICODE string encoding test', function () {
+        test_it(suiteName + ' string encoding test with UNICODE \\u0000', function () {
           if (isWindows) pending('BROKEN for Windows'); // XXX
           if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
 
@@ -151,7 +151,10 @@ describe('legacy tests', function() {
           });
         });
 
-        test_it(suiteName + "UNICODE line separator string to hex", function() {
+        // NOTE: the next two tests show that for iOS [BUG #147]:
+        // - UNICODE \u2028 line separator from Javascript to Objective-C is working ok
+        // - UNICODE \u2028 line separator from Objective-C to Javascript is BROKEN
+        test_it(suiteName + "UNICODE \\u2028 line separator string to hex", function() {
           if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
 
           // NOTE: this test verifies that the UNICODE line separator (\u2028)
@@ -186,10 +189,10 @@ describe('legacy tests', function() {
           });
         });
 
-        test_it(suiteName + ' handles unicode line separator correctly', function () {
+        test_it(suiteName + ' handles UNICODE \\u2028 line separator correctly [string test]', function () {
 
           if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
-          if (!(isWebSql || isAndroid || isWindows)) pending('BROKEN for iOS'); // XXX [BUG #147] (no callback received)
+          if (!(isWebSql || isAndroid || isIE)) pending('BROKEN for iOS'); // XXX [BUG #147] (no callback received)
 
           // NOTE: since the above test shows the UNICODE line separator (\u2028)
           // is seen by the sqlite implementation OK, it is now concluded that
@@ -1034,7 +1037,10 @@ describe('legacy tests', function() {
 
         });
 
-        xtest_it(suiteName + ' stores unicode correctly', function () {
+        test_it(suiteName + ' stores [Unicode] string with \\u0000 correctly', function () {
+          if (isWindows) pending('BROKEN on Windows'); // XXX
+          if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
+
           stop();
 
           var dbName = "Database-Unicode";
@@ -1098,7 +1104,10 @@ describe('legacy tests', function() {
           });
         }
 
-        xtest_it(suiteName + ' returns unicode correctly', function () {
+        test_it(suiteName + ' returns [Unicode] string with \\u0000 correctly', function () {
+          if (isWindows) pending('BROKEN on Windows'); // XXX
+          if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
+
           stop();
 
           var dbName = "Database-Unicode";
@@ -1152,10 +1161,12 @@ describe('legacy tests', function() {
         });
 
         // XXX Brody NOTE: same issue is now reproduced in a string test.
-        //           TODO: combine with other test
+        //           TBD ???: combine with other test
         // BUG #147 iOS version of plugin BROKEN:
-        if (isWebSql || isAndroid) xtest_it(suiteName +
-            ' handles unicode line separator correctly', function () {
+        test_it(suiteName +
+            ' handles UNICODE \\u2028 line separator correctly [in database]', function () {
+          if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
+          if (!(isWebSql || isAndroid || isIE)) pending('BROKEN for iOS'); // XXX [BUG #147] (no callback received)
 
           var dbName = "Unicode-line-separator.db";
           var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
