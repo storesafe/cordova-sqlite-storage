@@ -22,7 +22,8 @@
 - Cordova 2.7+ port with background processing by @j3k0 (Jean-Christophe Hoelt <hoelt@fovea.cc>)
 - Maintained by @brodybits (Chris Brody)
 
-## Windows version
+## Windows (8.1) version
 
 - SQLiteProxy.js by @vldmrrr (Vladimir Avdonin) and @brodybits (Chris Brody)
-- Using SQLite-WinRT library (including SQLite3JS part) by @doo (doo GmbH) [build using - SQLite3-8.1.vcxproj by @EionRobb]
+- Includes SQLite3-WinRT C++ classes and SQLite3JS (Javascript part) by @doo (doo GmbH)
+- SQLite3-Windows8.1.vcxproj to build SQLite3.winmd by @EionRobb

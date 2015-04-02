@@ -16,7 +16,7 @@ MIT only
 
 MIT or Apache 2.0
 
-### SQLite-WinRT
+### SQLite3-WinRT
 
 by @doo (doo GmbH)
 
