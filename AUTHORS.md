@@ -26,3 +26,4 @@
 - Original author: @marcucio (Mike Arcucio <mike@marcucio.com>)
 - Enhancements for background processing & improved transaction support by @Gillardo (Darren Gillard <darren.gillard81@gmail.com>)
 - DB threading and open/close/delete fixes by Mark Oppenheim <mark.oppenheim@mnetics.co.uk>
+- Uses csharp-sqlite library by Noah Hart and others (MIT license)
