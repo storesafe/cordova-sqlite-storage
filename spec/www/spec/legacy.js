@@ -31,10 +31,11 @@ function start(n) {
 }
 
 var isAndroid = /Android/.test(navigator.userAgent);
-var isWindows = /Windows/.test(navigator.userAgent); // Windows [NT or Phone] (8.1)
-//var isMSIE = /MSIE/.test(navigator.userAgent); // WP(8)
-var isMSIE = false; // WP(8) not expected, not supported in this branch
-var isIE = isWindows || isMSIE;
+var isWindows = /Windows NT/.test(navigator.userAgent); // Windows [NT] (8.1)
+var isWP8 = /IEMobile/.test(navigator.userAgent); // WP(8)
+// FUTURE:
+//var isWindowsPhone = /Windows Phone 8.1/.test(navigator.userAgent); // Windows [NT] (8.1)
+var isIE = isWindows || isWP8;
 var isWebKit = !isIE; // TBD [Android or iOS]
 
 var scenarioList = [ 'Plugin', 'HTML5' ];
@@ -86,7 +87,7 @@ describe('legacy tests', function() {
 
         test_it(suiteName + ' UNICODE string encoding test', function () {
           if (isWindows) pending('BROKEN for Windows'); // XXX
-          if (isMSIE) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
+          if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
 
           stop();
 
@@ -151,7 +152,7 @@ describe('legacy tests', function() {
         });
 
         test_it(suiteName + "UNICODE line separator string to hex", function() {
-          if (isMSIE) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
+          if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
 
           // NOTE: this test verifies that the UNICODE line separator (\u2028)
           // is seen by the sqlite implementation OK:
@@ -187,7 +188,7 @@ describe('legacy tests', function() {
 
         test_it(suiteName + ' handles unicode line separator correctly', function () {
 
-          if (isMSIE) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
+          if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
           if (!(isWebSql || isAndroid || isWindows)) pending('BROKEN for iOS'); // XXX [BUG #147] (no callback received)
 
           // NOTE: since the above test shows the UNICODE line separator (\u2028)
@@ -645,7 +646,7 @@ describe('legacy tests', function() {
                 tx.executeSql("select * from test_table", [], function(tx, res) {
                   var row = res.rows.item(0);
                   strictEqual(row.data_text1, "314159", "data_text1 should have inserted data as text");
-                  if (!isMSIE) // JSON issue in WP(8) version
+                  if (!isWP8) // JSON issue in WP(8) version
                     strictEqual(row.data_text2, "3.14159", "data_text2 should have inserted data as text");
                   strictEqual(row.data_int, 314159, "data_int should have inserted data as an integer");
                   ok(Math.abs(row.data_real - 3.14159) < 0.000001, "data_real should have inserted data as a real");
@@ -659,7 +660,7 @@ describe('legacy tests', function() {
 
         test_it(suiteName + "Big [integer] value bindings", function() {
           if (isWindows) pending('BROKEN for Windows'); // XXX [BUG #195]
-          if (isMSIE) pending('BROKEN for WP(8)'); // XXX [BUG #195]
+          if (isWP8) pending('BROKEN for WP(8)'); // XXX [BUG #195]
 
           stop();
 
@@ -748,7 +749,7 @@ describe('legacy tests', function() {
         // the same but on the JavaScript side and converts to a string like `[object Blob]`.
         test_it(suiteName + "INSERT Blob from ArrayBuffer (non-standard parameter type)", function() {
           if (isWindows) pending('BROKEN for Windows'); // XXX (??)
-          if (isMSIE) pending('BROKEN for WP(8)'); // (???)
+          if (isWP8) pending('BROKEN for WP(8)'); // (???)
           if (typeof Blob === "undefined") pending('Blob type does not exist');
 
           // abort the test if ArrayBuffer is undefined
@@ -1183,12 +1184,12 @@ describe('legacy tests', function() {
               ok(!!error, "valid error object");
 
               // XXX ONLY WORKING for iOS version of plugin:
-              if (isWebSql || !(isAndroid || isWindows || isMSIE))
+              if (isWebSql || !(isAndroid || isWindows || isWP8))
                 ok(!!error['code'], "valid error.code exists");
 
               ok(error.hasOwnProperty('message'), "error.message exists");
               // XXX ONLY WORKING for iOS version of plugin:
-              if (isWebSql || !(isAndroid || isWindows || isMSIE))
+              if (isWebSql || !(isAndroid || isWindows || isWP8))
                 strictEqual(error.code, 5, "error.code === SQLException.SYNTAX_ERR (5)");
               //equal(error.message, "Request failed: insert into test_table (data) VALUES ,123", "error.message");
               start();
@@ -1228,7 +1229,7 @@ describe('legacy tests', function() {
               ok(!!error, "valid error object");
 
               // XXX ONLY WORKING for iOS version of plugin:
-              if (isWebSql || !(isAndroid || isWindows || isMSIE))
+              if (isWebSql || !(isAndroid || isWindows || isWP8))
                 ok(!!error['code'], "valid error.code exists");
 
               ok(error.hasOwnProperty('message'), "error.message exists");

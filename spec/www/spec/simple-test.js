@@ -9,10 +9,12 @@ function ok(test, desc) { expect(test).toBe(true); }
 function equal(a, b, desc) { expect(a).toEqual(b); } // '=='
 function strictEqual(a, b, desc) { expect(a).toBe(b); } // '==='
 
-var isWindows = /Windows/.test(navigator.userAgent); // Windows [NT or Phone] (8.1)
-//var isMSIE = /MSIE/.test(navigator.userAgent); // WP(8)
-var isMSIE = false; // WP(8) not expected, not supported in this branch
-var isIE = isWindows || isMSIE;
+var isAndroid = /Android/.test(navigator.userAgent);
+var isWindows = /Windows NT/.test(navigator.userAgent); // Windows [NT] (8.1)
+var isWP8 = /IEMobile/.test(navigator.userAgent); // WP(8)
+// FUTURE:
+//var isWindowsPhone = /Windows Phone 8.1/.test(navigator.userAgent); // Windows [NT] (8.1)
+var isIE = isWindows || isWP8;
 var isWebKit = !isIE; // TBD [Android or iOS]
 
 var scenarioList = [ 'Plugin', 'HTML5' ];
@@ -235,7 +237,7 @@ describe('simple tests', function() {
                 tx.executeSql("select * from test_table", [], function(tx, res) {
                   var row = res.rows.item(0);
                   strictEqual(row.data_text1, "314159", "data_text1 should have inserted data as text");
-                  //if (!isMSIE) // JSON issue in WP(8) version
+                  if (!isWP8) // JSON issue in WP(8) version
                     strictEqual(row.data_text2, "3.14159", "data_text2 should have inserted data as text");
                   strictEqual(row.data_int, 314159, "data_int should have inserted data as an integer");
                   ok(Math.abs(row.data_real - 3.14159) < 0.000001, "data_real should have inserted data as a real");
