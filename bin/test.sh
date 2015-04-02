@@ -6,6 +6,8 @@
 #
 # usage: ./bin/test.sh [android|ios]
 #
+# N.B. if you functionally change this script you _must_ change .\bin\test.sh too.
+#
 
 # N.B. if you functionally change this script you _must_ change ./bin/test.ps1 too.
 
@@ -28,9 +30,9 @@ if [[ ! -x $(which cordova) ]]; then
   exit 1
 fi
 
-cd test-www
+cd spec
 if [[ $? != 0 ]]; then # run from the bin/ directory
-  cd ../test-www
+  cd ../spec
 fi
 
 # compile coffeescript

@@ -2,7 +2,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="com.brodysoft.sqlitePlugin"
-    version="1.0.6">
+    version="0.7.0">
 
     <name>Brodysoft SQLitePlugin</name>
 
@@ -67,6 +67,20 @@
         <header-file src="src/ios/SQLitePlugin.h" />
         <source-file src="src/ios/SQLitePlugin.m" />
         <framework src="libsqlite3.dylib" />
+
+    </platform>
+
+    <platform name="windows">
+        <js-module src="src/windows/SQLiteProxy.js" name="SQLiteProxy">
+            <merges target="" />
+        </js-module>
+
+        <!-- SQLite3 JS module from SQLite3-WinRT/SQLite3JS: -->
+        <js-module src="src/windows/SQLite3-WinRT/SQLite3JS/js/SQLite3.js" name="SQLite3">
+            <merges target="" />
+        </js-module>
+        <!-- Thanks to AllJoyn-Cordova / cordova-plugin-alljoyn: -->
+        <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3-Windows8.1.vcxproj" custom="true" type="projectReference" target="windows" />
 
     </platform>
 

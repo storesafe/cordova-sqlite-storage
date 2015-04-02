@@ -2,14 +2,15 @@
 # installs the plugin, installs the test app, and then runs it on
 # a device or emulator.
 #
-# usage: .\bin\test.ps1 [android|ios|wp8]
-
+# usage: .\bin\test.ps1 [android|ios|windows|wp8]
+#
 # N.B. if you functionally change this script you _must_ change .\bin\test.sh too.
+#
 
 param([string]$platform)
 
 if (! $platform) {
-  echo "usage: .\bin\test.sh [android|ios|wp8]"
+  echo "usage: .\bin\test.sh [android|ios|windows|wp8]"
   exit 1
 }
 
@@ -26,10 +27,10 @@ if (! (get-command cordova) ) {
 }
 
 
-pushd test-www
+pushd spec
 if (!$?) { # run from the bin/ directory
   echo "re-pushing"
-  pushd ../test-www
+  pushd ../spec
 }
 try {
   # compile coffeescript
