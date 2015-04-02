@@ -1,5 +1,12 @@
 # Changes
 
+## 0.7.1
+
+- Project renamed
+- Initial version for Windows (8.1)
+- Abort initially pending transactions for db handle (due to incorrect password key, for example) [from Cordova-sqlcipher-storage]
+- WP7 build enabled (NOT TESTED)
+
 ## 1.0.6
 
 - Proper handling of transactions that may be requested before the database open operation is completed
