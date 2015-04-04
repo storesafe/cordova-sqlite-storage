@@ -16,7 +16,7 @@ License for iOS version: MIT only
   - Visual C++ build file is provided for Windows 8.1 only. Visual C++ build support for Windows Phone 8.1 will be added later.
   - Not all Windows CPU targets are supported by automatic installation
 - Status for the other target platforms:
-  - Android: [#193](https://github.com/liteglue/Cordova-sqlite-storage/issues/193): possible database locking/closing issue, workaround option described here
+  - Android: [#193](https://github.com/litehelpers/Cordova-sqlite-storage/issues/193): possible database locking/closing issue, workaround option described here
   - iOS: issues reported with iOS 8, to be investigated
   - WP7: possible to build from C#, as specified by `plugin.xml`, **NOT TESTED**
   - WP8: performance/stability issues have been reported with the CSharp-SQLite library. Windows (universal) platform is recommended for the future.
@@ -26,9 +26,10 @@ License for iOS version: MIT only
 
 - Project has been renamed to prevent confusion with [davibe / Phonegap-SQLitePlugin](https://github.com/davibe/Phonegap-SQLitePlugin) (original version for iOS, with a different API)
 - New project location (should redirect)
+- Discussion forum at [Ost.io / @litehelpers / Cordova-sqlite-storage](http://ost.io/@litehelpers/Cordova-sqlite-storage)
 - Windows (8.1) version is added, using the C++ SQLite-WinRT library
 - The test suite is completely ported to Jasmine (2.2.0) and was used to verify the functionality of the new Windows version
-- [SQLCipher](https://www.zetetic.net/sqlcipher/) for Android & iOS is now supported by [liteglue / Cordova-sqlcipher-storage](https://github.com/liteglue/Cordova-sqlcipher-storage)
+- [SQLCipher](https://www.zetetic.net/sqlcipher/) for Android & iOS is now supported by [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter)
 - New `openDatabase` and `deleteDatabase` `location` option to select database location (iOS *only*) and disable iCloud backup
 - Pre-populated databases support for Android & iOS is now integrated, usage described below
 - Fixes to work with PouchDB by [@nolanlawson](https://github.com/nolanlawson)
@@ -74,7 +75,7 @@ License for iOS version: MIT only
 
 ## Other versions
 
-- [liteglue / Cordova-sqlcipher-storage](https://github.com/liteglue/Cordova-sqlcipher-storage) - supports [SQLCipher](https://www.zetetic.net/sqlcipher/) for Android & iOS
+- [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter) - supports [SQLCipher](https://www.zetetic.net/sqlcipher/) for Android & iOS
 - Original version for iOS (with a different API): [davibe / Phonegap-SQLitePlugin](https://github.com/davibe/Phonegap-SQLitePlugin)
 
 ## Other SQLite adapter projects
@@ -117,7 +118,7 @@ function onDeviceReady() {
 
 ### Workaround for Android db locking issue
 
-An [issue was reported](https://github.com/liteglue/Cordova-sqlite-storage/issues/193), as observed by several people that on some newer versions of the Android, if the app is stopped or aborted without closing the db then:
+An [issue was reported](https://github.com/litehelpers/Cordova-sqlite-storage/issues/193), as observed by several people that on some newer versions of the Android, if the app is stopped or aborted without closing the db then:
 - (sometimes) there is an unexpected db lock
 - the data that was inserted before is lost.
 
@@ -250,7 +251,7 @@ window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, erro
 **WARNING:** This is still in experimental state. Please read and follow these items very carefully.
 - Please make sure your Cordova tooling is updated: `npm update -g cordova cordova-windows`
 - To create a new project: `cordova create MyProjectFolder com.my.project MyProject` (and then `cd` into your project directory)
-- To add the plugin: `cordova plugin add https://github.com/liteglue/Cordova-sqlite-storage`
+- To add the plugin: `cordova plugin add https://github.com/litehelpers/Cordova-sqlite-storage`
 - To add the Windows target platform (if it does not exist): `cordova platform add windows`
 - If you are using Visual Studio Express (2013), you may have to remove the Windows 8.0 build from the Visual Studio solution.
 - If you use Cordova CLI for fully-automatic installation (as described here), you cannot run the project for "Any CPU". Please specify a CPU type (such as x86 or x64).
@@ -277,7 +278,7 @@ Then:
 ## Easy install with plugman tool
 
 ```shell
-plugman install --platform MYPLATFORM --project path.to.my.project.folder --plugin https://github.com/liteglue/Cordova-sqlite-storage
+plugman install --platform MYPLATFORM --project path.to.my.project.folder --plugin https://github.com/litehelpers/Cordova-sqlite-storage
 ```
 
 where MYPLATFORM is `android`, `ios`, or `wp8`.
@@ -290,7 +291,7 @@ A posting how to get started developing on Windows host without the Cordova CLI 
 
     npm install -g cordova # if you don't have cordova
     cordova create MyProjectFolder com.my.project MyProject && cd MyProjectFolder # if you are just starting
-    cordova plugin add https://github.com/liteglue/Cordova-sqlite-storage
+    cordova plugin add https://github.com/litehelpers/Cordova-sqlite-storage
 
 You can find more details at [this writeup](http://iphonedevlog.wordpress.com/2014/04/07/installing-chris-brodys-sqlite-database-with-cordova-cli-android/).
 
@@ -465,17 +466,15 @@ If you still cannot get something to work:
   - if the issue is with *adding* data to a table, that the test program includes the statements you used to open the database and create the table;
   - if the issue is with *retrieving* data from a table, that the test program includes the statements you used to open the database, create the table, and enter the data you are trying to retrieve.
 
-Then you can [raise the new issue](https://github.com/liteglue/Cordova-sqlite-storage/issues/new).
+Then you can [raise the new issue](https://github.com/litehelpers/Cordova-sqlite-storage/issues/new).
 
 ## Community forum
 
-If you have any questions about the plugin please post it to the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin).
-
-**NOTE:** Please report all bugs at [liteglue / Cordova-sqlite-storage / issues](https://github.com/liteglue/Cordova-sqlite-storage/issues) so they can be tracked properly.
+If you have any questions about the plugin please post them to the new discussion forum at [Ost.io / @litehelpers / Cordova-sqlite-storage](http://ost.io/@litehelpers/Cordova-sqlite-storage)
 
 # Unit tests
 
-Unit testing is done in `test-www/`.
+Unit testing is done in `spec`.
 
 ## running tests from shell
 
@@ -546,14 +545,15 @@ The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawso
 **WARNING:** Please do NOT propose changes from your `master` branch. In general changes will be rebased using `git rebase` or `git cherry-pick` and not merged.
 
 - Testimonials of apps that are using this plugin would be especially helpful.
-- Reporting issues at [liteglue / Cordova-sqlite-storage / issues](https://github.com/liteglue/Cordova-sqlite-storage/issues) can help improve the quality of this plugin.
+- Reporting issues at [litehelpers / Cordova-sqlite-storage / issues](https://github.com/litehelpers/Cordova-sqlite-storage/issues) can help improve the quality of this plugin.
 - Patches with bug fixes are helpful, especially when submitted with test code.
 - Other enhancements welcome for consideration, when submitted with test code and will work for all supported platforms. Increase of complexity should be avoided.
 - All contributions may be reused by [@brodybits (Chris Brody)](https://github.com/brodybits) under another license in the future. Efforts will be taken to give credit for major contributions but it will not be guaranteed.
-- Project restructuring, i.e. moving files and/or directories around, should be avoided if possible. If you see a need for restructuring, it is best to ask first on the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin) where alternatives can be discussed before reaching a conclusion. If you want to propose a change to the project structure:
+- Project restructuring, i.e. moving files and/or directories around, should be avoided if possible.
+- If you see a need for restructuring, it is the most handy to first discuss it in the forum at [Ost.io / @litehelpers / Cordova-sqlite-storage](http://ost.io/@litehelpers/Cordova-sqlite-storage) where alternatives can be discussed before reaching a conclusion. If you want to propose a change to the project structure:
   - Make a special branch within your fork from which you can send the proposed restructuring;
   - Always use `git mv` to move files & directories;
-  - Never mix a move/rename operation and any other changes in the same commit.
+  - Never mix a move/rename operation with any other changes in the same commit.
 
 ## Major branches
 
