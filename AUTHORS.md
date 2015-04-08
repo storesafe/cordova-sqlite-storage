@@ -25,5 +25,5 @@
 ## Windows (8.1) version
 
 - SQLiteProxy.js by @vldmrrr (Vladimir Avdonin) and @brodybits (Chris Brody)
-- Includes SQLite3-WinRT C++ classes and SQLite3JS (Javascript part) by @doo (doo GmbH)
+- SQLite3-WinRT C++ classes and SQLite3JS (Javascript part) by @doo (doo GmbH)
 - SQLite3-Windows8.1.vcxproj to build SQLite3.winmd by @EionRobb

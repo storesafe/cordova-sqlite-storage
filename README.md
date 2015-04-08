@@ -1,5 +1,5 @@
-# Cordova/PhoneGap SQLitePlugin
-
+# Cordova/PhoneGap sqlite storage adapter
+ 
 Native interface to sqlite in a Cordova/PhoneGap plugin for Android, iOS, and Windows (8.1), with API similar to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
 
 License for Android and Windows (8.1) versions: MIT or Apache 2.0
@@ -12,13 +12,14 @@ License for iOS version: MIT only
   - No background processing
   - Database close and delete operations not yet implemented
   - insertId and rowsAffected are missing in the results for INSERT/UPDATE/DELETE statements
-  - Visual C++ build file is provided for Windows 8.1 only. Visual C++ build support for Windows Phone 8.1 will be added later.
+  - Visual C++ build file is provided for Windows 8.1 only. Visual C++ build support for Windows Phone 8.1 to be added later.
   - Not all Windows CPU targets are supported by automatic installation
 
 ## Announcements
 
 - Windows (8.1) version is added, using the C++ SQLite-WinRT library
-- [SQLCipher](https://www.zetetic.net/sqlcipher/) for Android & iOS is now supported by [brodysoft / Cordova-sqlcipher-adaptor](https://github.com/brodysoft/Cordova-sqlcipher-adaptor)
+- The test suite is completely ported to Jasmine (2.2.0) and was used to verify the functionality of the new Windows version
+- [SQLCipher](https://www.zetetic.net/sqlcipher/) for Windows (8.1) in addition to Android & iOS is now supported by [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter)
 - New `openDatabase` and `deleteDatabase` `location` option to select database location (iOS *only*) and disable iCloud backup
 - Pre-populated databases support for Android & iOS is now integrated, usage described below
 - Fixes to work with PouchDB by [@nolanlawson](https://github.com/nolanlawson)
@@ -29,13 +30,13 @@ License for iOS version: MIT only
 - Drop-in replacement for HTML5 SQL API, the only change should be `window.openDatabase()` --> `sqlitePlugin.openDatabase()`
 - Failure-safe nested transactions with batch processing optimizations
 - As described in [this posting](http://brodyspark.blogspot.com/2012/12/cordovaphonegap-sqlite-plugins-offer.html):
-  - Keeps sqlite database in a user data location that is known, can be reconfigured, and iOS will be backed up by iCloud.
+  - Keeps sqlite database in a user data location that is known; can be reconfigured (iOS version); and synchronized to iCloud by default (iOS version; can be disabled as described below).
   - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
 - Android is supported back to SDK 10 (a.k.a. Gingerbread, Android 2.3.3); Support for older versions is available upon request.
 - Pre-populated database option (usage described below)
 
-## Some apps using Cordova/PhoneGap SQLitePlugin
-
+## Some apps using this plugin
+ 
 - [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/)
 - [KAAHE Health Encyclopedia](http://www.kaahe.org/en/index.php?option=com_content&view=article&id=817): Official health app of the Kingdom of Saudi Arabia.
 - [Larkwire](http://www.larkwire.com/) (iOS version): Learn bird songs the fun way
@@ -51,10 +52,11 @@ License for iOS version: MIT only
 ## Other limitations
 
 - The db version, display name, and size parameter values are not supported and will be ignored.
-- The sqlite plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**.
+- This plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**. (This is consistent with the other Cordova plugins.)
 - The Android version cannot work with more than 100 open db files due to its threading model.
 - UNICODE line separator (`\u2028`) is currently not supported and known to be broken in iOS version.
 - UNICODE characters not working in Windows (8.1) version
+- Blob type is currently not supported and known to be broken on multiple platforms.
 
 ## Limited support (testing needed)
 
@@ -62,8 +64,7 @@ License for iOS version: MIT only
 
 ## Other versions
 
-- [pull request #157](https://github.com/brodysoft/Cordova-SQLitePlugin/pull/157) - contribution of a Windows version in C# with proper transaction support (manual installation required)
-- [brodysoft / Cordova-sqlcipher-adaptor](https://github.com/brodysoft/Cordova-sqlcipher-adaptor) - supports [SQLCipher](https://www.zetetic.net/sqlcipher/) for Android & iOS
+- [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter) - supports [SQLCipher](https://www.zetetic.net/sqlcipher/) for Android, iOS, and Windows (8.1)
 - Original version for iOS (with a different API): [davibe / Phonegap-SQLitePlugin](https://github.com/davibe/Phonegap-SQLitePlugin)
 
 ## Other SQLite adapter projects
@@ -85,7 +86,7 @@ There are two options to open a database:
 - Classical: `var db = window.sqlitePlugin.openDatabase("myDatabase.db", "1.0", "Demo", -1);`
 
 The new `location` option is used to select the database subdirectory location (iOS *only*) with the following choices:
-- `0` (default): `Documents` - will be visible to iTunes and backed up by iCloud
+- `0` (default): `Documents` - visible to iTunes and backed up by iCloud
 - `1`: `Library` - backed up by iCloud, *NOT* visible to iTunes
 - `2`: `Library/LocalDatabase` - *NOT* visible to iTunes and *NOT* backed up by iCloud
 
@@ -106,7 +107,7 @@ function onDeviceReady() {
 
 ### Workaround for Android db locking issue
 
-An [issue was reported](https://github.com/brodysoft/Cordova-SQLitePlugin/issues/193), as observed by several people that on some newer versions of the Android, if the app is stopped or aborted without closing the db then:
+[Issue #193](https://github.com/litehelpers/Cordova-sqlite-storage/issues/193) was reported (as observed by several users) that on some newer versions of the Android, if the app is stopped or aborted without closing the db then:
 - (sometimes) there is an unexpected db lock
 - the data that was inserted before is lost.
 
@@ -147,7 +148,7 @@ db = sqlitePlugin.openDatabase({name: "my.db", location: 2, createFromLocation: 
 The threading model depends on which version is used:
 - For Android, one background thread per db;
 - for iOS, background processing using a thread pool;
-- for Windows, no background processing (will be added).
+- for Windows, no background processing (to be added in the near future).
 
 # Sample with PRAGMA feature
 
@@ -239,7 +240,7 @@ window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, erro
 **WARNING:** This is still in experimental state. Please read and follow these items very carefully.
 - Please make sure your Cordova tooling is updated: `npm update -g cordova cordova-windows`
 - To create a new project: `cordova create MyProjectFolder com.my.project MyProject` (and then `cd` into your project directory)
-- To add the plugin: `cordova plugin add https://github.com/brodysoft/Cordova-SQLitePlugin`
+- To add the plugin: `cordova plugin add https://github.com/litehelpers/Cordova-sqlite-storage`
 - To add the Windows target platform (if it does not exist): `cordova platform add windows`
 - If you are using Visual Studio Express (2013), you may have to remove the Windows 8.0 build from the Visual Studio solution.
 - If you use Cordova CLI for fully-automatic installation (as described here), you cannot run the project for "Any CPU". Please specify a CPU type (such as x86 or x64).
@@ -266,7 +267,7 @@ Then:
 ## Easy install with plugman tool
 
 ```shell
-plugman install --platform MYPLATFORM --project path.to.my.project.folder --plugin https://github.com/brodysoft/Cordova-SQLitePlugin
+plugman install --platform MYPLATFORM --project path.to.my.project.folder --plugin https://github.com/litehelpers/Cordova-sqlite-storage
 ```
 
 where MYPLATFORM is `android` or `ios`.
@@ -279,8 +280,8 @@ A posting how to get started developing on Windows host without the Cordova CLI 
 
     npm install -g cordova # if you don't have cordova
     cordova create MyProjectFolder com.my.project MyProject && cd MyProjectFolder # if you are just starting
-    cordova plugin add https://github.com/brodysoft/Cordova-SQLitePlugin
-
+    cordova plugin add https://github.com/litehelpers/Cordova-sqlite-storage
+ 
 You can find more details at [this writeup](http://iphonedevlog.wordpress.com/2014/04/07/installing-chris-brodys-sqlite-database-with-cordova-cli-android/).
 
 **WARNING:** for Windows target platform please read the section above.
@@ -379,7 +380,7 @@ Enable the SQLitePlugin in `config.xml` (Cordova/PhoneGap 2.x):
          <plugin name="Compass" value="CDVLocation" />
 ```
 
-## Manual installation - Windows version
+## Manual installation - Windows (8.1) version
 
 TODO
 
@@ -450,17 +451,15 @@ If you still cannot get something to work:
   - if the issue is with *adding* data to a table, that the test program includes the statements you used to open the database and create the table;
   - if the issue is with *retrieving* data from a table, that the test program includes the statements you used to open the database, create the table, and enter the data you are trying to retrieve.
 
-Then you can [raise the new issue](https://github.com/brodysoft/Cordova-SQLitePlugin/issues/new).
-
+Then you can [raise the new issue](https://github.com/litehelpers/Cordova-sqlite-storage/issues/new).
+ 
 ## Community forum
 
-If you have any questions about the plugin please post it to the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin).
-
-**NOTE:** Please report all bugs at [brodysoft / Cordova-SQLitePlugin / issues](https://github.com/brodysoft/Cordova-SQLitePlugin/issues) so they can be tracked properly.
-
+If you have any questions about the plugin please post them to the new discussion forum at [Ost.io / @litehelpers / Cordova-sqlite-storage](http://ost.io/@litehelpers/Cordova-sqlite-storage)
+ 
 # Unit tests
 
-Unit testing is done in `test-www/`.
+Unit testing is done in `spec`.
 
 ## running tests from shell
 
@@ -499,7 +498,7 @@ Include the following Javascript files in your HTML:
 
 ### Sample
 
-The `name` option will determine the sqlite database filename, *with no extension automatically added*. Optionally, you can change it using the `db` option.
+The `name` option determines the sqlite database filename, *with no extension automatically added*. Optionally, you can change the db filename using the `db` option.
 
 In this example, you would be using/creating a database with filename `kvstore`:
 
@@ -524,24 +523,26 @@ The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawso
 
 # Contributing
 
-**WARNING:** Please do NOT propose changes from your `master` branch. In general changes will be rebased using `git rebase` or `git cherry-pick` and not merged.
+**WARNING:** Please do NOT propose changes from your `master` branch. In general, contributions are rebased using `git rebase` or `git cherry-pick` and not merged.
 
 - Testimonials of apps that are using this plugin would be especially helpful.
-- Reporting issues at [brodysoft / Cordova-SQLitePlugin / issues](https://github.com/brodysoft/Cordova-SQLitePlugin/issues) can help improve the quality of this plugin.
+- Reporting issues at [litehelpers / Cordova-sqlite-storage / issues](https://github.com/litehelpers/Cordova-sqlite-storage/issues) can help improve the quality of this plugin.
 - Patches with bug fixes are helpful, especially when submitted with test code.
-- Other enhancements welcome for consideration, when submitted with test code and will work for all supported platforms. Increase of complexity should be avoided.
+- Other enhancements welcome for consideration, when submitted with test code and are working for all supported platforms. Increase of complexity should be avoided.
 - All contributions may be reused by [@brodybits (Chris Brody)](https://github.com/brodybits) under another license in the future. Efforts will be taken to give credit for major contributions but it will not be guaranteed.
-- Project restructuring, i.e. moving files and/or directories around, should be avoided if possible. If you see a need for restructuring, it is best to ask first on the [Cordova-SQLitePlugin forum](http://groups.google.com/group/Cordova-SQLitePlugin) where alternatives can be discussed before reaching a conclusion. If you want to propose a change to the project structure:
-  - Make a special branch within your fork from which you can send the proposed restructuring;
+- Project restructuring, i.e. moving files and/or directories around, should be avoided if possible.
+- If you see a need for restructuring, it is better to first discuss it in the forum at [Ost.io / @litehelpers / Cordova-sqlite-storage](http://ost.io/@litehelpers/Cordova-sqlite-storage) (or in a [new issue](https://github.com/litehelpers/Cordova-sqlite-storage/issues/new) where alternatives can be discussed before reaching a conclusion. If you want to propose a change to the project structure:
+  - Remember to make (and use) a special branch within your fork from which you can send the proposed restructuring;
   - Always use `git mv` to move files & directories;
-  - Never mix a move/rename operation and any other changes in the same commit.
+  - Never mix a move/rename operation with any other changes in the same commit.
 
 ## Major branches
 
 - `common-src` - source for Android & iOS versions
 - `new-src` - source for Android, iOS, and Windows (8.1) versions
-- `new-common-rc` - pre-release version for Windows (8.1), including source for SQLite-WinRT C++ library
-- `master-src` - source for Android, iOS, & WP(8) versions
-- `master-rc` - pre-release version, including source for CSharp-SQLite library classes
-- `master` - version for release, will be included in PhoneGap build.
+- `new-common-rc` - pre-release version for Android/iOS/Windows (8.1), including source for SQLite-WinRT (C++ and Javascript) library
+- `wp-src` - source for Android, iOS, and WP(7/8) versions
+- `wp-master-rc` - pre-release version for Android/iOS/WP(7/8), including source for CSharp-SQLite (C#) library classes
+- `full-master-rc` - pre-release version for all platforms, including source for SQLite-WinRT and CSharp-SQLite libraries
+- [FUTURE TBD] ~~`master` - version for release, to be included in PhoneGap build.~~
 
