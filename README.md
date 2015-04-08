@@ -17,6 +17,9 @@ License for iOS version: MIT only
 
 ## Announcements
 
+- Android version is now using the [sqlite4java](https://code.google.com/p/sqlite4java/) library:
+  - NDK part rebuilt with `-DSQLITE_TEMP_STORE=3` CFLAG to support UPDATE properly;
+  - workaround to [Android closing/locking issue (#193)](https://github.com/litehelpers/Cordova-sqlite-storage/issues/193) is no longer necessary and has been removed.
 - Windows (8.1) version is added, using the C++ SQLite-WinRT library
 - The test suite is completely ported to Jasmine (2.2.0) and was used to verify the functionality of the new Windows version
 - [SQLCipher](https://www.zetetic.net/sqlcipher/) for Windows (8.1) in addition to Android & iOS is now supported by [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter)
@@ -104,22 +107,6 @@ function onDeviceReady() {
 ```
 
 **NOTE:** The database file name should include the extension, if desired.
-
-### Workaround for Android db locking issue
-
-[Issue #193](https://github.com/litehelpers/Cordova-sqlite-storage/issues/193) was reported (as observed by several users) that on some newer versions of the Android, if the app is stopped or aborted without closing the db then:
-- (sometimes) there is an unexpected db lock
-- the data that was inserted before is lost.
-
-It is suspected that this issue is caused by [this Android sqlite commit](https://github.com/android/platform_external_sqlite/commit/d4f30d0d1544f8967ee5763c4a1680cb0553039f), which references and includes the sqlite commit at: http://www.sqlite.org/src/info/6c4c2b7dba
-
-There is an optional workaround that simply closes and reopens the database file at the end of every transaction that is committed. The workaround is enabled by opening the database like:
-
-```js
-var db = window.sqlitePlugin.openDatabase({name: "my.db", androidLockWorkaround: 1});
-```
-
-**NOTE:** This workaround is *only* applied when using `db.transaction()` or `db.readTransaction()`, *not* applied when running `executeSql()` on the database object.
 
 ### Pre-populated database
 
