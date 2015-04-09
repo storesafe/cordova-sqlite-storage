@@ -9,15 +9,15 @@ License for iOS version: MIT only
 ## Status
 
 - [Stable version available at PhoneGap build](https://build.phonegap.com/plugins/2368)
-- Windows (8.1) version is in experimental state:
+- Windows (8.1) version is in experimental state (sqlite `3.8.8.3` embedded):
   - No background processing
   - Database close and delete operations not yet implemented
   - insertId and rowsAffected are missing in the results for INSERT/UPDATE/DELETE statements
   - Visual C++ build file is provided for Windows 8.1 only. Visual C++ build support for Windows Phone 8.1 to be added later.
   - Not all Windows CPU targets are supported by automatic installation
 - Status for the other target platforms:
-  - Android: now using the [sqlite4java](https://code.google.com/p/sqlite4java/) library - [Android closing/locking issue (#193)](https://github.com/litehelpers/Cordova-sqlite-storage/issues/193) should now be solved
-  - iOS: issues reported with iOS 8, currently under investigation
+  - Android: now using the [sqlite4java](https://code.google.com/p/sqlite4java/) library (sqlite `3.8.7` embedded) - [Android closing/locking issue (#193)](https://github.com/litehelpers/Cordova-sqlite-storage/issues/193) should now be solved
+  - iOS: sqlite `3.8.8.3` embedded
   - WP7: possible to build from C#, as specified by `plugin.xml` - **NOT TESTED**
   - WP8: performance/stability issues have been reported with the CSharp-SQLite library. Windows (universal) platform is recommended for the future.
   - Amazon Fire-OS version is missing, to be restored in the near future
@@ -28,6 +28,7 @@ License for iOS version: MIT only
 - Android version is now using the [sqlite4java](https://code.google.com/p/sqlite4java/) library:
   - NDK part rebuilt with `-DSQLITE_TEMP_STORE=3` CFLAG to support UPDATE properly;
   - workaround to [Android closing/locking issue (#193)](https://github.com/litehelpers/Cordova-sqlite-storage/issues/193) is no longer necessary and has been removed.
+- iOS version is now fixed to override the correct pluginInitialize method and should work with recent versions of iOS
 - Project has been renamed to prevent confusion with [davibe / Phonegap-SQLitePlugin](https://github.com/davibe/Phonegap-SQLitePlugin) (original version for iOS, with a different API)
 - New project location (should redirect)
 - Discussion forum at [Ost.io / @litehelpers / Cordova-sqlite-storage](http://ost.io/@litehelpers/Cordova-sqlite-storage)
@@ -297,7 +298,11 @@ You can find more details at [this writeup](http://iphonedevlog.wordpress.com/20
 
 - `SQLitePlugin.coffee.md`: platform-independent (Literate coffee-script, can be read by recent coffee-script compiler)
 - `www`: `SQLitePlugin.js` platform-independent Javascript as generated from `SQLitePlugin.coffee.md` (and checked in!)
-- `src`: Java plugin code for Android; Objective-C plugin code for iOS; Javascript proxy code for Windows (8.1); C-sharp code for WP(7/8)
+- `src`: platform-specific source code:
+   - `android` - Java plugin code for Android (along with sqlite4java library);
+   - Objective-C plugin code for iOS;
+   - Javascript proxy code and SQLite3-WinRT project for Windows (8.1);
+   - C-sharp code for WP(7/8)
 - `spec`: test suite using Jasmine (2.2.0), ported from QUnit `test-www` test suite, working on all platforms
 - `Lawnchair-adapter`: Lawnchair adaptor, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
 
@@ -305,11 +310,12 @@ You can find more details at [this writeup](http://iphonedevlog.wordpress.com/20
 
 These installation instructions are based on the Android example project from Cordova/PhoneGap 2.7.0. For your first time please unzip the PhoneGap 2.7 zipball and use the `lib/android/example` subdirectory.
 
- - Install www/SQLitePlugin.js from this repository into assets/www subdirectory
+ - Install `SQLitePlugin.js` from `www` into `assets/www`
  - Install src/android/org/pgsqlite/SQLitePlugin.java from this repository into src/org/pgsqlite subdirectory
+ - Install the `libs` subtree from `src/android/sqlite4java/libs` into your Android project
  - Add the plugin element `<plugin name="SQLitePlugin" value="org.pgsqlite.SQLitePlugin"/>` to res/xml/config.xml
 
-Sample change to res/xml/config.xml for Cordova/PhoneGap 2.x:
+Sample change to `res/xml/config.xml` for Cordova/PhoneGap 2.x:
 
 ```diff
 --- config.xml.orig	2013-07-23 13:48:09.000000000 +0200
@@ -326,9 +332,9 @@ Sample change to res/xml/config.xml for Cordova/PhoneGap 2.x:
 
 Before building for the first time, you have to update the project with the desired version of the Android SDK with a command like:
 
-    android update project --path $(pwd) --target android-17
+    android update project --path $(pwd) --target android-19
 
-(assume Android SDK 17, use the correct desired Android SDK number here)
+(assume Android SDK 19, use the correct desired Android SDK number here)
 
 **NOTE:** using this plugin on Cordova pre-3.0 requires the following change to SQLitePlugin.java:
 
@@ -357,15 +363,11 @@ In the Project "Build Phases" tab, select the _first_ "Link Binary with Librarie
 
 ### SQLite Plugin
 
-Drag .h and .m files into your project's Plugins folder (in xcode) -- I always
-just have "Create references" as the option selected.
+- Copy `SQLitePlugin.[hm]` from `src/ios` into your project Plugins folder and add them in XCode (I always just have "Create references" as the option selected).
+- Copy `SQLitePlugin.js` from `www` into your project `www` folder
+- Enable the SQLitePlugin in `config.xml`
 
-Take the precompiled javascript file from build/, or compile the coffeescript
-file in src/ to javascript WITH the top-level function wrapper option (default).
-
-Use the resulting javascript file in your HTML.
-
-Enable the SQLitePlugin in `config.xml` (Cordova/PhoneGap 2.x):
+Sample change to `config.xml` for Cordova/PhoneGap 2.x:
 
 ```diff
 --- config.xml.old	2013-05-17 13:18:39.000000000 +0200

@@ -54,10 +54,12 @@
             </feature>
         </config-file>
 
-        <!-- Note: the ios src is based off src/ios implicitly -->
         <header-file src="src/ios/SQLitePlugin.h" />
         <source-file src="src/ios/SQLitePlugin.m" />
-        <framework src="libsqlite3.dylib" />
+
+        <!-- [TEMP] sqlite3 source from Windows (8.1) version: -->
+        <header-file src="src/windows/SQLite3-WinRT/SQLite3/sqlite3.h" />
+        <source-file src="src/windows/SQLite3-WinRT/SQLite3/sqlite3.c" />
 
     </platform>
 
