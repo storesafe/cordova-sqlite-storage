@@ -49,10 +49,11 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 @synthesize openDBs;
 @synthesize appDBPaths;
 
--(CDVPlugin*) initWithWebView:(UIWebView*)theWebView
+-(void)pluginInitialize
 {
-    self = (SQLitePlugin*)[super initWithWebView:theWebView];
-    if (self) {
+    NSLog(@"Initializing SQLitePlugin");
+
+    {
         openDBs = [NSMutableDictionary dictionaryWithCapacity:0];
         appDBPaths = [NSMutableDictionary dictionaryWithCapacity:0];
 #if !__has_feature(objc_arc)
@@ -95,7 +96,6 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
             }
         }
     }
-    return self;
 }
 
 -(id) getDBPath:(NSString *)dbFile at:(NSString *)atkey {
