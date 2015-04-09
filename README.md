@@ -20,7 +20,6 @@ License for iOS version: MIT only
   - iOS: sqlite `3.8.8.3` embedded
   - WP7: possible to build from C#, as specified by `plugin.xml` - **NOT TESTED**
   - WP8: performance/stability issues have been reported with the CSharp-SQLite library. Windows (universal) platform is recommended for the future.
-  - ~~Amazon Fire-OS version is missing, to be restored in the near future~~
 - API to open the database may be changed somewhat to be more streamlined. Transaction and single-statement query API will NOT be changed.
 
 ## Announcements

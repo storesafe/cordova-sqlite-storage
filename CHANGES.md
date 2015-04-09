@@ -4,7 +4,6 @@
 
 - Android version with sqlite4java (sqlite 3.8.7 embedded), which solves BUG #193: Android closing/locking issue (ICU-UNICODE integration is now missing)
 - iOS version fixed to override the correct pluginInitialize method and built with sqlite 3.8.8.3 embedded
-- Amazon Fire-OS version *temporarily* removed (to be restored in the near future)
 
 ## 0.7.1
 
