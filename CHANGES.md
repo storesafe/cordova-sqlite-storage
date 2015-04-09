@@ -1,9 +1,15 @@
 # Changes
 
+## 0.7.2
+
+- Android version with sqlite4java (sqlite 3.8.7 embedded), which solves BUG #193: Android closing/locking issue (ICU-UNICODE integration is now missing)
+- iOS version fixed to override the correct pluginInitialize method and built with sqlite 3.8.8.3 embedded
+- Amazon Fire-OS version *temporarily* removed (to be restored in the near future)
+
 ## 0.7.1
 
 - Project renamed
-- Initial version for Windows (8.1)
+- Initial version for Windows (8.1) [with sqlite 3.8.8.3 embedded]
 - Abort initially pending transactions for db handle (due to incorrect password key, for example) [from Cordova-sqlcipher-storage]
 - WP7 build enabled (NOT TESTED)
 

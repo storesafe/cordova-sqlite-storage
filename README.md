@@ -73,6 +73,7 @@ License for iOS version: MIT only
 - UNICODE line separator (`\u2028`) is currently not supported and known to be broken in iOS version.
 - UNICODE characters not working in Windows (8.1) or WP(7/8) version
 - Blob type is currently not supported and known to be broken on multiple platforms.
+- Case-insensitive matching and other string manipulations on Unicode characters, which is provided by optional ICU integration in the sqlite source and working with recent versions of Android, is not supported for any target platforms.
 
 ## Limited support (testing needed)
 
