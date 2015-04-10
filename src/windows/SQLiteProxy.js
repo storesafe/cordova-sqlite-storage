@@ -67,12 +67,19 @@ module.exports = {
 			var e = executes[i];
 			//console.log("execute sql: " + e.sql + " params: " + JSON.stringify(e.params));
 			try {
+				var oldTotalChanges = db.totalChanges();
 				var rows = db.all(e.sql, e.params);
 				//console.log("got rows: " + JSON.stringify(rows));
+				var rowsAffected = db.totalChanges() - oldTotalChanges;
+				var result = { rows: rows, rowsAffected: rowsAffected };
+				if (rowsAffected > 0) {
+					var lastInsertRowid = db.lastInsertRowid();
+					if (lastInsertRowid !== 0) result.insertId = lastInsertRowid;
+				}
 				results.push({
 					type: "success",
 					qid: e.qid,
-					result: { rows: rows }
+					result: result
 				});
 			} catch(ex) {
 				console.log("sql exception error: " + ex.message);
