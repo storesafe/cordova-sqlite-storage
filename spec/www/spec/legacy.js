@@ -257,7 +257,7 @@ describe('legacy tests', function() {
       //});
 
         test_it(suiteName + 'transaction test: check rowsAffected [intermediate]', function () {
-          if (isWindows) pending('NOT IMPLEMENTED for Windows'); // XXX TODO
+          //if (isWindows) pending('NOT IMPLEMENTED for Windows'); // XXX TODO
 
           var db = openDatabase("RowsAffected", "1.0", "Demo", DEFAULT_SIZE);
 
@@ -332,7 +332,8 @@ describe('legacy tests', function() {
         });
 
         test_it(suiteName + 'test rowsAffected [advanced]', function () {
-          if (isWindows) pending('NOT IMPLEMENTED for Windows'); // XXX TODO
+          // XXX STILL BROKEN for WINDOWS (8.1):
+		  if (isWindows) pending('BROKEN for Windows (8.1)'); // XXX TODO
 
           var db = openDatabase("RowsAffectedAdvanced", "1.0", "Demo", DEFAULT_SIZE);
 
@@ -347,7 +348,9 @@ describe('legacy tests', function() {
             tx.executeSql('INSERT or IGNORE INTO characters VALUES (?,?,?)', ['Sonic', 'Sega', 0], function (tx, res) {
               equal(res.rowsAffected, 1);
               tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Tails', 'Sega', 0], function (tx, res) {
+                //equal(res.rowsAffected, 1);
                 tx.executeSql('INSERT INTO companies VALUES (?,?)', ['Sega', 1], function (tx, res) {
+                  // XXX still fails on Windows (8.1):
                   equal(res.rowsAffected, 1);
                   // query with subquery
                   var sql = 'UPDATE characters ' +
@@ -403,9 +406,9 @@ describe('legacy tests', function() {
               console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
 
               expect(res).toBeDefined();
-              if (!isWindows) // XXX TODO
+              //if (!isWindows) // XXX TODO
                 expect(res.insertId).toBeDefined();
-              if (!isWindows) // XXX TODO
+              //if (!isWindows) // XXX TODO
                 expect(res.rowsAffected).toEqual(1);
 
               tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
@@ -503,7 +506,7 @@ describe('legacy tests', function() {
               tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ['test', null], function(tx, res) {
                 //start();
                 expect(res).toBeDefined();
-                if (!isWindows) // XXX TODO
+                //if (!isWindows) // XXX TODO
                   expect(res.rowsAffected).toEqual(1);
                 //stop();
                 tx.executeSql("select * from bogustable", [], function(tx, res) {

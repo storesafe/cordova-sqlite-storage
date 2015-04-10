@@ -28,4 +28,14 @@ namespace SQLite3
   {
     return ref new Statement(this, sql);
   }
+
+  int Database::LastInsertRowid()
+  {
+    return sqlite3_last_insert_rowid(sqlite);
+  }
+
+  int Database::TotalChanges()
+  {
+    return sqlite3_total_changes(sqlite);
+  }
 }

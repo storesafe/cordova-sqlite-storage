@@ -95,9 +95,9 @@ describe('simple tests', function() {
           });
         });
 
-        it(suiteName + 'Simple INSERT test: check insertId & rowsAffected in result', function() {
+        it(suiteName + 'Simple INSERT test: check insertId & rowsAffected in result', function(done) {
 
-          if (isWindows) pending('Broken for Windows'); // XXX TODO
+          //if (isWindows) pending('Broken for Windows'); // XXX TODO
 
           var db = openDatabase("INSERT-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
@@ -144,9 +144,9 @@ describe('simple tests', function() {
               console.log("insertId: " + res.insertId + " -- probably 1");
               console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
 
-              if (!isWindows) // XXX TODO
+              //if (!isWindows) // XXX TODO
                 ok(!!res.insertId, "Valid res.insertId");
-              if (!isWindows) // XXX TODO
+              //if (!isWindows) // XXX TODO
                 equal(res.rowsAffected, 1, "res rows affected");
 
               db.transaction(function(tx) {
@@ -233,7 +233,7 @@ describe('simple tests', function() {
             db.transaction(function(tx) {
               // create columns with no type affinity
               tx.executeSql("insert into test_table (data_text1, data_text2, data_int, data_real) VALUES (?,?,?,?)", ["314159", "3.14159", 314159, 3.14159], function(tx, res) {
-                if (!isWindows) // XXX TODO
+                //if (!isWindows) // XXX TODO
                   equal(res.rowsAffected, 1, "row inserted");
                 tx.executeSql("select * from test_table", [], function(tx, res) {
                   var row = res.rows.item(0);

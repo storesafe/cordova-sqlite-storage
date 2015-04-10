@@ -1,5 +1,10 @@
 # Changes
 
+## 0.7.3
+
+- insertId & rowsAffected implemented for Windows (8.1)
+- plugin id changed
+
 ## 0.7.2
 
 - Android version with sqlite4java (sqlite 3.8.7 embedded), which solves BUG #193: Android closing/locking issue (ICU-UNICODE integration is now missing)
