@@ -92,7 +92,7 @@
             </feature>
         </config-file>
 
-        <source-file src="src/android/org/pgsqlite/SQLitePlugin.java" target-dir="src/org/pgsqlite"/>
+        <source-file src="src/android-classic/org/pgsqlite/SQLitePlugin.java" target-dir="src/org/pgsqlite"/>
     </platform>
 
 </plugin> <!-- vim: set expandtab : -->
