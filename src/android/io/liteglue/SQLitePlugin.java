@@ -4,7 +4,7 @@
  * Copyright (c) 2010, IBM Corporation
  */
 
-package org.pgsqlite;
+package io.liteglue;
 
 import android.annotation.SuppressLint;
 import android.database.Cursor;
@@ -821,7 +821,7 @@ public class SQLitePlugin extends CordovaPlugin {
     private class DBRunner implements Runnable {
         final String dbname;
         private boolean createFromAssets;
-        private boolean androidLockWorkaround;
+
         final BlockingQueue<DBQuery> q;
         final CallbackContext openCbc;
 
@@ -830,9 +830,6 @@ public class SQLitePlugin extends CordovaPlugin {
         DBRunner(final String dbname, JSONObject options, CallbackContext cbc) {
             this.dbname = dbname;
             this.createFromAssets = options.has("createFromResource");
-            this.androidLockWorkaround = options.has("androidLockWorkaround");
-            if (this.androidLockWorkaround)
-                Log.v(SQLitePlugin.class.getSimpleName(), "Android db closing/locking workaround applied");
 
             this.q = new LinkedBlockingQueue<DBQuery>();
             this.openCbc = cbc;
@@ -854,14 +851,6 @@ public class SQLitePlugin extends CordovaPlugin {
 
                 while (!dbq.stop) {
                     executeSqlBatch(dbname, dbq.queries, dbq.jsonparams, dbq.queryIDs, dbq.cbc);
-
-                    // XXX workaround for Android locking/closing issue:
-                    if (androidLockWorkaround && dbq.queries.length == 1 && dbq.queries[0] == "COMMIT") {
-                        // Log.v(SQLitePlugin.class.getSimpleName(), "close and reopen db");
-                        closeDatabaseNow(dbname);
-                        this.mydb = openDatabase(dbname, false, null);
-                        // Log.v(SQLitePlugin.class.getSimpleName(), "close and reopen db finished");
-                    }
 
                     dbq = q.take();
                 }
@@ -960,4 +949,6 @@ public class SQLitePlugin extends CordovaPlugin {
         rollback,
         other
     }
-} /* vim: set expandtab : */
+}
+
+/* vim: set expandtab : */

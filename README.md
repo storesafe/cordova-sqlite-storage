@@ -105,22 +105,6 @@ function onDeviceReady() {
 
 **NOTE:** The database file name should include the extension, if desired.
 
-### Workaround for Android db locking issue
-
-[Issue #193](https://github.com/litehelpers/Cordova-sqlite-storage/issues/193) was reported (as observed by several users) that on some newer versions of the Android, if the app is stopped or aborted without closing the db then:
-- (sometimes) there is an unexpected db lock
-- the data that was inserted before is lost.
-
-It is suspected that this issue is caused by [this Android sqlite commit](https://github.com/android/platform_external_sqlite/commit/d4f30d0d1544f8967ee5763c4a1680cb0553039f), which references and includes the sqlite commit at: http://www.sqlite.org/src/info/6c4c2b7dba
-
-There is an optional workaround that simply closes and reopens the database file at the end of every transaction that is committed. The workaround is enabled by opening the database like:
-
-```js
-var db = window.sqlitePlugin.openDatabase({name: "my.db", androidLockWorkaround: 1});
-```
-
-**NOTE:** This workaround is *only* applied when using `db.transaction()` or `db.readTransaction()`, *not* applied when running `executeSql()` on the database object.
-
 ### Pre-populated database
 
 For Android & iOS (*only*): put the database file in the `www` directory and open the database like:
