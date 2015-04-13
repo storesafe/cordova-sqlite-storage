@@ -4,7 +4,7 @@ var MYTIMEOUT = 12000;
 
 var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 
-// FUTURE TBD replace in test(s):
+// FUTURE TODO replace in test(s):
 function ok(test, desc) { expect(test).toBe(true); }
 function equal(a, b, desc) { expect(a).toEqual(b); } // '=='
 function strictEqual(a, b, desc) { expect(a).toBe(b); } // '==='
@@ -12,14 +12,14 @@ function strictEqual(a, b, desc) { expect(a).toBe(b); } // '==='
 var isAndroid = /Android/.test(navigator.userAgent);
 var isWindows = /Windows NT/.test(navigator.userAgent); // Windows [NT] (8.1)
 var isWP8 = /IEMobile/.test(navigator.userAgent); // WP(8)
-// FUTURE:
+// XXX FUTURE:
 //var isWindowsPhone = /Windows Phone 8.1/.test(navigator.userAgent); // Windows [NT] (8.1)
 var isIE = isWindows || isWP8;
 var isWebKit = !isIE; // TBD [Android or iOS]
 
-var scenarioList = [ 'Plugin', 'HTML5' ];
+var scenarioList = [ isAndroid ? 'Plugin-sqlite4java' : 'Plugin', 'HTML5', 'Plugin-android.database' ];
 
-var scenarioCount = isWebKit ? 2 : 1;
+var scenarioCount = isAndroid ? 3 : (isIE ? 1 : 2);
 
 describe('check startup', function() {
 
@@ -42,10 +42,14 @@ describe('simple tests', function() {
     describe(scenarioList[i] + ': simple test(s)', function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
-      var isWebSql = (i !== 0);
+      var isWebSql = (i === 1);
+      var isOldImpl = (i === 2);
 
       // NOTE: MUST be defined in function scope, NOT outer scope:
       var openDatabase = function(name, ignored1, ignored2, ignored3) {
+        if (isOldImpl) {
+          return window.sqlitePlugin.openDatabase({name: name, androidDatabaseImplementation: 2});
+        }
         if (isWebSql) {
           return window.openDatabase(name, "1.0", "Demo", DEFAULT_SIZE);
         } else {

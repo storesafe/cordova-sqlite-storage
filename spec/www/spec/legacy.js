@@ -4,12 +4,12 @@ var MYTIMEOUT = 12000;
 
 var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 
-// FUTURE TBD replace in test(s):
+// FUTURE TODO replace in test(s):
 function ok(test, desc) { expect(test).toBe(true); }
 function equal(a, b, desc) { expect(a).toEqual(b); } // '=='
 function strictEqual(a, b, desc) { expect(a).toBe(b); } // '==='
 
-// XXX TODO REPLACE:
+// XXX TODO REFACTOR OUT OF OLD TESTS:
 var wait = 0;
 var test_it_done = null;
 function xtest_it(desc, fun) { xit(desc, fun); }
@@ -38,9 +38,9 @@ var isWP8 = /IEMobile/.test(navigator.userAgent); // WP(8)
 var isIE = isWindows || isWP8;
 var isWebKit = !isIE; // TBD [Android or iOS]
 
-var scenarioList = [ 'Plugin', 'HTML5' ];
+var scenarioList = [ isAndroid ? 'Plugin-sqlite4java' : 'Plugin', 'HTML5', 'Plugin-android.database' ];
 
-var scenarioCount = isWebKit ? 2 : 1;
+var scenarioCount = isAndroid ? 3 : (isIE ? 1 : 2);
 
 describe('legacy tests', function() {
 
@@ -49,10 +49,14 @@ describe('legacy tests', function() {
     describe(scenarioList[i] + ': legacy sql test(s)', function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
-      var isWebSql = (i !== 0);
+      var isWebSql = (i === 1);
+      var isOldAndroidImpl = (i === 2);
 
       // NOTE: MUST be defined in function scope, NOT outer scope:
       var openDatabase = function(name, ignored1, ignored2, ignored3) {
+        if (isOldAndroidImpl) {
+          return window.sqlitePlugin.openDatabase({name: name, androidDatabaseImplementation: 2});
+        }
         if (isWebSql) {
           return window.openDatabase(name, "1.0", "Demo", DEFAULT_SIZE);
         } else {
@@ -960,7 +964,7 @@ describe('legacy tests', function() {
           if (isWindows) pending('BROKEN for Windows');
           if (isWP8) pending('BROKEN for WP(8)');
           if (!(isWebSql || isAndroid || isIE)) pending('BROKEN for iOS version of plugin');
-          if ((!isWebSql) && isAndroid) pending('BROKEN for Android version of plugin [with sqlite4java]');
+          if ((!isWebSql) && isAndroid && (!isOldAndroidImpl)) pending('BROKEN for Android version of plugin [with sqlite4java]');
 
           stop(2);
 
@@ -1490,13 +1494,41 @@ describe('legacy tests', function() {
     });
   }
 
-  describe('Plugin: plugin-specific test(s)', function() {
+  describe('Plugin: plugin-specific legacy test(s)', function() {
 
-    var suiteName = "plugin: ";
+    //var suiteName = "plugin: ";
+
+    var scenarioList = [ isAndroid ? 'plugin-sqlite4java' : 'Plugin', 'plugin-android.database' ];
+
+    var scenarioCount = isAndroid ? 2 : 1;
+
+    for (var i=0; i<scenarioCount; ++i) {
+      var scenarioName = scenarioList[i];
+      var suiteName = scenarioName + ': ';
+      var isOldAndroidImpl = (i === 1);
+
+      describe(scenarioList[i] + ': legacy sql test(s)', function() {
 
         // NOTE: MUST be defined in function scope, NOT outer scope:
         var openDatabase = function(first, second, third, fourth, fifth, sixth) {
-          return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
+          if (!isOldAndroidImpl) {
+            return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
+          }
+
+          var dbname, okcb, errorcb;
+
+          if (first.constructor === String ) {
+            dbname = first;
+            okcb = fifth;
+            errorcb = sixth;
+          } else {
+            dbname = first.name;
+            okcb = second;
+            errorcb = third;
+          }
+
+          dbopts = { name: dbname, androidDatabaseImplementation: 2 };
+          return window.sqlitePlugin.openDatabase(dbopts, okcb, errorcb);
         }
 
         test_it(suiteName + "DB String result test", function() {
@@ -2197,6 +2229,8 @@ describe('legacy tests', function() {
             start(1);
           });
         });
+      });
+    }
 
   });
 

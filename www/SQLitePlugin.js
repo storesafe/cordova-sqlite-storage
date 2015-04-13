@@ -536,6 +536,12 @@
       if (!!openargs.createFromLocation && openargs.createFromLocation === 1) {
         openargs.createFromResource = "1";
       }
+      if (!!openargs.androidDatabaseImplementation && openargs.androidDatabaseImplementation === 2) {
+        openargs.androidOldDatabaseImplementation = 1;
+      }
+      if (!!openargs.androidLockWorkaround && openargs.androidLockWorkaround === 1) {
+        openargs.androidBugWorkaround = 1;
+      }
       return new SQLitePlugin(openargs, okcb, errorcb);
     }),
     deleteDb: function(first, success, error) {

@@ -45,8 +45,8 @@ License for iOS version: MIT only
 
 - Multi-page apps are not supported and known to be broken on Android (and Amazon Fire-OS).
 - Using web workers is currently not supported and known to be broken on Android (and Amazon Fire-OS).
-- Triggers have only been tested on iOS, known to be broken on ~~Android (without [sqlite4java](https://code.google.com/p/sqlite4java/)) and~~ Amazon Fire-OS.
-- INSERT statement that affects multiple rows (due to SELECT cause or using triggers, for example) does not report proper rowsAffected on ~~Android or~~ Amazon Fire-OS.
+- Triggers have only been tested on iOS, known to be broken on Android (in case [sqlite4java](https://code.google.com/p/sqlite4java/) is disabled) and Amazon Fire-OS.
+- INSERT statement that affects multiple rows (due to SELECT cause or using triggers, for example) does not report proper rowsAffected on Android (in case [sqlite4java](https://code.google.com/p/sqlite4java/) is disabled) or Amazon Fire-OS.
 - On Windows (8.1), rowsAffected can be wrong when there are multiple levels of nesting of INSERT statements.
 
 ## Other limitations
@@ -128,6 +128,34 @@ db = sqlitePlugin.openDatabase({name: "my.db", location: 2, createFromLocation: 
 - The pre-populated database file is ignored if the database file with the same name already exists in your database file location.
 
 **TIP:** If you don't see the data from the pre-populated database file, completely remove your app and try it again!
+
+### Android sqlite implementation
+
+By default, this plugin uses [sqlite4java](https://code.google.com/p/sqlite4java/) which is more efficient than the built-in Android database classes. The  [sqlite4java](https://code.google.com/p/sqlite4java/) library consists of a Java part and a NDK part.
+
+Unfortunately some app developers have encountered problems using [sqlite4java](https://code.google.com/p/sqlite4java/) with Ionic and Crosswalk. To use the built-in Android database classes instead:
+
+```js
+var db = window.sqlitePlugin.openDatabase({name: "my.db", androidDatabaseImplementation: 2});
+```
+
+### Workaround for Android db locking issue
+
+[Issue #193](https://github.com/litehelpers/Cordova-sqlite-storage/issues/193) was reported (as observed by several app developers) that on some newer versions of the Android database classes, if the app is stopped or aborted without closing the database then:
+- (sometimes) there is an unexpected database lock
+- the data that was inserted is lost.
+
+This issue is suspected to be caused by [this Android sqlite commit](https://github.com/android/platform_external_sqlite/commit/d4f30d0d1544f8967ee5763c4a1680cb0553039f), which references and includes the sqlite commit at: http://www.sqlite.org/src/info/6c4c2b7dba
+
+There is an optional workaround that simply closes and reopens the database file at the end of every transaction that is committed. The workaround is enabled by opening the database with options as follows:
+
+```js
+var db = window.sqlitePlugin.openDatabase({name: "my.db", androidDatabaseImplementation: 2, androidLockWorkaround: 1});
+```
+
+This option is ignored if `androidDatabaseImplementation: 2` is not specified.
+
+**IMPORTANT NOTE:** This workaround is *only* applied when using `db.transaction()` or `db.readTransaction()`, *not* applied when running `executeSql()` on the database object.
 
 ## Background processing
 
