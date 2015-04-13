@@ -36,18 +36,6 @@ import java.io.IOException;
 
 public class SQLitePlugin extends CordovaPlugin {
 
-    private static final Pattern FIRST_WORD = Pattern.compile("^\\s*(\\S+)",
-            Pattern.CASE_INSENSITIVE);
-
-    private static final Pattern WHERE_CLAUSE = Pattern.compile("\\s+WHERE\\s+(.+)$",
-            Pattern.CASE_INSENSITIVE);
-
-    private static final Pattern UPDATE_TABLE_NAME = Pattern.compile("^\\s*UPDATE\\s+(\\S+)",
-            Pattern.CASE_INSENSITIVE);
-
-    private static final Pattern DELETE_TABLE_NAME = Pattern.compile("^\\s*DELETE\\s+FROM\\s+(\\S+)",
-            Pattern.CASE_INSENSITIVE);
-
     /**
      * Multiple database runner map (static).
      * NOTE: no public static accessor to db (runner) map since it would not work with db threading.
@@ -373,14 +361,16 @@ public class SQLitePlugin extends CordovaPlugin {
     /**
      * Executes a batch request and sends the results via cbc.
      *
+     * NOTE: this function uses sqlite4java, which depends on the Android NDK.
+     *
      * @param dbname     The name of the database.
      * @param queryarr   Array of query strings
      * @param jsonparams Array of JSON query parameters
      * @param queryIDs   Array of query ids
      * @param cbc        Callback context from Cordova API
      */
-    private void executeSqlBatch(String dbname, String[] queryarr, JSONArray[] jsonparams,
-                                 String[] queryIDs, CallbackContext cbc) {
+    private void executeSqlBatchNDK(String dbname, String[] queryarr, JSONArray[] jsonparams,
+                                    String[] queryIDs, CallbackContext cbc) {
 
         DBRunner dbr = dbrmap.get(dbname);
 
@@ -392,98 +382,30 @@ public class SQLitePlugin extends CordovaPlugin {
 
         SQLiteConnection mydb = dbr.mydb;
 
-        String query = "";
-        String query_id = "";
         int len = queryarr.length;
         JSONArray batchResults = new JSONArray();
 
         for (int i = 0; i < len; i++) {
             int rowsAffectedCompat = 0;
             boolean needRowsAffectedCompat = false;
-            query_id = queryIDs[i];
+            String query_id = queryIDs[i];
 
             JSONObject queryResult = null;
             String errorMessage = "unknown";
 
             try {
-                boolean needRawQuery = true;
+                String query = queryarr[i];
 
-                query = queryarr[i];
+                long lastTotal = mydb.getTotalChanges();
+                queryResult = this.executeSqlStatementNDK(mydb, query, jsonparams[i], cbc);
+                long newTotal = mydb.getTotalChanges();
+                long rowsAffected = newTotal - lastTotal;
 
-                QueryType queryType = getQueryType(query);
-
-                if (queryType == QueryType.update || queryType == queryType.delete) {
-                    needRawQuery = false;
-                    long lastTotal = mydb.getTotalChanges();
-                    Log.v("info", "lastTotal: " + lastTotal);
-                    queryResult = this.executeSqlStatementQuery(mydb, query, jsonparams[i], cbc);
-
-                    long newTotal = mydb.getTotalChanges();
-                    Log.v("info", "newTotal: " + newTotal);
-                    queryResult.put("rowsAffected", newTotal - lastTotal);
-                }
-
-                if (queryType == QueryType.insert) {
-                    needRawQuery = false;
-                    queryResult = this.executeSqlStatementQuery(mydb, query, jsonparams[i], cbc);
-
-                    queryResult.put("rowsAffected", mydb.getChanges());
+                queryResult.put("rowsAffected", rowsAffected);
+                if (rowsAffected > 0) {
                     long insertId = mydb.getLastInsertId();
                     if (insertId > 0) {
                         queryResult.put("insertId", insertId);
-                    }
-                }
-
-                // XXX TODO COMBINE THESE:
-                // can be removed???
-                if (queryType == QueryType.begin) {
-                    needRawQuery = false;
-                    try {
-                        mydb.exec(query);
-
-                        queryResult = new JSONObject();
-                        queryResult.put("rowsAffected", 0);
-                    } catch (SQLiteException ex) {
-                        ex.printStackTrace();
-                        errorMessage = ex.getMessage();
-                        Log.v("executeSqlBatch", "SQLiteDatabase.beginTransaction(): Error=" + errorMessage);
-                    }
-                }
-
-                if (queryType == QueryType.commit) {
-                    needRawQuery = false;
-                    try {
-                        mydb.exec(query);
-
-                        queryResult = new JSONObject();
-                        queryResult.put("rowsAffected", 0);
-                    } catch (SQLiteException ex) {
-                        ex.printStackTrace();
-                        errorMessage = ex.getMessage();
-                        Log.v("executeSqlBatch", "SQLiteDatabase.setTransactionSuccessful/endTransaction(): Error=" + errorMessage);
-                    }
-                }
-
-                if (queryType == QueryType.rollback) {
-                    needRawQuery = false;
-                    try {
-                        mydb.exec(query);
-
-                        queryResult = new JSONObject();
-                        queryResult.put("rowsAffected", 0);
-                    } catch (SQLiteException ex) {
-                        ex.printStackTrace();
-                        errorMessage = ex.getMessage();
-                        Log.v("executeSqlBatch", "SQLiteDatabase.endTransaction(): Error=" + errorMessage);
-                    }
-                }
-
-                // raw query for other statements:
-                if (needRawQuery) {
-                    queryResult = this.executeSqlStatementQuery(mydb, query, jsonparams[i], cbc);
-
-                    if (needRowsAffectedCompat) {
-                        queryResult.put("rowsAffected", rowsAffectedCompat);
                     }
                 }
             } catch (Exception ex) {
@@ -522,25 +444,15 @@ public class SQLitePlugin extends CordovaPlugin {
         cbc.success(batchResults);
     }
 
-    private QueryType getQueryType(String query) {
-        Matcher matcher = FIRST_WORD.matcher(query);
-        if (matcher.find()) {
-            try {
-                return QueryType.valueOf(matcher.group(1).toLowerCase());
-            } catch (IllegalArgumentException ignore) {
-                // unknown verb
-            }
-        }
-        return QueryType.other;
-    }
-
     /**
      * Get rows results from query cursor.
+     *
+     * NOTE: this function uses sqlite4java, which depends on the Android NDK.
      *
      * @param cur Cursor into query results
      * @return results in string form
      */
-    private JSONObject executeSqlStatementQuery(SQLiteConnection mydb,
+    private JSONObject executeSqlStatementNDK ( SQLiteConnection mydb,
                                                 String query, JSONArray paramsAsJson,
                                                 CallbackContext cbc) throws Exception {
         JSONObject rowsResult = new JSONObject();
@@ -663,7 +575,7 @@ public class SQLitePlugin extends CordovaPlugin {
                 dbq = q.take();
 
                 while (!dbq.stop) {
-                    executeSqlBatch(dbname, dbq.queries, dbq.jsonparams, dbq.queryIDs, dbq.cbc);
+                    executeSqlBatchNDK(dbname, dbq.queries, dbq.jsonparams, dbq.queryIDs, dbq.cbc);
 
                     // NOTE: androidLockWorkaround is not necessary and not supported for sqlite4java.
 
