@@ -15,7 +15,7 @@ License for iOS version: MIT only
   - Visual C++ build file is provided for Windows 8.1 only. Visual C++ build support for Windows Phone 8.1 to be added later.
   - Not all Windows CPU targets are supported by automatic installation
 - Status for the other target platforms:
-  - Android: now using the [sqlite4java](https://code.google.com/p/sqlite4java/) library (sqlite `3.8.7` embedded) - [Android closing/locking issue (#193)](https://github.com/litehelpers/Cordova-sqlite-storage/issues/193) should now be solved
+  - Android: now using the [sqlite4java](https://code.google.com/p/sqlite4java/) library (sqlite `3.8.7` embedded)
   - iOS: sqlite `3.8.8.3` embedded
   - WP7: possible to build from C#, as specified by `plugin.xml` - **NOT TESTED**
   - WP8: performance/stability issues have been reported with the CSharp-SQLite library. Windows (universal) platform is recommended for the future.
@@ -23,9 +23,9 @@ License for iOS version: MIT only
 
 ## Announcements
 
-- Android version is now using the [sqlite4java](https://code.google.com/p/sqlite4java/) library:
+- Android version is now using the [sqlite4java](https://code.google.com/p/sqlite4java/) library by default configuration:
   - NDK part rebuilt with `-DSQLITE_TEMP_STORE=3` CFLAG to support UPDATE properly;
-  - workaround to [Android closing/locking issue (#193)](https://github.com/litehelpers/Cordova-sqlite-storage/issues/193) is no longer necessary and has been removed.
+  - option to use the built-in Android database classes described below.
 - iOS version is now fixed to override the correct pluginInitialize method and should work with recent versions of iOS
 - Project has been renamed to prevent confusion with [davibe / Phonegap-SQLitePlugin](https://github.com/davibe/Phonegap-SQLitePlugin) (original version for iOS, with a different API)
 - New project location (should redirect)
@@ -178,7 +178,7 @@ This option is ignored if `androidDatabaseImplementation: 2` is not specified.
 The threading model depends on which version is used:
 - For Android, Amazon Fire-OS, and WP(7/8), one background thread per db;
 - for iOS, background processing using a thread pool;
-- for Windows, no background processing (to be added in the near future).
+- for Windows (8.1), no background processing (for future consideration).
 
 # Sample with PRAGMA feature
 
@@ -506,6 +506,10 @@ Then you can [raise the new issue](https://github.com/litehelpers/Cordova-sqlite
 
 If you have any questions about the plugin please post them to the new discussion forum at [Ost.io / @litehelpers / Cordova-sqlite-storage](http://ost.io/@litehelpers/Cordova-sqlite-storage).
 
+## Professional support
+
+Professional support is available, please contact <info@litehelpers.net>.
+
 # Unit tests
 
 Unit testing is done in `spec`.
@@ -576,10 +580,15 @@ The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawso
 
 # Contributing
 
-**WARNING:** Please do NOT propose changes from your `master` branch. In general, contributions are rebased using `git rebase` or `git cherry-pick` and not merged.
+## Community
 
 - Testimonials of apps that are using this plugin would be especially helpful.
 - Reporting issues at [litehelpers / Cordova-sqlite-storage / issues](https://github.com/litehelpers/Cordova-sqlite-storage/issues) can help improve the quality of this plugin.
+
+**WARNING:** Please do NOT propose changes from your `master` branch. In general, contributions are rebased using `git rebase` or `git cherry-pick` and not merged.
+
+## Code
+
 - Patches with bug fixes are helpful, especially when submitted with test code.
 - Other enhancements welcome for consideration, when submitted with test code and are working for all supported platforms. Increase of complexity should be avoided.
 - All contributions may be reused by [@brodybits (Chris Brody)](https://github.com/brodybits) under another license in the future. Efforts will be taken to give credit for major contributions but it will not be guaranteed.
@@ -588,6 +597,10 @@ The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawso
   - Remember to make (and use) a special branch within your fork from which you can send the proposed restructuring;
   - Always use `git mv` to move files & directories;
   - Never mix a move/rename operation with any other changes in the same commit.
+
+## Other
+
+[@brodybits (Chris Brody)](https://github.com/brodybits) and others contribute their valuable time and expertise to maintain this project for the benefit of the mobile app community. Small consulting relationships can help strengthen the business viability of this project (see contact below).
 
 ## Major branches
 
@@ -599,3 +612,6 @@ The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawso
 - `master-rc` - pre-release version for all supported platforms, including library dependencies for Android, Windows (8.1), and WP(7/8)
 - [FUTURE TBD] ~~`master` - version for release, to be included in PhoneGap build.~~
 
+## Contact
+
+<info@litehelpers.net>

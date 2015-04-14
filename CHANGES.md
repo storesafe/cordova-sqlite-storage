@@ -1,5 +1,10 @@
 # Changes
 
+## 0.7.4
+
+- iOS and Windows (8.1) versions built to keep non-essential temporary sqlite files in memory
+- Option to use legacy Android database library, with Android locking/closing issue (BUG #193) workaround included again
+
 ## 0.7.3
 
 - insertId & rowsAffected implemented for Windows (8.1)
