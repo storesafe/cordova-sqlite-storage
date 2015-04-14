@@ -14,6 +14,9 @@ namespace SQLite3
 
     Statement^ Prepare(Platform::String^ sql);
 
+    int LastInsertRowid();
+    int TotalChanges();
+
   private:
     friend Statement;
 

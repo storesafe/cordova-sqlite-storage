@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
   "use strict";
 
   var Statement, Database, ItemDataSource, GroupDataSource;
@@ -186,6 +186,12 @@
     },
     close: function () {
       this.connection.close();
+    },
+    lastInsertRowid: function () {
+        return this.connection.lastInsertRowid();
+    },
+    totalChanges: function () {
+      return this.connection.totalChanges();
     }
   });
 
