@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    id="com.brodysoft.sqliteStorage"
+    id="io.liteglue.sqliteStorage"
     version="0.7.3">
 
     <name>Cordova sqlite storage</name>
@@ -21,20 +21,23 @@
 
     <!-- android -->
     <platform name="android">
+        <!-- NOTE: AndroidManifest.xml should be specified per-application!
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <activity android:name="org.pgsqlite.SQLitePlugin"
                       android:label="@string/app_name">
             </activity>
         </config-file>
+          -->
 
         <!-- Cordova >= 3.0.0 -->
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="SQLitePlugin">
-                <param name="android-package" value="org.pgsqlite.SQLitePlugin"/>
+                <param name="android-package" value="io.liteglue.SQLitePlugin"/>
             </feature>
         </config-file>
 
-        <source-file src="src/android/org/pgsqlite/SQLitePlugin.java" target-dir="src/org/pgsqlite"/>
+        <source-file src="src/android/io/liteglue/SQLitePlugin.java" target-dir="src/io/liteglue"/>
+        <source-file src="src/android/io/liteglue/SQLiteAndroidDatabase.java" target-dir="src/io/liteglue"/>
 
         <!-- sqlite4java distribution for Android: -->
         <source-file src="src/android/sqlite4java/libs/sqlite4java.jar" target-dir="libs"/>
@@ -292,11 +295,13 @@
 
     <!-- amazon-fireos -->
     <platform name="amazon-fireos">
+        <!-- NOTE: AndroidManifest.xml should be specified per-application!
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <activity android:name="org.pgsqlite.SQLitePlugin"
                       android:label="@string/app_name">
             </activity>
         </config-file>
+          -->
 
         <!-- Cordova >= 3.0.0 -->
         <config-file target="res/xml/config.xml" parent="/*">
@@ -305,7 +310,10 @@
             </feature>
         </config-file>
 
+        <!-- NOTE: Amazon Fire-OS will take the SQLitePlugin.java from a different location in master/master-rc -->
         <source-file src="src/android-classic/org/pgsqlite/SQLitePlugin.java" target-dir="src/org/pgsqlite"/>
     </platform>
 
-</plugin> <!-- vim: set expandtab : -->
+</plugin>
+
+<!-- vim: set expandtab : -->
