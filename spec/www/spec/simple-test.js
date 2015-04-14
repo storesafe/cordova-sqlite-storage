@@ -4,7 +4,7 @@ var MYTIMEOUT = 12000;
 
 var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 
-// XXX TODO replace in test(s):
+// FUTURE TODO replace in test(s):
 function ok(test, desc) { expect(test).toBe(true); }
 function equal(a, b, desc) { expect(a).toEqual(b); } // '=='
 function strictEqual(a, b, desc) { expect(a).toBe(b); } // '==='
@@ -12,14 +12,14 @@ function strictEqual(a, b, desc) { expect(a).toBe(b); } // '==='
 var isAndroid = /Android/.test(navigator.userAgent);
 var isWindows = /Windows NT/.test(navigator.userAgent); // Windows [NT] (8.1)
 var isWP8 = /IEMobile/.test(navigator.userAgent); // WP(8)
-// FUTURE:
+// XXX FUTURE:
 //var isWindowsPhone = /Windows Phone 8.1/.test(navigator.userAgent); // Windows [NT] (8.1)
 var isIE = isWindows || isWP8;
 var isWebKit = !isIE; // TBD [Android or iOS]
 
-var scenarioList = [ 'Plugin', 'HTML5' ];
+var scenarioList = [ isAndroid ? 'Plugin-sqlite4java' : 'Plugin', 'HTML5', 'Plugin-android.database' ];
 
-var scenarioCount = isWebKit ? 2 : 1;
+var scenarioCount = isAndroid ? 3 : (isIE ? 1 : 2);
 
 describe('check startup', function() {
 
@@ -42,10 +42,14 @@ describe('simple tests', function() {
     describe(scenarioList[i] + ': simple test(s)', function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
-      var isWebSql = (i !== 0);
+      var isWebSql = (i === 1);
+      var isOldImpl = (i === 2);
 
       // NOTE: MUST be defined in function scope, NOT outer scope:
       var openDatabase = function(name, ignored1, ignored2, ignored3) {
+        if (isOldImpl) {
+          return window.sqlitePlugin.openDatabase({name: name, androidDatabaseImplementation: 2});
+        }
         if (isWebSql) {
           return window.openDatabase(name, "1.0", "Demo", DEFAULT_SIZE);
         } else {
@@ -95,9 +99,7 @@ describe('simple tests', function() {
           });
         });
 
-        it(suiteName + 'Simple INSERT test: check insertId & rowsAffected in result', function() {
-
-          if (isWindows) pending('Broken for Windows'); // XXX TODO
+        it(suiteName + 'Simple INSERT test: check insertId & rowsAffected in result', function(done) {
 
           var db = openDatabase("INSERT-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
@@ -138,16 +140,14 @@ describe('simple tests', function() {
             tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
 
             tx.executeSql("INSERT INTO test_table (data, data_num) VALUES (?,?)", ["test", 100], function(tx, res) {
-              ok(!!tx, "tx object");
-              ok(!!res, "res object");
+              expect(tx).toBeDefined();
+              expect(res).toBeDefined();
 
               console.log("insertId: " + res.insertId + " -- probably 1");
               console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
 
-              if (!isWindows) // XXX TODO
-                ok(!!res.insertId, "Valid res.insertId");
-              if (!isWindows) // XXX TODO
-                equal(res.rowsAffected, 1, "res rows affected");
+              expect(res.insertId).toBeDefined();
+              expect(res.rowsAffected).toBe(1);
 
               db.transaction(function(tx) {
                 ok(!!tx, "second tx object");
@@ -174,8 +174,7 @@ describe('simple tests', function() {
 
                   console.log("UPDATE rowsAffected: " + res.rowsAffected + " -- should be 1");
 
-                  if (!isWindows) // XXX TODO
-                    equal(res.rowsAffected, 1, "UPDATE res rows affected");
+                  expect(res.rowsAffected).toBe(1);
                 });
 
                 tx.executeSql("SELECT data_num from test_table;", [], function(tx, res) {
@@ -190,8 +189,7 @@ describe('simple tests', function() {
 
                   console.log("DELETE rowsAffected: " + res.rowsAffected + " -- should be 1");
 
-                  if (!isWindows) // XXX TODO
-                    equal(res.rowsAffected, 1, "DELETE res rows affected");
+                  expect(res.rowsAffected).toBe(1);
                 });
 
                 tx.executeSql("SELECT data_num from test_table;", [], function(tx, res) {
@@ -233,8 +231,7 @@ describe('simple tests', function() {
             db.transaction(function(tx) {
               // create columns with no type affinity
               tx.executeSql("insert into test_table (data_text1, data_text2, data_int, data_real) VALUES (?,?,?,?)", ["314159", "3.14159", 314159, 3.14159], function(tx, res) {
-                if (!isWindows) // XXX TODO
-                  equal(res.rowsAffected, 1, "row inserted");
+                expect(res.rowsAffected).toBe(1);
                 tx.executeSql("select * from test_table", [], function(tx, res) {
                   var row = res.rows.item(0);
                   strictEqual(row.data_text1, "314159", "data_text1 should have inserted data as text");
