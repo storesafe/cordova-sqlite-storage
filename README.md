@@ -324,22 +324,23 @@ You can find more details at [this writeup](http://iphonedevlog.wordpress.com/20
 
 ## Manual installation - Android version
 
-These installation instructions are based on the Android example project from Cordova/PhoneGap 2.7.0. For your first time please unzip the PhoneGap 2.7 zipball and use the `lib/android/example` subdirectory.
+These installation instructions are based on the Android example project from Cordova/PhoneGap 2.7.0, using the `lib/android/example` subdirectory from the PhoneGap 2.7 zipball.
 
  - Install `SQLitePlugin.js` from `www` into `assets/www`
- - Install src/android/org/pgsqlite/SQLitePlugin.java from this repository into src/org/pgsqlite subdirectory
- - Add the plugin element `<plugin name="SQLitePlugin" value="org.pgsqlite.SQLitePlugin"/>` to res/xml/config.xml
+ - Install `SQLiteAndroidDatabase.java` and `SQLitePlugin.java` from `src/android/io/liteglue` into `src/io/liteglue` subdirectory
+ - Install the `libs` subtree from `src/android/sqlite4java/libs` into your Android project
+ - Add the plugin element `<plugin name="SQLitePlugin" value="io.liteglue.SQLitePlugin"/>` to `res/xml/config.xml`
 
 Sample change to `res/xml/config.xml` for Cordova/PhoneGap 2.x:
 
 ```diff
---- config.xml.orig	2013-07-23 13:48:09.000000000 +0200
-+++ res/xml/config.xml	2013-07-23 13:48:26.000000000 +0200
+--- config.xml.orig	2015-04-14 14:03:05.000000000 +0200
++++ res/xml/config.xml	2015-04-14 14:08:08.000000000 +0200
 @@ -36,6 +36,7 @@
      <preference name="useBrowserHistory" value="true" />
      <preference name="exit-on-suspend" value="false" />
  <plugins>
-+    <plugin name="SQLitePlugin" value="org.pgsqlite.SQLitePlugin"/>
++    <plugin name="SQLitePlugin" value="io.liteglue.SQLitePlugin"/>
      <plugin name="App" value="org.apache.cordova.App"/>
      <plugin name="Geolocation" value="org.apache.cordova.GeoBroker"/>
      <plugin name="Device" value="org.apache.cordova.Device"/>
@@ -351,21 +352,34 @@ Before building for the first time, you have to update the project with the desi
 
 (assuming Android SDK 19, use the correct desired Android SDK number here)
 
-**NOTE:** using this plugin on Cordova pre-3.0 requires the following change to SQLitePlugin.java:
+**NOTE:** using this plugin on Cordova pre-3.0 requires the following changes to `SQLiteAndroidDatabase.java` and `SQLitePlugin.java`:
 
 ```diff
---- src/android/org/pgsqlite/SQLitePlugin.java	2013-09-10 21:36:20.000000000 +0200
-+++ SQLitePlugin.java.old	2013-09-10 21:35:14.000000000 +0200
-@@ -17,8 +17,8 @@
+--- Cordova-sqlite-storage/src/android/io/liteglue/SQLiteAndroidDatabase.java	2015-04-14 14:05:01.000000000 +0200
++++ src/io/liteglue/SQLiteAndroidDatabase.java	2015-04-14 14:15:23.000000000 +0200
+@@ -24,7 +24,7 @@
+ import java.util.regex.Matcher;
+ import java.util.regex.Pattern;
  
- import java.util.HashMap;
- 
--import org.apache.cordova.CordovaPlugin;
 -import org.apache.cordova.CallbackContext;
-+import org.apache.cordova.api.CordovaPlugin;
 +import org.apache.cordova.api.CallbackContext;
  
- import android.database.Cursor;
+ import org.json.JSONArray;
+ import org.json.JSONException;
+diff -u Cordova-sqlite-storage/src/android/io/liteglue/SQLitePlugin.java src/io/liteglue/SQLitePlugin.java
+--- Cordova-sqlite-storage/src/android/io/liteglue/SQLitePlugin.java	2015-04-14 14:05:01.000000000 +0200
++++ src/io/liteglue/SQLitePlugin.java	2015-04-14 14:10:44.000000000 +0200
+@@ -22,8 +22,8 @@
+ import java.util.regex.Matcher;
+ import java.util.regex.Pattern;
+ 
+-import org.apache.cordova.CallbackContext;
+-import org.apache.cordova.CordovaPlugin;
++import org.apache.cordova.api.CallbackContext;
++import org.apache.cordova.api.CordovaPlugin;
+ 
+ import org.json.JSONArray;
+ import org.json.JSONException;
 ```
 
 ## Manual installation - iOS version
