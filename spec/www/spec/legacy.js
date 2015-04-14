@@ -4,12 +4,12 @@ var MYTIMEOUT = 12000;
 
 var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 
-// XXX TODO replace in test(s):
+// FUTURE TBD replace in test(s):
 function ok(test, desc) { expect(test).toBe(true); }
 function equal(a, b, desc) { expect(a).toEqual(b); } // '=='
 function strictEqual(a, b, desc) { expect(a).toBe(b); } // '==='
 
-// XXX TODO NEED TO BE FIXED:
+// XXX TODO REPLACE:
 var wait = 0;
 var test_it_done = null;
 function xtest_it(desc, fun) { xit(desc, fun); }
@@ -257,8 +257,6 @@ describe('legacy tests', function() {
       //});
 
         test_it(suiteName + 'transaction test: check rowsAffected [intermediate]', function () {
-          if (isWindows) pending('NOT IMPLEMENTED for Windows'); // XXX TODO
-
           var db = openDatabase("RowsAffected", "1.0", "Demo", DEFAULT_SIZE);
 
           stop();
@@ -332,7 +330,8 @@ describe('legacy tests', function() {
         });
 
         test_it(suiteName + 'test rowsAffected [advanced]', function () {
-          if (isWindows) pending('NOT IMPLEMENTED for Windows'); // XXX TODO
+          // XXX STILL BROKEN for WINDOWS (8.1):
+          if (isWindows) pending('BROKEN for Windows (8.1)'); // XXX TODO
 
           var db = openDatabase("RowsAffectedAdvanced", "1.0", "Demo", DEFAULT_SIZE);
 
@@ -345,10 +344,12 @@ describe('legacy tests', function() {
             tx.executeSql('CREATE TABLE IF NOT EXISTS companies (name unique, fav tinyint(1))');
             // INSERT or IGNORE with the real thing:
             tx.executeSql('INSERT or IGNORE INTO characters VALUES (?,?,?)', ['Sonic', 'Sega', 0], function (tx, res) {
-              equal(res.rowsAffected, 1);
+              expect(res.rowsAffected).toBe(1);
               tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Tails', 'Sega', 0], function (tx, res) {
+                expect(res.rowsAffected).toBe(1);
                 tx.executeSql('INSERT INTO companies VALUES (?,?)', ['Sega', 1], function (tx, res) {
-                  equal(res.rowsAffected, 1);
+                  // XXX still fails on Windows (8.1):
+                  expect(res.rowsAffected).toBe(1);
                   // query with subquery
                   var sql = 'UPDATE characters ' +
                       ' SET fav=(SELECT fav FROM companies WHERE name=?)' +
@@ -403,10 +404,8 @@ describe('legacy tests', function() {
               console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
 
               expect(res).toBeDefined();
-              if (!isWindows) // XXX TODO
-                expect(res.insertId).toBeDefined();
-              if (!isWindows) // XXX TODO
-                expect(res.rowsAffected).toEqual(1);
+              expect(res.insertId).toBeDefined();
+              expect(res.rowsAffected).toBe(1);
 
               tx.executeSql("select count(id) as cnt from test_table;", [], function(tx, res) {
                 console.log("res.rows.length: " + res.rows.length + " -- should be 1");
@@ -478,50 +477,46 @@ describe('legacy tests', function() {
             db.transaction(function(tx) {
               throw new Error("boom");
             }, function(err) {
-              ok(!!err, "valid error object");
-              ok(err.hasOwnProperty('message'), "error.message exists");
+              expect(err).toBeDefined();
+              expect(err.hasOwnProperty('message')).toBe(true);
 
               if (!isWebSql) expect(err.message).toEqual('boom');
 
               start();
             }, function() {
-              ok(false, "not supposed to succeed");
+              // transaction success callback not expected
+              expect(false).toBe(true);
               start();
             });
             ok(true, "db.transaction() did not throw an error");
           } catch(err) {
-            //ok(true, "db.transaction() DID throw an error");
-            ok(false, 'exception not expected here');
+            // exception not expected here
+            expect(false).toBe(true);
+            start();
           }
         });
 
         test_it(suiteName + "error handler returning true causes rollback", function() {
           stop();
+
           withTestTable(function(db) {
-            //stop(2);
             db.transaction(function(tx) {
               tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ['test', null], function(tx, res) {
-                //start();
                 expect(res).toBeDefined();
-                if (!isWindows) // XXX TODO
-                  expect(res.rowsAffected).toEqual(1);
-                //stop();
+                expect(res.rowsAffected).toBe(1);
+
                 tx.executeSql("select * from bogustable", [], function(tx, res) {
-                  //start();
-                  ok(false, "select statement not supposed to succeed");
+                  expect(false).toBe(true);
                 }, function(tx, err) {
-                  //start();
-                  ok(!!err.message, "should report a valid error message");
+                  expect(err.message).toBeDefined();
                   return true;
                 });
               });
             }, function(err) {
-              //start();
               ok(!!err.message, "should report error message");
-              //stop();
+
               db.transaction(function(tx) {
                 tx.executeSql("select count(*) as cnt from test_table", [], function(tx, res) {
-                  //start();
                   equal(res.rows.item(0).cnt, 0, "should have rolled back");
 
                   start();
@@ -534,15 +529,18 @@ describe('legacy tests', function() {
           });
         });
 
-        test_it(suiteName + "error handler returning non-true lets transaction continue", function() {
+        test_it(suiteName + "error handler returning false [non-true] lets transaction continue", function() {
+          // XXX TODO TEST [PLUGIN BROKEN]:
+          // - return undefined 
+          // - return "true" string
+          // etc.
           withTestTable(function(db) {
             stop(2);
             db.transaction(function(tx) {
               tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ['test', null], function(tx, res) {
                 start();
                 expect(res).toBeDefined();
-                if (!isWindows) // XXX TODO
-                  expect(res.rowsAffected).toBe(1);
+                expect(res.rowsAffected).toBe(1);
                 stop();
                 tx.executeSql("select * from bogustable", [], function(tx, res) {
                   start();

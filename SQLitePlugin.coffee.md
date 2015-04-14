@@ -556,8 +556,8 @@
         if !!openargs.createFromLocation and openargs.createFromLocation == 1
           openargs.createFromResource = "1"
 
-        if !!openargs.androidLockWorkaround and openargs.androidLockWorkaround == 1
-          openargs.androidLockWorkaround = 1
+        #if !!openargs.androidLockWorkaround and openargs.androidLockWorkaround == 1
+        #  openargs.androidLockWorkaround = 1
 
         new SQLitePlugin openargs, okcb, errorcb
 

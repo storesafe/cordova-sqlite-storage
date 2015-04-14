@@ -4,7 +4,7 @@
  * Copyright (c) 2010, IBM Corporation
  */
 
-package org.pgsqlite;
+package io.liteglue;
 
 import android.annotation.SuppressLint;
 
@@ -634,6 +634,7 @@ public class SQLitePlugin extends CordovaPlugin {
     private class DBRunner implements Runnable {
         final String dbname;
         private boolean createFromAssets;
+
         final BlockingQueue<DBQuery> q;
         final CallbackContext openCbc;
 
@@ -763,4 +764,6 @@ public class SQLitePlugin extends CordovaPlugin {
         rollback,
         other
     }
-} /* vim: set expandtab : */
+}
+
+/* vim: set expandtab : */

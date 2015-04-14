@@ -8,10 +8,9 @@ License for iOS version: MIT only
 
 ## Status
 
-- Windows (8.1) version is in experimental state:
+- Windows (8.1) version is in alpha/beta state:
   - No background processing
   - Database close and delete operations not yet implemented
-  - insertId and rowsAffected are missing in the results for INSERT/UPDATE/DELETE statements
   - Visual C++ build file is provided for Windows 8.1 only. Visual C++ build support for Windows Phone 8.1 to be added later.
   - Not all Windows CPU targets are supported by automatic installation
 
@@ -46,9 +45,9 @@ License for iOS version: MIT only
 
 - Multi-page apps are not supported and known to be broken on Android (and Amazon Fire-OS).
 - Using web workers is currently not supported and known to be broken on Android (and Amazon Fire-OS).
-- Triggers have only been tested on iOS, known to be broken on Amazon Fire-OS.
-- INSERT statement that affects multiple rows (due to SELECT cause or using triggers, for example) does not report proper rowsAffected on Amazon Fire-OS.
-- For Windows (8.1), insertId and rowsAffected are missing in the results for INSERT/UPDATE/DELETE statements.
+- Triggers have only been tested on iOS, known to be broken on ~~Android (without [sqlite4java](https://code.google.com/p/sqlite4java/)) and~~ Amazon Fire-OS.
+- INSERT statement that affects multiple rows (due to SELECT cause or using triggers, for example) does not report proper rowsAffected on ~~Android or~~ Amazon Fire-OS.
+- On Windows (8.1), rowsAffected can be wrong when there are multiple levels of nesting of INSERT statements.
 
 ## Other limitations
 
@@ -530,10 +529,10 @@ The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawso
 ## Major branches
 
 - `common-src` - source for Android (*not* using [sqlite4java](https://code.google.com/p/sqlite4java/)), iOS, Windows (8.1), and Amazon Fire-OS versions (shared with [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter))
-- `new-src` - source for Android (using [sqlite4java](https://code.google.com/p/sqlite4java/)), iOS, Windows (8.1), and Amazon Fire-OS versions
+- `new-common-src` - source for Android (using [sqlite4java](https://code.google.com/p/sqlite4java/)), iOS, Windows (8.1), and Amazon Fire-OS versions
 - `new-common-rc` - pre-release version for Android/iOS/Windows (8.1), including library dependencies for Android and Windows (8.1)
 - `wp-src` - source for Android (*not* using [sqlite4java](https://code.google.com/p/sqlite4java/)), iOS, WP(7/8), and Amazon Fire-OS versions
 - `wp-master-rc` - pre-release version for Android(*not* using [sqlite4java](https://code.google.com/p/sqlite4java/))/iOS/WP(7/8), including source for CSharp-SQLite (C#) library classes
-- `full-master-rc` - pre-release version for all supported platforms, including library dependencies for Android, Windows (8.1), and WP(7/8)
+- `master-rc` - pre-release version for all supported platforms, including library dependencies for Android, Windows (8.1), and WP(7/8)
 - [FUTURE TBD] ~~`master` - version for release, to be included in PhoneGap build.~~
 
