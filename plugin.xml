@@ -93,7 +93,7 @@
         <!-- Cordova >= 3.0.0 -->
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="SQLitePlugin">
-                <param name="android-package" value="io.liteglue.SQLitePlugin"/>
+                <param name="android-package" value="org.pgsqlite.SQLitePlugin"/>
             </feature>
         </config-file>
 
