@@ -1,5 +1,11 @@
 # Changes
 
+## 0.7.5
+
+- Windows (Universal) version now supports both Windows 8.1 and Windows Phone 8.1
+- iOS and Windows versions are now built with sqlite 3.8.9 embedded
+- Improved locking style and other optimizations applied for iOS version
+
 ## 0.7.4
 
 - iOS and Windows (8.1) versions built to keep non-essential temporary sqlite files in memory

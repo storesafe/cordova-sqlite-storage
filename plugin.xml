@@ -2,7 +2,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="io.litehelpers.sqliteStorage"
-    version="0.7.4">
+    version="0.7.5">
 
     <name>Cordova sqlite storage</name>
 

@@ -1,28 +1,28 @@
 # Cordova/PhoneGap sqlite storage adapter
 
-Native interface to sqlite in a Cordova/PhoneGap plugin for Android, iOS, Windows (8.1), Amazon Fire-OS, and WP(7/8) with API similar to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
+Native interface to sqlite in a Cordova/PhoneGap plugin for Android, iOS, Windows Universal (8.1), Amazon Fire-OS, and WP(7/8) with API similar to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
 
-License for Android, Windows (8.1), Amazon Fire-OS, and WP(7/8) versions: MIT or Apache 2.0
+License for Android, Windows Universal (8.1), Amazon Fire-OS, and WP(7/8) versions: MIT or Apache 2.0
 
 License for iOS version: MIT only
 
 ## Status
 
 - [Stable version available at PhoneGap build](https://build.phonegap.com/plugins/2368)
-- Windows (8.1) version is in alpha/beta state:
+- Windows Universal (8.1) version is in pre/alpha state:
   - No background processing
   - Database close and delete operations not yet implemented
-  - Visual C++ build file is provided for Windows 8.1 only. Visual C++ build support for Windows Phone 8.1 to be added later.
   - Not all Windows CPU targets are supported by automatic installation
 - Status for the other target platforms:
   - Android: now using the [sqlite4java](https://code.google.com/p/sqlite4java/) library (sqlite `3.8.7` embedded)
-  - iOS: sqlite `3.8.8.3` embedded
+  - iOS: sqlite `3.8.9` embedded
   - WP7: possible to build from C#, as specified by `plugin.xml` - **NOT TESTED**
   - WP8: performance/stability issues have been reported with the CSharp-SQLite library. Windows (universal) platform is recommended for the future.
 - API to open the database may be changed somewhat to be more streamlined. Transaction and single-statement query API will NOT be changed.
 
 ## Announcements
 
+- Windows Universal version now supports both Windows 8.1 and Windows Phone 8.1
 - Android version is now using the [sqlite4java](https://code.google.com/p/sqlite4java/) library by default configuration:
   - NDK part rebuilt with `-DSQLITE_TEMP_STORE=3` CFLAG to support UPDATE properly;
   - option to use the built-in Android database classes described below.
@@ -30,7 +30,6 @@ License for iOS version: MIT only
 - Project has been renamed to prevent confusion with [davibe / Phonegap-SQLitePlugin](https://github.com/davibe/Phonegap-SQLitePlugin) (original version for iOS, with a different API)
 - New project location (should redirect)
 - Discussion forum at [Ost.io / @litehelpers / Cordova-sqlite-storage](http://ost.io/@litehelpers/Cordova-sqlite-storage)
-- Windows (8.1) version is added, using the C++ SQLite-WinRT library
 - The test suite is completely ported to Jasmine (2.2.0) and was used to verify the functionality of the new Windows version
 - [SQLCipher](https://www.zetetic.net/sqlcipher/) for Windows (8.1) in addition to Android & iOS is now supported by [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter)
 - New `openDatabase` and `deleteDatabase` `location` option to select database location (iOS *only*) and disable iCloud backup
@@ -78,7 +77,7 @@ License for iOS version: MIT only
 ## Limited support (testing needed)
 
 - DB Triggers (as described above - known to be broken for Amazon Fire-OS)
-- UNICODE characters not fully tested in the Windows (8.1) version
+- UNICODE characters not fully tested in the Windows Universal (8.1) version
 
 ## Other versions
 
@@ -178,7 +177,7 @@ This option is ignored if `androidDatabaseImplementation: 2` is not specified.
 The threading model depends on which version is used:
 - For Android, Amazon Fire-OS, and WP(7/8), one background thread per db;
 - for iOS, background processing using a thread pool;
-- for Windows (8.1), no background processing (for future consideration).
+- for Windows Universal (8.1), no background processing (for future consideration).
 
 # Sample with PRAGMA feature
 
@@ -261,13 +260,13 @@ window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, erro
 
 `location` as described above for `openDatabase` (iOS *only*)
 
-**NOTE:** not yet implemented for Windows (8.1) version.
+**NOTE:** not implemented for Windows Universal (8.1) version.
 
 # Installing
 
-## Windows target platform
+## Windows Universal target platform
 
-**WARNING:** This is still in experimental state. Please read and follow these items very carefully.
+**WARNING:** This is still in pre/alpha state. Please read and follow these items very carefully.
 - Please make sure your Cordova tooling is updated: `npm update -g cordova cordova-windows`
 - To create a new project: `cordova create MyProjectFolder com.my.project MyProject` (and then `cd` into your project directory)
 - To add the plugin: `cordova plugin add https://github.com/litehelpers/Cordova-sqlite-storage`
@@ -275,24 +274,28 @@ window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, erro
 - If you are using Visual Studio Express (2013), you may have to remove the Windows 8.0 build from the Visual Studio solution.
 - If you use Cordova CLI for fully-automatic installation (as described here), you cannot run the project for "Any CPU". Please specify a CPU type (such as x86 or x64).
 
-To target all CPUs: make a clone of this project and in your clone, remove (or comment out) the item that includes the `SQLite3-Windows8.1.vcxproj` framework project:
-```xml
+### To target all CPUs (partially manual)
+
+Make a clone of this project and in your clone, remove (or comment out) the items that include the `SQLite3.Windows.vcxproj` and `SQLite3.WindowsPhone.vcxproj` framework projects:
+
+```diff
 --- a/plugin.xml
 +++ b/plugin.xml
-@@ -79,8 +79,6 @@
-         <js-module src="src/windows/SQLite3-WinRT/SQLite3JS/js/SQLite3.js" name="SQLite3">
-             <merges target="" />
+@@ -75,8 +75,6 @@
          </js-module>
--        <!-- Thanks to AllJoyn-Cordova / cordova-plugin-alljoyn: -->
--        <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3-Windows8.1.vcxproj" custom="true" type="projectReference" target="windows" />
  
-     </platform>
+         <!-- Thanks to AllJoyn-Cordova / cordova-plugin-alljoyn: -->
+-        <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3.Windows.vcxproj" custom="true" type="projectReference" target="windows" />
+-        <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3.WindowsPhone.vcxproj" custom="true" type="projectReference" target="phone" />
+          <!-- old:
+         <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3-Windows8.1.vcxproj" custom="true" type="projectReference" target="windows" />
+           -->
 ```
 
 Then:
-- install the plugin from the location of your clone (can be in your filesystem);
-- add the Cordova `windows` target;
-- open the Windows target solution, and add the `SQLite3-Windows8.1.vcxproj` project (located in `path.to.plugin/src/windows/SQLite3-WinRT/SQLite3`) to your app solution project.
+- In your Cordova CLI project, use the Cordova CLI tool to install the plugin from the location of your clone (can be from your filesystem);
+- Use the Cordova CLI tool to add the `windows` target;
+- open the Windows target solution, add the `SQLite3.Windows.vcxproj` and `SQLite3.WindowsPhone.vcxproj` projects (located in `path.to.plugin/src/windows/SQLite3-WinRT/SQLite3`) to your app solution project, and add the references in your solution explorer.
 
 ## Easy install with plugman tool
 
@@ -331,7 +334,7 @@ You can find more details at [this writeup](http://iphonedevlog.wordpress.com/20
    - `android` - Java plugin code for Android (along with sqlite4java library);
    - `android-classic` - Java plugin code for Amazon Fire-OS
    - `ios` - Objective-C plugin code for iOS;
-   - `windows` - Javascript proxy code and SQLite3-WinRT project for Windows (8.1);
+   - `windows` - Javascript proxy code and SQLite3-WinRT project for Windows Universal;
    - `wp` - C-sharp code for WP(7/8)
 - `spec`: test suite using Jasmine (2.2.0), ported from QUnit `test-www` test suite, working on all platforms
 - `Lawnchair-adapter`: Lawnchair adaptor, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
@@ -425,9 +428,9 @@ Sample change to `config.xml` for Cordova/PhoneGap 2.x:
          <plugin name="Compass" value="CDVLocation" />
 ```
 
-## Manual installation - Windows (8.1) version
+## Manual installation - Windows Universal (8.1) version
 
-TODO
+Described above.
 
 ## Manual installation - WP(7/8) version
 
