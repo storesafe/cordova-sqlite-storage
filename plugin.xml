@@ -58,9 +58,8 @@
         <header-file src="src/ios/SQLitePlugin.h" />
         <source-file src="src/ios/SQLitePlugin.m" />
 
-        <!-- [TEMP] sqlite3 source from Windows (8.1) version: -->
-        <header-file src="src/windows/SQLite3-WinRT/SQLite3/sqlite3.h" />
-        <source-file src="src/windows/SQLite3-WinRT/SQLite3/sqlite3.c" />
+        <header-file src="src/common/sqlite3.h" />
+        <source-file src="src/common/sqlite3.c" />
 
     </platform>
 
