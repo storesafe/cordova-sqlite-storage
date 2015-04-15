@@ -74,8 +74,13 @@
         <js-module src="src/windows/SQLite3-WinRT/SQLite3JS/js/SQLite3.js" name="SQLite3">
             <merges target="" />
         </js-module>
+
         <!-- Thanks to AllJoyn-Cordova / cordova-plugin-alljoyn: -->
+        <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3.Windows.vcxproj" custom="true" type="projectReference" target="windows" />
+        <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3.WindowsPhone.vcxproj" custom="true" type="projectReference" target="phone" />
+         <!-- old:
         <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3-Windows8.1.vcxproj" custom="true" type="projectReference" target="windows" />
+          -->
 
     </platform>
 
