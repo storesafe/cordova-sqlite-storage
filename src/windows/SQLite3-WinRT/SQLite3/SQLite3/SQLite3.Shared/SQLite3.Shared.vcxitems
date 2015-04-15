@@ -14,13 +14,21 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\..\external\sqlite3.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Constants.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Database.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\Statement.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Class1.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Constants.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Class1.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\..\external\sqlite3.c">
+      <CompileAsWinRT>false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Database.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\Statement.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
