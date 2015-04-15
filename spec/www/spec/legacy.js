@@ -31,10 +31,12 @@ function start(n) {
 }
 
 var isAndroid = /Android/.test(navigator.userAgent);
-var isWindows = /Windows NT/.test(navigator.userAgent); // Windows [NT] (8.1)
-var isWP8 = /IEMobile/.test(navigator.userAgent); // WP(8)
-// FUTURE:
-//var isWindowsPhone = /Windows Phone 8.1/.test(navigator.userAgent); // Windows [NT] (8.1)
+var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
+//var isWindows = /Windows NT/.test(navigator.userAgent); // Windows [NT] (8.1)
+var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
+//var isWindowsPC = /Windows NT/.test(navigator.userAgent); // Windows [NT] (8.1)
+//var isWindowsPhone_8_1 = /Windows Phone 8.1/.test(navigator.userAgent); // Windows Phone 8.1
+//var isIE = isWindows || isWP8 || isWindowsPhone_8_1;
 var isIE = isWindows || isWP8;
 var isWebKit = !isIE; // TBD [Android or iOS]
 
@@ -572,7 +574,7 @@ describe('legacy tests', function() {
             db.transaction(function(tx) {
               tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ['test', null], function(tx, res) {
                 expect(res).toBeDefined();
-                if (!isWindows) // XXX TODO
+                //if (!isWindows) // XXX TODO
                   expect(res.rowsAffected).toEqual(1);
                 tx.executeSql("select * from bogustable", [], function(tx, res) {
                   ok(false, "select statement not supposed to succeed");
@@ -606,7 +608,7 @@ describe('legacy tests', function() {
               txg = tx;
               tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ['test', null], function(tx, res) {
                 expect(res).toBeDefined();
-                if (!isWindows) // XXX TODO
+                //if (!isWindows) // XXX TODO
                   expect(res.rowsAffected).toEqual(1);
               });
               start(1);
@@ -634,7 +636,7 @@ describe('legacy tests', function() {
             db.transaction(function(tx) {
               tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ["test", null], function(tx, res) {
                 expect(res).toBeDefined();
-                if (!isWindows) // XXX TODO
+                //if (!isWindows) // XXX TODO
                   expect(res.rowsAffected).toEqual(1);
                 tx.executeSql("select * from test_table", [], function(tx, res) {
                   var row = res.rows.item(0);
@@ -664,7 +666,7 @@ describe('legacy tests', function() {
               // create columns with no type affinity
               tx.executeSql("insert into test_table (data_text1, data_text2, data_int, data_real) VALUES (?,?,?,?)", ["314159", "3.14159", 314159, 3.14159], function(tx, res) {
                 expect(res).toBeDefined();
-                if (!isWindows) // XXX TODO
+                //if (!isWindows) // XXX TODO
                   expect(res.rowsAffected).toBe(1);
 
                 tx.executeSql("select * from test_table", [], function(tx, res) {
@@ -732,7 +734,7 @@ describe('legacy tests', function() {
             db.transaction(function(tx) {
               tx.executeSql("insert into tt (tr) VALUES (?)", [123456.789], function(tx, res) {
                 expect(res).toBeDefined();
-                if (!isWindows) // XXX TODO
+                //if (!isWindows) // XXX TODO
                   expect(res.rowsAffected).toBe(1);
                 tx.executeSql("select * from tt", [], function(tx, res) {
                   var row = res.rows.item(0);
@@ -756,7 +758,7 @@ describe('legacy tests', function() {
               // create columns with no type affinity
               tx.executeSql("insert into test_table (data1, data2) VALUES (?,?)", ['abc', [1,2,3]], function(tx, res) {
                 expect(res).toBeDefined();
-                if (!isWindows) // XXX TODO
+                //if (!isWindows) // XXX TODO
                   expect(res.rowsAffected).toBe(1);
                 tx.executeSql("select * from test_table", [], function(tx, res) {
                   var row = res.rows.item(0);
@@ -1253,6 +1255,7 @@ describe('legacy tests', function() {
 
         test_it(suiteName + "constraint violation", function() {
           if (isWindows) pending('BROKEN for Windows'); // XXX TODO
+          //if (isWindowsPhone_8_1) pending('BROKEN for Windows Phone 8.1'); // XXX TODO
 
           var db = openDatabase("Constraint-violation-test.db", "1.0", "Demo", DEFAULT_SIZE);
           ok(!!db, "db object");
