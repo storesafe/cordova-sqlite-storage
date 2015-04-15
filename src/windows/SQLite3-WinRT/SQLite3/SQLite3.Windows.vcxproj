@@ -30,6 +30,7 @@
 
 	<PropertyGroup Label="Globals">
 		<ProjectGuid>{d1848fee-6a8e-4ef1-8bfb-8652e5a9cd4a}</ProjectGuid>
+		<ProjectName>SQLite3</ProjectName>
 		<RootNamespace>SQLite3</RootNamespace>
 		<DefaultLanguage>en-US</DefaultLanguage>
 		<MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
