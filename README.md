@@ -272,7 +272,7 @@ window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, erro
 - To add the plugin: `cordova plugin add https://github.com/litehelpers/Cordova-sqlite-storage`
 - To add the Windows target platform (if it does not exist): `cordova platform add windows`
 - If you are using Visual Studio Express (2013), you may have to remove the Windows 8.0 build from the Visual Studio solution.
-- If you use Cordova CLI for fully-automatic installation (as described here), you cannot run the project for "Any CPU". Please specify a CPU type (such as x86 or x64).
+- Due to [CB-8866](https://issues.apache.org/jira/browse/CB-8866): If you use Cordova CLI for fully-automatic installation (as described here), you cannot run the project for "Any CPU" or "Mixed Platforms". Please specify a CPU type (such as x86 or x64).
 
 ### To target all CPUs (partially manual)
 
