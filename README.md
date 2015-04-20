@@ -21,6 +21,7 @@ License for iOS version: MIT only
 
 ## Announcements
 
+- [io.litehelpers.cordova.sqlite listing](http://plugins.cordova.io/#/package/io.litehelpers.cordova.sqlite) in Cordova plugins registry
 - Windows Universal version now supports both Windows 8.1 and Windows Phone 8.1
 - Android version is now using the [sqlite4java](https://code.google.com/p/sqlite4java/) library by default configuration:
   - NDK part rebuilt with `-DSQLITE_TEMP_STORE=3` CFLAG to support UPDATE properly;
@@ -268,7 +269,7 @@ window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, erro
 **WARNING:** This is still in pre/alpha state. Please read and follow these items very carefully.
 - Please make sure your Cordova tooling is updated: `npm update -g cordova cordova-windows`
 - To create a new project: `cordova create MyProjectFolder com.my.project MyProject` (and then `cd` into your project directory)
-- To add the plugin: `cordova plugin add io.litehelpers.cordova.sqlitestorage`
+- To add the plugin: `cordova plugin add io.litehelpers.cordova.sqlite`
 - To add the Windows target platform (if it does not exist): `cordova platform add windows`
 - If you are using Visual Studio Express (2013), you may have to remove the Windows 8.0 build from the Visual Studio solution.
 - Due to [CB-8866](https://issues.apache.org/jira/browse/CB-8866): If you use Cordova CLI for fully-automatic installation (as described here), you cannot run the project for "Any CPU" or "Mixed Platforms". Please specify a CPU type (such as x86 or x64).
@@ -312,7 +313,7 @@ A posting how to get started developing on Windows host without the Cordova CLI 
 
     npm install -g cordova # if you don't have cordova
     cordova create MyProjectFolder com.my.project MyProject && cd MyProjectFolder # if you are just starting
-    cordova plugin add io.litehelpers.cordova.sqlitestorage
+    cordova plugin add io.litehelpers.cordova.sqlite
 
 You can find more details at [this writeup](http://iphonedevlog.wordpress.com/2014/04/07/installing-chris-brodys-sqlite-database-with-cordova-cli-android/).
 
