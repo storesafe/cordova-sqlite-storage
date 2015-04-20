@@ -8,6 +8,7 @@ License for iOS version: MIT only
 
 ## Status
 
+- [Cordova sqlite storage (0.7.6) published](https://build.phonegap.com/plugins/2755) in PhoneGap Build
 - Windows Universal (8.1) version is in pre/alpha state:
   - No background processing
   - Database close and delete operations not yet implemented
