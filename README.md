@@ -8,6 +8,7 @@ License for iOS version: MIT only
 
 ## Status
 
+- [Cordova sqlite storage published](https://build.phonegap.com/plugins/2751) in PhoneGap Build
 - Windows Universal (8.1) version is in pre/alpha state:
   - No background processing
   - Database close and delete operations not yet implemented
@@ -21,6 +22,7 @@ License for iOS version: MIT only
 
 ## Announcements
 
+- [io.litehelpers.cordova.sqlitestorage listing](http://plugins.cordova.io/#/package/io.litehelpers.cordova.sqlitestorage) in Cordova plugins registry
 - Windows Universal version now supports both Windows 8.1 and Windows Phone 8.1
 - Android version is now using the [sqlite4java](https://code.google.com/p/sqlite4java/) library by default configuration:
   - NDK part rebuilt with `-DSQLITE_TEMP_STORE=3` CFLAG to support UPDATE properly;
@@ -71,6 +73,7 @@ License for iOS version: MIT only
 - Blob type is currently not supported and known to be broken on multiple platforms.
 - UNICODE `\u0000` (same as `\0`) character not working in Windows (8.1) or WP(7/8) versions
 - Case-insensitive matching and other string manipulations on Unicode characters, which is provided by optional ICU integration in the sqlite source and working with recent versions of Android, is not supported for any target platforms.
+- iOS version uses a thread pool but with only one thread working at a time due to "synchronized" database access
 
 ## Limited support (testing needed)
 
@@ -174,7 +177,7 @@ This option is ignored if `androidDatabaseImplementation: 2` is not specified.
 
 The threading model depends on which version is used:
 - For Android, Amazon Fire-OS, and WP(7/8), one background thread per db;
-- for iOS, background processing using a thread pool;
+- for iOS, background processing using a very limited thread pool (only one thread working at a time);
 - for Windows Universal (8.1), no background processing (for future consideration).
 
 # Sample with PRAGMA feature
@@ -267,7 +270,7 @@ window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, erro
 **WARNING:** This is still in pre/alpha state. Please read and follow these items very carefully.
 - Please make sure your Cordova tooling is updated: `npm update -g cordova cordova-windows`
 - To create a new project: `cordova create MyProjectFolder com.my.project MyProject` (and then `cd` into your project directory)
-- To add the plugin: `cordova plugin add https://github.com/litehelpers/Cordova-sqlite-storage`
+- To add the plugin: `cordova plugin add io.litehelpers.cordova.sqlitestorage`
 - To add the Windows target platform (if it does not exist): `cordova platform add windows`
 - If you are using Visual Studio Express (2013), you may have to remove the Windows 8.0 build from the Visual Studio solution.
 - Due to [CB-8866](https://issues.apache.org/jira/browse/CB-8866): If you use Cordova CLI for fully-automatic installation (as described here), you cannot run the project for "Any CPU" or "Mixed Platforms". Please specify a CPU type (such as x86 or x64).
@@ -311,7 +314,7 @@ A posting how to get started developing on Windows host without the Cordova CLI 
 
     npm install -g cordova # if you don't have cordova
     cordova create MyProjectFolder com.my.project MyProject && cd MyProjectFolder # if you are just starting
-    cordova plugin add https://github.com/litehelpers/Cordova-sqlite-storage
+    cordova plugin add io.litehelpers.cordova.sqlitestorage
 
 You can find more details at [this writeup](http://iphonedevlog.wordpress.com/2014/04/07/installing-chris-brodys-sqlite-database-with-cordova-cli-android/).
 
