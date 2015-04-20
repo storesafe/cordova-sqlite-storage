@@ -8,7 +8,6 @@ License for iOS version: MIT only
 
 ## Status
 
-- [Stable version available at PhoneGap build](https://build.phonegap.com/plugins/2368)
 - Windows Universal (8.1) version is in pre/alpha state:
   - No background processing
   - Database close and delete operations not yet implemented
@@ -38,7 +37,6 @@ License for iOS version: MIT only
 
 ## Highlights
 
-- Works with Cordova 3.x tooling and [stable version available at PhoneGap build](https://build.phonegap.com/plugins/2368)
 - Drop-in replacement for HTML5 SQL API, the only change should be `window.openDatabase()` --> `sqlitePlugin.openDatabase()`
 - Failure-safe nested transactions with batch processing optimizations
 - As described in [this posting](http://brodyspark.blogspot.com/2012/12/cordovaphonegap-sqlite-plugins-offer.html):
