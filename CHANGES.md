@@ -1,5 +1,10 @@
 # Changes
 
+## 0.7.6
+
+- Small fix to plugin id
+- Disable use of gethostuuid() in sqlite3.c (only used in iOS version)
+
 ## 0.7.5
 
 - Windows (Universal) version now supports both Windows 8.1 and Windows Phone 8.1

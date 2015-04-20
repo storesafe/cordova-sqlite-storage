@@ -52,6 +52,4 @@ typedef int WebSQLError;
 
 +(int)mapSQLiteErrorCode:(int)code;
 
-+(NSString*)getBlobAsBase64String:(const char*) blob_chars
-                       withlength:(int) blob_length;
 @end /* vim: set expandtab : */

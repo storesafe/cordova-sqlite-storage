@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    id="io.litehelpers.cordova.sqliteStorage"
-    version="0.7.5">
+    id="io.litehelpers.cordova.sqlite"
+    version="0.7.6">
 
-    <name>Cordova sqlite storage</name>
+    <name>Cordova sqlite storage plugin</name>
 
     <license>MIT</license>
 
