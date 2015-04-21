@@ -57,11 +57,14 @@ License for iOS version: MIT only
 ## Known issues
 
 - Issue reported with PhoneGap Build Hydration.
+- For some reason, PhoneGap Build may fail to build the iOS version unless the name of the app starts with an uppercase and contains no spaces (see [#243](https://github.com/litehelpers/Cordova-sqlite-storage/issues/243); [Wizcorp/phonegap-facebook-plugin#830](https://github.com/Wizcorp/phonegap-facebook-plugin/issues/830); [phonegap/build#431](https://github.com/phonegap/build/issues/431)).
 - Multi-page apps are not supported and known to be broken on Android and Amazon Fire-OS.
 - Using web workers is currently not supported and known to be broken on Android and Amazon Fire-OS.
 - Triggers have only been tested on iOS, known to be broken on Android (in case [sqlite4java](https://code.google.com/p/sqlite4java/) is disabled) and Amazon Fire-OS.
 - INSERT statement that affects multiple rows (due to SELECT cause or using triggers, for example) does not report proper rowsAffected on Android (in case [sqlite4java](https://code.google.com/p/sqlite4java/) is disabled) or Amazon Fire-OS.
 - On Windows (8.1), rowsAffected can be wrong when there are multiple levels of nesting of INSERT statements.
+- Memory issue observed when adding a large number of records on Android and Amazon Fire-OS, due to JSON implementation
+- A stability issue was reported on the iOS version when in use together with [SockJS](http://sockjs.org/) client such as [pusher-js](https://github.com/pusher/pusher-js) at the same time (see [#196](https://github.com/litehelpers/Cordova-sqlite-storage/issues/196)). The workaround is to call sqlite functions and [SockJS](http://sockjs.org/) client functions in separate ticks (using setTimeout with 0 timeout).
 
 ## Other limitations
 
@@ -74,6 +77,7 @@ License for iOS version: MIT only
 - UNICODE `\u0000` (same as `\0`) character not working in Windows (8.1) or WP(7/8) versions
 - Case-insensitive matching and other string manipulations on Unicode characters, which is provided by optional ICU integration in the sqlite source and working with recent versions of Android, is not supported for any target platforms.
 - iOS version uses a thread pool but with only one thread working at a time due to "synchronized" database access
+- Large query result can be slow, also due to JSON implementation
 
 ## Limited support (testing needed)
 
@@ -267,7 +271,7 @@ window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, erro
 
 ## Windows Universal target platform
 
-**WARNING:** This is still in pre/alpha state. Please read and follow these items very carefully.
+**WARNING:** This is still in ~~pre-alpha~~ experimental state. Please read and follow these items very carefully.
 - Please make sure your Cordova tooling is updated: `npm update -g cordova cordova-windows`
 - To create a new project: `cordova create MyProjectFolder com.my.project MyProject` (and then `cd` into your project directory)
 - To add the plugin: `cordova plugin add io.litehelpers.cordova.sqlite`
