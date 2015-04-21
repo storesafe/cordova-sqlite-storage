@@ -63,7 +63,7 @@ License for iOS version: MIT only
 - Triggers have only been tested on iOS, known to be broken on Android (in case [sqlite4java](https://code.google.com/p/sqlite4java/) is disabled) and Amazon Fire-OS.
 - INSERT statement that affects multiple rows (due to SELECT cause or using triggers, for example) does not report proper rowsAffected on Android (in case [sqlite4java](https://code.google.com/p/sqlite4java/) is disabled) or Amazon Fire-OS.
 - On Windows (8.1), rowsAffected can be wrong when there are multiple levels of nesting of INSERT statements.
-- Memory issue observed when adding a large number of records on Android and Amazon Fire-OS, due to JSON implementation
+- Memory issue observed when adding a large number of records on Android and Amazon Fire-OS, due to JSON implementation (ref: [#18](https://github.com/litehelpers/Cordova-sqlite-storage/issues/18))
 - A stability issue was reported on the iOS version when in use together with [SockJS](http://sockjs.org/) client such as [pusher-js](https://github.com/pusher/pusher-js) at the same time (see [#196](https://github.com/litehelpers/Cordova-sqlite-storage/issues/196)). The workaround is to call sqlite functions and [SockJS](http://sockjs.org/) client functions in separate ticks (using setTimeout with 0 timeout).
 
 ## Other limitations
