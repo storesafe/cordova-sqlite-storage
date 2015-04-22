@@ -15,4 +15,4 @@ test:
         parallel: true
     - circle-android wait-for-boot
   override:
-    - cordova-paramedic --platform android --plugin $HOME/Cordova-sqlite-storage-test
+    - cordova-paramedic --platform android --plugin $HOME/Cordova-sqlite-storage
