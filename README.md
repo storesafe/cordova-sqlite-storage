@@ -83,11 +83,13 @@ License for iOS version: MIT only
 - Case-insensitive matching and other string manipulations on Unicode characters, which is provided by optional ICU integration in the sqlite source and working with recent versions of Android, is not supported for any target platforms.
 - iOS version uses a thread pool but with only one thread working at a time due to "synchronized" database access
 - Large query result can be slow, also due to JSON implementation
+- To join a table from another database file (with help of ATTACH) is not supported.
 
 ## Limited support (testing needed)
 
 - DB Triggers (as described above - known to be broken for Amazon Fire-OS)
 - UNICODE characters not fully tested in the Windows Universal (8.1) version
+- To ATTACH another database file
 
 ## Other versions
 
@@ -367,6 +369,7 @@ You can find more details at [this writeup](http://iphonedevlog.wordpress.com/20
    - `windows` - Javascript proxy code and SQLite3-WinRT project for Windows Universal;
    - `wp` - C-sharp code for WP(7/8)
 - `spec`: test suite using Jasmine (2.2.0), ported from QUnit `test-www` test suite, working on all platforms
+- `tests`: very simple Jasmine test suite that is run on Circle CI (Android version) and Travis CI (iOS version)
 - `Lawnchair-adapter`: Lawnchair adaptor, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
 
 ## Manual installation - Android version
