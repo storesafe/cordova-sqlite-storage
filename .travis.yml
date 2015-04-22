@@ -10,4 +10,4 @@ install:
   - npm install -g cordova
   - npm install -g ios-sim
 script:
-  - cordova-paramedic --platform ios --plugin ${TRAVIS_BUILD_DIR}
+  - cordova-paramedic --platform ios --plugin ${TRAVIS_BUILD_DIR} --timeout 3600000
