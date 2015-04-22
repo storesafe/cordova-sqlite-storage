@@ -13,6 +13,7 @@ License for iOS version: MIT only
   - No background processing
   - Database close and delete operations not yet implemented
   - Not all Windows CPU targets are supported by automatic installation
+  - Does not work properly with Cordova CLI due to [CB-8866](https://issues.apache.org/jira/browse/CB-8866). Please install using [litehelpers / cordova-windows_allcpufix](https://github.com/litehelpers/cordova-windows_allcpufix) and `plugman` as described below.
 - Status for the other target platforms:
   - Android: now using the [sqlite4java](https://code.google.com/p/sqlite4java/) library (sqlite `3.8.7` embedded)
   - iOS: sqlite `3.8.9` embedded
@@ -271,7 +272,29 @@ window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, erro
 
 ## Windows Universal target platform
 
-**WARNING:** This is still in ~~pre-alpha~~ experimental state. Please read and follow these items very carefully.
+**IMPORTANT:** The Cordova CLI currently does not support all Windows target platforms due to [CB-8866](https://issues.apache.org/jira/browse/CB-8866). Please use `plugman` instead, as described here.
+
+### using plugman
+
+- make sure you have the latest version of `plugman` installed: `npm install -g plugman`
+- Download the [cordova-windows-nufix 3.9.0-nufixpre-01 zipball](https://github.com/litehelpers/cordova-windows-nufix/archive/3.9.0-nufixpre-01.zip) (or you can clone [litehelpers / cordova-windows-nufix](https://github.com/litehelpers/cordova-windows-nufix) instead)
+- Create your Windows Universal (8.1) project using [litehelpers / cordova-windows-nufix](https://github.com/litehelpers/cordova-windows-nufix):
+  - `path.to.cordova-windows-nufix/bin/create.bat your_app_path your.app.id YourAppName`
+- `cd your_app_path` and install plugin using `plugman`:
+  - `plugman install --platform windows --project . --plugin io.litehelpers.cordova.sqlite`
+- Put your sql program in your project `www` (don't forget to reference it from `www\index.html` and wait for `deviceready` event)
+
+Then your project in `CordovaApp.sln` should work with "Mixed Platforms" on Windows 8.1 or Windows Phone 8.1.
+
+**NOTE:** You may encounter an issue that `SQLite3.winmd` is not found if you try to run your project on both Windows 8.1 and Windows Phone 8.1. If you encounter this issue:
+- delete the `Debug` and `Generated Files` from the `cordova\plugins\io.litehelpers.cordova.sqlite\src\windows\SQLite3-WinRT\SQLite3` subdirectory of your project and try it again.
+
+This is due to keeping `SQLite3.Windows.vcxproj` and `SQLite3.WindowsPhone.vcxproj` in the same subdirectory and will be fixed soon.
+
+### using Cordova CLI
+
+**WARNING:** This is still in ~~pre-alpha~~ *experimental* state *and is currently NOT supported*. Please read and follow these items very carefully.
+
 - Please make sure your Cordova tooling is updated: `npm update -g cordova cordova-windows`
 - To create a new project: `cordova create MyProjectFolder com.my.project MyProject` (and then `cd` into your project directory)
 - To add the plugin: `cordova plugin add io.litehelpers.cordova.sqlite`
@@ -279,9 +302,7 @@ window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, erro
 - If you are using Visual Studio Express (2013), you may have to remove the Windows 8.0 build from the Visual Studio solution.
 - Due to [CB-8866](https://issues.apache.org/jira/browse/CB-8866): If you use Cordova CLI for fully-automatic installation (as described here), you cannot run the project for "Any CPU" or "Mixed Platforms". Please specify a CPU type (such as x86 or x64).
 
-### To target all CPUs (partially manual)
-
-Make a clone of this project and in your clone, remove (or comment out) the items that include the `SQLite3.Windows.vcxproj` and `SQLite3.WindowsPhone.vcxproj` framework projects:
+**NOT RECOMMENDED:** To target all CPUs (partially manual): make a clone of this project and in your clone, remove (or comment out) the items that include the `SQLite3.Windows.vcxproj` and `SQLite3.WindowsPhone.vcxproj` framework projects:
 
 ```diff
 --- a/plugin.xml
