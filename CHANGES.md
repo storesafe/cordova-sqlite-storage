@@ -1,9 +1,14 @@
 # Changes
 
+## 0.7.7
+
+- clean publish to plugins.cordova.io
+
 ## 0.7.6
 
 - Small fix to plugin id
 - Disable use of gethostuuid() in sqlite3.c (only used in iOS version)
+- published to plugins.cordova.io - [BUG] published extra junk in workarea, causing problems with Windows (Universal) version
 
 ## 0.7.5
 
