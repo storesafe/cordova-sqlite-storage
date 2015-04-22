@@ -6,6 +6,10 @@ License for Android, Windows Universal (8.1), Amazon Fire-OS, and WP(7/8) versio
 
 License for iOS version: MIT only
 
+|Android CI|iOS CI |
+|----------|-------|
+|[![Circle CI](https://circleci.com/gh/litehelpers/Cordova-sqlite-storage.svg?style=svg)](https://circleci.com/gh/litehelpers/Cordova-sqlite-storage)|[![Build Status](https://travis-ci.org/litehelpers/Cordova-sqlite-storage.svg?branch=master-rc)](https://travis-ci.org/litehelpers/Cordova-sqlite-storage)|
+
 ## Status
 
 - [Cordova sqlite storage (0.7.6) published](https://build.phonegap.com/plugins/2755) in PhoneGap Build
