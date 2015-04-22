@@ -1,0 +1,18 @@
+machine:
+  environment:
+    ANDROID_NDK_HOME: $ANDROID_NDK
+
+dependencies:
+  pre:
+    - sudo add-apt-repository -y ppa:cwchien/gradle; sudo apt-get update -y; sudo apt-get install -y swig gradle
+    - npm install -g cordova-paramedic
+    - npm install -g cordova
+
+test:
+  pre:
+    - emulator -avd circleci-android21 -no-audio -no-window:
+        background: true
+        parallel: true
+    - circle-android wait-for-boot
+  override:
+    - cordova-paramedic --platform android --plugin $HOME/Cordova-sqlite-storage-test
