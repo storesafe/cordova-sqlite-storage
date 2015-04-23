@@ -1,4 +1,4 @@
-# Cordova/PhoneGap sqlite storage adapter
+# Cordova/PhoneGap sqlite storage (common version)
  
 Native interface to sqlite in a Cordova/PhoneGap plugin for Android, iOS, and Windows Universal (8.1), with API similar to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
 
@@ -6,16 +6,18 @@ License for Android and Windows Universal (8.1) versions: MIT or Apache 2.0
 
 License for iOS version: MIT only
 
+This version is a branch that is common to [litehelpers / Cordova-sqlite-storage](https://github.com/litehelpers/Cordova-sqlite-storage) and [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter).
+
 |Android CI|iOS CI |
 |----------|-------|
 |[![Circle CI](https://circleci.com/gh/litehelpers/cordova-sqlite-common.svg?style=svg)](https://circleci.com/gh/litehelpers/cordova-sqlite-common)|[![Build Status](https://travis-ci.org/litehelpers/cordova-sqlite-common.svg?branch=cordova-sqlite-common)](https://travis-ci.org/litehelpers/cordova-sqlite-common)|
 
 ## Status
 
-- Windows Universal (8.1) version is in pre/alpha state:
-  - No background processing
+- Windows Universal (8.1) version is in pre-alpha state:
   - Database close and delete operations not yet implemented
   - Does not work properly with Cordova CLI due to [CB-8866](https://issues.apache.org/jira/browse/CB-8866). Please install using [litehelpers / cordova-windows-nufix](https://github.com/litehelpers/cordova-windows-nufix) and `plugman` as described below.
+  - No background processing (for future consideration)
 - Android is supported back to SDK 10 (a.k.a. Gingerbread, Android 2.3.3); support for older versions is available upon request.
 - API to open the database may be changed somewhat to be more streamlined. Transaction and single-statement query API will NOT be changed.
  
@@ -96,6 +98,7 @@ The idea is to emulate the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/
 
 There are two options to open a database:
 - Recommended: `var db = window.sqlitePlugin.openDatabase({name: "my.db", location: 1});`
+  - **WARNING:** The `name:` parameter must be given a string otherwise the behavior is unpredictable.
 - Classical: `var db = window.sqlitePlugin.openDatabase("myDatabase.db", "1.0", "Demo", -1);`
 
 The new `location` option is used to select the database subdirectory location (iOS *only*) with the following choices:
@@ -247,44 +250,7 @@ window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, erro
   - `plugman install --platform windows --project . --plugin https://github.com/litehelpers/cordova-sqlite-common`
 - Put your sql program in your project `www` (don't forget to reference it from `www\index.html` and wait for `deviceready` event)
 
-Then your project in `CordovaApp.sln` should work with "Mixed Platforms" on Windows 8.1 or Windows Phone 8.1.
-
-**NOTE:** You may encounter an issue that `SQLite3.winmd` is not found if you try to run your project on both Windows 8.1 and Windows Phone 8.1. If you encounter this issue:
-- delete the `Debug` and `Generated Files` from the `cordova\plugins\cordova-sqlite-common\src\windows\SQLite3-WinRT\SQLite3` subdirectory of your project and try it again.
-
-This is due to keeping `SQLite3.Windows.vcxproj` and `SQLite3.WindowsPhone.vcxproj` in the same subdirectory and will be fixed soon.
-
-### using Cordova CLI
-
-**WARNING:** This is still in ~~pre-alpha~~ *experimental* state *and is currently NOT supported*. Please read and follow these items very carefully.
-
-- Please make sure your Cordova tooling is updated: `npm update -g cordova cordova-windows`
-- To create a new project: `cordova create MyProjectFolder com.my.project MyProject` (and then `cd` into your project directory)
-- To add the plugin: `cordova plugin add https://github.com/litehelpers/cordova-sqlite-common`
-- To add the Windows target platform (if it does not exist): `cordova platform add windows`
-- If you are using Visual Studio Express (2013), you may have to remove the Windows 8.0 build from the Visual Studio solution.
-- Due to [CB-8866](https://issues.apache.org/jira/browse/CB-8866): If you use Cordova CLI for fully-automatic installation (as described here), you cannot run the project for "Any CPU" or "Mixed Platforms". Please specify a CPU type (such as x86 or x64).
-
-**NOT RECOMMENDED:** To target all CPUs (partially manual): make a clone of this project and in your clone, remove (or comment out) the items that include the `SQLite3.Windows.vcxproj` and `SQLite3.WindowsPhone.vcxproj` framework projects:
-
-```diff
---- a/plugin.xml
-+++ b/plugin.xml
-@@ -75,8 +75,6 @@
-         </js-module>
- 
-         <!-- Thanks to AllJoyn-Cordova / cordova-plugin-alljoyn: -->
--        <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3.Windows.vcxproj" custom="true" type="projectReference" target="windows" />
--        <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3.WindowsPhone.vcxproj" custom="true" type="projectReference" target="phone" />
-          <!-- old:
-         <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3-Windows8.1.vcxproj" custom="true" type="projectReference" target="windows" />
-           -->
-```
-
-Then:
-- In your Cordova CLI project, use the Cordova CLI tool to install the plugin from the location of your clone (can be from your filesystem);
-- Use the Cordova CLI tool to add the `windows` target;
-- open the Windows target solution, add the `SQLite3.Windows.vcxproj` and `SQLite3.WindowsPhone.vcxproj` projects (located in `path.to.plugin/src/windows/SQLite3-WinRT/SQLite3`) to your app solution project, and add the references in your solution explorer.
+Then your project in `CordovaApp.sln` should work with "Mixed Platforms" on both Windows 8.1 and Windows Phone 8.1.
 
 ## Easy install with plugman tool
 
@@ -408,6 +374,20 @@ Sample change to `config.xml` for Cordova/PhoneGap 2.x:
 Described above.
 
 ## Quick installation test
+
+Assuming your app has a recent template as used by the Cordova create script, add the following code to the `onDeviceReady` function, after `app.receivedEvent('deviceready');`:
+
+```Javascript
+  window.sqlitePlugin.openDatabase({ name: 'hello-world.db' }, function (db) {
+    db.executeSql("select length('tenletters') as stringlength", [], function (res) {
+      var stringlength = res.rows.item(0).stringlength;
+      console.log('got stringlength: ' + stringlength);
+      document.getElementById('deviceready').querySelector('.received').innerHTML = 'stringlength: ' + stringlength;
+   });
+  });
+```
+
+### Old installation test
 
 Make a change like this to index.html (or use the sample code) verify proper installation:
 
