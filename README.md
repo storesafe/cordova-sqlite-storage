@@ -84,12 +84,14 @@ License for iOS version: MIT only
 - iOS version uses a thread pool but with only one thread working at a time due to "synchronized" database access
 - Large query result can be slow, also due to JSON implementation
 - To join a table from another database file (with help of ATTACH) is not supported.
+- FTS4 is not supported for any of the target platforms.
 
 ## Limited support (testing needed)
 
 - DB Triggers (as described above - known to be broken for Amazon Fire-OS)
 - UNICODE characters not fully tested in the Windows Universal (8.1) version
 - To ATTACH another database file
+- FTS3 support needs to be tested, may be missing or incomplete on certain target platforms.
 
 ## Other versions
 
