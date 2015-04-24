@@ -2,8 +2,7 @@
 
 ## 0.7.7
 
-- build experimental version of sqlite4java for x86_64 (NOT TESTED)
-- build sqlite4java for AMD-64
+- include build of sqlite4java for x86_64 and AMD-64
 - clean publish to plugins.cordova.io
 
 ## 0.7.6
