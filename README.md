@@ -13,16 +13,18 @@ License for iOS version: MIT only
 ## Status
 
 - [Cordova sqlite storage (0.7.6) published](https://build.phonegap.com/plugins/2755) in PhoneGap Build
-- Windows Universal (8.1) version is in pre/alpha state:
-  - No background processing
+- Windows Universal (8.1) version is in pre-alpha state:
   - Database close and delete operations not yet implemented
-  - Not all Windows CPU targets are supported by automatic installation
-  - Does not work properly with Cordova CLI due to [CB-8866](https://issues.apache.org/jira/browse/CB-8866). Please install using [litehelpers / cordova-windows_allcpufix](https://github.com/litehelpers/cordova-windows_allcpufix) and `plugman` as described below.
+  - Does not work properly with Cordova CLI due to [CB-8866](https://issues.apache.org/jira/browse/CB-8866). Please install using [litehelpers / cordova-windows-nufix](https://github.com/litehelpers/cordova-windows-nufix) and `plugman` as described below.
+  - No background processing (for future consideration)
+- Android is supported back to SDK 10 (a.k.a. Gingerbread, Android 2.3.3); support for older versions is available upon request.
+- API to open the database may be changed somewhat to be more streamlined. Transaction and single-statement query API will NOT be changed.
 - Status for the other target platforms:
   - Android: now using the [sqlite4java](https://code.google.com/p/sqlite4java/) library (sqlite `3.8.7` embedded)
   - iOS: sqlite `3.8.9` embedded
   - WP7: possible to build from C#, as specified by `plugin.xml` - **NOT TESTED**
   - WP8: performance/stability issues have been reported with the CSharp-SQLite library. Windows (universal) platform is recommended for the future.
+- Android is supported back to SDK 10 (a.k.a. Gingerbread, Android 2.3.3); support for older versions is available upon request.
 - API to open the database may be changed somewhat to be more streamlined. Transaction and single-statement query API will NOT be changed.
 
 ## Announcements
@@ -49,7 +51,6 @@ License for iOS version: MIT only
 - As described in [this posting](http://brodyspark.blogspot.com/2012/12/cordovaphonegap-sqlite-plugins-offer.html):
   - Keeps sqlite database in a user data location that is known; can be reconfigured (iOS version); and synchronized to iCloud by default (iOS version; can be disabled as described below).
   - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
-- Android is supported back to SDK 10 (a.k.a. Gingerbread, Android 2.3.3); support for older versions is available upon request.
 - Pre-populated database option (usage described below)
 
 ## Some apps using this plugin
@@ -113,8 +114,9 @@ The idea is to emulate the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/
 ## Opening a database
 
 There are two options to open a database:
-- Recommended: `var db = window.sqlitePlugin.openDatabase({name: "my.db", location: 1});`
-- Classical: `var db = window.sqlitePlugin.openDatabase("myDatabase.db", "1.0", "Demo", -1);`
+- **Recommended:** `var db = window.sqlitePlugin.openDatabase({name: "my.db", location: 1});`
+  - **WARNING:** The `name:` parameter must be given a string otherwise the behavior is unpredictable.
+- **Classical:** `var db = window.sqlitePlugin.openDatabase("myDatabase.db", "1.0", "Demo", -1);`
 
 The new `location` option is used to select the database subdirectory location (iOS *only*) with the following choices:
 - `0` (default): `Documents` - visible to iTunes and backed up by iCloud
@@ -472,6 +474,20 @@ Described above.
 TODO
 
 ## Quick installation test
+
+Assuming your app has a recent template as used by the Cordova create script, add the following code to the `onDeviceReady` function, after `app.receivedEvent('deviceready');`:
+
+```Javascript
+  window.sqlitePlugin.openDatabase({ name: 'hello-world.db' }, function (db) {
+    db.executeSql("select length('tenletters') as stringlength", [], function (res) {
+      var stringlength = res.rows.item(0).stringlength;
+      console.log('got stringlength: ' + stringlength);
+      document.getElementById('deviceready').querySelector('.received').innerHTML = 'stringlength: ' + stringlength;
+   });
+  });
+```
+
+### Old installation test
 
 Make a change like this to index.html (or use the sample code) verify proper installation:
 

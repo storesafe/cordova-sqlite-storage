@@ -2,7 +2,7 @@
 
 ## 0.7.7
 
-- include build of sqlite4java for x86_64 and arm-64
+- include build of sqlite4java for Android x86_64 and arm-64
 - clean publish to plugins.cordova.io
 
 ## 0.7.6
