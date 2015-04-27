@@ -1,5 +1,7 @@
 # Cordova/PhoneGap sqlite storage adapter
 
+[![Join the chat at https://gitter.im/litehelpers/Cordova-sqlite-storage](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/litehelpers/Cordova-sqlite-storage?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Native interface to sqlite in a Cordova/PhoneGap plugin for Android, iOS, Windows Universal (8.1), Amazon Fire-OS, and WP(7/8) with API similar to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
 
 License for Android, Windows Universal (8.1), Amazon Fire-OS, and WP(7/8) versions: MIT or Apache 2.0
