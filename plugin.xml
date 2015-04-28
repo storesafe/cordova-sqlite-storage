@@ -21,14 +21,6 @@
 
     <!-- android -->
     <platform name="android">
-        <!-- NOTE: AndroidManifest.xml should be specified per-application!
-        <config-file target="AndroidManifest.xml" parent="/manifest/application">
-            <activity android:name="org.pgsqlite.SQLitePlugin"
-                      android:label="@string/app_name">
-            </activity>
-        </config-file>
-          -->
-
         <!-- Cordova >= 3.0.0 -->
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="SQLitePlugin">
@@ -78,11 +70,8 @@
         </js-module>
 
         <!-- Thanks to AllJoyn-Cordova / cordova-plugin-alljoyn: -->
-        <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3.Windows.vcxproj" custom="true" type="projectReference" target="windows" />
-        <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3.WindowsPhone.vcxproj" custom="true" type="projectReference" target="phone" />
-         <!-- old:
-        <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3-Windows8.1.vcxproj" custom="true" type="projectReference" target="windows" />
-          -->
+        <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3.Windows/SQLite3.Windows.vcxproj" custom="true" type="projectReference" target="windows" />
+        <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3.WindowsPhone/SQLite3.WindowsPhone.vcxproj" custom="true" type="projectReference" target="phone" />
 
     </platform>
 
