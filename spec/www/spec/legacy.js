@@ -42,9 +42,13 @@ var isWebKit = !isIE; // TBD [Android or iOS]
 
 var scenarioList = [ isAndroid ? 'Plugin-sqlite4java' : 'Plugin', 'HTML5', 'Plugin-android.database' ];
 
-var scenarioCount = isAndroid ? 3 : (isIE ? 1 : 2);
+//var scenarioCount = isAndroid ? 3 : (isIE ? 1 : 2);
+//var scenarioCount = (!!window.hasWebKitBrowser) ? 2 : 1;
+var hasAndroidWebKitBrowser = isAndroid && (!!window.hasWebKitBrowser);
+var scenarioCount = hasAndroidWebKitBrowser ? 3 : ((!!window.hasWebKitBrowser) ? 2 : 1);
 
-describe('legacy tests', function() {
+// legacy tests:
+var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
 
@@ -1994,6 +1998,9 @@ describe('legacy tests', function() {
           });
         });
 
+      // skip these in CI testing (for now):
+      if (!!window.hasWebKitBrowser) {
+
         test_it(suiteName + ' repeatedly open and close database (4x)', function () {
           if (isWindows) pending('NOT IMPLEMENTED for Windows'); // XXX TODO
 
@@ -2233,11 +2240,16 @@ describe('legacy tests', function() {
             start(1);
           });
         });
+
+      }
+
       });
     }
-
   });
 
-});
+}
+
+if (window.hasBrowser) mytests();
+else exports.defineAutoTests = mytests;
 
 /* vim: set expandtab : */
