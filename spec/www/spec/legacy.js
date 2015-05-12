@@ -1961,6 +1961,9 @@ var mytests = function() {
           });
         });
 
+      // skip these in CI testing (for now):
+      if (!!window.hasWebKitBrowser) {
+
         test_it(suiteName + ' repeatedly open and close database (4x)', function () {
           if (isWindows) pending('NOT IMPLEMENTED for Windows'); // XXX TODO
 
@@ -2200,6 +2203,8 @@ var mytests = function() {
             start(1);
           });
         });
+
+      }
 
   });
 
