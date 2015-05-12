@@ -42,9 +42,10 @@ var isWebKit = !isIE; // TBD [Android or iOS]
 
 var scenarioList = [ 'Plugin', 'HTML5' ];
 
-var scenarioCount = isWebKit ? 2 : 1;
+var scenarioCount = (!!window.hasWebKitBrowser) ? 2 : 1;
 
-describe('legacy tests', function() {
+// legacy tests:
+var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
 
@@ -2202,6 +2203,9 @@ describe('legacy tests', function() {
 
   });
 
-});
+}
+
+if (window.hasBrowser) mytests();
+else exports.defineAutoTests = mytests;
 
 /* vim: set expandtab : */
