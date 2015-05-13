@@ -198,6 +198,7 @@
         };
       })(this);
       this.openDBs[this.dbname] = DB_STATE_INIT;
+      this.openargs.enableDatabaseWhenLocked = root.sqlitePlugin.enableDatabaseWhenLocked;
       cordova.exec(opensuccesscb, openerrorcb, "SQLitePlugin", "open", [this.openargs]);
     }
   };
@@ -567,6 +568,7 @@
     sqliteFeatures: {
       isSQLitePlugin: true
     },
+    enableDatabaseWhenLocked: null,
     openDatabase: SQLiteFactory.opendb,
     deleteDatabase: SQLiteFactory.deleteDb
   };

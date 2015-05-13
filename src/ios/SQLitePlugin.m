@@ -109,6 +109,16 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     return dbPath;
 }
 
+-(void)enableDatabaseWhenLocked:(BOOL)enable path:(NSString*)path{
+    NSDictionary *attributes = @{NSFileProtectionKey: enable ? NSFileProtectionCompleteUnlessOpen : NSFileProtectionComplete};
+    NSError *error;
+    if(![[NSFileManager defaultManager] setAttributes:attributes
+                                         ofItemAtPath:path
+                                                error:&error]){
+        NSLog(@"DATABASE WARNING! could not set database file protection attributes. error: %@", [error localizedDescription]);
+    }
+}
+
 -(void)open: (CDVInvokedUrlCommand*)command
 {
     CDVPluginResult* pluginResult = nil;
@@ -121,6 +131,8 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     //NSLog(@"using db location: %@", dblocation);
 
     NSString *dbname = [self getDBPath:dbfilename at:dblocation];
+
+    BOOL enableDatabaseWhenLocked = [options valueForKey:@"enableDatabaseWhenLocked"] == nil ? NO : [[options valueForKey:@"enableDatabaseWhenLocked"] boolValue];
 
     if (dbname == NULL) {
         NSLog(@"No db name specified for open");
@@ -143,6 +155,10 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
                 NSString *createFromResource = [options objectForKey:@"createFromResource"];
                 if (createFromResource != NULL)
                     [self createFromResource:dbfilename withDbname:dbname];
+            }
+
+            if(![enableDatabaseWhenLocked isEqual:[NSNull null]]){
+                [self enableDatabaseWhenLocked:[enableDatabaseWhenLocked boolValue] path:dbname];
             }
 
             if (sqlite3_open(name, &db) != SQLITE_OK) {
