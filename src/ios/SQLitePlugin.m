@@ -132,7 +132,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 
     NSString *dbname = [self getDBPath:dbfilename at:dblocation];
 
-    BOOL enableDatabaseWhenLocked = [options valueForKey:@"enableDatabaseWhenLocked"] == nil ? NO : [[options valueForKey:@"enableDatabaseWhenLocked"] boolValue];
+    NSNumber *enableDatabaseWhenLocked = [options valueForKey:@"enableDatabaseWhenLocked"];
 
     if (dbname == NULL) {
         NSLog(@"No db name specified for open");
