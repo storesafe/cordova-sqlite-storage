@@ -176,6 +176,7 @@
 			<AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
 			<DisableSpecificWarnings>28204</DisableSpecificWarnings>
 			<AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);$(MSBuildThisFileDirectory)..\..\..\..\common;$(MSBuildThisFileDirectory)..\..\..\..\external</AdditionalIncludeDirectories>
+			<FunctionLevelLinking>true</FunctionLevelLinking>
 		</ClCompile>
 		<Link>
 			<SubSystem>Console</SubSystem>
@@ -194,6 +195,7 @@
 			<AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
 			<DisableSpecificWarnings>28204</DisableSpecificWarnings>
 			<AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);$(MSBuildThisFileDirectory)..\..\..\..\common;$(MSBuildThisFileDirectory)..\..\..\..\external</AdditionalIncludeDirectories>
+			<FunctionLevelLinking>true</FunctionLevelLinking>
 		</ClCompile>
 		<Link>
 			<SubSystem>Console</SubSystem>
