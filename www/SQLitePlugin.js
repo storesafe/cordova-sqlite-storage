@@ -68,6 +68,9 @@
       throw newSQLError("Cannot create a SQLitePlugin db instance without a db name");
     }
     dbname = openargs.name;
+    if (typeof dbname !== 'string') {
+      throw newSQLError('sqlite plugin database name must be a string');
+    }
     this.openargs = openargs;
     this.dbname = dbname;
     this.openSuccess = openSuccess;
@@ -307,8 +310,7 @@
   };
 
   SQLitePluginTransaction.prototype.addStatement = function(sql, values, success, error) {
-    var params, qid, t, v, _i, _len;
-    qid = this.executes.length;
+    var params, t, v, _i, _len;
     params = [];
     if (!!values && values.constructor === Array) {
       for (_i = 0, _len = values.length; _i < _len; _i++) {
@@ -320,7 +322,6 @@
     this.executes.push({
       success: success,
       error: error,
-      qid: qid,
       sql: sql,
       params: params
     });
@@ -355,7 +356,7 @@
   };
 
   SQLitePluginTransaction.prototype.run = function() {
-    var batchExecutes, handlerFor, i, mycb, mycbmap, qid, request, tropts, tx, txFailure, waiting;
+    var batchExecutes, handlerFor, i, mycb, mycbmap, request, tropts, tx, txFailure, waiting;
     txFailure = null;
     tropts = [];
     batchExecutes = this.executes;
@@ -392,26 +393,25 @@
     mycbmap = {};
     while (i < batchExecutes.length) {
       request = batchExecutes[i];
-      qid = request.qid;
-      mycbmap[qid] = {
+      mycbmap[i] = {
         success: handlerFor(i, true),
         error: handlerFor(i, false)
       };
       tropts.push({
-        qid: qid,
+        qid: 1111,
         sql: request.sql,
         params: request.params
       });
       i++;
     }
     mycb = function(result) {
-      var q, r, res, type, _i, _len;
-      for (_i = 0, _len = result.length; _i < _len; _i++) {
-        r = result[_i];
+      var last, q, r, res, type, _i;
+      last = result.length - 1;
+      for (i = _i = 0; 0 <= last ? _i <= last : _i >= last; i = 0 <= last ? ++_i : --_i) {
+        r = result[i];
         type = r.type;
-        qid = r.qid;
         res = r.result;
-        q = mycbmap[qid];
+        q = mycbmap[i];
         if (q) {
           if (q[type]) {
             q[type](res);

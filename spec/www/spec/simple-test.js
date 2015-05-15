@@ -68,8 +68,8 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-      // Only test ICU-UNICODE with Android 5.0(+):
-      if (/Android [5-9]/.test(navigator.userAgent))
+      // Only test ICU-UNICODE with Android 5.0(+) (Web SQL):
+      if (isWebSql && /Android [5-9]/.test(navigator.userAgent))
         it(suiteName + "ICU-UNICODE string manipulation test", function(done) {
           if ((!isWebSql) && isAndroid) pending('BROKEN for Android version of plugin [with sqlite4java]');
 
@@ -238,6 +238,95 @@ var mytests = function() {
             });
           });
         }, MYTIMEOUT);
+
+        /* thanks to @calebeaires: */
+        it(suiteName + 'create virtual table using FTS3', function(done) {
+          var db = openDatabase('virtual-table-using-fts3.db', '1.0', "Demo", DEFAULT_SIZE);
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql('CREATE INDEX liv_index ON book (liv, cap);');
+            tx.executeSql('DROP TABLE IF EXISTS virtual_book');
+            tx.executeSql('CREATE VIRTUAL TABLE IF NOT EXISTS virtual_book USING FTS3 (liv, cap, ver, tex, tes);', [], function(tx, res) {
+              // ok:
+              expect(true).toBe(true);
+            }, function(err) {
+              // went wrong:
+              expect(false).toBe(true);
+            });
+          }, function(err) {
+            // [ignored here]:
+            //expect(false).toBe(true);
+            expect(true).toBe(true);
+            done();
+          }, function() {
+            // verify tx was ok:
+            expect(true).toBe(true);
+            done();
+          });
+        }, MYTIMEOUT);
+
+        // NOTE: looking at sqlite3.c, if FTS3 is enabled, FTS4 seems to be working as well!
+        // (thanks again to @calebeaires for this scenario)
+        it(suiteName + 'create virtual table using FTS4', function(done) {
+          var db = openDatabase('virtual-table-using-fts4.db', '1.0', "Demo", DEFAULT_SIZE);
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql('CREATE INDEX liv_index ON book (liv, cap);');
+            tx.executeSql('DROP TABLE IF EXISTS virtual_book');
+            tx.executeSql('CREATE VIRTUAL TABLE IF NOT EXISTS virtual_book USING FTS4 (liv, cap, ver, tex, tes);', [], function(tx, res) {
+              // ok:
+              expect(true).toBe(true);
+            }, function(err) {
+              // went wrong:
+              expect(false).toBe(true);
+            });
+          }, function(err) {
+            // [ignored here]:
+            //expect(false).toBe(true);
+            expect(true).toBe(true);
+            done();
+          }, function() {
+            // verify tx was ok:
+            expect(true).toBe(true);
+            done();
+          });
+        }, MYTIMEOUT);
+
+      if (!isWebSql) {
+        it(suiteName + 'create virtual table using R-Tree', function(done) {
+          var db = openDatabase('virtual-table-using-r-tree.db', '1.0', "Demo", DEFAULT_SIZE);
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql('DROP TABLE IF EXISTS demo_index');
+            // from https://www.sqlite.org/rtree.html
+            tx.executeSql('CREATE VIRTUAL TABLE IF NOT EXISTS demo_index USING rtree (id, minX, maxX, minY, maxY);', [], function(tx, res) {
+              // ok:
+              expect(true).toBe(true);
+            }, function(err) {
+              // went wrong:
+              expect(false).toBe(true);
+            });
+          }, function(err) {
+            // [ignored here]:
+            //expect(false).toBe(true);
+            expect(true).toBe(true);
+            done();
+          }, function() {
+            // verify tx was ok:
+            expect(true).toBe(true);
+            done();
+          });
+        }, MYTIMEOUT);
+      }
 
     });
   };
