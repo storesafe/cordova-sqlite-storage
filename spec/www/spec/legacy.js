@@ -894,7 +894,7 @@ var mytests = function() {
 
           db.transaction(function(tx) {
             ok(!blocked, 'callback to the transaction shouldn\'t block (1)');
-            tx.executeSql('SELECT 1 from sqlite_master', [], function () {
+            tx.executeSql('SELECT 1', [], function () {
               ok(!blocked, 'callback to the transaction shouldn\'t block (2)');
             });
           }, function(err) { ok(false, err.message) }, function() {
@@ -958,11 +958,9 @@ var mytests = function() {
 
         });
 
-        // XXX [BUG #230] BROKEN for iOS, Windows, and WP(8) versions of the plugin
+        // NOTE [BUG #230]: this is now working if we do not depend on a valid sqlite_master table
+        // XXX TODO: test with and without transaction callbacks, also with empty db.readTransaction()
         test_it(suiteName + 'empty transaction (no sql statements) and then SELECT transaction', function () {
-          if (isWindows) pending('BROKEN for Windows');
-          if (isWP8) pending('BROKEN for WP(8)');
-          if (!(isWebSql || isAndroid || isIE)) pending('BROKEN for iOS version of plugin');
 
           stop(2);
 
@@ -977,10 +975,10 @@ var mytests = function() {
 
           // verify we can still continue
           db.transaction(function (tx) {
-            tx.executeSql('SELECT 1 FROM sqlite_master', [], function (tx, res) {
-              // same order as was found in test-www
-              start();
+            tx.executeSql('SELECT 1', [], function (tx, res) {
               equal(res.rows.item(0)['1'], 1);
+
+              start();
             });
           }, function (error) {
             // XXX [BUG #230] iOS, Windows, and WP(8) versions of the plugin fail here:
@@ -1080,7 +1078,7 @@ var mytests = function() {
 
                     // ensure this matches our expectation of that database's
                     // default encoding
-                    tx.executeSql('SELECT hex("foob") AS `hex` FROM sqlite_master', [], function (tx, res) {
+                    tx.executeSql('SELECT hex("foob") AS `hex`', [], function (tx, res) {
                       var otherHex = res.rows.item(0).hex;
                       equal(hex.length, otherHex.length,
                           'expect same length, i.e. same global db encoding');
