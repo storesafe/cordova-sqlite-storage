@@ -61,8 +61,8 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-      // Only test ICU-UNICODE with Android 5.0(+):
-      if (/Android [5-9]/.test(navigator.userAgent))
+      // Only test ICU-UNICODE with Android 5.0(+) (Web SQL):
+      if (isWebSql && /Android [5-9]/.test(navigator.userAgent))
         it(suiteName + "ICU-UNICODE string manipulation test", function(done) {
 
           var db = openDatabase("UNICODE-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -289,6 +289,36 @@ var mytests = function() {
             done();
           });
         }, MYTIMEOUT);
+
+      if (!isWebSql) {
+        it(suiteName + 'create virtual table using R-Tree', function(done) {
+          var db = openDatabase('virtual-table-using-r-tree.db', '1.0', "Demo", DEFAULT_SIZE);
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql('DROP TABLE IF EXISTS demo_index');
+            // from https://www.sqlite.org/rtree.html
+            tx.executeSql('CREATE VIRTUAL TABLE IF NOT EXISTS demo_index USING rtree (id, minX, maxX, minY, maxY);', [], function(tx, res) {
+              // ok:
+              expect(true).toBe(true);
+            }, function(err) {
+              // went wrong:
+              expect(false).toBe(true);
+            });
+          }, function(err) {
+            // [ignored here]:
+            //expect(false).toBe(true);
+            expect(true).toBe(true);
+            done();
+          }, function() {
+            // verify tx was ok:
+            expect(true).toBe(true);
+            done();
+          });
+        }, MYTIMEOUT);
+      }
 
     });
   };
