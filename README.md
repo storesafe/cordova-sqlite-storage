@@ -1,29 +1,32 @@
 # Cordova/PhoneGap sqlite storage (common version)
  
-Native interface to sqlite in a Cordova/PhoneGap plugin for Android, iOS, and Windows Universal (8.1), with API similar to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
+Native interface to sqlite in a Cordova/PhoneGap plugin for Android, iOS, and Windows "Universal" (8.1), with API similar to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
 
-License for Android and Windows Universal (8.1) versions: MIT or Apache 2.0
+License for Android and Windows "Universal" (8.1) versions: MIT or Apache 2.0
 
 License for iOS version: MIT only
 
 This version is a branch that is common to [litehelpers / Cordova-sqlite-storage](https://github.com/litehelpers/Cordova-sqlite-storage) and [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter).
 
-|Android CI|iOS CI |
-|----------|-------|
+|Android CI (full suite)|iOS CI (limited suite)|
+|-----------------------|----------------------|
 |[![Circle CI](https://circleci.com/gh/litehelpers/cordova-sqlite-common.svg?style=svg)](https://circleci.com/gh/litehelpers/cordova-sqlite-common)|[![Build Status](https://travis-ci.org/litehelpers/cordova-sqlite-common.svg?branch=cordova-sqlite-common)](https://travis-ci.org/litehelpers/cordova-sqlite-common)|
 
 ## Status
 
-- Windows Universal (8.1) version is in pre-alpha state:
+- Windows "Universal" (8.1) version is in an experimental/pre-alpha state:
   - Database close and delete operations not yet implemented
-  - Does not work properly with Cordova CLI due to [CB-8866](https://issues.apache.org/jira/browse/CB-8866). Please install using [litehelpers / cordova-windows-nufix](https://github.com/litehelpers/cordova-windows-nufix) and `plugman` as described below.
   - No background processing (for future consideration)
+  - You *may* encounter issues with Cordova CLI due to [CB-8866](https://issues.apache.org/jira/browse/CB-8866); as a workaround you can install using [litehelpers / cordova-windows-nufix](https://github.com/litehelpers/cordova-windows-nufix) and `plugman` as described below.
+  - In addition, problems with the Windows "Universal" version have been reported in case of a Cordova project using a Visual Studio template/extension instead of Cordova/PhoneGap CLI or `plugman`, 
+  - Not tested with a Windows 10 (or Windows Phone 10) target
 - Android is supported back to SDK 10 (a.k.a. Gingerbread, Android 2.3.3); support for older versions is available upon request.
+- FTS3, FTS4, and R-Tree support is tested working OK in this version (for all target platforms Android/iOS/Windows "Universal")
 - API to open the database may be changed somewhat to be more streamlined. Transaction and single-statement query API will NOT be changed.
  
 ## Announcements
 
-- Windows Universal version now supports both Windows 8.1 and Windows Phone 8.1
+- Windows "Universal" version now supports both Windows 8.1 and Windows Phone 8.1
 - iOS version is now fixed to override the correct pluginInitialize method and should work with recent versions of iOS
 - The test suite is completely ported to Jasmine (2.2.0) and was used to verify the functionality of the new Windows version
 - [SQLCipher](https://www.zetetic.net/sqlcipher/) for Windows (8.1) in addition to Android & iOS is now supported by [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter)
@@ -53,7 +56,7 @@ This version is a branch that is common to [litehelpers / Cordova-sqlite-storage
 - Using web workers is currently not supported and known to be broken on Android and Amazon Fire-OS.
 - Triggers have only been tested on iOS, known to be broken on Android (without [sqlite4java](https://code.google.com/p/sqlite4java/)) and Amazon Fire-OS.
 - INSERT statement that affects multiple rows (due to SELECT cause or using triggers, for example) does not report proper rowsAffected on Android (without [sqlite4java](https://code.google.com/p/sqlite4java/)) or Amazon Fire-OS.
-- On Windows Universal (8.1), rowsAffected can be wrong when there are multiple levels of nesting of INSERT statements.
+- On Windows "Universal" (8.1), rowsAffected can be wrong when there are multiple levels of nesting of INSERT statements.
 - Memory issue observed when adding a large number of records on Android and Amazon Fire-OS, due to JSON implementation
 - A stability issue was reported on the iOS version when in use together with [SockJS](http://sockjs.org/) client such as [pusher-js](https://github.com/pusher/pusher-js) at the same time. The workaround is to call sqlite functions and [SockJS](http://sockjs.org/) client functions in separate ticks (using setTimeout with 0 timeout).
 
@@ -67,14 +70,12 @@ This version is a branch that is common to [litehelpers / Cordova-sqlite-storage
 - UNICODE `\u0000` (same as `\0`) character not working in Windows (8.1) (or Windows Phone XX) version(s)
 - iOS version uses a thread pool but with only one thread working at a time due to "synchronized" database access
 - Large query result can be slow, also due to JSON implementation
-- FTS4 is not supported for any of the target platforms.
 - ATTACH another database file is not supported (due to path specifications, which work differently depending on the target platform)
  
 ## Limited support (testing needed)
 
 - Database triggers as described above - known to be broken for Android (without [sqlite4java](https://code.google.com/p/sqlite4java/)) and Amazon Fire-OS
-- UNICODE characters not fully tested in the Windows Universal (8.1) version
-- FTS3 support needs to be tested, may be missing or incomplete on certain target platforms.
+- UNICODE characters not fully tested in the Windows "Universal" (8.1) version
 - JOIN needs to be tested more.
  
 ## Other versions
@@ -148,7 +149,7 @@ db = sqlitePlugin.openDatabase({name: "my.db", location: 2, createFromLocation: 
 The threading model depends on which version is used:
 - For For Android and Amazon Fire-OS, one background thread per db;
 - for iOS, background processing using a very limited thread pool (only one thread working at a time);
-- for Windows Universal (8.1), no background processing (for future consideration).
+- for Windows "Universal" (8.1), no background processing (for future consideration).
  
 # Sample with PRAGMA feature
 
@@ -231,20 +232,20 @@ window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, erro
 
 `location` as described above for `openDatabase` (iOS *only*)
 
-**NOTE:** not implemented for Windows Universal (8.1) version.
+**NOTE:** not implemented for Windows "Universal" (8.1) version.
 
 # Installing
 
-## Windows Universal target platform
+## Windows "Universal" target platform
 
 - *PREREQUISITE* in this version branch *ONLY*: install recent version of `sqlite3.[hc]` in `src/external` and make sure the following constants are defined: `#define SQLITE_TEMP_STORE 2` `#define SQLITE_THREADSAFE 2` and for Windows Phone 8.1 *only*: `#define SQLITE_WIN32_FILEMAPPING_API 1`
-- **IMPORTANT:** The Cordova CLI currently does not support all Windows target platforms due to [CB-8866](https://issues.apache.org/jira/browse/CB-8866). Please use `plugman` instead, as described here.
+- **IMPORTANT:** The Cordova CLI currently does not support all Windows target platforms due to [CB-8866](https://issues.apache.org/jira/browse/CB-8866). As an alternative, you can use `plugman` instead with [litehelpers / cordova-windows-nufix](https://github.com/litehelpers/cordova-windows-nufix), as described here.
 
 ### using plugman
 
 - make sure you have the latest version of `plugman` installed: `npm install -g plugman`
 - Download the [cordova-windows-nufix 3.9.0-nufixpre-01 zipball](https://github.com/litehelpers/cordova-windows-nufix/archive/3.9.0-nufixpre-01.zip) (or you can clone [litehelpers / cordova-windows-nufix](https://github.com/litehelpers/cordova-windows-nufix) instead)
-- Create your Windows Universal (8.1) project using [litehelpers / cordova-windows-nufix](https://github.com/litehelpers/cordova-windows-nufix):
+- Create your Windows "Universal" (8.1) project using [litehelpers / cordova-windows-nufix](https://github.com/litehelpers/cordova-windows-nufix):
   - `path.to.cordova-windows-nufix/bin/create.bat your_app_path your.app.id YourAppName`
 - `cd your_app_path` and install plugin using `plugman`:
   - `plugman install --platform windows --project . --plugin https://github.com/litehelpers/cordova-sqlite-common`
@@ -284,10 +285,10 @@ You can find more details at [this writeup](http://iphonedevlog.wordpress.com/20
 - `SQLitePlugin.coffee.md`: platform-independent (Literate coffee-script, can be read by recent coffee-script compiler)
 - `www`: `SQLitePlugin.js` platform-independent Javascript as generated from `SQLitePlugin.coffee.md` (and checked in!)
 - `src`: platform-specific source code:
-   - `external` - placeholder used to import `sqlite3.[hc]` in this version branch-needed to build Windows Universal (8.1) version
+   - `external` - placeholder used to import `sqlite3.[hc]` in this version branch-needed to build Windows "Universal" (8.1) version
    - `android` - Java plugin code for Android and Amazon Fire-OS
    - `ios` - Objective-C plugin code for iOS;
-   - `windows` - Javascript proxy code and SQLite3-WinRT project for Windows Universal (8.1);
+   - `windows` - Javascript proxy code and SQLite3-WinRT project for Windows "Universal" (8.1);
 - `spec`: test suite using Jasmine (2.2.0), ported from QUnit `test-www` test suite, working on all platforms
 - `tests`: very simple Jasmine test suite that is run on Circle CI (Android version) and Travis CI (iOS version)
 - `Lawnchair-adapter`: Lawnchair adaptor, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
@@ -369,7 +370,7 @@ Sample change to `config.xml` for Cordova/PhoneGap 2.x:
          <plugin name="Compass" value="CDVLocation" />
 ```
 
-## Manual installation - Windows Universal (8.1) version
+## Manual installation - Windows "Universal" (8.1) version
 
 Described above.
 
