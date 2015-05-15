@@ -231,6 +231,65 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        /* thanks to @calebeaires: */
+        it(suiteName + 'create virtual table using FTS3', function(done) {
+          var db = openDatabase('virtual-table-using-fts3.db', '1.0', "Demo", DEFAULT_SIZE);
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql('CREATE INDEX liv_index ON book (liv, cap);');
+            tx.executeSql('DROP TABLE IF EXISTS virtual_book');
+            tx.executeSql('CREATE VIRTUAL TABLE IF NOT EXISTS virtual_book USING FTS3 (liv, cap, ver, tex, tes);', [], function(tx, res) {
+              // ok:
+              expect(true).toBe(true);
+            }, function(err) {
+              // went wrong:
+              expect(false).toBe(true);
+            });
+          }, function(err) {
+            // [ignored here]:
+            //expect(false).toBe(true);
+            expect(true).toBe(true);
+            done();
+          }, function() {
+            // verify tx was ok:
+            expect(true).toBe(true);
+            done();
+          });
+        }, MYTIMEOUT);
+
+        // NOTE: looking at sqlite3.c, if FTS3 is enabled, FTS4 seems to be working as well!
+        // (thanks again to @calebeaires for this scenario)
+        it(suiteName + 'create virtual table using FTS4', function(done) {
+          var db = openDatabase('virtual-table-using-fts4.db', '1.0', "Demo", DEFAULT_SIZE);
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql('CREATE INDEX liv_index ON book (liv, cap);');
+            tx.executeSql('DROP TABLE IF EXISTS virtual_book');
+            tx.executeSql('CREATE VIRTUAL TABLE IF NOT EXISTS virtual_book USING FTS4 (liv, cap, ver, tex, tes);', [], function(tx, res) {
+              // ok:
+              expect(true).toBe(true);
+            }, function(err) {
+              // went wrong:
+              expect(false).toBe(true);
+            });
+          }, function(err) {
+            // [ignored here]:
+            //expect(false).toBe(true);
+            expect(true).toBe(true);
+            done();
+          }, function() {
+            // verify tx was ok:
+            expect(true).toBe(true);
+            done();
+          });
+        }, MYTIMEOUT);
+
     });
   };
 }
