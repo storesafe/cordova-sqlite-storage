@@ -110,7 +110,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 }
 
 -(void)enableDatabaseWhenLocked:(BOOL)enable path:(NSString*)path{
-    NSDictionary *attributes = @{NSFileProtectionKey: enable ? NSFileProtectionCompleteUnlessOpen : NSFileProtectionComplete};
+    NSDictionary *attributes = @{NSFileProtectionKey: enable ? NSFileProtectionNone : NSFileProtectionComplete};
     NSError *error;
     if(![[NSFileManager defaultManager] setAttributes:attributes
                                          ofItemAtPath:path
