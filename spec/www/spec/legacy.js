@@ -532,11 +532,10 @@ var mytests = function() {
           });
         });
 
-        test_it(suiteName + "error handler returning false [non-true] lets transaction continue", function() {
-          // XXX TODO TEST [PLUGIN BROKEN]:
-          // - return undefined 
-          // - return "true" string
-          // etc.
+        // NOTE: conclusion reached with @aarononeal and @nolanlawson in litehelpers/Cordova-sqlite-storage#232
+        // that the according to the spec at http://www.w3.org/TR/webdatabase/ the transaction should be
+        // recovered *only* if the sql error handler returns false.
+        test_it(suiteName + "error handler returning false lets transaction continue", function() {
           withTestTable(function(db) {
             stop(2);
             db.transaction(function(tx) {

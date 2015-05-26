@@ -419,6 +419,107 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        // ref: litehelpers/Cordova-sqlite-storage#232
+        // according to the spec at http://www.w3.org/TR/webdatabase/ the transaction should be
+        // recovered *only* if the sql error handler returns false.
+        it(suiteName + 'Recover transaction with callbacks after syntax error handler returns false', function(done) {
+          var db = openDatabase('recover-if-syntax-error-handler-returns-false.db', '1.0', "Demo", DEFAULT_SIZE);
+          expect(db).toBeDefined();
+
+          var isFirstErrorHandlerCalled = false; // poor man's spy
+          //var isFirstSuccessHandlerCalled = false; // (not expected)
+          var isSecondSuccessHandlerCalled = false; // expected ok
+          //var isSecondErrorHandlerCalled = false; // (not expected)
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+            tx.executeSql('DROP TABLE IF EXISTS tt');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (data unique)');
+
+            // first sql syntax error with handler that returns undefined [nothing]:
+            tx.executeSql('insert into tt (data) VALUES ', [456], function(tx, res) {
+              // not expected:
+              expect(false).toBe(true);
+            }, function(err) {
+              // expected ok:
+              expect(true).toBe(true);
+              isFirstErrorHandlerCalled = true;
+              // [should] recover this transaction:
+              return false;
+            });
+
+            // second sql ok [NOT SKIPPED by Web SQL]:
+            tx.executeSql('SELECT 1', [], function(tx, res) {
+              // expected ok:
+              isSecondSuccessHandlerCalled = true;
+              expect(true).toBe(true);
+            }, function(err) {
+              // not expected:
+              expect(false).toBe(true);
+              //isSecondErrorHandlerCalled = true;
+              return false;
+            });
+          }, function(err) {
+            // not expected:
+            expect(false).toBe(true);
+            expect(isFirstErrorHandlerCalled).toBe(true);
+            done();
+          }, function() {
+            // expected ok:
+            expect(true).toBe(true);
+            expect(isFirstErrorHandlerCalled).toBe(true);
+            expect(isSecondSuccessHandlerCalled).toBe(true);
+            done();
+          });
+        }, MYTIMEOUT);
+
+        // NOTE: as discussed in litehelpers/Cordova-sqlite-storage#232 this plugin is correct
+        // according to the spec at http://www.w3.org/TR/webdatabase/
+        it(suiteName + 'syntax error handler returns undefined', function(done) {
+          var db = openDatabase('syntax-error-handler-returns-undefined.db', '1.0', "Demo", DEFAULT_SIZE);
+          expect(db).toBeDefined();
+
+          var isFirstErrorHandlerCalled = false; // poor man's spy
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+            tx.executeSql('DROP TABLE IF EXISTS tt');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (data unique)');
+
+            // first sql syntax error with handler that returns undefined [nothing]:
+            tx.executeSql('insert into tt (data) VALUES ', [456], function(tx, res) {
+              // not expected:
+              expect(false).toBe(true);
+            }, function(err) {
+              // expected ok:
+              expect(true).toBe(true);
+              isFirstErrorHandlerCalled = true;
+              // [should] recover this transaction:
+              //return false;
+              return undefined;
+            });
+
+            // skip second sql [not relevant for this test, difference plugin vs. Web SQL]:
+
+          }, function(err) {
+            // transaction expected to fail [plugin only]:
+            expect(true).toBe(true);
+            expect(isFirstErrorHandlerCalled).toBe(true);
+            done();
+          }, function() {
+            // expected ok for Web SQL ONLY:
+            if (isWebSql)
+              expect(true).toBe(true);
+            else
+              expect(false).toBe(true);
+            expect(isFirstErrorHandlerCalled).toBe(true);
+            done();
+          });
+        }, MYTIMEOUT);
+
+        // FUTURE TODO ref: litehelpers/Cordova-sqlite-storage#232
+        // test case of sql error handler returning values such as "true" (string), 1, 0, null
+
     });
   };
 }
