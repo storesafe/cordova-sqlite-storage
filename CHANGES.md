@@ -1,5 +1,10 @@
 # Changes
 
+## 0.7.9
+
+- Build iOS and Windows versions with sqlite 3.8.10.2 embedded
+- Fix plugin id to match npm package id
+
 ## 0.7.8
 
 - Support FTS3/FTS4 and R-Tree in iOS and Windows "Universal" (8.1) versions
