@@ -88,7 +88,6 @@
 
       dbname = openargs.name
 
-      # XXX Brody TODO add test for this:
       if typeof dbname != 'string'
         throw newSQLError 'sqlite plugin database name must be a string'
 

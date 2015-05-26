@@ -17,11 +17,10 @@ License for iOS version: MIT only
 - [Cordova sqlite storage (0.7.6) published](https://build.phonegap.com/plugins/2755) in PhoneGap Build
 - Windows "Universal" (8.1) version is in an experimental/pre-alpha state:
   - Database close and delete operations not yet implemented
-  - You *may* encounter issues with Cordova CLI due to [CB-8866](https://issues.apache.org/jira/browse/CB-8866); as a workaround you can install using [litehelpers / cordova-windows-nufix](https://github.com/litehelpers/cordova-windows-nufix) and `plugman` as described below.
   - No background processing (for future consideration)
   - You *may* encounter issues with Cordova CLI due to [CB-8866](https://issues.apache.org/jira/browse/CB-8866); as a workaround you can install using [litehelpers / cordova-windows-nufix](https://github.com/litehelpers/cordova-windows-nufix) and `plugman` as described below.
   - In addition, problems with the Windows "Universal" version have been reported in case of a Cordova project using a Visual Studio template/extension instead of Cordova/PhoneGap CLI or `plugman`
-  - Not tested with a Windows 10 (or Windows Phone 10) target
+  - Not tested with a Windows 10 (or Windows Phone 10) target; Windows 10 build is not expected to work with Windows Phone
 - FTS3, FTS4, and R-Tree support is tested working OK in this version (for all target platforms Android/iOS/Windows "Universal")
 - Status for the other target platforms:
   - Android: now using the [sqlite4java](https://code.google.com/p/sqlite4java/) library (sqlite `3.8.7` embedded), supporting FTS3/FTS4 and R-Tree
@@ -91,6 +90,7 @@ License for iOS version: MIT only
 - Large query result can be slow, also due to JSON implementation
 - FTS3/FTS4 and R-Tree are not supported for iOS or Windows "Universal" (8.1).
 - ATTACH another database file is not supported (due to path specifications, which work differently depending on the target platform)
+- User-defined savepoints are not supported and not expected to be compatible with the transaction locking mechanism used by this plugin. In addition, the use of BEGIN/COMMIT/ROLLBACK statements is not supported.
 
 ## Limited support (testing needed)
 
@@ -117,11 +117,12 @@ License for iOS version: MIT only
 
 The idea is to emulate the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/) as closely as possible. The only major change is to use `window.sqlitePlugin.openDatabase()` (or `sqlitePlugin.openDatabase()`) instead of `window.openDatabase()`. If you see any other major change please report it, it is probably a bug.
 
+**NOTE:** If a sqlite statement in a transaction fails with an error, the error handler *must* return `false` in order to recover the transaction. This is correct according to the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/) standard. This is different from the WebKit implementation of Web SQL in Android and iOS which recovers the transaction if a sql error hander returns a non-`true` value.
+
 ## Opening a database
 
 There are two options to open a database:
 - **Recommended:** `var db = window.sqlitePlugin.openDatabase({name: "my.db", location: 1});`
-  - **WARNING:** The `name:` parameter must be given a string otherwise the behavior is unpredictable.
 - **Classical:** `var db = window.sqlitePlugin.openDatabase("myDatabase.db", "1.0", "Demo", -1);`
 
 The new `location` option is used to select the database subdirectory location (iOS *only*) with the following choices:
@@ -293,7 +294,7 @@ window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, erro
 - Problems have been with the Windows "Universal" version case of a Cordova project using a Visual Studio template/extension instead of Cordova/PhoneGap CLI or `plugman`
 As an alternative, which will support the ("Mixed Platforms") target, you can use `plugman` instead with [litehelpers / cordova-windows-nufix](https://github.com/litehelpers/cordova-windows-nufix), as described here.
 
-### using plugman
+### Using plugman to support "Mixed Platforms"
 
 - make sure you have the latest version of `plugman` installed: `npm install -g plugman`
 - Download the [cordova-windows-nufix 3.9.0-nufixpre-01 zipball](https://github.com/litehelpers/cordova-windows-nufix/archive/3.9.0-nufixpre-01.zip) (or you can clone [litehelpers / cordova-windows-nufix](https://github.com/litehelpers/cordova-windows-nufix) instead)
@@ -602,6 +603,8 @@ ingredients = new Lawnchair({db: "cookbook", name: "ingredients", ...}, myCallba
 ## PouchDB
 
 The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawson](https://github.com/nolanlawson), see [PouchDB FAQ](http://pouchdb.com/faq.html).
+
+**NOTE:** For some reason, the PouchDB adapter does not pass all of its tests with this plugin.
 
 # Contributing
 
