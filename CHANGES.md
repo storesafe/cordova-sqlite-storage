@@ -1,7 +1,8 @@
 # Changes
 
-## 0.7.8-dev
+## 0.7.8
 
+- Support FTS3/FTS4 and R-Tree in iOS and Windows "Universal" (8.1) versions
 - Build ARM target with Function Level Linking ref: http://www.monkey-x.com/Community/posts.php?topic=7739
 - SQLite3.Windows.vcxproj and SQLite3.WindowsPhone.vcxproj in their own directories to avoid problems due to temporary files
 
