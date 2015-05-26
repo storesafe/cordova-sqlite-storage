@@ -14,7 +14,6 @@ License for iOS version: MIT only
 
 ## Status
 
-- [Cordova sqlite storage (0.7.6) published](https://build.phonegap.com/plugins/2755) in PhoneGap Build
 - Windows "Universal" (8.1) version is in an experimental/pre-alpha state:
   - Database close and delete operations not yet implemented
   - No background processing (for future consideration)
@@ -32,7 +31,6 @@ License for iOS version: MIT only
 
 ## Announcements
 
-- [io.litehelpers.cordova.sqlite listing](http://plugins.cordova.io/#/package/io.litehelpers.cordova.sqlite) in Cordova plugins registry
 - Windows "Universal" version now supports both Windows 8.1 and Windows Phone 8.1
 - Android version is now using the [sqlite4java](https://code.google.com/p/sqlite4java/) library by default configuration:
   - NDK part rebuilt with `-DSQLITE_TEMP_STORE=3` CFLAG to support UPDATE properly;
@@ -40,7 +38,6 @@ License for iOS version: MIT only
 - iOS version is now fixed to override the correct pluginInitialize method and should work with recent versions of iOS
 - Project has been renamed to prevent confusion with [davibe / Phonegap-SQLitePlugin](https://github.com/davibe/Phonegap-SQLitePlugin) (original version for iOS, with a different API)
 - New project location (should redirect)
-- Discussion forum at [Ost.io / @litehelpers / Cordova-sqlite-storage](http://ost.io/@litehelpers/Cordova-sqlite-storage)
 - The test suite is completely ported to Jasmine (2.2.0) and was used to verify the functionality of the new Windows version
 - [SQLCipher](https://www.zetetic.net/sqlcipher/) for Windows (8.1) in addition to Android & iOS is now supported by [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter)
 - New `openDatabase` and `deleteDatabase` `location` option to select database location (iOS *only*) and disable iCloud backup
@@ -103,6 +100,7 @@ License for iOS version: MIT only
 ## Other versions
 
 - [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter) - supports [SQLCipher](https://www.zetetic.net/sqlcipher/) for Android, iOS, and Windows (8.1)
+- [nolanlawson / sqlite-plugin-fork](https://github.com/nolanlawson/sqlite-plugin-fork) - temporary fork by [@nolanlawson](https://github.com/nolanlawson) with the PouchDB tests passing
 - Original version for iOS (with a different API): [davibe / Phonegap-SQLitePlugin](https://github.com/davibe/Phonegap-SQLitePlugin)
 
 ## Other SQLite adapter projects
@@ -530,7 +528,9 @@ Then you can [raise the new issue](https://github.com/litehelpers/Cordova-sqlite
 
 ## Community forum
 
-If you have any questions about the plugin please post them to the new discussion forum at [Ost.io / @litehelpers / Cordova-sqlite-storage](http://ost.io/@litehelpers/Cordova-sqlite-storage).
+If you have any questions about the plugin:
+- [![Join the chat at https://gitter.im/litehelpers/Cordova-sqlite-storage](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/litehelpers/Cordova-sqlite-storage?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [Join the chat at https://gitter.im/litehelpers/Cordova-sqlite-storage](https://gitter.im/litehelpers/Cordova-sqlite-storage)
+- experimental discussion forum at [Ost.io / @litehelpers / Cordova-sqlite-storage](http://ost.io/@litehelpers/Cordova-sqlite-storage) (notifications not working)
 
 ## Professional support
 
@@ -604,7 +604,7 @@ ingredients = new Lawnchair({db: "cookbook", name: "ingredients", ...}, myCallba
 
 The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawson](https://github.com/nolanlawson), see [PouchDB FAQ](http://pouchdb.com/faq.html).
 
-**NOTE:** For some reason, the PouchDB adapter does not pass all of its tests with this plugin.
+**NOTE:** For some reason, the PouchDB adapter does not pass all of its tests with this plugin. You can use the temporary fork at [nolanlawson / sqlite-plugin-fork](https://github.com/nolanlawson/sqlite-plugin-fork) to get the PouchDB adapter to pass its test suite.
 
 # Contributing
 
@@ -621,7 +621,7 @@ The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawso
 - Other enhancements welcome for consideration, when submitted with test code and are working for all supported platforms. Increase of complexity should be avoided.
 - All contributions may be reused by [@brodybits (Chris Brody)](https://github.com/brodybits) under another license in the future. Efforts will be taken to give credit for major contributions but it will not be guaranteed.
 - Project restructuring, i.e. moving files and/or directories around, should be avoided if possible.
-- If you see a need for restructuring, it is better to first discuss it in the forum at [Ost.io / @litehelpers / Cordova-sqlite-storage](http://ost.io/@litehelpers/Cordova-sqlite-storage) (or in a [new issue](https://github.com/litehelpers/Cordova-sqlite-storage/issues/new)) where alternatives can be discussed before reaching a conclusion. If you want to propose a change to the project structure:
+- If you see a need for restructuring, it is better to first discuss it [in the Cordova-sqlite-storage gitter.im chat](https://gitter.im/litehelpers/Cordova-sqlite-storage) (or in a [new issue](https://github.com/litehelpers/Cordova-sqlite-storage/issues/new)) where alternatives can be discussed before reaching a conclusion. If you want to propose a change to the project structure:
   - Remember to make (and use) a special branch within your fork from which you can send the proposed restructuring;
   - Always use `git mv` to move files & directories;
   - Never mix a move/rename operation with any other changes in the same commit.
