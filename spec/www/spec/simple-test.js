@@ -327,6 +327,98 @@ var mytests = function() {
         }, MYTIMEOUT);
       }
 
+        /* found due to investigation of litehelpers/Cordova-sqlite-storage#226: */
+        it(suiteName + 'Skip callbacks after syntax error with no handler', function(done) {
+          if (!isWebSql) pending('Plugin BROKEN'); // XXX TODO
+
+          var db = openDatabase('first-syntax-error-with-no-handler.db', '1.0', "Demo", DEFAULT_SIZE);
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+            tx.executeSql('DROP TABLE IF EXISTS tt');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (data unique)');
+
+            // This insertion has a sql syntax error-which is not handled:
+            tx.executeSql('insert into tt (data) VALUES ', [123]);
+
+            // second insertion with syntax error in transaction ["skipped" by Web SQL]:
+            tx.executeSql('insert into tt (data) VALUES ', [456], function(tx, res) {
+              // not expected:
+              expect(false).toBe(true);
+            }, function(err) {
+              // expected, but then it shows the handling this sql statement is NOT skipped (by the plugin):
+              expect(false).toBe(true);
+              return false;
+            });
+          }, function(err) {
+            // transaction expected to fail:
+            expect(true).toBe(true);
+            done();
+          }, function() {
+            // not expected [ignored for now]:
+            //expect(false).toBe(true);
+            expect(true).toBe(true);
+            done();
+          });
+        }, MYTIMEOUT);
+
+        /* found due to investigation of litehelpers/Cordova-sqlite-storage#226: */
+        it(suiteName + 'Skip callbacks after syntax error handler returns true', function(done) {
+          if (!isWebSql) pending('Plugin BROKEN'); // XXX TODO
+
+          var db = openDatabase('first-syntax-error-handler-returns-true.db', '1.0', "Demo", DEFAULT_SIZE);
+          expect(db).toBeDefined();
+
+          var isFirstErrorHandlerCalled = false; // poor man's spy
+          var isSecondErrorHandlerCalled = false;
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+            tx.executeSql('DROP TABLE IF EXISTS tt');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (data unique)');
+
+            // first sql syntax error with handler that returns undefined [nothing]:
+            tx.executeSql('insert into tt (data) VALUES ', [456], function(tx, res) {
+              // not expected:
+              expect(false).toBe(true);
+            }, function(err) {
+              // expected ok:
+              expect(true).toBe(true);
+              isFirstErrorHandlerCalled = true;
+              // (should) completely stop transaction:
+              return true;
+            });
+
+            // second insertion with syntax error with handler that signals explicit recovery [SKIPPED by Web SQL]:
+            tx.executeSql('insert into tt (data) VALUES ', [456], function(tx, res) {
+              // not expected:
+              expect(false).toBe(true);
+            }, function(err) {
+              // expected, but then it shows the handling this sql statement is NOT skipped (by the plugin):
+              expect(false).toBe(true);
+              isSecondErrorHandlerCalled = true;
+              // explicit recovery:
+              return false;
+            });
+          }, function(err) {
+            // transaction expected to fail:
+            expect(true).toBe(true);
+            expect(isFirstErrorHandlerCalled).toBe(true);
+            // [ignored for now]:
+            //expect(isSecondErrorHandlerCalled).toBe(false);
+            done();
+          }, function() {
+            // not expected [ignored for now]:
+            //expect(false).toBe(true);
+            expect(true).toBe(true);
+            expect(isFirstErrorHandlerCalled).toBe(true);
+            // [ignored for now]:
+            //expect(isSecondErrorHandlerCalled).toBe(false);
+            done();
+          });
+        }, MYTIMEOUT);
+
     });
   };
 }
