@@ -18,7 +18,7 @@ This version is a branch that is common to [litehelpers / Cordova-sqlite-storage
   - Database close and delete operations not yet implemented
   - No background processing (for future consideration)
   - You *may* encounter issues with Cordova CLI due to [CB-8866](https://issues.apache.org/jira/browse/CB-8866); as a workaround you can install using [litehelpers / cordova-windows-nufix](https://github.com/litehelpers/cordova-windows-nufix) and `plugman` as described below.
-  - In addition, problems with the Windows "Universal" version have been reported in case of a Cordova project using a Visual Studio template/extension instead of Cordova/PhoneGap CLI or `plugman`, 
+  - In addition, problems with the Windows "Universal" version have been reported in case of a Cordova project using a Visual Studio template/extension instead of Cordova/PhoneGap CLI or `plugman`
   - Not tested with a Windows 10 (or Windows Phone 10) target; Windows 10 build is not expected to work with Windows Phone
 - Android is supported back to SDK 10 (a.k.a. Gingerbread, Android 2.3.3); support for older versions is available upon request.
 - FTS3, FTS4, and R-Tree support is tested working OK in this version (for all target platforms Android/iOS/Windows "Universal")
@@ -192,6 +192,8 @@ function onDeviceReady() {
   });
 }
 ```
+
+**NOTE:** PRAGMA statements must be executed in `executeSql()` on the database object (i.e. `db.executeSql()`) and NOT within a transaction.
 
 ## Sample with transaction-level nesting
 
