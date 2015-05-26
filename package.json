@@ -1,0 +1,38 @@
+{
+  "name": "cordova-sqlite-common",
+  "version": "0.7.0-dev",
+  "description": "Native interface to SQLite for PhoneGap/Cordova (common version-limited functionality)",
+  "cordova": {
+    "id": "cordova-sqlite-common",
+    "platforms": [
+      "android",
+      "ios",
+      "windows",
+      "amazon-fireos"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/litehelpers/cordova-sqlite-common.git"
+  },
+  "keywords": [
+    "sqlite",
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios",
+    "cordova-windows",
+    "cordova-amazon-fireos"
+  ],
+  "engines": [
+    {
+      "name": "cordova",
+      "version": ">=3.3.0"
+    }
+  ],
+  "author": "various",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/litehelpers/cordova-sqlite-common/issues"
+  },
+  "homepage": "https://github.com/litehelpers/cordova-sqlite-common"
+}
