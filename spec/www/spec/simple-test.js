@@ -233,6 +233,8 @@ var mytests = function() {
 
         /* thanks to @calebeaires: */
         it(suiteName + 'create virtual table using FTS3', function(done) {
+          if (isWP8) pending('NOT IMPLEMENTED for WP(8)'); // NOT IMPLEMENTED in CSharp-SQLite
+
           var db = openDatabase('virtual-table-using-fts3.db', '1.0', "Demo", DEFAULT_SIZE);
           expect(db).toBeDefined();
 
@@ -263,6 +265,8 @@ var mytests = function() {
         // NOTE: looking at sqlite3.c, if FTS3 is enabled, FTS4 seems to be working as well!
         // (thanks again to @calebeaires for this scenario)
         it(suiteName + 'create virtual table using FTS4', function(done) {
+          if (isWP8) pending('NOT IMPLEMENTED for WP(8)'); // NOT IMPLEMENTED in CSharp-SQLite
+
           var db = openDatabase('virtual-table-using-fts4.db', '1.0', "Demo", DEFAULT_SIZE);
           expect(db).toBeDefined();
 
@@ -292,6 +296,9 @@ var mytests = function() {
 
       if (!isWebSql) {
         it(suiteName + 'create virtual table using R-Tree', function(done) {
+          if (isWP8) pending('NOT IMPLEMENTED for WP(8)'); // NOT IMPLEMENTED in CSharp-SQLite
+          if (isAndroid) pending('NOT IMPLEMENTED for all versions of Android'); // NOT IMPLEMENTED for all versions of Android database (failed in Circle CI)
+
           var db = openDatabase('virtual-table-using-r-tree.db', '1.0', "Demo", DEFAULT_SIZE);
           expect(db).toBeDefined();
 
