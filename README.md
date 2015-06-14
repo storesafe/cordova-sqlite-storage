@@ -31,7 +31,6 @@ License for iOS version: MIT only
 
 ## Announcements
 
-- [Cordova sqlite storage (0.7.8) published](https://build.phonegap.com/plugins/3124) in PhoneGap Build
 - Windows "Universal" version now supports both Windows 8.1 and Windows Phone 8.1
 - Android version is now using the [sqlite4java](https://code.google.com/p/sqlite4java/) library by default configuration:
   - NDK part rebuilt with `-DSQLITE_TEMP_STORE=3` CFLAG to support UPDATE properly;
