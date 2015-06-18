@@ -31,6 +31,7 @@ License for iOS version: MIT only
 
 ## Announcements
 
+- [Cordova sqlite storage (0.7.8) published](https://build.phonegap.com/plugins/3124) in PhoneGap Build
 - Windows "Universal" version now supports both Windows 8.1 and Windows Phone 8.1
 - Android version is now using the [sqlite4java](https://code.google.com/p/sqlite4java/) library by default configuration:
   - NDK part rebuilt with `-DSQLITE_TEMP_STORE=3` CFLAG to support UPDATE properly;
@@ -100,7 +101,6 @@ License for iOS version: MIT only
 ## Other versions
 
 - [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter) - supports [SQLCipher](https://www.zetetic.net/sqlcipher/) for Android, iOS, and Windows (8.1)
-- [nolanlawson / sqlite-plugin-fork](https://github.com/nolanlawson/sqlite-plugin-fork) - temporary fork by [@nolanlawson](https://github.com/nolanlawson) with the PouchDB tests passing
 - Original version for iOS (with a different API): [davibe / Phonegap-SQLitePlugin](https://github.com/davibe/Phonegap-SQLitePlugin)
 
 ## Other SQLite adapter projects
@@ -610,7 +610,7 @@ ingredients = new Lawnchair({db: "cookbook", name: "ingredients", ...}, myCallba
 
 The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawson](https://github.com/nolanlawson), see [PouchDB FAQ](http://pouchdb.com/faq.html).
 
-**NOTE:** For some reason, the PouchDB adapter does not pass all of its tests with this plugin. You can use the temporary fork at [nolanlawson / sqlite-plugin-fork](https://github.com/nolanlawson/sqlite-plugin-fork) to get the PouchDB adapter to pass its test suite.
+**NOTE:** For some reason, the PouchDB adapter does not pass all of its tests with the Android version of this plugin, unless you include `androidDatabaseImplementation: 2` in the `sqlitePlugin.openDatabase()` options as described above.
 
 # Contributing
 
@@ -619,7 +619,7 @@ The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawso
 - Testimonials of apps that are using this plugin would be especially helpful.
 - Reporting issues at [litehelpers / Cordova-sqlite-storage / issues](https://github.com/litehelpers/Cordova-sqlite-storage/issues) can help improve the quality of this plugin.
 
-**WARNING:** Please do NOT propose changes from your `master` branch. In general, contributions are rebased using `git rebase` or `git cherry-pick` and not merged.
+**WARNING:** Please do NOT propose changes from your `master` (`master-rc`) branch. In general, contributions are rebased using `git rebase` or `git cherry-pick` and not merged.
 
 ## Code
 
@@ -638,7 +638,7 @@ The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawso
 
 ## Major branches
 
-- `cordova-sqlite-common`~~/`common-src`~~ - source for Android (*not* using [sqlite4java](https://code.google.com/p/sqlite4java/)), iOS, Windows (8.1), and Amazon Fire-OS versions (shared with [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter))
+- `cordova-sqlite-common` - source for Android (*not* using [sqlite4java](https://code.google.com/p/sqlite4java/)), iOS, Windows (8.1), and Amazon Fire-OS versions (shared with [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter))
 - `new-common-src` - source for Android (using [sqlite4java](https://code.google.com/p/sqlite4java/)), iOS, Windows (8.1), and Amazon Fire-OS versions
 - `new-common-rc` - pre-release version for Android/iOS/Windows (8.1), including library dependencies for Android and Windows (8.1)
 - `wp-src` - source for Android (*not* using [sqlite4java](https://code.google.com/p/sqlite4java/)), iOS, WP(7/8), and Amazon Fire-OS versions
