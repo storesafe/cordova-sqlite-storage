@@ -47,8 +47,6 @@ exports.defineAutoTests = function() {
 
           expect(db).toBeDefined()
 
-          stop();
-
           db.transaction(function(tx) {
 
             expect(tx).toBeDefined()
