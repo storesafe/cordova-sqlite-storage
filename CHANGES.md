@@ -1,5 +1,9 @@
 # Changes
 
+## 0.7.10-pre
+
+- Use Android-sqlite-connector instead of sqlite4java
+
 ## 0.7.9
 
 - Build iOS and Windows versions with sqlite 3.8.10.2 embedded
