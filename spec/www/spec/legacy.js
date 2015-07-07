@@ -31,18 +31,22 @@ function start(n) {
 }
 
 var isAndroid = /Android/.test(navigator.userAgent);
-var isWindows = /Windows NT/.test(navigator.userAgent); // Windows [NT] (8.1)
-var isWP8 = /IEMobile/.test(navigator.userAgent); // WP(8)
-// FUTURE:
-//var isWindowsPhone = /Windows Phone 8.1/.test(navigator.userAgent); // Windows [NT] (8.1)
+var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
+//var isWindows = /Windows NT/.test(navigator.userAgent); // Windows [NT] (8.1)
+var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
+//var isWindowsPC = /Windows NT/.test(navigator.userAgent); // Windows [NT] (8.1)
+//var isWindowsPhone_8_1 = /Windows Phone 8.1/.test(navigator.userAgent); // Windows Phone 8.1
+//var isIE = isWindows || isWP8 || isWindowsPhone_8_1;
 var isIE = isWindows || isWP8;
 var isWebKit = !isIE; // TBD [Android or iOS]
 
 var scenarioList = [ isAndroid ? 'Plugin-sqlite4java' : 'Plugin', 'HTML5', 'Plugin-android.database' ];
 
-var scenarioCount = isAndroid ? 3 : (isIE ? 1 : 2);
+//var scenarioCount = isAndroid ? 3 : (isIE ? 1 : 2);
+var scenarioCount = (!!window.hasWebKitBrowser) ? 2 : 1;
 
-describe('legacy tests', function() {
+// legacy tests:
+var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
 
@@ -533,11 +537,10 @@ describe('legacy tests', function() {
           });
         });
 
-        test_it(suiteName + "error handler returning false [non-true] lets transaction continue", function() {
-          // XXX TODO TEST [PLUGIN BROKEN]:
-          // - return undefined 
-          // - return "true" string
-          // etc.
+        // NOTE: conclusion reached with @aarononeal and @nolanlawson in litehelpers/Cordova-sqlite-storage#232
+        // that the according to the spec at http://www.w3.org/TR/webdatabase/ the transaction should be
+        // recovered *only* if the sql error handler returns false.
+        test_it(suiteName + "error handler returning false lets transaction continue", function() {
           withTestTable(function(db) {
             stop(2);
             db.transaction(function(tx) {
@@ -576,7 +579,7 @@ describe('legacy tests', function() {
             db.transaction(function(tx) {
               tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ['test', null], function(tx, res) {
                 expect(res).toBeDefined();
-                if (!isWindows) // XXX TODO
+                //if (!isWindows) // XXX TODO
                   expect(res.rowsAffected).toEqual(1);
                 tx.executeSql("select * from bogustable", [], function(tx, res) {
                   ok(false, "select statement not supposed to succeed");
@@ -610,7 +613,7 @@ describe('legacy tests', function() {
               txg = tx;
               tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ['test', null], function(tx, res) {
                 expect(res).toBeDefined();
-                if (!isWindows) // XXX TODO
+                //if (!isWindows) // XXX TODO
                   expect(res.rowsAffected).toEqual(1);
               });
               start(1);
@@ -638,7 +641,7 @@ describe('legacy tests', function() {
             db.transaction(function(tx) {
               tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ["test", null], function(tx, res) {
                 expect(res).toBeDefined();
-                if (!isWindows) // XXX TODO
+                //if (!isWindows) // XXX TODO
                   expect(res.rowsAffected).toEqual(1);
                 tx.executeSql("select * from test_table", [], function(tx, res) {
                   var row = res.rows.item(0);
@@ -668,7 +671,7 @@ describe('legacy tests', function() {
               // create columns with no type affinity
               tx.executeSql("insert into test_table (data_text1, data_text2, data_int, data_real) VALUES (?,?,?,?)", ["314159", "3.14159", 314159, 3.14159], function(tx, res) {
                 expect(res).toBeDefined();
-                if (!isWindows) // XXX TODO
+                //if (!isWindows) // XXX TODO
                   expect(res.rowsAffected).toBe(1);
 
                 tx.executeSql("select * from test_table", [], function(tx, res) {
@@ -736,7 +739,7 @@ describe('legacy tests', function() {
             db.transaction(function(tx) {
               tx.executeSql("insert into tt (tr) VALUES (?)", [123456.789], function(tx, res) {
                 expect(res).toBeDefined();
-                if (!isWindows) // XXX TODO
+                //if (!isWindows) // XXX TODO
                   expect(res.rowsAffected).toBe(1);
                 tx.executeSql("select * from tt", [], function(tx, res) {
                   var row = res.rows.item(0);
@@ -760,7 +763,7 @@ describe('legacy tests', function() {
               // create columns with no type affinity
               tx.executeSql("insert into test_table (data1, data2) VALUES (?,?)", ['abc', [1,2,3]], function(tx, res) {
                 expect(res).toBeDefined();
-                if (!isWindows) // XXX TODO
+                //if (!isWindows) // XXX TODO
                   expect(res.rowsAffected).toBe(1);
                 tx.executeSql("select * from test_table", [], function(tx, res) {
                   var row = res.rows.item(0);
@@ -895,7 +898,7 @@ describe('legacy tests', function() {
 
           db.transaction(function(tx) {
             ok(!blocked, 'callback to the transaction shouldn\'t block (1)');
-            tx.executeSql('SELECT 1 from sqlite_master', [], function () {
+            tx.executeSql('SELECT 1', [], function () {
               ok(!blocked, 'callback to the transaction shouldn\'t block (2)');
             });
           }, function(err) { ok(false, err.message) }, function() {
@@ -959,12 +962,9 @@ describe('legacy tests', function() {
 
         });
 
-        // XXX [BUG #230] BROKEN for iOS, Windows, and WP(8) versions of the plugin
+        // NOTE [BUG #230]: this is now working if we do not depend on a valid sqlite_master table
+        // XXX TODO: test with and without transaction callbacks, also with empty db.readTransaction()
         test_it(suiteName + 'empty transaction (no sql statements) and then SELECT transaction', function () {
-          if (isWindows) pending('BROKEN for Windows');
-          if (isWP8) pending('BROKEN for WP(8)');
-          if (!(isWebSql || isAndroid || isIE)) pending('BROKEN for iOS version of plugin');
-          if ((!isWebSql) && isAndroid && (!isOldAndroidImpl)) pending('BROKEN for Android version of plugin [with sqlite4java]');
 
           stop(2);
 
@@ -979,10 +979,10 @@ describe('legacy tests', function() {
 
           // verify we can still continue
           db.transaction(function (tx) {
-            tx.executeSql('SELECT 1 FROM sqlite_master', [], function (tx, res) {
-              // same order as was found in test-www
-              start();
+            tx.executeSql('SELECT 1', [], function (tx, res) {
               equal(res.rows.item(0)['1'], 1);
+
+              start();
             });
           }, function (error) {
             // XXX [BUG #230] iOS, Windows, and WP(8) versions of the plugin fail here:
@@ -1082,7 +1082,7 @@ describe('legacy tests', function() {
 
                     // ensure this matches our expectation of that database's
                     // default encoding
-                    tx.executeSql('SELECT hex("foob") AS `hex` FROM sqlite_master', [], function (tx, res) {
+                    tx.executeSql('SELECT hex("foob") AS `hex`', [], function (tx, res) {
                       var otherHex = res.rows.item(0).hex;
                       equal(hex.length, otherHex.length,
                           'expect same length, i.e. same global db encoding');
@@ -1258,6 +1258,7 @@ describe('legacy tests', function() {
 
         test_it(suiteName + "constraint violation", function() {
           if (isWindows) pending('BROKEN for Windows'); // XXX TODO
+          //if (isWindowsPhone_8_1) pending('BROKEN for Windows Phone 8.1'); // XXX TODO
 
           var db = openDatabase("Constraint-violation-test.db", "1.0", "Demo", DEFAULT_SIZE);
           ok(!!db, "db object");
@@ -1990,6 +1991,9 @@ describe('legacy tests', function() {
           });
         });
 
+      // skip these in CI testing (for now):
+      if (!!window.hasWebKitBrowser) {
+
         test_it(suiteName + ' repeatedly open and close database (4x)', function () {
           if (isWindows) pending('NOT IMPLEMENTED for Windows'); // XXX TODO
 
@@ -2229,11 +2233,17 @@ describe('legacy tests', function() {
             start(1);
           });
         });
+
+      }
+
       });
     }
 
   });
 
-});
+}
+
+if (window.hasBrowser) mytests();
+else exports.defineAutoTests = mytests;
 
 /* vim: set expandtab : */

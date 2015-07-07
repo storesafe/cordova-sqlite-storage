@@ -88,6 +88,9 @@
 
       dbname = openargs.name
 
+      if typeof dbname != 'string'
+        throw newSQLError 'sqlite plugin database name must be a string'
+
       @openargs = openargs
       @dbname = dbname
 
@@ -134,6 +137,7 @@
       return
 
     SQLitePlugin::transaction = (fn, error, success) ->
+      # FUTURE TBD check for valid fn here
       if !@openDBs[@dbname]
         error newSQLError 'database not open'
         return
@@ -142,6 +146,7 @@
       return
 
     SQLitePlugin::readTransaction = (fn, error, success) ->
+      # FUTURE TBD check for valid fn here (and add test for this)
       if !@openDBs[@dbname]
         error newSQLError 'database not open'
         return
@@ -284,6 +289,7 @@
 ## SQLite plugin transaction object for batching:
 
     SQLitePluginTransaction = (db, fn, error, success, txlock, readOnly) ->
+      # FUTURE TBD check this earlier:
       if typeof(fn) != "function"
         ###
         This is consistent with the implementation in Chrome -- it
@@ -336,8 +342,6 @@
     # finalization since it is used to execute COMMIT and ROLLBACK.
     SQLitePluginTransaction::addStatement = (sql, values, success, error) ->
 
-      qid = @executes.length
-
       params = []
       if !!values && values.constructor == Array
         for v in values
@@ -351,7 +355,6 @@
       @executes.push
         success: success
         error: error
-        qid: qid
 
         sql: sql
         params: params
@@ -423,14 +426,12 @@
       while i < batchExecutes.length
         request = batchExecutes[i]
 
-        qid = request.qid
-
-        mycbmap[qid] =
+        mycbmap[i] =
           success: handlerFor(i, true)
           error: handlerFor(i, false)
 
         tropts.push
-          qid: qid
+          qid: 1111
           sql: request.sql
           params: request.params
 
@@ -439,12 +440,14 @@
       mycb = (result) ->
         #console.log "mycb result #{JSON.stringify result}"
 
-        for r in result
+        last = result.length-1
+        for i in [0..last]
+          r = result[i]
           type = r.type
-          qid = r.qid
+          # NOTE: r.qid can be ignored
           res = r.result
 
-          q = mycbmap[qid]
+          q = mycbmap[i]
 
           if q
             if q[type]

@@ -1,22 +1,33 @@
-# Cordova/PhoneGap sqlite storage adapter
+# Cordova/PhoneGap sqlite storage (common version with limited functionality)
  
-Native interface to sqlite in a Cordova/PhoneGap plugin for Android, iOS, Windows (8.1), and Amazon Fire-OS with API similar to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
+Native interface to sqlite in a Cordova/PhoneGap plugin for Android, iOS, Windows "Universal" (8.1), and Amazon Fire-OS with API similar to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
 
-License for Android, Windows (8.1), and Amazon Fire-OS versions: MIT or Apache 2.0
+License for Android, Windows "Universal" (8.1), and Amazon Fire-OS versions: MIT or Apache 2.0
 
 License for iOS version: MIT only
 
+This version is a branch that is common to [litehelpers / Cordova-sqlite-storage](https://github.com/litehelpers/Cordova-sqlite-storage) and [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter).
+
+|Android CI (full suite)|iOS CI (limited suite)|
+|-----------------------|----------------------|
+|[![Circle CI](https://circleci.com/gh/litehelpers/cordova-sqlite-common.svg?style=svg)](https://circleci.com/gh/litehelpers/cordova-sqlite-common)|[![Build Status](https://travis-ci.org/litehelpers/cordova-sqlite-common.svg?branch=cordova-sqlite-common)](https://travis-ci.org/litehelpers/cordova-sqlite-common)|
+
 ## Status
 
-- Windows (8.1) version is in alpha/beta state:
-  - No background processing
+- Windows "Universal" (8.1) version is in an experimental/pre-alpha state:
   - Database close and delete operations not yet implemented
-  - Visual C++ build file is provided for Windows 8.1 only. Visual C++ build support for Windows Phone 8.1 to be added later.
-  - Not all Windows CPU targets are supported by automatic installation
-
+  - No background processing (for future consideration)
+  - You *may* encounter issues with Cordova CLI due to [CB-8866](https://issues.apache.org/jira/browse/CB-8866); as a workaround you can install using [litehelpers / cordova-windows-nufix](https://github.com/litehelpers/cordova-windows-nufix) and `plugman` as described below.
+  - In addition, problems with the Windows "Universal" version have been reported in case of a Cordova project using a Visual Studio template/extension instead of Cordova/PhoneGap CLI or `plugman`
+  - Not tested with a Windows 10 (or Windows Phone 10) target; Windows 10 build is not expected to work with Windows Phone
+- Android is supported back to SDK 10 (a.k.a. Gingerbread, Android 2.3.3); support for older versions is available upon request.
+- FTS3, FTS4, and R-Tree support is tested working OK in this version (for all target platforms Android/iOS/Windows "Universal")
+- API to open the database may be changed somewhat to be more streamlined. Transaction and single-statement query API will NOT be changed.
+ 
 ## Announcements
 
-- Windows (8.1) version is added, using the C++ SQLite-WinRT library
+- Windows "Universal" version now supports both Windows 8.1 and Windows Phone 8.1
+- iOS version is now fixed to override the correct pluginInitialize method and should work with recent versions of iOS
 - The test suite is completely ported to Jasmine (2.2.0) and was used to verify the functionality of the new Windows version
 - [SQLCipher](https://www.zetetic.net/sqlcipher/) for Windows (8.1) in addition to Android & iOS is now supported by [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter)
 - New `openDatabase` and `deleteDatabase` `location` option to select database location (iOS *only*) and disable iCloud backup
@@ -25,17 +36,15 @@ License for iOS version: MIT only
 
 ## Highlights
 
-- Works with Cordova 3.x tooling
 - Drop-in replacement for HTML5 SQL API, the only change should be `window.openDatabase()` --> `sqlitePlugin.openDatabase()`
 - Failure-safe nested transactions with batch processing optimizations
 - As described in [this posting](http://brodyspark.blogspot.com/2012/12/cordovaphonegap-sqlite-plugins-offer.html):
   - Keeps sqlite database in a user data location that is known; can be reconfigured (iOS version); and synchronized to iCloud by default (iOS version; can be disabled as described below).
   - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
-- Android is supported back to SDK 10 (a.k.a. Gingerbread, Android 2.3.3); support for older versions is available upon request.
 - Pre-populated database option (usage described below)
 
 ## Some apps using this plugin
- 
+
 - [Get It Done app](http://getitdoneapp.com/) by [marcucio.com](http://marcucio.com/)
 - [KAAHE Health Encyclopedia](http://www.kaahe.org/en/index.php?option=com_content&view=article&id=817): Official health app of the Kingdom of Saudi Arabia.
 - [Larkwire](http://www.larkwire.com/) (iOS version): Learn bird songs the fun way
@@ -47,23 +56,32 @@ License for iOS version: MIT only
 - Using web workers is currently not supported and known to be broken on Android (and Amazon Fire-OS).
 - Triggers have only been tested on iOS, known to be broken on Android (in case [sqlite4java](https://code.google.com/p/sqlite4java/) is disabled) and Amazon Fire-OS.
 - INSERT statement that affects multiple rows (due to SELECT cause or using triggers, for example) does not report proper rowsAffected on Android (in case [sqlite4java](https://code.google.com/p/sqlite4java/) is disabled) or Amazon Fire-OS.
-- On Windows (8.1), rowsAffected can be wrong when there are multiple levels of nesting of INSERT statements.
+- On Windows "Universal" (8.1), rowsAffected can be wrong when there are multiple levels of nesting of INSERT statements.
+- Memory issue observed when adding a large number of records on Android and Amazon Fire-OS, due to JSON implementation
+- A stability issue was reported on the iOS version when in use together with [SockJS](http://sockjs.org/) client such as [pusher-js](https://github.com/pusher/pusher-js) at the same time. The workaround is to call sqlite functions and [SockJS](http://sockjs.org/) client functions in separate ticks (using setTimeout with 0 timeout).
+- If a sql statement fails for which there is no error handler or the error handler does not return `false` to signal transaction recovery, the plugin fires the remaining sql callbacks before aborting the transaction.
 
 ## Other limitations
 
 - The db version, display name, and size parameter values are not supported and will be ignored.
 - This plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**. (This is consistent with the other Cordova plugins.)
-- The Android and Amazon Fire-OS versions cannot work with more than 100 open db files due to the threading model.
+- The Android and Amazon Fire-OS versions cannot work with more than 100 open db files (due to the threading model used).
 - UNICODE line separator (`\u2028`) is currently not supported and known to be broken in iOS version.
 - Blob type is currently not supported and known to be broken on multiple platforms.
 - UNICODE `\u0000` (same as `\0`) character not working in Windows (8.1) (or Windows Phone XX) version(s)
 - Case-insensitive matching and other string manipulations on Unicode characters, which is provided by optional ICU integration in the sqlite source and working with recent versions of Android, is not supported for any target platforms.
- 
+- iOS version uses a thread pool but with only one thread working at a time due to "synchronized" database access
+- Large query result can be slow, also due to JSON implementation
+- ATTACH another database file is not supported (due to path specifications, which work differently depending on the target platform)
+- User-defined savepoints are not supported and not expected to be compatible with the transaction locking mechanism used by this plugin. In addition, the use of BEGIN/COMMIT/ROLLBACK statements is not supported.
+
 ## Limited support (testing needed)
 
-- DB Triggers (as described above - known to be broken for Amazon Fire-OS)
-- UNICODE characters not fully tested in the Windows (8.1) version
-
+- UNICODE paragraph separator (`\u2029`)
+- Database triggers as described above - known to be broken for Android (without [sqlite4java](https://code.google.com/p/sqlite4java/)) and Amazon Fire-OS
+- UNICODE characters not fully tested in the Windows "Universal" (8.1) version
+- JOIN needs to be tested more.
+ 
 ## Other versions
 
 - [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter) - supports [SQLCipher](https://www.zetetic.net/sqlcipher/) for Android, iOS, and Windows (8.1)
@@ -80,6 +98,8 @@ License for iOS version: MIT only
 # Usage
 
 The idea is to emulate the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/) as closely as possible. The only major change is to use `window.sqlitePlugin.openDatabase()` (or `sqlitePlugin.openDatabase()`) instead of `window.openDatabase()`. If you see any other major change please report it, it is probably a bug.
+
+**NOTE:** If a sqlite statement in a transaction fails with an error, the error handler *must* return `false` in order to recover the transaction. This is correct according to the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/) standard. This is different from the WebKit implementation of Web SQL in Android and iOS which recovers the transaction if a sql error hander returns a non-`true` value.
 
 ## Opening a database
 
@@ -161,8 +181,8 @@ This option is ignored if `androidDatabaseImplementation: 2` is not specified.
 
 The threading model depends on which version is used:
 - For Android and Amazon Fire-OS, one background thread per db;
-- for iOS, background processing using a thread pool;
-- for Windows, no background processing (to be added in the near future).
+- for iOS, background processing using a very limited thread pool (only one thread working at a time);
+- for Windows "Universal" (8.1), no background processing (for future consideration).
 
 # Sample with PRAGMA feature
 
@@ -202,6 +222,8 @@ function onDeviceReady() {
   });
 }
 ```
+
+**NOTE:** PRAGMA statements must be executed in `executeSql()` on the database object (i.e. `db.executeSql()`) and NOT within a transaction.
 
 ## Sample with transaction-level nesting
 
@@ -245,56 +267,43 @@ window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, erro
 
 `location` as described above for `openDatabase` (iOS *only*)
 
-**NOTE:** not yet implemented for Windows (8.1) version.
+**NOTE:** not implemented for Windows "Universal" (8.1) version.
 
 # Installing
 
-## Windows target platform
+## Windows "Universal" target platform
 
-**WARNING:** This is still in experimental state. Please read and follow these items very carefully.
-- Please make sure your Cordova tooling is updated: `npm update -g cordova cordova-windows`
-- To create a new project: `cordova create MyProjectFolder com.my.project MyProject` (and then `cd` into your project directory)
-- To add the plugin: `cordova plugin add https://github.com/litehelpers/Cordova-sqlite-storage`
-- To add the Windows target platform (if it does not exist): `cordova platform add windows`
-- If you are using Visual Studio Express (2013), you may have to remove the Windows 8.0 build from the Visual Studio solution.
-- If you use Cordova CLI for fully-automatic installation (as described here), you cannot run the project for "Any CPU". Please specify a CPU type (such as x86 or x64).
+**PREREQUISITE** in this version branch *ONLY*: install recent version of `sqlite3.[hc]` in `src/external` and make sure the following constants are defined: `#define SQLITE_TEMP_STORE 2` `#define SQLITE_THREADSAFE 2` and for Windows Phone 8.1 *only*: `#define SQLITE_WIN32_FILEMAPPING_API 1`
 
-To target all CPUs: make a clone of this project and in your clone, remove (or comment out) the item that includes the `SQLite3-Windows8.1.vcxproj` framework project:
-```xml
---- a/plugin.xml
-+++ b/plugin.xml
-@@ -79,8 +79,6 @@
-         <js-module src="src/windows/SQLite3-WinRT/SQLite3JS/js/SQLite3.js" name="SQLite3">
-             <merges target="" />
-         </js-module>
--        <!-- Thanks to AllJoyn-Cordova / cordova-plugin-alljoyn: -->
--        <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3-Windows8.1.vcxproj" custom="true" type="projectReference" target="windows" />
- 
-     </platform>
-```
+**IMPORTANT:** The Cordova CLI currently does not support all Windows target platforms (such as ("Mixed Platforms") due to [CB-8866](https://issues.apache.org/jira/browse/CB-8866). As an alternative, you can use `plugman` instead with [litehelpers / cordova-windows-nufix](https://github.com/litehelpers/cordova-windows-nufix), as described here.
 
-Then:
-- install the plugin from the location of your clone (can be in your filesystem);
-- add the Cordova `windows` target;
-- open the Windows target solution, and add the `SQLite3-Windows8.1.vcxproj` project (located in `path.to.plugin/src/windows/SQLite3-WinRT/SQLite3`) to your app solution project.
+### Using plugman to support "Mixed Platforms"
+
+- make sure you have the latest version of `plugman` installed: `npm install -g plugman`
+- Download the [cordova-windows-nufix 3.9.0-nufixpre-01 zipball](https://github.com/litehelpers/cordova-windows-nufix/archive/3.9.0-nufixpre-01.zip) (or you can clone [litehelpers / cordova-windows-nufix](https://github.com/litehelpers/cordova-windows-nufix) instead)
+- Create your Windows "Universal" (8.1) project using [litehelpers / cordova-windows-nufix](https://github.com/litehelpers/cordova-windows-nufix):
+  - `path.to.cordova-windows-nufix/bin/create.bat your_app_path your.app.id YourAppName`
+- `cd your_app_path` and install plugin using `plugman`:
+  - `plugman install --platform windows --project . --plugin https://github.com/litehelpers/cordova-sqlite-common`
+- Put your sql program in your project `www` (don't forget to reference it from `www\index.html` and wait for `deviceready` event)
+
+Then your project in `CordovaApp.sln` should work with "Mixed Platforms" on both Windows 8.1 and Windows Phone 8.1.
 
 ## Easy install with plugman tool
 
 ```shell
-plugman install --platform MYPLATFORM --project path.to.my.project.folder --plugin https://github.com/litehelpers/Cordova-sqlite-storage
+plugman install --platform MYPLATFORM --project path.to.my.project.folder --plugin https://github.com/litehelpers/cordova-sqlite-common
 ```
 
-where MYPLATFORM is `android` or `ios`.
+where MYPLATFORM is `android`, `ios`, or `windows`.
 
 A posting how to get started developing on Windows host without the Cordova CLI tool (for Android target only) is available [here](http://brodybits.blogspot.com/2015/03/trying-cordova-for-android-on-windows-without-cordova-cli.html).
-
-**NOTE:** Automatic installation for the Windows target platform is *not* properly supported by the `plugman` tool.
 
 ## Easy install with Cordova CLI tool
 
     npm install -g cordova # if you don't have cordova
     cordova create MyProjectFolder com.my.project MyProject && cd MyProjectFolder # if you are just starting
-    cordova plugin add https://github.com/litehelpers/Cordova-sqlite-storage
+    cordova plugin add https://github.com/litehelpers/cordova-sqlite-common
  
 You can find more details at [this writeup](http://iphonedevlog.wordpress.com/2014/04/07/installing-chris-brodys-sqlite-database-with-cordova-cli-android/).
 
@@ -312,31 +321,33 @@ You can find more details at [this writeup](http://iphonedevlog.wordpress.com/20
 - `SQLitePlugin.coffee.md`: platform-independent (Literate coffee-script, can be read by recent coffee-script compiler)
 - `www`: `SQLitePlugin.js` platform-independent Javascript as generated from `SQLitePlugin.coffee.md` (and checked in!)
 - `src`: platform-specific source code:
+   - `external` - placeholder used to import `sqlite3.[hc]` in this version branch-needed to build Windows "Universal" (8.1) version
    - `android` - Java plugin code for Android
    - `android-classic` - Java plugin code for Amazon Fire-OS
    - `ios` - Objective-C plugin code for iOS;
-   - `windows` - Javascript proxy code and SQLite3-WinRT project for Windows (8.1);
+   - `windows` - Javascript proxy code and SQLite3-WinRT project for Windows "Universal" (8.1);
 - `spec`: test suite using Jasmine (2.2.0), ported from QUnit `test-www` test suite, working on all platforms
+- `tests`: very simple Jasmine test suite that is run on Circle CI (Android version) and Travis CI (iOS version)
 - `Lawnchair-adapter`: Lawnchair adaptor, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
 
 ## Manual installation - Android version
 
-These installation instructions are based on the Android example project from Cordova/PhoneGap 2.7.0. For your first time please unzip the PhoneGap 2.7 zipball and use the `lib/android/example` subdirectory.
+These installation instructions are based on the Android example project from Cordova/PhoneGap 2.7.0, using the `lib/android/example` subdirectory from the PhoneGap 2.7 zipball.
 
  - Install `SQLitePlugin.js` from `www` into `assets/www`
- - Install src/android/org/pgsqlite/SQLitePlugin.java from this repository into src/org/pgsqlite subdirectory
- - Add the plugin element `<plugin name="SQLitePlugin" value="org.pgsqlite.SQLitePlugin"/>` to res/xml/config.xml
+ - Install `SQLitePlugin.java` from `src/android/io/liteglue` into `src/io/liteglue` subdirectory
+ - Add the plugin element `<plugin name="SQLitePlugin" value="io.liteglue.SQLitePlugin"/>` to `res/xml/config.xml`
 
 Sample change to `res/xml/config.xml` for Cordova/PhoneGap 2.x:
 
 ```diff
---- config.xml.orig	2013-07-23 13:48:09.000000000 +0200
-+++ res/xml/config.xml	2013-07-23 13:48:26.000000000 +0200
+--- config.xml.orig	2015-04-14 14:03:05.000000000 +0200
++++ res/xml/config.xml	2015-04-14 14:08:08.000000000 +0200
 @@ -36,6 +36,7 @@
      <preference name="useBrowserHistory" value="true" />
      <preference name="exit-on-suspend" value="false" />
  <plugins>
-+    <plugin name="SQLitePlugin" value="org.pgsqlite.SQLitePlugin"/>
++    <plugin name="SQLitePlugin" value="io.liteglue.SQLitePlugin"/>
      <plugin name="App" value="org.apache.cordova.App"/>
      <plugin name="Geolocation" value="org.apache.cordova.GeoBroker"/>
      <plugin name="Device" value="org.apache.cordova.Device"/>
@@ -348,21 +359,23 @@ Before building for the first time, you have to update the project with the desi
 
 (assuming Android SDK 19, use the correct desired Android SDK number here)
 
-**NOTE:** using this plugin on Cordova pre-3.0 requires the following change to SQLitePlugin.java:
+**NOTE:** using this plugin on Cordova pre-3.0 requires the following changes to `SQLitePlugin.java`:
 
 ```diff
---- src/android/org/pgsqlite/SQLitePlugin.java	2013-09-10 21:36:20.000000000 +0200
-+++ SQLitePlugin.java.old	2013-09-10 21:35:14.000000000 +0200
-@@ -17,8 +17,8 @@
+diff -u Cordova-sqlite-storage/src/android/io/liteglue/SQLitePlugin.java src/io/liteglue/SQLitePlugin.java
+--- Cordova-sqlite-storage/src/android/io/liteglue/SQLitePlugin.java	2015-04-14 14:05:01.000000000 +0200
++++ src/io/liteglue/SQLitePlugin.java	2015-04-14 14:10:44.000000000 +0200
+@@ -22,8 +22,8 @@
+ import java.util.regex.Matcher;
+ import java.util.regex.Pattern;
  
- import java.util.HashMap;
- 
--import org.apache.cordova.CordovaPlugin;
 -import org.apache.cordova.CallbackContext;
-+import org.apache.cordova.api.CordovaPlugin;
+-import org.apache.cordova.CordovaPlugin;
 +import org.apache.cordova.api.CallbackContext;
++import org.apache.cordova.api.CordovaPlugin;
  
- import android.database.Cursor;
+ import org.json.JSONArray;
+ import org.json.JSONException;
 ```
 
 ## Manual installation - iOS version
@@ -375,15 +388,11 @@ In the Project "Build Phases" tab, select the _first_ "Link Binary with Librarie
 
 ### SQLite Plugin
 
-Drag .h and .m files into your project's Plugins folder (in xcode) -- I always
-just have "Create references" as the option selected.
+- Copy `SQLitePlugin.[hm]` from `src/ios` into your project Plugins folder and add them in XCode (I always just have "Create references" as the option selected).
+- Copy `SQLitePlugin.js` from `www` into your project `www` folder
+- Enable the SQLitePlugin in `config.xml`
 
-Take the precompiled javascript file from build/, or compile the coffeescript
-file in src/ to javascript WITH the top-level function wrapper option (default).
-
-Use the resulting javascript file in your HTML.
-
-Enable the SQLitePlugin in `config.xml` (Cordova/PhoneGap 2.x):
+Sample change to `config.xml` for Cordova/PhoneGap 2.x:
 
 ```diff
 --- config.xml.old	2013-05-17 13:18:39.000000000 +0200
@@ -398,11 +407,25 @@ Enable the SQLitePlugin in `config.xml` (Cordova/PhoneGap 2.x):
          <plugin name="Compass" value="CDVLocation" />
 ```
 
-## Manual installation - Windows (8.1) version
+## Manual installation - Windows "Universal" (8.1) version
 
-TODO
+Described above.
 
 ## Quick installation test
+
+Assuming your app has a recent template as used by the Cordova create script, add the following code to the `onDeviceReady` function, after `app.receivedEvent('deviceready');`:
+
+```Javascript
+  window.sqlitePlugin.openDatabase({ name: 'hello-world.db' }, function (db) {
+    db.executeSql("select length('tenletters') as stringlength", [], function (res) {
+      var stringlength = res.rows.item(0).stringlength;
+      console.log('got stringlength: ' + stringlength);
+      document.getElementById('deviceready').querySelector('.received').innerHTML = 'stringlength: ' + stringlength;
+   });
+  });
+```
+
+### Old installation test
 
 Make a change like this to index.html (or use the sample code) verify proper installation:
 
@@ -539,6 +562,8 @@ ingredients = new Lawnchair({db: "cookbook", name: "ingredients", ...}, myCallba
 
 The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawson](https://github.com/nolanlawson), see [PouchDB FAQ](http://pouchdb.com/faq.html).
 
+**NOTE:** For some reason, the PouchDB adapter does not pass all of its tests with this plugin.
+
 # Contributing
 
 **WARNING:** Please do NOT propose changes from your `master` branch. In general, contributions are rebased using `git rebase` or `git cherry-pick` and not merged.
@@ -556,7 +581,7 @@ The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawso
 
 ## Major branches
 
-- `common-src` - source for Android (*not* using [sqlite4java](https://code.google.com/p/sqlite4java/)), iOS, Windows (8.1), and Amazon Fire-OS versions (shared with [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter))
+- `cordova-sqlite-common`~~/`common-src`~~ - source for Android (*not* using [sqlite4java](https://code.google.com/p/sqlite4java/)), iOS, Windows (8.1), and Amazon Fire-OS versions (shared with [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter))
 - `new-common-src` - source for Android (using [sqlite4java](https://code.google.com/p/sqlite4java/)), iOS, Windows (8.1), and Amazon Fire-OS versions
 - `new-common-rc` - pre-release version for Android/iOS/Windows (8.1), including library dependencies for Android and Windows (8.1)
 - `wp-src` - source for Android (*not* using [sqlite4java](https://code.google.com/p/sqlite4java/)), iOS, WP(7/8), and Amazon Fire-OS versions
