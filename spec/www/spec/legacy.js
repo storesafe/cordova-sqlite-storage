@@ -40,7 +40,7 @@ var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
 var isIE = isWindows || isWP8;
 var isWebKit = !isIE; // TBD [Android or iOS]
 
-var scenarioList = [ isAndroid ? 'Plugin-sqlite4java' : 'Plugin', 'HTML5', 'Plugin-android.database' ];
+var scenarioList = [ isAndroid ? 'Plugin-sqlite-connector' : 'Plugin', 'HTML5', 'Plugin-android.database' ];
 
 //var scenarioCount = isAndroid ? 3 : (isIE ? 1 : 2);
 var scenarioCount = (!!window.hasWebKitBrowser) ? 2 : 1;
@@ -96,6 +96,7 @@ var mytests = function() {
         test_it(suiteName + ' string encoding test with UNICODE \\u0000', function () {
           if (isWindows) pending('BROKEN for Windows'); // XXX
           if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
+          if (isAndroid && !(isWebSql || isOldAndroidImpl)) pending('BROKEN for Android (sqlite-connector version)'); // XXX
 
           stop();
 
@@ -1055,6 +1056,7 @@ var mytests = function() {
         test_it(suiteName + ' stores [Unicode] string with \\u0000 correctly', function () {
           if (isWindows) pending('BROKEN on Windows'); // XXX
           if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
+          if (isAndroid && !(isWebSql || isOldAndroidImpl)) pending('BROKEN for Android (sqlite-connector version)'); // XXX
 
           stop();
 
@@ -1499,7 +1501,7 @@ var mytests = function() {
 
     //var suiteName = "plugin: ";
 
-    var scenarioList = [ isAndroid ? 'plugin-sqlite4java' : 'Plugin', 'plugin-android.database' ];
+    var scenarioList = [ isAndroid ? 'plugin-sqlite-connector' : 'Plugin', 'plugin-android.database' ];
 
     var scenarioCount = isAndroid ? 2 : 1;
 

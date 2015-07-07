@@ -19,7 +19,7 @@ var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
 var isIE = isWindows || isWP8;
 var isWebKit = !isIE; // TBD [Android or iOS]
 
-var scenarioList = [ isAndroid ? 'Plugin-sqlite4java' : 'Plugin', 'HTML5', 'Plugin-android.database' ];
+var scenarioList = [ isAndroid ? 'Plugin-sqlite-connector' : 'Plugin', 'HTML5', 'Plugin-android.database' ];
 
 //var scenarioCount = isAndroid ? 3 : (isIE ? 1 : 2);
 var scenarioCount = (!!window.hasWebKitBrowser) ? 2 : 1;
@@ -69,7 +69,7 @@ var mytests = function() {
       // Only test ICU-UNICODE with Android 5.0(+) (Web SQL):
       if (isWebSql && /Android [5-9]/.test(navigator.userAgent))
         it(suiteName + "ICU-UNICODE string manipulation test", function(done) {
-          if ((!isWebSql) && isAndroid) pending('BROKEN for Android version of plugin [with sqlite4java]');
+          if ((!isWebSql) && isAndroid) pending('BROKEN for Android version of plugin [with sqlite-connector]');
 
           var db = openDatabase("UNICODE-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
