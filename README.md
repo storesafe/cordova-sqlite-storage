@@ -343,7 +343,7 @@ You can find more details at [this writeup](http://iphonedevlog.wordpress.com/20
 - `www`: `SQLitePlugin.js` platform-independent Javascript as generated from `SQLitePlugin.coffee.md` (and checked in!)
 - `src`: platform-specific source code:
    - `external` - placeholder for external dependencies - *not required in this version*
-   - `android` - Java plugin code for Android (along with sqlite4java library);
+   - `android` - Java plugin code for Android ~~(along with sqlite4java library)~~;
    - `android-classic` - Java plugin code for Amazon Fire-OS
    - `ios` - Objective-C plugin code for iOS;
    - `windows` - Javascript proxy code and SQLite3-WinRT project for Windows "Universal" (8.1);
@@ -610,7 +610,7 @@ ingredients = new Lawnchair({db: "cookbook", name: "ingredients", ...}, myCallba
 
 The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawson](https://github.com/nolanlawson), see [PouchDB FAQ](http://pouchdb.com/faq.html).
 
-**NOTE:** For some reason, the PouchDB adapter does not pass all of its tests with the Android version of this plugin, unless you include `androidDatabaseImplementation: 2` in the `sqlitePlugin.openDatabase()` options as described above.
+**NOTE:** The PouchDB adapter ~~does not~~ _may not_ pass all of its tests with the Android version of this plugin, unless you include `androidDatabaseImplementation: 2` in the `sqlitePlugin.openDatabase()` options as described above.
 
 # Contributing
 

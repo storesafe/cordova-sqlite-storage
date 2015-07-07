@@ -33,14 +33,15 @@
         <source-file src="src/android/io/liteglue/SQLitePlugin.java" target-dir="src/io/liteglue"/>
         <source-file src="src/android/io/liteglue/SQLiteAndroidDatabase.java" target-dir="src/io/liteglue"/>
 
-        <!-- sqlite4java distribution for Android: -->
+        <!-- XXX GONE: sqlite4java distribution for Android: -
         <source-file src="src/android/sqlite4java/libs/sqlite4java.jar" target-dir="libs"/>
         <source-file src="src/android/sqlite4java/libs/armeabi/libsqlite4java-android-armv5tejl.so" target-dir="libs/armeabi"/>
         <source-file src="src/android/sqlite4java/libs/armeabi-v7a/libsqlite4java-android-armv7l.so" target-dir="libs/armeabi-v7a"/>
         <source-file src="src/android/sqlite4java/libs/x86/libsqlite4java-android-i686.so" target-dir="libs/x86"/>
-        <!-- 64-bit version(s): -->
+         - 64-bit version(s): -
         <source-file src="src/android/sqlite4java/libs/arm64-v8a/libsqlite4java-android-aarch64.so" target-dir="libs/arm64-v8a"/>
         <source-file src="src/android/sqlite4java/libs/x86_64/libsqlite4java-android-x86_64.so" target-dir="libs/x86_64"/>
+         -->
 
     </platform>
 
