@@ -1059,7 +1059,7 @@ var mytests = function() {
         test_it(suiteName + ' stores [Unicode] string with \\u0000 correctly', function () {
           if (isWindows) pending('BROKEN on Windows'); // XXX
           if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
-          if (isAndroid && !(isWebSql || isOldAndroidImpl)) pending('BROKEN for Android (sqlite-connector version)'); // XXX
+          if (isAndroid && !(isWebSql /*|| isOldAndroidImpl*/)) pending('BROKEN for Android (sqlite-connector version)'); // XXX
 
           stop();
 

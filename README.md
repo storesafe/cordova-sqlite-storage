@@ -22,7 +22,7 @@ License for iOS version: MIT only
   - Not tested with a Windows 10 (or Windows Phone 10) target; Windows 10 build is not expected to work with Windows Phone
 - FTS3, FTS4, and R-Tree support is tested working OK in this version (for target platforms Android/iOS/Windows "Universal")
 - Status for the other target platforms:
-  - Android: now using ~~the [sqlite4java](https://code.google.com/p/sqlite4java/) library (sqlite `3.8.7` embedded)~~ [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector), supporting FTS3/FTS4 and R-Tree
+  - Android: now using [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) (with sqlite `3.7.17`), with support for FTS3/FTS4 and R-Tree
   - iOS: sqlite `3.8.10.2` embedded
   - WP7: possible to build from C#, as specified by `plugin.xml` - **NOT TESTED**
   - WP8: performance/stability issues have been reported with the CSharp-SQLite library. Windows (universal) platform is recommended for the future. FTS3/FTS4/R-Tree are NOT supported for WP(7/8).
@@ -341,7 +341,7 @@ You can find more details at [this writeup](http://iphonedevlog.wordpress.com/20
 - `www`: `SQLitePlugin.js` platform-independent Javascript as generated from `SQLitePlugin.coffee.md` (and checked in!)
 - `src`: platform-specific source code:
    - `external` - placeholder for external dependencies - *not required in this version*
-   - `android` - Java plugin code for Android (along with ~~sqlite4java~~ [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) library);
+   - `android` - Java plugin code for Android (along with [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) and [Android-sqlite-native-driver](https://github.com/liteglue/Android-sqlite-native-driver) library jars)
    - `android-classic` - Java plugin code for Amazon Fire-OS
    - `ios` - Objective-C plugin code for iOS;
    - `windows` - Javascript proxy code and SQLite3-WinRT project for Windows "Universal" (8.1);
@@ -356,7 +356,7 @@ These installation instructions are based on the Android example project from Co
 
  - Install `SQLitePlugin.js` from `www` into `assets/www`
  - Install `SQLitePlugin.java` from `src/android/io/liteglue` into `src/io/liteglue` subdirectory
- - TBD Install ~~the `libs` subtree from `src/android/sqlite4java/libs`~~ [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) into your Android project
+ - Install the `libs` subtree with 2 jars from `src/android/libs` into your Android project
  - Add the plugin element `<plugin name="SQLitePlugin" value="io.liteglue.SQLitePlugin"/>` to `res/xml/config.xml`
 
 Sample change to `res/xml/config.xml` for Cordova/PhoneGap 2.x:
@@ -608,7 +608,7 @@ ingredients = new Lawnchair({db: "cookbook", name: "ingredients", ...}, myCallba
 
 The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawson](https://github.com/nolanlawson), see [PouchDB FAQ](http://pouchdb.com/faq.html).
 
-**NOTE:** For some reason, the PouchDB adapter does not pass all of its tests with the Android version of this plugin, unless you include `androidDatabaseImplementation: 2` in the `sqlitePlugin.openDatabase()` options as described above.
+**NOTE:** The PouchDB adapter has not been tested with the new [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector). You may need to include `androidDatabaseImplementation: 2` in the `sqlitePlugin.openDatabase()` options as described above.
 
 # Contributing
 
