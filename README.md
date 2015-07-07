@@ -22,7 +22,7 @@ License for iOS version: MIT only
   - Not tested with a Windows 10 (or Windows Phone 10) target; Windows 10 build is not expected to work with Windows Phone
 - FTS3, FTS4, and R-Tree support is tested working OK in this version (for target platforms Android/iOS/Windows "Universal")
 - Status for the other target platforms:
-  - Android: now using the [sqlite4java](https://code.google.com/p/sqlite4java/) library (sqlite `3.8.7` embedded), supporting FTS3/FTS4 and R-Tree
+  - Android: now using ~~the [sqlite4java](https://code.google.com/p/sqlite4java/) library (sqlite `3.8.7` embedded)~~ [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector), supporting FTS3/FTS4 and R-Tree
   - iOS: sqlite `3.8.10.2` embedded
   - WP7: possible to build from C#, as specified by `plugin.xml` - **NOT TESTED**
   - WP8: performance/stability issues have been reported with the CSharp-SQLite library. Windows (universal) platform is recommended for the future. FTS3/FTS4/R-Tree are NOT supported for WP(7/8).
@@ -31,11 +31,9 @@ License for iOS version: MIT only
 
 ## Announcements
 
+- Android version is now using the lightweight [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) by default configuration (may be changed as described below)
 - [Cordova sqlite storage (0.7.8) published](https://build.phonegap.com/plugins/3124) in PhoneGap Build
 - Windows "Universal" version now supports both Windows 8.1 and Windows Phone 8.1
-- Android version is now using the [sqlite4java](https://code.google.com/p/sqlite4java/) library by default configuration:
-  - NDK part rebuilt with `-DSQLITE_TEMP_STORE=3` CFLAG to support UPDATE properly;
-  - option to use the built-in Android database classes described below.
 - iOS version is now fixed to override the correct pluginInitialize method and should work with recent versions of iOS
 - Project has been renamed to prevent confusion with [davibe / Phonegap-SQLitePlugin](https://github.com/davibe/Phonegap-SQLitePlugin) (original version for iOS, with a different API)
 - New project location (should redirect)
@@ -65,13 +63,14 @@ License for iOS version: MIT only
 
 - Issue reported with PhoneGap Build Hydration.
 - For some reason, PhoneGap Build may fail to build the iOS version unless the name of the app starts with an uppercase and contains no spaces (see [#243](https://github.com/litehelpers/Cordova-sqlite-storage/issues/243); [Wizcorp/phonegap-facebook-plugin#830](https://github.com/Wizcorp/phonegap-facebook-plugin/issues/830); [phonegap/build#431](https://github.com/phonegap/build/issues/431)).
-- Multi-page apps are not supported and known to be broken on Android and Amazon Fire-OS.
-- Using web workers is currently not supported and known to be broken on Android and Amazon Fire-OS.
-- Triggers have only been tested on iOS, known to be broken on Android (in case [sqlite4java](https://code.google.com/p/sqlite4java/) is disabled) and Amazon Fire-OS.
-- INSERT statement that affects multiple rows (due to SELECT cause or using triggers, for example) does not report proper rowsAffected on Android (in case [sqlite4java](https://code.google.com/p/sqlite4java/) is disabled) or Amazon Fire-OS.
+- Multi-page apps are not supported and known to be broken on Android (and Amazon Fire-OS).
+- Using web workers is currently not supported and known to be broken on Android (and Amazon Fire-OS).
+- Triggers have only been tested on iOS, known to be broken on Android (in case [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) is disabled) and Amazon Fire-OS.
+- INSERT statement that affects multiple rows (due to SELECT cause or using triggers, for example) does not report proper rowsAffected on Android (in case [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) is disabled) or Amazon Fire-OS.
 - On Windows "Universal" (8.1), rowsAffected can be wrong when there are multiple levels of nesting of INSERT statements.
 - Memory issue observed when adding a large number of records on Android and Amazon Fire-OS, due to JSON implementation (ref: [#18](https://github.com/litehelpers/Cordova-sqlite-storage/issues/18))
 - A stability issue was reported on the iOS version when in use together with [SockJS](http://sockjs.org/) client such as [pusher-js](https://github.com/pusher/pusher-js) at the same time (see [#196](https://github.com/litehelpers/Cordova-sqlite-storage/issues/196)). The workaround is to call sqlite functions and [SockJS](http://sockjs.org/) client functions in separate ticks (using setTimeout with 0 timeout).
+- If a sql statement fails for which there is no error handler or the error handler does not return `false` to signal transaction recovery, the plugin fires the remaining sql callbacks before aborting the transaction.
 - DROP table does not actually delete it in WP(7/8) version, due to limitations of CSharp-SQLite.
 
 ## Other limitations
@@ -92,9 +91,10 @@ License for iOS version: MIT only
 
 ## Limited support (testing needed)
 
+- UNICODE paragraph separator (`\u2029`)
 - FTS3/FTS4 is not tested supported for Amazon Fire-OS or WP(7/8)
-- R-Tree is not tested for Android (in case [sqlite4java](https://code.google.com/p/sqlite4java/) is disabled), Amazon Fire-OS or WP(7/8)
-- DB Triggers (as described above - known to be broken for Amazon Fire-OS)
+- R-Tree is not tested for Android (in case [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) is disabled), Amazon Fire-OS or WP(7/8)
+- Database triggers as described above - known to be broken for Android (in case [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) is disabled) and Amazon Fire-OS
 - UNICODE characters not fully tested in the Windows "Universal" (8.1) version
 - JOIN needs to be tested more.
 
@@ -167,9 +167,7 @@ db = sqlitePlugin.openDatabase({name: "my.db", location: 2, createFromLocation: 
 
 ### Android sqlite implementation
 
-By default, this plugin uses [sqlite4java](https://code.google.com/p/sqlite4java/) which is more efficient than the built-in Android database classes. The  [sqlite4java](https://code.google.com/p/sqlite4java/) library consists of a Java part and a NDK part.
-
-Unfortunately some app developers have encountered problems using [sqlite4java](https://code.google.com/p/sqlite4java/) with Ionic and Crosswalk. To use the built-in Android database classes instead:
+By default, this plugin uses [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector), which is lightweight  and should be more efficient than the built-in Android database classes. To use the built-in Android database classes instead:
 
 ```js
 var db = window.sqlitePlugin.openDatabase({name: "my.db", androidDatabaseImplementation: 2});
@@ -343,7 +341,7 @@ You can find more details at [this writeup](http://iphonedevlog.wordpress.com/20
 - `www`: `SQLitePlugin.js` platform-independent Javascript as generated from `SQLitePlugin.coffee.md` (and checked in!)
 - `src`: platform-specific source code:
    - `external` - placeholder for external dependencies - *not required in this version*
-   - `android` - Java plugin code for Android ~~(along with sqlite4java library)~~;
+   - `android` - Java plugin code for Android (along with ~~sqlite4java~~ [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) library);
    - `android-classic` - Java plugin code for Amazon Fire-OS
    - `ios` - Objective-C plugin code for iOS;
    - `windows` - Javascript proxy code and SQLite3-WinRT project for Windows "Universal" (8.1);
@@ -357,8 +355,8 @@ You can find more details at [this writeup](http://iphonedevlog.wordpress.com/20
 These installation instructions are based on the Android example project from Cordova/PhoneGap 2.7.0, using the `lib/android/example` subdirectory from the PhoneGap 2.7 zipball.
 
  - Install `SQLitePlugin.js` from `www` into `assets/www`
- - Install `SQLiteAndroidDatabase.java` and `SQLitePlugin.java` from `src/android/io/liteglue` into `src/io/liteglue` subdirectory
- - Install the `libs` subtree from `src/android/sqlite4java/libs` into your Android project
+ - Install `SQLitePlugin.java` from `src/android/io/liteglue` into `src/io/liteglue` subdirectory
+ - TBD Install ~~the `libs` subtree from `src/android/sqlite4java/libs`~~ [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) into your Android project
  - Add the plugin element `<plugin name="SQLitePlugin" value="io.liteglue.SQLitePlugin"/>` to `res/xml/config.xml`
 
 Sample change to `res/xml/config.xml` for Cordova/PhoneGap 2.x:
@@ -610,7 +608,7 @@ ingredients = new Lawnchair({db: "cookbook", name: "ingredients", ...}, myCallba
 
 The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawson](https://github.com/nolanlawson), see [PouchDB FAQ](http://pouchdb.com/faq.html).
 
-**NOTE:** The PouchDB adapter ~~does not~~ _may not_ pass all of its tests with the Android version of this plugin, unless you include `androidDatabaseImplementation: 2` in the `sqlitePlugin.openDatabase()` options as described above.
+**NOTE:** For some reason, the PouchDB adapter does not pass all of its tests with the Android version of this plugin, unless you include `androidDatabaseImplementation: 2` in the `sqlitePlugin.openDatabase()` options as described above.
 
 # Contributing
 
@@ -638,11 +636,11 @@ The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawso
 
 ## Major branches
 
-- `cordova-sqlite-common` - source for Android (*not* using [sqlite4java](https://code.google.com/p/sqlite4java/)), iOS, Windows (8.1), and Amazon Fire-OS versions (shared with [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter))
-- `new-common-src` - source for Android (using [sqlite4java](https://code.google.com/p/sqlite4java/)), iOS, Windows (8.1), and Amazon Fire-OS versions
+- `cordova-sqlite-common` - source for Android (*not* using [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector)), iOS, Windows (8.1), and Amazon Fire-OS versions (shared with [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter))
+- `new-common-src` - source for Android (using [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector)), iOS, Windows (8.1), and Amazon Fire-OS versions
 - `new-common-rc` - pre-release version for Android/iOS/Windows (8.1), including library dependencies for Android and Windows (8.1)
-- `wp-src` - source for Android (*not* using [sqlite4java](https://code.google.com/p/sqlite4java/)), iOS, WP(7/8), and Amazon Fire-OS versions
-- `wp-master-rc` - pre-release version for Android(*not* using [sqlite4java](https://code.google.com/p/sqlite4java/))/iOS/WP(7/8), including source for CSharp-SQLite (C#) library classes
+- `wp-src` - source for Android (*not* using [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector)), iOS, WP(7/8), and Amazon Fire-OS versions
+- `wp-master-rc` - pre-release version for Android(*not* using [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector))/iOS/WP(7/8), including source for CSharp-SQLite (C#) library classes
 - `master-rc` - pre-release version for all supported platforms, including library dependencies for Android, Windows (8.1), and WP(7/8)
 - [FUTURE TBD] ~~`master` - version for release, to be included in PhoneGap build.~~
 

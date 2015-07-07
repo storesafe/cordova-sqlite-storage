@@ -8,8 +8,6 @@ package io.liteglue;
 
 import android.annotation.SuppressLint;
 
-import com.almworks.sqlite4java.*;
-
 import android.util.Base64;
 import android.util.Log;
 
@@ -42,6 +40,11 @@ public class SQLitePlugin extends CordovaPlugin {
      * FUTURE put DBRunner into a public class that can provide external accessor.
      */
     static ConcurrentHashMap<String, DBRunner> dbrmap = new ConcurrentHashMap<String, DBRunner>();
+
+    /**
+     * SQLiteGlueConnector (instance of SQLiteConnector) for NDK version:
+     */
+    static SQLiteConnector connector = new SQLiteConnector();
 
     /**
      * NOTE: Using default constructor, no explicit constructor.
@@ -226,7 +229,7 @@ public class SQLitePlugin extends CordovaPlugin {
                 cbc.success();
 
             return mydb;
-        } catch (SQLiteException e) {
+        } catch (Exception e) {
             if (cbc != null) // XXX Android locking/closing BUG workaround
                 cbc.error("can't open database " + e);
             throw e;
@@ -371,8 +374,8 @@ public class SQLitePlugin extends CordovaPlugin {
        */
       @Override
       void open(File dbFile) throws Exception {
-        mydb = new SQLiteConnection(dbFile);
-        mydb.open(true); /* create if db does not exist */
+        mydb = connector.newSQLiteConnection(dbFile.getAbsolutePath(),
+          SQLiteOpenFlags.READWRITE | SQLiteOpenFlags.CREATE);
       }
 
       /**
@@ -380,8 +383,12 @@ public class SQLitePlugin extends CordovaPlugin {
        */
       @Override
       void closeDatabaseNow() {
-        if (mydb != null)
+        try {
+          if (mydb != null)
             mydb.dispose();
+        } catch (Exception e) {
+            Log.e(SQLitePlugin.class.getSimpleName(), "couldn't close database, ignoring", e);
+        }
       }
 
       /**
@@ -430,7 +437,7 @@ public class SQLitePlugin extends CordovaPlugin {
 
                 queryResult.put("rowsAffected", rowsAffected);
                 if (rowsAffected > 0) {
-                    long insertId = mydb.getLastInsertId();
+                    long insertId = mydb.getLastInsertRowid();
                     if (insertId > 0) {
                         queryResult.put("insertId", insertId);
                     }
@@ -483,7 +490,7 @@ public class SQLitePlugin extends CordovaPlugin {
 
         boolean hasRows = false;
 
-        SQLiteStatement myStatement = mydb.prepare(query);
+        SQLiteStatement myStatement = mydb.prepareStatement(query);
 
         try {
             String[] params = null;
@@ -496,11 +503,11 @@ public class SQLitePlugin extends CordovaPlugin {
                 } else {
                     Object p = paramsAsJson.get(i);
                     if (p instanceof Float || p instanceof Double) 
-                        myStatement.bind(i + 1, paramsAsJson.getDouble(i));
+                        myStatement.bindDouble(i + 1, paramsAsJson.getDouble(i));
                     else if (p instanceof Number) 
-                        myStatement.bind(i + 1, paramsAsJson.getLong(i));
+                        myStatement.bindLong(i + 1, paramsAsJson.getLong(i));
                     else
-                        myStatement.bind(i + 1, paramsAsJson.getString(i));
+                        myStatement.bindTextNativeString(i + 1, paramsAsJson.getString(i));
                 }
             }
 
@@ -519,7 +526,7 @@ public class SQLitePlugin extends CordovaPlugin {
         if (hasRows) {
             JSONArray rowsArrayResult = new JSONArray();
             String key = "";
-            int colCount = myStatement.columnCount();
+            int colCount = myStatement.getColumnCount();
 
             // Build up JSON result object for each row
             do {
@@ -528,23 +535,23 @@ public class SQLitePlugin extends CordovaPlugin {
                     for (int i = 0; i < colCount; ++i) {
                         key = myStatement.getColumnName(i);
 
-                        switch (myStatement.columnType(i)) {
-                        case 5: // SQLITE_NULL
+                        switch (myStatement.getColumnType(i)) {
+                        case SQLColumnType.NULL:
                             row.put(key, JSONObject.NULL);
                             break;
 
-                        case 2: // SQLITE_FLOAT
-                            row.put(key, myStatement.columnDouble(i));
+                        case SQLColumnType.REAL:
+                            row.put(key, myStatement.getColumnDouble(i));
                             break;
 
-                        case 1: // SQLITE_INTEGER
-                            row.put(key, myStatement.columnLong(i));
+                        case SQLColumnType.INTEGER:
+                            row.put(key, myStatement.getColumnLong(i));
                             break;
 
-                        case 4: // [XXX TODO] SQLITE_BLOB
-                        case 3: // SQLITE3_TEXT
+                        case SQLColumnType.BLOB:
+                        case SQLColumnType.TEXT:
                         default: // (just in case)
-                            row.put(key, myStatement.columnString(i));
+                            row.put(key, myStatement.getColumnTextNativeString(i));
                         }
 
                     }
