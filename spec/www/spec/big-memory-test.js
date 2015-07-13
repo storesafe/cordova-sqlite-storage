@@ -26,12 +26,12 @@ var scenarioCount = 1;
 // FUTURE:
 //var scenarioCount = (!!window.hasWebKitBrowser) ? 2 : 1;
 
-// memory tests:
+// big memory test(s):
 var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
 
-    describe(scenarioList[i] + ': memory test(s)', function() {
+    describe(scenarioList[i] + ': big memory test(s)', function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
       var isWebSql = (i !== 0);
@@ -49,7 +49,7 @@ var mytests = function() {
         // litehelpers/Cordova-sqlite-storage#18 - thanks to @sonalk:
         it(suiteName + 'adding a large number of records', function(done) {
 
-          // XXX TODO: test on Cordova Windows "Universal" and WP8 platforms
+          if (isWP8) pending('BROKEN for WP(7/8)'); // Hangs on wp8 platform
 
           // remove next line to reproduce crash on Android version:
           if (isAndroid && !isWebSql) pending('BROKEN-crashing on Android version of plugin');
