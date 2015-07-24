@@ -8,7 +8,7 @@ License for Android, Windows "Universal" (8.1), Amazon Fire-OS, and WP(7/8) vers
 
 License for iOS version: MIT only
 
-|Android CI (full suite)|iOS CI (limited suite)|
+|Android CI (~~full~~ limited suite)|iOS CI (limited suite)|
 |-----------------------|----------------------|
 |[![Circle CI](https://circleci.com/gh/litehelpers/Cordova-sqlite-storage.svg?style=svg)](https://circleci.com/gh/litehelpers/Cordova-sqlite-storage)|[![Build Status](https://travis-ci.org/litehelpers/Cordova-sqlite-storage.svg?branch=master-rc)](https://travis-ci.org/litehelpers/Cordova-sqlite-storage)|
 
