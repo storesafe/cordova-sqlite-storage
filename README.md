@@ -31,6 +31,7 @@ License for iOS version: MIT only
 
 ## Announcements
 
+- [Cordova sqlite storage (0.7.10) published](https://build.phonegap.com/plugins/4067) in PhoneGap Build
 - Android version is now using the lightweight [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) by default configuration (may be changed as described below)
 - Windows "Universal" version now supports both Windows 8.1 and Windows Phone 8.1
 - iOS version is now fixed to override the correct pluginInitialize method and should work with recent versions of iOS
