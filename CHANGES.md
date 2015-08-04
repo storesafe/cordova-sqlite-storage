@@ -1,6 +1,6 @@
 # Changes
 
-## 0.7.10-pre
+## 0.7.10
 
 - Use Android-sqlite-connector instead of sqlite4java
 
