@@ -9,6 +9,7 @@
 #import "SQLitePlugin.h"
 
 #import "sqlite3.h"
+#import "spatialite.h"
 
 #include <regex.h>
 
@@ -47,6 +48,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 @implementation SQLitePlugin
 
 @synthesize openDBs;
+@synthesize openConnections;
 @synthesize appDBPaths;
 
 -(void)pluginInitialize
@@ -55,6 +57,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 
     {
         openDBs = [NSMutableDictionary dictionaryWithCapacity:0];
+        openConnections = [NSMutableDictionary dictionaryWithCapacity:0];
         appDBPaths = [NSMutableDictionary dictionaryWithCapacity:0];
 #if !__has_feature(objc_arc)
         [openDBs retain];
@@ -167,6 +170,12 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
                     // XXX TODO: close the db handle & [perhaps] remove from openDBs!!
                 }
             }
+            
+            // initialize spatialite
+            void* cache = spatialite_alloc_connection ();
+            spatialite_init_ex (db, cache, 1);
+            NSValue *cachePointer = [NSValue valueWithPointer:cache];
+            [openConnections setObject: cachePointer forKey: dbPointer];
         }
     }
 
@@ -226,6 +235,13 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
             NSLog(@"close db name: %@", dbFileName);
             sqlite3_close (db);
             [openDBs removeObjectForKey:dbFileName];
+            
+            // clean up spatialite
+            NSValue *cacheVal = [openConnections objectForKey:val];
+            void *cache = [cacheVal pointerValue];
+            spatialite_cleanup_ex(cache);
+            [openConnections removeObjectForKey:val];
+            
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"DB closed"];
         }
     }

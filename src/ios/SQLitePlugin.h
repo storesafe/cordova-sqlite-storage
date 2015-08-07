@@ -28,6 +28,7 @@ typedef int WebSQLError;
 }
 
 @property (nonatomic, copy) NSMutableDictionary *openDBs;
+@property (nonatomic, copy) NSMutableDictionary *openConnections;
 @property (nonatomic, copy) NSMutableDictionary *appDBPaths;
 
 // Open / Close
