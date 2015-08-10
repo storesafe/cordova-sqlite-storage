@@ -14,6 +14,7 @@ License for iOS version: MIT only
 
 ## Status
 
+- Free support is available in public locations such as [litehelpers / Cordova-sqlite-storage / issues](https://github.com/litehelpers/Cordova-sqlite-storage/issues) and https://gitter.im/litehelpers/Cordova-sqlite-storage; commercial support is available by contacting: info@litehelpers.net
 - Windows "Universal" (8.1) version is in an experimental/pre-alpha state:
   - Database close and delete operations not yet implemented
   - No background processing (for future consideration)
@@ -28,6 +29,7 @@ License for iOS version: MIT only
   - WP8: performance/stability issues have been reported with the CSharp-SQLite library. Windows ("Universal") platform is recommended for the future. FTS3/FTS4/R-Tree are NOT supported for WP(7/8).
 - Android is supported back to SDK 10 (a.k.a. Gingerbread, Android 2.3.3); support for older versions is available upon request.
 - API to open the database may be changed somewhat to be more streamlined. Transaction and single-statement query API will NOT be changed.
+- In case of memory issues please use smaller transactions or use the version (with a different licensing scheme) at: [litehelpers / Cordova-sqlite-enterprise-free](https://github.com/litehelpers/Cordova-sqlite-enterprise-free)
 
 ## Announcements
 
@@ -100,6 +102,7 @@ License for iOS version: MIT only
 
 ## Other versions
 
+- [litehelpers / Cordova-sqlite-enterprise-free](https://github.com/litehelpers/Cordova-sqlite-enterprise-free) - internal memory improvements to support larger transactions (with a different licensing scheme)
 - [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter) - supports [SQLCipher](https://www.zetetic.net/sqlcipher/) for Android, iOS, and Windows (8.1)
 - Original version for iOS (with a different API): [davibe / Phonegap-SQLitePlugin](https://github.com/davibe/Phonegap-SQLitePlugin)
 
@@ -522,7 +525,9 @@ If you have an issue with the plugin please check the following first:
 - You have included the correct version of the cordova Javascript and SQLitePlugin.js and got the path right.
 - You have registered the plugin properly in `config.xml`.
 
-If you still cannot get something to work:
+If you still cannot get something to work, please create a fresh, clean Cordova project, add this plugin according to the instructions above, and try a simple test program.
+
+If you continue to see the issue in a fresh, clean Cordova project:
 - Make the simplest test program you can to demonstrate the issue, including the following characteristics:
   - it completely self-contained, i.e. it is using no extra libraries beyond cordova & SQLitePlugin.js;
   - if the issue is with *adding* data to a table, that the test program includes the statements you used to open the database and create the table;
@@ -538,7 +543,7 @@ If you have any questions about the plugin:
 
 ## Professional support
 
-Professional support is available, please contact <info@litehelpers.net>.
+Professional support is available, you may contact: <info@litehelpers.net>
 
 # Unit tests
 
