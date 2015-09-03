@@ -12,9 +12,17 @@ License for iOS version: MIT only
 |-----------------------|----------------------|
 |[![Circle CI](https://circleci.com/gh/litehelpers/Cordova-sqlite-storage.svg?style=svg)](https://circleci.com/gh/litehelpers/Cordova-sqlite-storage)|[![Build Status](https://travis-ci.org/litehelpers/Cordova-sqlite-storage.svg?branch=master-rc)](https://travis-ci.org/litehelpers/Cordova-sqlite-storage)|
 
+## New support policy
+
+Due to some changing priorities, free support will be provided on a very limited basis as described in the [support section](#Support).
+
+ in public locations such as [litehelpers / Cordova-sqlite-storage / issues](https://github.com/litehelpers/Cordova-sqlite-storage/issues) and [litehelpers / Cordova-sqlite-help](https://github.com/litehelpers/Cordova-sqlite-help).
+
+Commercial support is available by contacting: <info@litehelpers.net>
+
 ## Status
 
-- Free support is available in public locations such as [litehelpers / Cordova-sqlite-storage / issues](https://github.com/litehelpers/Cordova-sqlite-storage/issues) and https://gitter.im/litehelpers/Cordova-sqlite-storage; commercial support is available by contacting: info@litehelpers.net
+such as [litehelpers / Cordova-sqlite-storage / issues](https://github.com/litehelpers/Cordova-sqlite-storage/issues) and https://gitter.im/litehelpers/Cordova-sqlite-storage; commercial support is available by contacting: info@litehelpers.net
 - Windows "Universal" (8.1) version is in an experimental/pre-alpha state:
   - Database close and delete operations not yet implemented
   - No background processing (for future consideration)
@@ -517,7 +525,15 @@ Make a change like this to index.html (or use the sample code) verify proper ins
 
 # Support
 
-## Reporting issues
+## Policy
+
+As described above, free support will be provided on a very limited basis due to some changing priorities. You may have to wait a few days or even 1-2 weeks in some cases. Please follow the steps below to be sure you have done your best before asking for help.
+
+In addition, free support is only available in public forums.
+
+Commercial support is available by contacting: <info@litehelpers.net>
+
+## Before asking for help
 
 If you have an issue with the plugin please check the following first:
 - You are using the latest version of the Plugin Javascript & platform-specific Java or Objective-C source from this repository.
@@ -527,23 +543,37 @@ If you have an issue with the plugin please check the following first:
 
 If you still cannot get something to work, please create a fresh, clean Cordova project, add this plugin according to the instructions above, and try a simple test program.
 
-If you continue to see the issue in a fresh, clean Cordova project:
+If you continue to see the issue in a new, clean Cordova project:
 - Make the simplest test program you can to demonstrate the issue, including the following characteristics:
   - it completely self-contained, i.e. it is using no extra libraries beyond cordova & SQLitePlugin.js;
   - if the issue is with *adding* data to a table, that the test program includes the statements you used to open the database and create the table;
   - if the issue is with *retrieving* data from a table, that the test program includes the statements you used to open the database, create the table, and enter the data you are trying to retrieve.
 
-Then you can [raise the new issue](https://github.com/litehelpers/Cordova-sqlite-storage/issues/new).
+## Before asking for help with a pre-populated database
 
-## Community forum
+This plugin has been tested and successfully used with pre-populated databases. But you have to do it very carefully. If you are having any trouble, please start with a new, clean Cordova project, add this plugin, use the `sqlite3` tool to make a small test database, and try to read it.
 
-If you have any questions about the plugin:
-- [![Join the chat at https://gitter.im/litehelpers/Cordova-sqlite-storage](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/litehelpers/Cordova-sqlite-storage?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [Join the chat at https://gitter.im/litehelpers/Cordova-sqlite-storage](https://gitter.im/litehelpers/Cordova-sqlite-storage)
-- experimental discussion forum at [Ost.io / @litehelpers / Cordova-sqlite-storage](http://ost.io/@litehelpers/Cordova-sqlite-storage) (notifications not working)
+## What will be supported for free
+
+Please make a small, self-contained test program that can demonstrate your problem and post it. Please do not use any other plugins or frameworks than are absolutely necessary to demonstrate your problem.
+
+In case of a problem with a pre-populated database, please post your entire project.
+
+## Support for issues with Angular/"ngCordova"/Ionic
+
+Free support for issues with Angular/"ngCordova"/Ionic will only be provided if you can demonstrate that you can do the same thing without such a framework.
+- Make a fresh, clean ngCordova or Ionic project with a test program that demonstrates the issue and post it. Please do not use any other plugins or frameworks unless absolutely necessary to demonstrate your issue.
+- Make another project without any form of Angular including ngCordova or Ionic, with the same test program to show that it will work outside Angular/"ngCordova"/Ionic.
+
+## Where to ask for help
+
+Once you have followed the directions above, free support is available in the following locations:
+- [litehelpers / Cordova-sqlite-help](https://github.com/litehelpers/Cordova-sqlite-help)
+- [litehelpers / Cordova-sqlite-storage / issues](https://github.com/litehelpers/Cordova-sqlite-storage/issues)
 
 ## Professional support
 
-Professional support is available, you may contact: <info@litehelpers.net>
+Professional support is available, please contact: <info@litehelpers.net>
 
 # Unit tests
 
