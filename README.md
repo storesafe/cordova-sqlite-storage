@@ -1,7 +1,5 @@
 # Cordova/PhoneGap sqlite storage adapter
 
-[![Join the chat at https://gitter.im/litehelpers/Cordova-sqlite-storage](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/litehelpers/Cordova-sqlite-storage?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
- 
 Native interface to sqlite in a Cordova/PhoneGap plugin for Android, iOS, Windows "Universal" (8.1), Amazon Fire-OS, and WP(7/8) with API similar to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
 
 License for Android, Windows "Universal" (8.1), Amazon Fire-OS, and WP(7/8) versions: MIT or Apache 2.0
@@ -16,13 +14,10 @@ License for iOS version: MIT only
 
 Due to some changing priorities, free support will be provided on a very limited basis as described in the [support section](#Support).
 
- in public locations such as [litehelpers / Cordova-sqlite-storage / issues](https://github.com/litehelpers/Cordova-sqlite-storage/issues) and [litehelpers / Cordova-sqlite-help](https://github.com/litehelpers/Cordova-sqlite-help).
-
 Commercial support is available by contacting: <info@litehelpers.net>
 
 ## Status
 
-such as [litehelpers / Cordova-sqlite-storage / issues](https://github.com/litehelpers/Cordova-sqlite-storage/issues) and https://gitter.im/litehelpers/Cordova-sqlite-storage; commercial support is available by contacting: info@litehelpers.net
 - Windows "Universal" (8.1) version is in an experimental/pre-alpha state:
   - Database close and delete operations not yet implemented
   - No background processing (for future consideration)
@@ -660,7 +655,7 @@ The adapter is now part of [PouchDB](http://pouchdb.com/) thanks to [@nolanlawso
 - Other enhancements welcome for consideration, when submitted with test code and are working for all supported platforms. Increase of complexity should be avoided.
 - All contributions may be reused by [@brodybits (Chris Brody)](https://github.com/brodybits) under another license in the future. Efforts will be taken to give credit for major contributions but it will not be guaranteed.
 - Project restructuring, i.e. moving files and/or directories around, should be avoided if possible.
-- If you see a need for restructuring, it is better to first discuss it [in the Cordova-sqlite-storage gitter.im chat](https://gitter.im/litehelpers/Cordova-sqlite-storage) (or in a [new issue](https://github.com/litehelpers/Cordova-sqlite-storage/issues/new)) where alternatives can be discussed before reaching a conclusion. If you want to propose a change to the project structure:
+- If you see a need for restructuring, it is better to discuss it first in a [new issue](https://github.com/litehelpers/Cordova-sqlite-storage/issues/new) where alternatives can be discussed before reaching a conclusion. If you want to propose a change to the project structure:
   - Remember to make (and use) a special branch within your fork from which you can send the proposed restructuring;
   - Always use `git mv` to move files & directories;
   - Never mix a move/rename operation with any other changes in the same commit.
