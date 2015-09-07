@@ -31,11 +31,7 @@
         </config-file>
 
         <source-file src="src/android/io/liteglue/SQLitePlugin.java" target-dir="src/io/liteglue"/>
-        <source-file src="src/android/io/liteglue/SQLiteAndroidDatabase.java" target-dir="src/io/liteglue"/>
-
-        <!-- Android-sqlite-connector: -->
-        <source-file src="src/android/libs/sqlite-native-driver.jar" target-dir="libs"/>
-        <source-file src="src/android/libs/sqlite-connector.jar" target-dir="libs"/>
+        <source-file src="src/android/io/liteglue/SpatialiteDatabase.java" target-dir="src/io/liteglue"/>
 
         <source-file src="src/android/jsqlite/Authorizer.java" target-dir="src/jsqlite/" />
         <source-file src="src/android/jsqlite/Backup.java" target-dir="src/jsqlite/" />
