@@ -149,7 +149,7 @@ public class Shell implements Callback {
     static boolean is_numeric(String str) {
 	try {
 	    Double.valueOf(str);
-	} catch (Exception e) {
+	} catch (NumberFormatException e) {
 	    return false;
 	}
 	return true;

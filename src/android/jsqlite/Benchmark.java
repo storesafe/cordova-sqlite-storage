@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Enumeration;
 import java.util.Vector;
+import java.lang.Exception;
 
 public class Benchmark {
 
