@@ -77,7 +77,12 @@ class SpatialiteDatabase
      */
     void closeDatabaseNow() {
         if (mydb != null) {
-            mydb.close();
+            try {
+                mydb.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.v(SpatialiteDatabase.class.getSimpleName(), "closeDatabaseNow(): Error=" + e.getMessage());
+            }
             mydb = null;
         }
     }
@@ -270,7 +275,7 @@ class SpatialiteDatabase
         cbc.success(batchResults);
     }
 
-    private void bindArgsToStatement(Stmt myStatement, JSONArray sqlArgs) throws JSONException {
+    private void bindArgsToStatement(Stmt myStatement, JSONArray sqlArgs) throws Exception {
         for (int i = 0; i < sqlArgs.length(); i++) {
             if (sqlArgs.get(i) instanceof Float || sqlArgs.get(i) instanceof Double) {
                 myStatement.bind(i + 1, sqlArgs.getDouble(i));
