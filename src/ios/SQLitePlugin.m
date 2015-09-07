@@ -143,6 +143,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 
             /* Option to create from resource (pre-populated) if db does not exist: */
             if (![[NSFileManager defaultManager] fileExistsAtPath:dbname]) {
+				NSLog(@"Unable to find database, creating new instance...");
                 NSString *createFromResource = [options objectForKey:@"createFromResource"];
                 if (createFromResource != NULL)
                     [self createFromResource:dbfilename withDbname:dbname];
