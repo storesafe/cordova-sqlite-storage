@@ -66,9 +66,9 @@ class SpatialiteDatabase
         Log.d(SpatialiteDatabase.class.getSimpleName(), "Open sqlite db: " + dbfile.getAbsolutePath());
         mydb = new Database();
         mydb.open(dbfile.getAbsolutePath(), jsqlite.Constants.SQLITE_OPEN_READWRITE);
-        Log.d(SpatialiteDatabase.class.getSimpleName(), "DB version: " + db.dbversion());
-        Log.d(SpatialiteDatabase.class.getSimpleName(), "Last error: " + db.error_message());
-        TableResult result = db.get_table("geometry_columns");
+        Log.d(SpatialiteDatabase.class.getSimpleName(), "DB version: " + mydb.dbversion());
+        Log.d(SpatialiteDatabase.class.getSimpleName(), "Last error: " + mydb.error_message());
+        TableResult result = mydb.get_table("geometry_columns");
         Log.d(SpatialiteDatabase.class.getSimpleName(), "Result rows: " + result.nrows);
     }
 
@@ -296,7 +296,7 @@ class SpatialiteDatabase
         Stmt stmt = null;
         try {
             stmt = mydb.prepare(query);
-            if (jsonparams != null) {
+            if (paramsAsJson != null) {
                 bindArgsToStatement(stmt, paramsAsJson);
             }
 
@@ -321,9 +321,7 @@ class SpatialiteDatabase
             throw ex;
         }
 
-
-
-        if (cur != null) {
+        if (stmt != null) {
             stmt.close();
         }
 

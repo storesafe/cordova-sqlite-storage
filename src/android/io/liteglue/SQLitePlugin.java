@@ -42,11 +42,6 @@ public class SQLitePlugin extends CordovaPlugin {
     static ConcurrentHashMap<String, DBRunner> dbrmap = new ConcurrentHashMap<String, DBRunner>();
 
     /**
-     * SQLiteGlueConnector (instance of SQLiteConnector) for NDK version:
-     */
-    static SQLiteConnector connector = new SQLiteConnector();
-
-    /**
      * NOTE: Using default constructor, no explicit constructor.
      */
 
