@@ -217,6 +217,7 @@ public class SQLitePlugin extends CordovaPlugin {
             if (!dbfile.exists() && createFromAssets) this.createFromAssets(dbname, dbfile);
 
             if (!dbfile.exists()) {
+                Log.v("info", "Unable to find database " + dbfile.toString() + ", creating new file!");
                 dbfile.getParentFile().mkdirs();
             }
 

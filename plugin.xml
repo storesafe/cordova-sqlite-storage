@@ -37,6 +37,23 @@
         <source-file src="src/android/libs/sqlite-native-driver.jar" target-dir="libs"/>
         <source-file src="src/android/libs/sqlite-connector.jar" target-dir="libs"/>
 
+        <source-file src="src/android/jsqlite/Authorizer.java" target-dir="src/jsqlite/" />
+        <source-file src="src/android/jsqlite/Backup.java" target-dir="src/jsqlite/" />
+        <source-file src="src/android/jsqlite/Blob.java" target-dir="src/jsqlite/" />
+        <source-file src="src/android/jsqlite/BusyHandler.java" target-dir="src/jsqlite/" />
+        <source-file src="src/android/jsqlite/Callback.java" target-dir="src/jsqlite/" />
+        <source-file src="src/android/jsqlite/Constants.java" target-dir="src/jsqlite/" />
+        <source-file src="src/android/jsqlite/Database.java" target-dir="src/jsqlite/" />
+        <source-file src="src/android/jsqlite/Exception.java" target-dir="src/jsqlite/" />
+        <source-file src="src/android/jsqlite/Function.java" target-dir="src/jsqlite/" />
+        <source-file src="src/android/jsqlite/FunctionContext.java" target-dir="src/jsqlite/" />
+        <source-file src="src/android/jsqlite/Profile.java" target-dir="src/jsqlite/" />
+        <source-file src="src/android/jsqlite/ProgressHandler.java" target-dir="src/jsqlite/" />
+        <source-file src="src/android/jsqlite/Stmt.java" target-dir="src/jsqlite/" />
+        <source-file src="src/android/jsqlite/TableResult.java" target-dir="src/jsqlite/" />
+        <source-file src="src/android/jsqlite/Trace.java" target-dir="src/jsqlite/" />
+        <source-file src="src/android/jsqlite/Vm.java" target-dir="src/jsqlite/" />
+
     </platform>
 
     <!-- ios -->
