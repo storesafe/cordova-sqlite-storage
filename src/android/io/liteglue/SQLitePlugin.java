@@ -32,6 +32,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
 
+import java.net.URI;
+
 public class SQLitePlugin extends CordovaPlugin {
 
     /**

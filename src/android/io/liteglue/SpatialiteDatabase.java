@@ -306,7 +306,7 @@ class SpatialiteDatabase
             while (stmt.step()) {
                 JSONObject row = new JSONObject();
                 for (int i = 0; i < stmt.column_count(); i++) {
-                    row.put(String.valueOf(i), stmt.column_string(i));
+                    row.put(stmt.column_name(i), stmt.column_string(i));
                 }
                 rowsArrayResult.put(row);
             }
