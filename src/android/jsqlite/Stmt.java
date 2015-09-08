@@ -239,6 +239,13 @@ public class Stmt {
     }
 
     /**
+     * Return column name of the SQLite3 statement.
+     * @param col column number, 0-based
+     * @return String
+     */
+    public native String column_name(int col) throws jsqlite.Exception;
+
+    /**
      * Return table name of column of SQLite3 statement.
      * @param col column number, 0-based
      * @return String or null

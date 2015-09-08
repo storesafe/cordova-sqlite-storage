@@ -207,7 +207,8 @@ public class SQLitePlugin extends CordovaPlugin {
             // ASSUMPTION: no db (connection/handle) is already stored in the map
             // [should be true according to the code in DBRunner.run()]
 
-            File dbfile = this.cordova.getActivity().getDatabasePath(dbname);
+            // create database file from uri
+            File dbfile = new File(new URI(dbname));
 
             if (!dbfile.exists() && createFromAssets) this.createFromAssets(dbname, dbfile);
 

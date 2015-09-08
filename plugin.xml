@@ -50,6 +50,10 @@
         <source-file src="src/android/jsqlite/Trace.java" target-dir="src/jsqlite/" />
         <source-file src="src/android/jsqlite/Vm.java" target-dir="src/jsqlite/" />
 
+        <source-file src="src/android/native/armeabi/libjsqlite.so" target-dir="libs/armeabi/" />
+        <source-file src="src/android/native/armeabi-v7a/libjsqlite.so" target-dir="libs/armeabi-v7a/" />
+        <source-file src="src/android/native/x86/libjsqlite.so" target-dir="libs/x86/" />
+
     </platform>
 
     <!-- ios -->
