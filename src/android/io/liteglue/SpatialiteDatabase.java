@@ -7,25 +7,17 @@
 package io.liteglue;
 
 import android.annotation.SuppressLint;
-
-import android.util.Base64;
 import android.util.Log;
-
 import jsqlite.Database;
 import jsqlite.Stmt;
-import jsqlite.TableResult;
-
-import java.io.File;
-import java.lang.IllegalArgumentException;
-import java.lang.Number;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.cordova.CallbackContext;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Android Database helper class
@@ -294,7 +286,7 @@ class SpatialiteDatabase {
     private JSONObject executeSqlStatementQuery(String query, JSONArray paramsAsJson,
                                                 CallbackContext cbc) throws Exception {
         JSONObject rowsResult = new JSONObject();
-        Stmt stmt = null;
+        Stmt stmt;
         try {
             stmt = mydb.prepare(query);
             if (paramsAsJson != null) {
@@ -305,7 +297,8 @@ class SpatialiteDatabase {
             while (stmt.step()) {
                 JSONObject row = new JSONObject();
                 for (int i = 0; i < stmt.column_count(); i++) {
-                    row.put(stmt.column_name(i), stmt.column_string(i));
+                    Object columnValue = stmt.column(i);
+                    row.put(stmt.column_name(i), columnValue == null ? stmt.column_string(i) : columnValue);
                 }
                 rowsArrayResult.put(row);
             }
@@ -321,10 +314,7 @@ class SpatialiteDatabase {
             Log.v("executeSqlBatch", "SpatialiteDatabase.executeSql[Batch](): Error=" + errorMessage);
             throw ex;
         }
-
-        if (stmt != null) {
-            stmt.close();
-        }
+        stmt.close();
 
         return rowsResult;
     }
