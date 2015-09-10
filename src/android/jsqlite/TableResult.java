@@ -9,21 +9,21 @@ import java.util.Vector;
  * convenience method.
  * <BR><BR>
  * Example:<BR>
- *
+ * <p>
  * <PRE>
- *   ...
- *   SQLite.Database db = new SQLite.Database();
- *   db.open("db", 0);
- *   System.out.print(db.get_table("select * from TEST"));
- *   ...
+ * ...
+ * SQLite.Database db = new SQLite.Database();
+ * db.open("db", 0);
+ * System.out.print(db.get_table("select * from TEST"));
+ * ...
  * </PRE>
  * Example output:<BR>
- *
+ * <p>
  * <PRE>
- *   id|firstname|lastname|
- *   0|John|Doe|
- *   1|Speedy|Gonzales|
- *   ...
+ * id|firstname|lastname|
+ * 0|John|Doe|
+ * 1|Speedy|Gonzales|
+ * ...
  * </PRE>
  */
 
@@ -76,7 +76,7 @@ public class TableResult implements Callback {
      */
 
     public TableResult() {
-	clear();
+        clear();
     }
 
     /**
@@ -84,8 +84,8 @@ public class TableResult implements Callback {
      */
 
     public TableResult(int maxrows) {
-	this.maxrows = maxrows;
-	clear();
+        this.maxrows = maxrows;
+        clear();
     }
 
     /**
@@ -93,11 +93,11 @@ public class TableResult implements Callback {
      */
 
     public void clear() {
-	column = new String[0];
-	types = null;
-	rows = new Vector<String[]>();
-	ncolumns = nrows = 0;
-	atmaxrows = false;
+        column = new String[0];
+        types = null;
+        rows = new Vector<String[]>();
+        ncolumns = nrows = 0;
+        atmaxrows = false;
     }
 
     /**
@@ -106,8 +106,8 @@ public class TableResult implements Callback {
 
     @Override
     public void columns(String coldata[]) {
-	column = coldata;
-	ncolumns = column.length;
+        column = coldata;
+        ncolumns = column.length;
     }
 
     /**
@@ -116,7 +116,7 @@ public class TableResult implements Callback {
 
     @Override
     public void types(String types[]) {
-	this.types = types;
+        this.types = types;
     }
 
     /**
@@ -125,15 +125,15 @@ public class TableResult implements Callback {
 
     @Override
     public boolean newrow(String rowdata[]) {
-	if (rowdata != null) {
-	    if (maxrows > 0 && nrows >= maxrows) {
-		atmaxrows = true;
-		return true;
-	    }
-	    rows.addElement(rowdata);
-	    nrows++;
-	}
-	return false;
+        if (rowdata != null) {
+            if (maxrows > 0 && nrows >= maxrows) {
+                atmaxrows = true;
+                return true;
+            }
+            rows.addElement(rowdata);
+            nrows++;
+        }
+        return false;
     }
 
     /**
@@ -142,22 +142,22 @@ public class TableResult implements Callback {
 
     @Override
     public String toString() {
-	StringBuffer sb = new StringBuffer();
-	int i;
-	for (i = 0; i < ncolumns; i++) {
-	    sb.append(column[i] == null ? "NULL" : column[i]);
-	    sb.append('|');
-	}
-	sb.append('\n');
-	for (i = 0; i < nrows; i++) {
-	    int k;
-	    String row[] = rows.elementAt(i);
-	    for (k = 0; k < ncolumns; k++) {
-		sb.append(row[k] == null ? "NULL" : row[k]);
-		sb.append('|');
-	    }
-	    sb.append('\n');
-	}
-	return sb.toString();
+        StringBuffer sb = new StringBuffer();
+        int i;
+        for (i = 0; i < ncolumns; i++) {
+            sb.append(column[i] == null ? "NULL" : column[i]);
+            sb.append('|');
+        }
+        sb.append('\n');
+        for (i = 0; i < nrows; i++) {
+            int k;
+            String row[] = rows.elementAt(i);
+            for (k = 0; k < ncolumns; k++) {
+                sb.append(row[k] == null ? "NULL" : row[k]);
+                sb.append('|');
+            }
+            sb.append('\n');
+        }
+        return sb.toString();
     }
 }

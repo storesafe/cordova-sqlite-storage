@@ -17,9 +17,9 @@ public class Backup {
      */
 
     protected void finish() throws jsqlite.Exception {
-	synchronized(this) {
-	    _finalize();
-	}
+        synchronized (this) {
+            _finalize();
+        }
     }
 
     /**
@@ -27,12 +27,12 @@ public class Backup {
      */
 
     protected void finalize() {
-	synchronized(this) {
-	    try {
-		_finalize();
-	    } catch (jsqlite.Exception e) {
-	    }
-	}
+        synchronized (this) {
+            try {
+                _finalize();
+            } catch (jsqlite.Exception e) {
+            }
+        }
     }
 
     protected native void _finalize() throws jsqlite.Exception;
@@ -45,9 +45,9 @@ public class Backup {
      */
 
     public boolean step(int n) throws jsqlite.Exception {
-	synchronized(this) {
-	    return _step(n);
-	}
+        synchronized (this) {
+            return _step(n);
+        }
     }
 
     private native boolean _step(int n) throws jsqlite.Exception;
@@ -57,9 +57,9 @@ public class Backup {
      */
 
     public void backup() throws jsqlite.Exception {
-	synchronized(this) {
-	    _step(-1);
-	}
+        synchronized (this) {
+            _step(-1);
+        }
     }
 
     /**
@@ -67,9 +67,9 @@ public class Backup {
      */
 
     public int remaining() throws jsqlite.Exception {
-	synchronized(this) {
-	    return _remaining();
-	}
+        synchronized (this) {
+            return _remaining();
+        }
     }
 
     private native int _remaining() throws jsqlite.Exception;
@@ -79,9 +79,9 @@ public class Backup {
      */
 
     public int pagecount() throws jsqlite.Exception {
-	synchronized(this) {
-	    return _pagecount();
-	}
+        synchronized (this) {
+            return _pagecount();
+        }
     }
 
     private native int _pagecount() throws jsqlite.Exception;
@@ -93,7 +93,7 @@ public class Backup {
     private static native void internal_init();
 
     static {
-	internal_init();
+        internal_init();
     }
 }
 

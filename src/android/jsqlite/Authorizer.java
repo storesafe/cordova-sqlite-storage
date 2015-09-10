@@ -20,6 +20,6 @@ public interface Authorizer {
      */
 
     public int authorize(int what, String arg1, String arg2, String arg3,
-			 String arg4);
+                         String arg4);
 }
 

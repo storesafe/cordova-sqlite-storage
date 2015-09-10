@@ -357,7 +357,7 @@ public class Database {
             }
         } else {
             synchronized (this) {
-		/* only one statement !!! */
+        /* only one statement !!! */
                 Vm vm = compile(sql, args);
                 set_last_error(vm.error_code);
                 if (ret.maxrows > 0) {

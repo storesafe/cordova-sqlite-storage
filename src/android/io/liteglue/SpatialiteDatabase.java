@@ -30,8 +30,7 @@ import org.json.JSONObject;
 /**
  * Android Database helper class
  */
-class SpatialiteDatabase
-{
+class SpatialiteDatabase {
     private static final Pattern FIRST_WORD = Pattern.compile("^\\s*(\\S+)",
             Pattern.CASE_INSENSITIVE);
 
@@ -55,7 +54,7 @@ class SpatialiteDatabase
     /**
      * Open a database.
      *
-     * @param dbfile   The database File specification
+     * @param dbfile The database File specification
      */
     void open(File dbfile) throws Exception {
         dbFile = dbfile; // for possible bug workaround
@@ -95,7 +94,7 @@ class SpatialiteDatabase
      */
     @SuppressLint("NewApi")
     void executeSqlBatch(String[] queryarr, JSONArray[] jsonparams,
-                                 String[] queryIDs, CallbackContext cbc) {
+                         String[] queryIDs, CallbackContext cbc) {
 
         if (mydb == null) {
             // not allowed - can only happen if someone has closed (and possibly deleted) a database and then re-used the database
