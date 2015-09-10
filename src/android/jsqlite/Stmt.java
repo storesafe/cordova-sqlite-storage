@@ -244,9 +244,9 @@ public class Stmt {
     public Object column(int col) throws jsqlite.Exception {
         switch (column_type(col)) {
             case Constants.SQLITE_INTEGER:
-                return new Long(column_long(col));
+                return column_long(col);
             case Constants.SQLITE_FLOAT:
-                return new Double(column_double(col));
+                return column_double(col);
             case Constants.SQLITE_BLOB:
                 return column_bytes(col);
             case Constants.SQLITE3_TEXT:
