@@ -1,5 +1,9 @@
 # Changes
 
+## 0.7.11-dev
+
+- Unpacked sqlite-native-driver.so libraries from jar
+
 ## 0.7.10
 
 - Use Android-sqlite-connector instead of sqlite4java
