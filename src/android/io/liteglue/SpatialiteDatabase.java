@@ -143,7 +143,7 @@ class SpatialiteDatabase {
                     // Indicate valid results:
                     needRawQuery = false;
                     Log.v("executeSqlBatch", "Rows affected: " + rowsAffected);
-                } catch (Exception | SQLiteException ex) {
+                } catch (java.lang.Exception ex) {
                     // Indicate problem & stop this query:
                     ex.printStackTrace();
                     Log.e("executeSqlBatch", "Stmt.executeUpdateDelete(): Error=" + ex.getMessage(), ex);
@@ -226,7 +226,7 @@ class SpatialiteDatabase {
             if (needRawQuery) {
                 queryResult = this.executeSqlStatementQuery(query, jsonparams[i]);
             }
-        } catch (JSONException | Exception ex) {
+        } catch (java.lang.Exception ex) {
             ex.printStackTrace();
             Log.e("executeSqlBatch", "SpatialiteDatabase.executeSql[Batch](): Error=" + ex.getMessage(), ex);
         }
