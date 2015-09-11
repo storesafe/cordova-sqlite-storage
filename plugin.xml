@@ -67,11 +67,11 @@
         <header-file src="src/ios/SQLitePlugin.h" />
         <source-file src="src/ios/SQLitePlugin.m" />
 
-        <source-file src="src/ios/nastive/libgeos.a" framework="true" />
-        <source-file src="src/ios/nastive/libgeos_c.a" framework="true" />
-        <source-file src="src/ios/nastive/libproj.a" framework="true" />
-        <source-file src="src/ios/nastive/libspatialite.a" framework="true" />
-        <source-file src="src/ios/nastive/libsqlite3.a" framework="true" />
+        <source-file src="src/ios/native/libgeos.a" framework="true" />
+        <source-file src="src/ios/native/libgeos_c.a" framework="true" />
+        <source-file src="src/ios/native/libproj.a" framework="true" />
+        <source-file src="src/ios/native/libspatialite.a" framework="true" />
+        <source-file src="src/ios/native/libsqlite3.a" framework="true" />
 
         <header-file src="src/common/spatialite.h" />
         <header-file src="src/common/sqlite3.h" />
