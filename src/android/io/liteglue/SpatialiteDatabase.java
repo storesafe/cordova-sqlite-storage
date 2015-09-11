@@ -7,9 +7,10 @@
 package io.liteglue;
 
 import android.annotation.SuppressLint;
+import android.database.sqlite.SQLiteException;
 import android.util.Log;
-import jsqlite.Database;
-import jsqlite.Stmt;
+import jsqlite.*;
+import jsqlite.Exception;
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,28 +21,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Android Database helper class
+ * Spatialite Database helper class
  */
 class SpatialiteDatabase {
     private static final Pattern FIRST_WORD = Pattern.compile("^\\s*(\\S+)",
             Pattern.CASE_INSENSITIVE);
 
-    private static final Pattern WHERE_CLAUSE = Pattern.compile("\\s+WHERE\\s+(.+)$",
-            Pattern.CASE_INSENSITIVE);
-
-    private static final Pattern UPDATE_TABLE_NAME = Pattern.compile("^\\s*UPDATE\\s+(\\S+)",
-            Pattern.CASE_INSENSITIVE);
-
-    private static final Pattern DELETE_TABLE_NAME = Pattern.compile("^\\s*DELETE\\s+FROM\\s+(\\S+)",
-            Pattern.CASE_INSENSITIVE);
-
     File dbFile;
-
-    Database mydb;
-
-    /**
-     * NOTE: Using default constructor, no explicit constructor.
-     */
+    Database db;
 
     /**
      * Open a database.
@@ -55,30 +42,29 @@ class SpatialiteDatabase {
                     + dbfile.toString());
         }
         Log.d(SpatialiteDatabase.class.getSimpleName(), "Open sqlite db: " + dbfile.getAbsolutePath());
-        mydb = new Database();
-        mydb.open(dbfile.getAbsolutePath(), jsqlite.Constants.SQLITE_OPEN_READWRITE);
-        Log.d(SpatialiteDatabase.class.getSimpleName(), "DB version: " + mydb.dbversion());
+        db = new Database();
+        db.open(dbfile.getAbsolutePath(), jsqlite.Constants.SQLITE_OPEN_READWRITE);
+        Log.d(SpatialiteDatabase.class.getSimpleName(), "DB version: " + db.dbversion());
     }
 
     /**
      * Close a database (in the current thread).
      */
     void closeDatabaseNow() {
-        if (mydb != null) {
+        if (db != null) {
             try {
-                mydb.close();
+                db.close();
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.v(SpatialiteDatabase.class.getSimpleName(), "closeDatabaseNow(): Error=" + e.getMessage());
             }
-            mydb = null;
+            db = null;
         }
     }
 
     /**
      * Executes a batch request and sends the results via cbc.
      *
-     * @param dbname     The name of the database.
      * @param queryarr   Array of query strings
      * @param jsonparams Array of JSON query parameters
      * @param queryIDs   Array of query ids
@@ -88,161 +74,22 @@ class SpatialiteDatabase {
     void executeSqlBatch(String[] queryarr, JSONArray[] jsonparams,
                          String[] queryIDs, CallbackContext cbc) {
 
-        if (mydb == null) {
+        if (db == null) {
             // not allowed - can only happen if someone has closed (and possibly deleted) a database and then re-used the database
             cbc.error("database has been closed");
             return;
         }
 
-        String query = "";
-        String query_id = "";
-        int len = queryarr.length;
         JSONArray batchResults = new JSONArray();
 
-        for (int i = 0; i < len; i++) {
-            int rowsAffectedCompat = 0;
-            boolean needRowsAffectedCompat = false;
-            query_id = queryIDs[i];
-
-            JSONObject queryResult = null;
+        for (int i = 0; i < queryarr.length; i++) {
+            String query_id = queryIDs[i];
             String errorMessage = "unknown";
 
-            try {
-                boolean needRawQuery = true;
-
-                query = queryarr[i];
-
-                Log.v("executeSqlBatch", "fire sql query to DB:" + query);
-                QueryType queryType = getQueryType(query);
-
-                /*if (queryType == QueryType.update || queryType == queryType.delete) {
-                    Stmt myStatement = mydb.prepare(query);
-
-                    if (jsonparams != null) {
-                        bindArgsToStatement(myStatement, jsonparams[i]);
-                    }
-
-                    int rowsAffected = -1; // (assuming invalid)
-
-                    // Use try & catch just in case android.os.Build.VERSION.SDK_INT >= 11 is lying:
-                    try {
-                        rowsAffected = myStatement.executeUpdateDelete();
-                        // Indicate valid results:
-                        needRawQuery = false;
-                    } catch (SQLiteException ex) {
-                        // Indicate problem & stop this query:
-                        ex.printStackTrace();
-                        errorMessage = ex.getMessage();
-                        Log.v("executeSqlBatch", "Stmt.executeUpdateDelete(): Error=" + errorMessage);
-                        needRawQuery = false;
-                    } catch (Exception ex) {
-                        // Assuming SDK_INT was lying & method not found:
-                        // do nothing here & try again with raw query.
-                    }
-
-                    if (rowsAffected != -1) {
-                        queryResult = new JSONObject();
-                        queryResult.put("rowsAffected", rowsAffected);
-                    }
-                }
-
-                // INSERT:
-                if (queryType == QueryType.insert && jsonparams != null) {
-                    needRawQuery = false;
-
-                    Stmt myStatement = mydb.compileStatement(query);
-
-                    bindArgsToStatement(myStatement, jsonparams[i]);
-
-                    long insertId = -1; // (invalid)
-
-                    try {
-                        insertId = myStatement.executeInsert();
-
-                        // statement has finished with no constraint violation:
-                        queryResult = new JSONObject();
-                        if (insertId != -1) {
-                            queryResult.put("insertId", insertId);
-                            queryResult.put("rowsAffected", 1);
-                        } else {
-                            queryResult.put("rowsAffected", 0);
-                        }
-                    } catch (SQLiteException ex) {
-                        // report error result with the error message
-                        // could be constraint violation or some other error
-                        ex.printStackTrace();
-                        errorMessage = ex.getMessage();
-                        Log.v("executeSqlBatch", "Database.executeInsert(): Error=" + errorMessage);
-                    }
-                }
-
-                if (queryType == QueryType.begin) {
-                    needRawQuery = false;
-                    try {
-                        mydb.beginTransaction();
-
-                        queryResult = new JSONObject();
-                        queryResult.put("rowsAffected", 0);
-                    } catch (SQLiteException ex) {
-                        ex.printStackTrace();
-                        errorMessage = ex.getMessage();
-                        Log.v("executeSqlBatch", "Database.beginTransaction(): Error=" + errorMessage);
-                    }
-                }
-
-                if (queryType == QueryType.commit) {
-                    needRawQuery = false;
-                    try {
-                        mydb.setTransactionSuccessful();
-                        mydb.endTransaction();
-
-                        queryResult = new JSONObject();
-                        queryResult.put("rowsAffected", 0);
-                    } catch (SQLiteException ex) {
-                        ex.printStackTrace();
-                        errorMessage = ex.getMessage();
-                        Log.v("executeSqlBatch", "Database.setTransactionSuccessful/endTransaction(): Error=" + errorMessage);
-                    }
-                }
-
-                if (queryType == QueryType.rollback) {
-                    needRawQuery = false;
-                    try {
-                        mydb.endTransaction();
-
-                        queryResult = new JSONObject();
-                        queryResult.put("rowsAffected", 0);
-                    } catch (SQLiteException ex) {
-                        ex.printStackTrace();
-                        errorMessage = ex.getMessage();
-                        Log.v("executeSqlBatch", "Database.endTransaction(): Error=" + errorMessage);
-                    }
-                }*/
-
-                // raw query for other statements:
-                if (needRawQuery) {
-                    queryResult = this.executeSqlStatementQuery(query, jsonparams[i], cbc);
-
-                    if (needRowsAffectedCompat) {
-                        queryResult.put("rowsAffected", rowsAffectedCompat);
-                    }
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                errorMessage = ex.getMessage();
-                Log.v("executeSqlBatch", "SpatialiteDatabase.executeSql[Batch](): Error=" + errorMessage);
-            }
+            JSONObject queryResult = executeQuery(queryarr, jsonparams, i);
 
             try {
-                if (queryResult != null) {
-                    JSONObject r = new JSONObject();
-                    r.put("qid", query_id);
-
-                    r.put("type", "success");
-                    r.put("result", queryResult);
-
-                    batchResults.put(r);
-                } else {
+                if (queryResult == null) {
                     JSONObject r = new JSONObject();
                     r.put("qid", query_id);
                     r.put("type", "error");
@@ -252,18 +99,141 @@ class SpatialiteDatabase {
                     r.put("result", er);
 
                     batchResults.put(r);
+                } else {
+                    JSONObject r = new JSONObject();
+                    r.put("qid", query_id);
+
+                    r.put("type", "success");
+                    r.put("result", queryResult);
+
+                    batchResults.put(r);
                 }
             } catch (JSONException ex) {
                 ex.printStackTrace();
-                Log.v("executeSqlBatch", "SpatialiteDatabase.executeSql[Batch](): Error=" + ex.getMessage());
-                // TODO what to do?
+                Log.e("executeSqlBatch", "SpatialiteDatabase.executeSql[Batch](): Error=" + ex.getMessage(), ex);
             }
         }
 
         cbc.success(batchResults);
     }
 
-    private void bindArgsToStatement(Stmt myStatement, JSONArray sqlArgs) throws Exception {
+    private JSONObject executeQuery(String[] queryarr, JSONArray[] jsonparams, int i) {
+        String query;
+        JSONObject queryResult = null;
+        try {
+            boolean needRawQuery = true;
+
+            query = queryarr[i];
+
+            Log.v("executeSqlBatch", "Fire sql query to DB: [" + query + "]");
+            QueryType queryType = getQueryType(query);
+
+            if (queryType == QueryType.update || queryType == QueryType.delete) {
+                long rowsAffected = -1; // (assuming invalid)
+
+                try {
+                    if (jsonparams == null) {
+                        db.exec(query, null);
+                    } else {
+                        String[] arguments = getStringArgs(jsonparams[i]);
+                        db.exec(query, null, arguments);
+                    }
+
+                    rowsAffected = db.changes();
+                    // Indicate valid results:
+                    needRawQuery = false;
+                    Log.v("executeSqlBatch", "Rows affected: " + rowsAffected);
+                } catch (Exception | SQLiteException ex) {
+                    // Indicate problem & stop this query:
+                    ex.printStackTrace();
+                    Log.e("executeSqlBatch", "Stmt.executeUpdateDelete(): Error=" + ex.getMessage(), ex);
+                    needRawQuery = false;
+                }
+
+                if (rowsAffected != -1) {
+                    queryResult = new JSONObject();
+                    queryResult.put("rowsAffected", rowsAffected);
+                }
+            }
+
+            // INSERT:
+            if (queryType == QueryType.insert) {
+                needRawQuery = false;
+
+                try {
+                    if (jsonparams == null) {
+                        Log.w("executeSqlBatch", "Executing insert query without parameters!");
+                        db.exec(query, null);
+                    } else {
+                        String[] arguments = getStringArgs(jsonparams[i]);
+                        db.exec(query, null, arguments);
+                    }
+
+                    long insertId = db.last_insert_rowid();
+
+                    // statement has finished with no constraint violation:
+                    queryResult = new JSONObject();
+                    if (insertId != -1) {
+                        queryResult.put("insertId", insertId);
+                        queryResult.put("rowsAffected", 1);
+                        Log.v("executeSqlBatch", "Inserted row with id [" + insertId + "]");
+                    } else {
+                        queryResult.put("rowsAffected", 0);
+                        Log.w("executeSqlBatch", "No row was inserted from statement!");
+                    }
+                } catch (SQLiteException ex) {
+                    // report error result with the error message
+                    // could be constraint violation or some other error
+                    ex.printStackTrace();
+                    Log.e("executeSqlBatch", "Database.executeInsert(): Error=" + ex.getMessage(), ex);
+                }
+            }
+
+            if (queryType == QueryType.begin) {
+                needRawQuery = false;
+                try {
+                    db.exec(query, null);
+                    Log.v("executeSqlBatch", "Transaction started");
+                } catch (SQLiteException ex) {
+                    ex.printStackTrace();
+                    Log.e("executeSqlBatch", "Database.beginTransaction(): Error=" + ex.getMessage(), ex);
+                }
+            }
+
+            if (queryType == QueryType.commit) {
+                needRawQuery = false;
+                try {
+                    db.exec(query, null);
+                    Log.v("executeSqlBatch", "Transaction committed");
+                } catch (SQLiteException ex) {
+                    ex.printStackTrace();
+                    Log.e("executeSqlBatch", "Database.commitTransaction(): Error=" + ex.getMessage(), ex);
+                }
+            }
+
+            if (queryType == QueryType.rollback) {
+                needRawQuery = false;
+                try {
+                    db.exec(query, null);
+                    Log.v("executeSqlBatch", "Transaction rolled back");
+                } catch (SQLiteException ex) {
+                    ex.printStackTrace();
+                    Log.e("executeSqlBatch", "Database.endTransaction(): Error=" + ex.getMessage(), ex);
+                }
+            }
+
+            // raw query for other statements:
+            if (needRawQuery) {
+                queryResult = this.executeSqlStatementQuery(query, jsonparams[i]);
+            }
+        } catch (JSONException | Exception ex) {
+            ex.printStackTrace();
+            Log.e("executeSqlBatch", "SpatialiteDatabase.executeSql[Batch](): Error=" + ex.getMessage(), ex);
+        }
+        return queryResult;
+    }
+
+    private void bindArgsToStatement(Stmt myStatement, JSONArray sqlArgs) throws JSONException, jsqlite.Exception {
         for (int i = 0; i < sqlArgs.length(); i++) {
             if (sqlArgs.get(i) instanceof Float || sqlArgs.get(i) instanceof Double) {
                 myStatement.bind(i + 1, sqlArgs.getDouble(i));
@@ -277,18 +247,24 @@ class SpatialiteDatabase {
         }
     }
 
+    private String[] getStringArgs(JSONArray sqlArgs) throws JSONException {
+        String[] result = new String[sqlArgs.length()];
+        for (int i = 0; i < sqlArgs.length(); i++) {
+            result[i] = sqlArgs.getString(i);
+        }
+        return result;
+    }
+
     /**
      * Get rows results from query cursor.
      *
-     * @param cur Cursor into query results
-     * @return results in string form
+     * @return results in object form
      */
-    private JSONObject executeSqlStatementQuery(String query, JSONArray paramsAsJson,
-                                                CallbackContext cbc) throws Exception {
+    private JSONObject executeSqlStatementQuery(String query, JSONArray paramsAsJson) throws Exception, JSONException {
         JSONObject rowsResult = new JSONObject();
         Stmt stmt;
         try {
-            stmt = mydb.prepare(query);
+            stmt = db.prepare(query);
             if (paramsAsJson != null) {
                 bindArgsToStatement(stmt, paramsAsJson);
             }
@@ -303,15 +279,11 @@ class SpatialiteDatabase {
                 rowsArrayResult.put(row);
             }
 
-            try {
-                rowsResult.put("rows", rowsArrayResult);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            rowsResult.put("rows", rowsArrayResult);
+            Log.v("executeSqlBatch", "Statement result size: " + rowsArrayResult.length());
         } catch (Exception ex) {
             ex.printStackTrace();
-            String errorMessage = ex.getMessage();
-            Log.v("executeSqlBatch", "SpatialiteDatabase.executeSql[Batch](): Error=" + errorMessage);
+            Log.e("executeSqlBatch", "SpatialiteDatabase.executeSql[Batch](): Error=" + ex.getMessage(), ex);
             throw ex;
         }
         stmt.close();
@@ -331,7 +303,7 @@ class SpatialiteDatabase {
         return QueryType.other;
     }
 
-    static enum QueryType {
+    enum QueryType {
         update,
         insert,
         delete,
