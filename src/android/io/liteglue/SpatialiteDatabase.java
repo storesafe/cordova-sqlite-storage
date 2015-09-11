@@ -194,6 +194,7 @@ class SpatialiteDatabase {
                 try {
                     db.exec(query, null);
                     Log.v("executeSqlBatch", "Transaction started");
+                    queryResult = new JSONObject(); // otherwise the javascript plugin thinks the statement failed
                 } catch (SQLiteException ex) {
                     ex.printStackTrace();
                     Log.e("executeSqlBatch", "Database.beginTransaction(): Error=" + ex.getMessage(), ex);
@@ -205,6 +206,7 @@ class SpatialiteDatabase {
                 try {
                     db.exec(query, null);
                     Log.v("executeSqlBatch", "Transaction committed");
+                    queryResult = new JSONObject(); // otherwise the javascript plugin thinks the statement failed
                 } catch (SQLiteException ex) {
                     ex.printStackTrace();
                     Log.e("executeSqlBatch", "Database.commitTransaction(): Error=" + ex.getMessage(), ex);
@@ -216,6 +218,7 @@ class SpatialiteDatabase {
                 try {
                     db.exec(query, null);
                     Log.v("executeSqlBatch", "Transaction rolled back");
+                    queryResult = new JSONObject(); // otherwise the javascript plugin thinks the statement failed
                 } catch (SQLiteException ex) {
                     ex.printStackTrace();
                     Log.e("executeSqlBatch", "Database.endTransaction(): Error=" + ex.getMessage(), ex);
