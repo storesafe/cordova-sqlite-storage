@@ -77,7 +77,6 @@ Commercial support is available by contacting: <info@litehelpers.net>
 - A stability issue was reported on the iOS version when in use together with [SockJS](http://sockjs.org/) client such as [pusher-js](https://github.com/pusher/pusher-js) at the same time (see [#196](https://github.com/litehelpers/Cordova-sqlite-storage/issues/196)). The workaround is to call sqlite functions and [SockJS](http://sockjs.org/) client functions in separate ticks (using setTimeout with 0 timeout).
 - If a sql statement fails for which there is no error handler or the error handler does not return `false` to signal transaction recovery, the plugin fires the remaining sql callbacks before aborting the transaction.
 - DROP table does not actually delete it in WP(7/8) version, due to limitations of CSharp-SQLite.
-- Issues have been reported when using this plugin together with Crosswalk, especially with 64-bit architectures. The workaround is to use `androidDatabaseImplementation: 2` when opening the database as described below.
 
 ## Other limitations
 
