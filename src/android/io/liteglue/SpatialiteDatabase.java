@@ -27,8 +27,9 @@ class SpatialiteDatabase {
     private static final Pattern FIRST_WORD = Pattern.compile("^\\s*(\\S+)",
             Pattern.CASE_INSENSITIVE);
 
-    File dbFile;
-    Database db;
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
+    private File dbFile;
+    private Database db;
 
     /**
      * Open a database.
@@ -39,11 +40,11 @@ class SpatialiteDatabase {
         dbFile = dbfile; // for possible bug workaround
         if (!dbfile.exists()) {
             throw new IllegalArgumentException("No such db file: "
-                    + dbfile.toString());
+                    + dbfile);
         }
         Log.d(SpatialiteDatabase.class.getSimpleName(), "Open sqlite db: " + dbfile.getAbsolutePath());
         db = new Database();
-        db.open(dbfile.getAbsolutePath(), jsqlite.Constants.SQLITE_OPEN_READWRITE);
+        db.open(dbfile.getAbsolutePath(), Constants.SQLITE_OPEN_READWRITE);
         Log.d(SpatialiteDatabase.class.getSimpleName(), "DB version: " + db.dbversion());
     }
 
@@ -83,25 +84,24 @@ class SpatialiteDatabase {
         JSONArray batchResults = new JSONArray();
 
         for (int i = 0; i < queryarr.length; i++) {
-            String query_id = queryIDs[i];
-            String errorMessage = "unknown";
-
+            String queryId = queryIDs[i];
             JSONObject queryResult = executeQuery(queryarr, jsonparams, i);
 
             try {
                 if (queryResult == null) {
                     JSONObject r = new JSONObject();
-                    r.put("qid", query_id);
+                    r.put("qid", queryId);
                     r.put("type", "error");
 
                     JSONObject er = new JSONObject();
+                    String errorMessage = "unknown";
                     er.put("message", errorMessage);
                     r.put("result", er);
 
                     batchResults.put(r);
                 } else {
                     JSONObject r = new JSONObject();
-                    r.put("qid", query_id);
+                    r.put("qid", queryId);
 
                     r.put("type", "success");
                     r.put("result", queryResult);
@@ -118,18 +118,17 @@ class SpatialiteDatabase {
     }
 
     private JSONObject executeQuery(String[] queryarr, JSONArray[] jsonparams, int i) {
-        String query;
         JSONObject queryResult = null;
         try {
-            boolean needRawQuery = true;
 
-            query = queryarr[i];
+            String query = queryarr[i];
 
-            Log.v("executeSqlBatch", "Fire sql query to DB: [" + query + "]");
+            Log.v("executeSqlBatch", "Fire sql query to DB: [" + query + ']');
             QueryType queryType = getQueryType(query);
 
+            boolean needRawQuery = true;
             if (queryType == QueryType.update || queryType == QueryType.delete) {
-                long rowsAffected = -1; // (assuming invalid)
+                long rowsAffected = -1L; // (assuming invalid)
 
                 try {
                     if (jsonparams == null) {
@@ -150,7 +149,7 @@ class SpatialiteDatabase {
                     needRawQuery = false;
                 }
 
-                if (rowsAffected != -1) {
+                if (rowsAffected != -1L) {
                     queryResult = new JSONObject();
                     queryResult.put("rowsAffected", rowsAffected);
                 }
@@ -173,13 +172,13 @@ class SpatialiteDatabase {
 
                     // statement has finished with no constraint violation:
                     queryResult = new JSONObject();
-                    if (insertId != -1) {
-                        queryResult.put("insertId", insertId);
-                        queryResult.put("rowsAffected", 1);
-                        Log.v("executeSqlBatch", "Inserted row with id [" + insertId + "]");
-                    } else {
+                    if (insertId == -1L) {
                         queryResult.put("rowsAffected", 0);
                         Log.w("executeSqlBatch", "No row was inserted from statement!");
+                    } else {
+                        queryResult.put("insertId", insertId);
+                        queryResult.put("rowsAffected", 1);
+                        Log.v("executeSqlBatch", "Inserted row with id [" + insertId + ']');
                     }
                 } catch (SQLiteException ex) {
                     // report error result with the error message
@@ -227,7 +226,7 @@ class SpatialiteDatabase {
 
             // raw query for other statements:
             if (needRawQuery) {
-                queryResult = this.executeSqlStatementQuery(query, jsonparams[i]);
+                queryResult = executeSqlStatementQuery(query, jsonparams[i]);
             }
         } catch (java.lang.Exception ex) {
             ex.printStackTrace();
@@ -236,7 +235,7 @@ class SpatialiteDatabase {
         return queryResult;
     }
 
-    private void bindArgsToStatement(Stmt myStatement, JSONArray sqlArgs) throws JSONException, jsqlite.Exception {
+    private static void bindArgsToStatement(Stmt myStatement, JSONArray sqlArgs) throws JSONException, jsqlite.Exception {
         for (int i = 0; i < sqlArgs.length(); i++) {
             if (sqlArgs.get(i) instanceof Float || sqlArgs.get(i) instanceof Double) {
                 myStatement.bind(i + 1, sqlArgs.getDouble(i));
@@ -250,7 +249,7 @@ class SpatialiteDatabase {
         }
     }
 
-    private String[] getStringArgs(JSONArray sqlArgs) throws JSONException {
+    private static String[] getStringArgs(JSONArray sqlArgs) throws JSONException {
         String[] result = new String[sqlArgs.length()];
         for (int i = 0; i < sqlArgs.length(); i++) {
             result[i] = sqlArgs.getString(i);
@@ -258,11 +257,6 @@ class SpatialiteDatabase {
         return result;
     }
 
-    /**
-     * Get rows results from query cursor.
-     *
-     * @return results in object form
-     */
     private JSONObject executeSqlStatementQuery(String query, JSONArray paramsAsJson) throws Exception, JSONException {
         JSONObject rowsResult = new JSONObject();
         Stmt stmt;
@@ -294,7 +288,7 @@ class SpatialiteDatabase {
         return rowsResult;
     }
 
-    static QueryType getQueryType(String query) {
+    private static QueryType getQueryType(CharSequence query) {
         Matcher matcher = FIRST_WORD.matcher(query);
         if (matcher.find()) {
             try {
@@ -306,7 +300,7 @@ class SpatialiteDatabase {
         return QueryType.other;
     }
 
-    enum QueryType {
+    private enum QueryType {
         update,
         insert,
         delete,
