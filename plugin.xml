@@ -64,6 +64,11 @@
             </feature>
         </config-file>
 
+        <framework src="libiconv.dylib" />
+        <framework src="libc++.dylib" />
+        <framework src="Security.framework" />
+        <framework src="libxml2.dylib" />
+
         <header-file src="src/ios/SQLitePlugin.h" />
         <source-file src="src/ios/SQLitePlugin.m" />
 
