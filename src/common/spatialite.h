@@ -74,7 +74,7 @@ extern "C"
 {
 #endif
 
-#include <spatialite/gaiageo.h>
+#include "spatialite/gaiageo.h"
 
 #ifdef LOADABLE_EXTENSION
     SPATIALITE_DECLARE int
