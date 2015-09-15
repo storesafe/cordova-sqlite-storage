@@ -15,11 +15,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Cultrarius/Cordova-spatialite-storage.git"
+    "url": "https://github.com/DisyInformationssysteme/Cordova-spatialite-storage.git"
   },
   "keywords": [
     "sqlite",
-	"spatialite",
+    "spatialite",
     "ecosystem:cordova",
     "cordova-android",
     "cordova-ios",
@@ -37,7 +37,7 @@
   "author": "various",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Cultrarius/Cordova-spatialite-storage/issues"
+    "url": "https://github.com/DisyInformationssysteme/Cordova-spatialite-storage/issues"
   },
-  "homepage": "https://github.com/Cultrarius/Cordova-spatialite-storage"
+  "homepage": "https://github.com/DisyInformationssysteme/Cordova-spatialite-storage"
 }
