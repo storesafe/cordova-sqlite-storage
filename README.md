@@ -36,6 +36,7 @@ Commercial support is available by contacting: <info@litehelpers.net>
 
 ## Announcements
 
+- [MetaMemoryT / websql-promise](https://github.com/MetaMemoryT/websql-promise) now provides a Promises-based interface to both Web SQL and this plugin
 - [Cordova sqlite storage (0.7.10) published](https://build.phonegap.com/plugins/4067) in PhoneGap Build
 - Android version is now using the lightweight [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) by default configuration (may be changed as described below)
 - Windows "Universal" version now supports both Windows 8.1 and Windows Phone 8.1
