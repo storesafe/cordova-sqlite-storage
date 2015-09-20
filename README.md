@@ -561,11 +561,20 @@ Free support for issues with Angular/"ngCordova"/Ionic will only be provided if 
 - Make a fresh, clean ngCordova or Ionic project with a test program that demonstrates the issue and post it. Please do not use any other plugins or frameworks unless absolutely necessary to demonstrate your issue.
 - Make another project without any form of Angular including ngCordova or Ionic, with the same test program to show that it will work outside Angular/"ngCordova"/Ionic.
 
+## What information is needed for help
+
+Please include the following:
+- Which platform(s) Android/iOS/WP8/Windows 8.1/Windows Phone 8.1
+- Clear description of the issue
+- A small, complete, self-contained program that demonstrates the problem
+
 ## Where to ask for help
 
-Once you have followed the directions above, free support is available in the following locations:
+Once you have followed the directions above, you may request free support in the following locations:
 - [litehelpers / Cordova-sqlite-help](https://github.com/litehelpers/Cordova-sqlite-help)
 - [litehelpers / Cordova-sqlite-storage / issues](https://github.com/litehelpers/Cordova-sqlite-storage/issues)
+
+Please include the information described above otherwise.
 
 ## Professional support
 
