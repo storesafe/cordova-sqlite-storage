@@ -202,6 +202,8 @@ public class SQLitePlugin extends CordovaPlugin {
             if (cbc != null) // XXX Android locking/closing BUG workaround
             {
                 cbc.success();
+            } else {
+                Log.v("info", "Received null callback!");
             }
 
             return mydb;
