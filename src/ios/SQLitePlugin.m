@@ -101,17 +101,6 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     }
 }
 
--(id) getDBPath:(NSString *)dbFile at:(NSString *)atkey {
-    if (dbFile == NULL) {
-        return NULL;
-    }
-
-    NSString *dbdir = [appDBPaths objectForKey:atkey];
-    //NSString *dbPath = [NSString stringWithFormat:@"%@/%@", dbdir, dbFile];
-    NSString *dbPath = [dbdir stringByAppendingPathComponent: dbFile];
-    return dbPath;
-}
-
 -(void)open: (CDVInvokedUrlCommand*)command
 {
     CDVPluginResult* pluginResult = nil;
@@ -119,14 +108,8 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 
     NSString *dbfilename = [options objectForKey:@"name"];
 
-    NSString *dblocation = [options objectForKey:@"dblocation"];
-    if (dblocation == NULL) dblocation = @"docs";
-    //NSLog(@"using db location: %@", dblocation);
-
-    NSString *dbname = [self getDBPath:dbfilename at:dblocation];
-
-    if (dbname == NULL) {
-        NSLog(@"No db name specified for open");
+    if (dbfilename == NULL) {
+        NSLog(@"No db specified for open");
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"You must specify database name"];
     }
     else {
@@ -136,17 +119,17 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
             NSLog(@"Reusing existing database connection for db name %@", dbfilename);
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Database opened"];
         } else {
-            const char *name = [dbname UTF8String];
+            NSURL *url = [NSURL URLWithString:dbfilename];
+            NSString *absoluteFile = [url path];
+            
+            const char *name = [absoluteFile UTF8String];
             sqlite3 *db;
 
-            NSLog(@"open full db path: %@", dbname);
-
+            NSLog(@"open full db path: %@", absoluteFile);
             /* Option to create from resource (pre-populated) if db does not exist: */
-            if (![[NSFileManager defaultManager] fileExistsAtPath:dbname]) {
-				NSLog(@"Unable to find database, creating new instance...");
-                NSString *createFromResource = [options objectForKey:@"createFromResource"];
-                if (createFromResource != NULL)
-                    [self createFromResource:dbfilename withDbname:dbname];
+            if (![[NSFileManager defaultManager] fileExistsAtPath:absoluteFile]) {
+				NSLog(@"Error! Unable to find database!");
+                return;
             }
 
             if (sqlite3_open(name, &db) != SQLITE_OK) {
@@ -257,23 +240,18 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 
     NSString *dbFileName = [options objectForKey:@"path"];
 
-    NSString *dblocation = [options objectForKey:@"dblocation"];
-    if (dblocation == NULL) dblocation = @"docs";
-
     if (dbFileName==NULL) {
         // Should not happen:
         NSLog(@"No db name specified for delete");
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify database path"];
     } else {
-        NSString *dbPath = [self getDBPath:dbFileName at:dblocation];
-
-        if ([[NSFileManager defaultManager]fileExistsAtPath:dbPath]) {
-            NSLog(@"delete full db path: %@", dbPath);
-            [[NSFileManager defaultManager]removeItemAtPath:dbPath error:nil];
+        if ([[NSFileManager defaultManager]fileExistsAtPath:dbFileName]) {
+            NSLog(@"delete full db path: %@", dbFileName);
+            [[NSFileManager defaultManager]removeItemAtPath:dbFileName error:nil];
             [openDBs removeObjectForKey:dbFileName];
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"DB deleted"];
         } else {
-            NSLog(@"delete: db was not found: %@", dbPath);
+            NSLog(@"delete: db was not found: %@", dbFileName);
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"The database does not exist on that path"];
         }
     }
