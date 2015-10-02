@@ -2,6 +2,7 @@
 
 ## 0.7.11-dev
 
+- Fix plugin ID in plugin.xml to match npm package ID
 - Unpacked sqlite-native-driver.so libraries from jar
 - Fix conversion of INTEGER type (iOS version)
 - Disable code to read BLOB as Base-64 due to https://issues.apache.org/jira/browse/CB-9638
