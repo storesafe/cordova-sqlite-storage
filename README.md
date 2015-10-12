@@ -10,6 +10,16 @@ License for iOS version: MIT only
 |-----------------------|----------------------|
 |[![Circle CI](https://circleci.com/gh/litehelpers/Cordova-sqlite-storage.svg?style=svg)](https://circleci.com/gh/litehelpers/Cordova-sqlite-storage)|[![Build Status](https://travis-ci.org/litehelpers/Cordova-sqlite-storage.svg?branch=master-rc)](https://travis-ci.org/litehelpers/Cordova-sqlite-storage)|
 
+## Available for work
+
+The primary author and maintainer [@brodybits (Chris Brody)](https://github.com/brodybits) is available for contracting assignments. Part-time contracting assignments would help keep this project alive. [@brodybits (Chris Brody)](https://github.com/brodybits) can be contacted at: <brodybits@litehelpers.net>
+
+LinkedIn: https://www.linkedin.com/in/chrisbrody
+
+Other projects:
+- [brodybits / node-uvhttp](https://github.com/brodybits/node-uvhttp) - HTTP server library that serves static content from native code - *under development and currently extremely limited*
+- [brodybits / java-node](https://github.com/brodybits/java-node) - two-way binding interface between Java and Node.js (Javascript) - *under development and currently extremely limited*
+
 ## New support policy
 
 Due to some changing priorities, free support will be provided on a very limited basis as described in the [support section](#Support).
@@ -174,7 +184,7 @@ db = sqlitePlugin.openDatabase({name: "my.db", location: 2, createFromLocation: 
 
 **TIP:** If you don't see the data from the pre-populated database file, completely remove your app and try it again!
 
-**Alternative:** You can also use [an-rahulpandey / cordova-plugin-dbcopy](https://github.com/an-rahulpandey/cordova-plugin-dbcopy) toinstall your pre-populated database
+**Alternative:** You can also use [an-rahulpandey / cordova-plugin-dbcopy](https://github.com/an-rahulpandey/cordova-plugin-dbcopy) to install your pre-populated database
 
 ### Android sqlite implementation
 
@@ -591,7 +601,7 @@ Unit testing is done in `spec`.
 ## running tests from shell
 
 To run the tests from \*nix shell, simply do either:
- 
+
     ./bin/test.sh ios
 
 or for Android:
