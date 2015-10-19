@@ -48,8 +48,8 @@ Commercial support is available by contacting: <info@litehelpers.net>
 
 ## Announcements
 
+- PhoneGap Build is now supported through the npm package: http://phonegap.com/blog/2015/05/26/npm-plugins-available/
 - [MetaMemoryT / websql-promise](https://github.com/MetaMemoryT/websql-promise) now provides a Promises-based interface to both Web SQL and this plugin
-- [Cordova sqlite storage (0.7.10) published](https://build.phonegap.com/plugins/4067) in PhoneGap Build
 - Android version is now using the lightweight [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) by default configuration (may be changed as described below)
 - Windows "Universal" version now supports both Windows 8.1 and Windows Phone 8.1
 - iOS version is now fixed to override the correct pluginInitialize method and should work with recent versions of iOS
@@ -92,6 +92,7 @@ Commercial support is available by contacting: <info@litehelpers.net>
 - If a sql statement fails for which there is no error handler or the error handler does not return `false` to signal transaction recovery, the plugin fires the remaining sql callbacks before aborting the transaction.
 - In case of an error, the error `code` member is bogus on Android, Windows, and WP(7/8).
 - Possible crash on Android when using Unicode emoji characters due to [Android bug 81341](https://code.google.com/p/android/issues/detail?id=81341), which _should_ be fixed in Android 6.x
+- REGEXP is only supported in iOS.
 - DROP table does not actually delete it in WP(7/8) version, due to limitations of CSharp-SQLite.
 - On WP(7/8), very large integer values will be stored as negative numbers.
 
@@ -112,8 +113,10 @@ Commercial support is available by contacting: <info@litehelpers.net>
 
 ## Limited support (testing needed)
 
+- Use within a pop-up or child window such as an iframe or InAppBrowser (problem with iframe reported on Android)
+- In-memory database `db=window.sqlitePlugin.openDatabase({name: ":memory:"})`
 - UNICODE paragraph separator (`\u2029`)
-- FTS3/FTS4 is not tested supported for Amazon Fire-OS or WP(7/8)
+- FTS3/FTS4 is not tested or supported for Amazon Fire-OS or WP(7/8)
 - R-Tree is not tested for Android (in case [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) is disabled), Amazon Fire-OS or WP(7/8)
 - Database triggers as described above - known to be broken for Android (in case [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) is disabled) and Amazon Fire-OS
 - UNICODE characters not fully tested in the Windows "Universal" (8.1) version

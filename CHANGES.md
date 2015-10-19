@@ -1,6 +1,6 @@
 # Changes
 
-## 0.7.11-dev
+## 0.7.11
 
 - Fix plugin ID in plugin.xml to match npm package ID
 - Unpacked sqlite-native-driver.so libraries from jar
