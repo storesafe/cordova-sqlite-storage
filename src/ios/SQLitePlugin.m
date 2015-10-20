@@ -12,7 +12,10 @@
 
 #include <regex.h>
 
+// NOTE: This is now broken by cordova-ios 4.0:
+#ifdef READ_BLOB_AS_BASE64
 #import <Cordova/NSData+Base64.h>
+#endif
 
 static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** values) {
     if ( argc < 2 ) {
@@ -392,8 +395,20 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
                     column_type = sqlite3_column_type(statement, i);
                     switch (column_type) {
                         case SQLITE_INTEGER:
+                            columnValue = [NSNumber numberWithLongLong: sqlite3_column_int64(statement, i)];
+                            break;
+                        case SQLITE_FLOAT:
                             columnValue = [NSNumber numberWithDouble: sqlite3_column_double(statement, i)];
                             break;
+                        case SQLITE_BLOB:
+#ifdef READ_BLOB_AS_BASE64
+                            columnValue = [SQLitePlugin getBlobAsBase64String: sqlite3_column_blob(statement, i)
+                                                        withLength: sqlite3_column_bytes(statement, i)];
+#ifdef INCLUDE_SQL_BLOB_BINDING // TBD subjet to change:
+                            columnValue = [@"sqlblob:;base64," stringByAppendingString:columnValue];
+#endif
+                            break;
+#endif // else
                         case SQLITE_TEXT:
                             columnValue = [[NSString alloc] initWithBytes:(char *)sqlite3_column_text(statement, i)
                                                                    length:sqlite3_column_bytes(statement, i)
@@ -402,17 +417,9 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
                             [columnValue autorelease];
 #endif
                             break;
-                        case SQLITE_BLOB:
-                            columnValue = [SQLitePlugin getBlobAsBase64String: sqlite3_column_blob(statement, i)
-                                                        withLength: sqlite3_column_bytes(statement, i)];
-#ifdef INCLUDE_SQL_BLOB_BINDING // TBD subjet to change:
-                            columnValue = [@"sqlblob:;base64," stringByAppendingString:columnValue];
-#endif
-                            break;
-                        case SQLITE_FLOAT:
-                            columnValue = [NSNumber numberWithDouble: sqlite3_column_double(statement, i)];
-                            break;
                         case SQLITE_NULL:
+                        // just in case (should not happen):
+                        default:
                             columnValue = [NSNull null];
                             break;
                     }
@@ -569,6 +576,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     }
 }
 
+#ifdef READ_BLOB_AS_BASE64
 +(NSString*)getBlobAsBase64String:(const char*)blob_chars
                        withLength:(int)blob_length
 {
@@ -585,5 +593,6 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 
     return result;
 }
+#endif
 
 @end /* vim: set expandtab : */
