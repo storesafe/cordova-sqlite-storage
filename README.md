@@ -18,6 +18,8 @@ There are two ways iCloud backup is configured:
 
 Unless you want your app to use iCloud backup, it is recommended to turn it off as documented in: https://cordova.apache.org/docs/en/5.1.1/guide/platforms/ios/config.html
 
+I raised [Cordova bug CB-9830](https://issues.apache.org/jira/browse/CB-9830) to disable iCloud backup by default in `config.xml`.
+
 ## Available for hire
 
 The primary author and maintainer [@brodybits (Chris Brody)](https://github.com/brodybits) is available for contracting assignments. Part-time contracting assignments would really help keep this project alive. [@brodybits (Chris Brody)](https://github.com/brodybits) can be contacted at: <brodybits@litehelpers.net>
