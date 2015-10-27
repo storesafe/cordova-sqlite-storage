@@ -10,7 +10,13 @@ License for iOS version: MIT only
 |-----------------------|----------------------|
 |[![Circle CI](https://circleci.com/gh/litehelpers/Cordova-sqlite-storage.svg?style=svg)](https://circleci.com/gh/litehelpers/Cordova-sqlite-storage)|[![Build Status](https://travis-ci.org/litehelpers/Cordova-sqlite-storage.svg?branch=master-rc)](https://travis-ci.org/litehelpers/Cordova-sqlite-storage)|
 
-## NOTICE: iCloud backup of SQLite database is NOT allowed
+## NOTICE: Changes to free support
+
+Effective November 3, 2015 free support will only be provided on Tuesdays from 12:00 to 16:00 GMT, according to the procedure described in the [support section](#Support) below.
+
+Commercial support is available by contacting: <info@litehelpers.net>
+
+## IMPORTANT: iCloud backup of SQLite database is NOT allowed
 
 As documented in the "**A User’s iCloud Storage Is Limited**" section of [iCloudFundamentals in Mac Developer Library iCloud Design Guide](https://developer.apple.com/library/mac/documentation/General/Conceptual/iCloudDesignGuide/Chapters/iCloudFundametals.html) (near the beginning):
 
@@ -94,7 +100,7 @@ Commercial support is available by contacting: <info@litehelpers.net>
 
 ## Highlights
 
-- Drop-in replacement for HTML5 SQL API, the only change should be `window.openDatabase()` --> `sqlitePlugin.openDatabase()`
+- Drop-in replacement for HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/), the only change should be `window.openDatabase()` --> `sqlitePlugin.openDatabase()`
 - Failure-safe nested transactions with batch processing optimizations
 - As described in [this posting](http://brodyspark.blogspot.com/2012/12/cordovaphonegap-sqlite-plugins-offer.html):
   - Keeps sqlite database in a user data location that is known; can be reconfigured (iOS version); and synchronized to iCloud by default (iOS version; can be disabled as described below).
@@ -114,7 +120,8 @@ Commercial support is available by contacting: <info@litehelpers.net>
 - Issue reported with PhoneGap Build Hydration.
 - For some reason, PhoneGap Build may fail to build the iOS version unless the name of the app starts with an uppercase and contains no spaces (see [#243](https://github.com/litehelpers/Cordova-sqlite-storage/issues/243); [Wizcorp/phonegap-facebook-plugin#830](https://github.com/Wizcorp/phonegap-facebook-plugin/issues/830); [phonegap/build#431](https://github.com/phonegap/build/issues/431)).
 - Multi-page apps are not supported and known to be broken on Android (and Amazon Fire-OS).
-- Using web workers is currently not supported and known to be broken on Android (and Amazon Fire-OS).
+- Using web worker(s) is not supported and known to be broken on Android (and Amazon Fire-OS).
+- Using iframe(s) is not supported and known to be broken on Android (and Amazon Fire-OS).
 - Triggers have only been tested on iOS, known to be broken on Android (in case [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) is disabled) and Amazon Fire-OS.
 - INSERT statement that affects multiple rows (due to SELECT cause or using triggers, for example) does not report proper rowsAffected on Android (in case [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) is disabled) or Amazon Fire-OS.
 - On Windows "Universal" (8.1), rowsAffected can be wrong when there are multiple levels of nesting of INSERT statements.
@@ -123,7 +130,12 @@ Commercial support is available by contacting: <info@litehelpers.net>
 - If a sql statement fails for which there is no error handler or the error handler does not return `false` to signal transaction recovery, the plugin fires the remaining sql callbacks before aborting the transaction.
 - In case of an error, the error `code` member is bogus on Android, Windows, and WP(7/8).
 - Possible crash on Android when using Unicode emoji characters due to [Android bug 81341](https://code.google.com/p/android/issues/detail?id=81341), which _should_ be fixed in Android 6.x
-- REGEXP is only supported in iOS.
+- REGEXP is only supported for iOS.
+- In-memory database `db=window.sqlitePlugin.openDatabase({name: ":memory:"})` is currently not supported.
+- Close database bugs described below.
+- When a database is opened and deleted without closing, the iOS version is known to leak resources.
+- The `readTransaction` call executes BEGIN and COMMIT or ROLLBACK statements even though they are NOT necessary for read-only transactions.
+- It is NOT possible to open multiple databases with the same name but in different locations (iOS version).
 - DROP table does not actually delete it in WP(7/8) version, due to limitations of CSharp-SQLite.
 - On WP(7/8), very large integer values will be stored as negative numbers.
 
@@ -132,7 +144,7 @@ Commercial support is available by contacting: <info@litehelpers.net>
 - The db version, display name, and size parameter values are not supported and will be ignored.
 - This plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**. (This is consistent with the other Cordova plugins.)
 - The Android and Amazon Fire-OS versions cannot work with more than 100 open db files (due to the threading model used).
-- UNICODE line separator (`\u2028`) is currently not supported and known to be broken in iOS version.
+- UNICODE line separator (`\u2028`) and paragraph separator (`\u2029`) are currently not supported and known to be broken in iOS version due to [Cordova bug CB-9435](https://issues.apache.org/jira/browse/CB-9435).
 - UNICODE characters not working in WP(7/8) version
 - Blob type is currently not supported and known to be broken on multiple platforms.
 - UNICODE `\u0000` (same as `\0`) character not working in Windows "Universal" (8.1) or WP(7/8) versions
@@ -141,17 +153,31 @@ Commercial support is available by contacting: <info@litehelpers.net>
 - Large query result can be slow, also due to JSON implementation
 - ATTACH another database file is not supported (due to path specifications, which work differently depending on the target platform)
 - User-defined savepoints are not supported and not expected to be compatible with the transaction locking mechanism used by this plugin. In addition, the use of BEGIN/COMMIT/ROLLBACK statements is not supported.
+- Problems have been reported when using this plugin with Crosswalk (for Android). A couple of things you can try:
+  - Install Crosswalk as a plugin instead of using Crosswalk to create the project.
+  - Use `androidDatabaseImplementation: 2` in the openDatabase options as described below.
+- This plugin will not work with JXCore for Cordova since it also includes a version of the SQLite implementation.
 
 ## Limited support (testing needed)
 
 - Use within a pop-up or child window such as an iframe or InAppBrowser (problem with iframe reported on Android)
-- In-memory database `db=window.sqlitePlugin.openDatabase({name: ":memory:"})`
-- UNICODE paragraph separator (`\u2029`)
 - FTS3/FTS4 is not tested or supported for Amazon Fire-OS or WP(7/8)
 - R-Tree is not tested for Android (in case [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) is disabled), Amazon Fire-OS or WP(7/8)
 - Database triggers as described above - known to be broken for Android (in case [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) is disabled) and Amazon Fire-OS
 - UNICODE characters not fully tested in the Windows "Universal" (8.1) version
-- JOIN needs to be tested more.
+- JOIN should be tested further.
+- Delete an open database inside a statement or transaction callback.
+- ORDER BY RANDOM
+- Integrate a version of this project with JXCore for Cordova
+
+## Some tips and tricks
+
+- If you run into problems and your code follows the asynchronous HTML5/[Web SQL](http://www.w3.org/TR/webdatabase/) transaction API, you can try opening your database using `window.openDatabase` and see if you get the same problems.
+
+## Common pitfalls
+
+- It is NOT allowed to execute sql statements on a transaction following the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/), as described below.
+- It is possible to make a Windows Phone 8.1 project using either the `windows` platform or the `wp8` platform. The `windows` platform is highly recommended over `wp8` whenever possible. Also, some plugins only support `windows` and some plugins support only `wp8`.
 
 ## Alternatives
 
@@ -185,7 +211,7 @@ The idea is to emulate the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/
 
 ## Opening a database
 
-There are two options to open a database:
+There are two options to open a database access object:
 - **Recommended:** `var db = window.sqlitePlugin.openDatabase({name: "my.db", location: 1});`
 - **Classical:** `var db = window.sqlitePlugin.openDatabase("myDatabase.db", "1.0", "Demo", -1);`
 
@@ -207,7 +233,10 @@ function onDeviceReady() {
 }
 ```
 
-**NOTE:** The database file name should include the extension, if desired.
+**NOTES:**
+- The database file name should include the extension, if desired.
+- It is possible to open multiple database access objects for the same database.
+- The database access object can be closed as described below.
 
 ### Pre-populated database
 
@@ -258,6 +287,75 @@ var db = window.sqlitePlugin.openDatabase({name: "my.db", androidDatabaseImpleme
 This option is ignored if `androidDatabaseImplementation: 2` is not specified.
 
 **IMPORTANT NOTE:** This workaround is *only* applied when using `db.transaction()` or `db.readTransaction()`, *not* applied when running `executeSql()` on the database object.
+
+## SQL transactions
+
+The following types of SQL transactions are supported by this version:
+- Single-statement transactions
+- Standard asynchronous transactions
+
+### Single-statement transactions
+
+Sample:
+
+```Javascript
+db.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (res) {
+  console.log('got stringlength: ' + res.rows.item(0).stringlength);
+}, function(error) {
+  console.log('SELECT error: ' + error.message);
+});
+```
+
+## Standard asynchronous transactions
+
+Standard asynchronous transactions follow the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/) which is very well documented. Here is a very simple example from the test suite:
+
+```Javascript
+db.transaction(function(tx) {
+  tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", [], function(tx, res) {
+    console.log("res.rows.item(0).uppertext: " + res.rows.item(0).uppertext);
+  }, function(error) {
+    console.log('SELECT error: ' + error.message);
+  });
+}, function(error) {
+  console.log('transaction error: ' + error.message);
+}, function() {
+  console.log('transaction ok');
+});
+```
+
+**WARNING:** It is NOT allowed to execute sql statements on a transaction after it has finished. Here is an example from my [Populating Cordova SQLite storage with the JQuery API post](http://www.brodybits.com/cordova/sqlite/api/jquery/2015/10/26/populating-cordova-sqlite-storage-with-the-jquery-api.html):
+[post about , for example:
+
+```Javascript
+  // BROKEN SAMPLE:
+  var db = window.sqlitePlugin.openDatabase({name: "test.db"});
+  db.executeSql("DROP TABLE IF EXISTS tt");
+  db.executeSql("CREATE TABLE tt (data)");
+
+  db.transaction(function(tx) {
+    $.ajax({
+      url: 'https://api.github.com/users/litehelpers/repos',
+      dataType: 'json',
+      success: function(res) {
+        console.log('Got AJAX response: ' + JSON.stringify(res));
+        $.each(res, function(i, item) {
+          console.log('REPO NAME: ' + item.name);
+          tx.executeSql("INSERT INTO tt values (?)", JSON.stringify(item.name));
+        });
+      }
+    });
+  }, function(e) {
+    console.log('Transaction error: ' + e.message);
+  }, function() {
+    // Check results:
+    db.executeSql('SELECT COUNT(*) FROM tt', [], function(res) {
+      console.log('Check SELECT result: ' + JSON.stringify(res.rows.item(0)));
+    });
+  });
+```
+
+You can find more details and a step-by-step description how to do this right in the [Populating Cordova SQLite storage with the JQuery API post](http://www.brodybits.com/cordova/sqlite/api/jquery/2015/10/26/populating-cordova-sqlite-storage-with-the-jquery-api.html):
 
 ## Background processing
 
@@ -340,6 +438,70 @@ function onDeviceReady() {
 ```
 
 This case will also works with Safari (WebKit), assuming you replace `window.sqlitePlugin.openDatabase` with `window.openDatabase`.
+
+## Close a database object
+
+```js
+db.close(successcb, errorcb);
+```
+
+It is OK to close the database within a transaction callback but *NOT* within a statement callback. The following example is OK:
+
+```Javascript
+db.transaction(function(tx) {
+  tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function(tx, res) {
+    console.log('got stringlength: ' + res.rows.item(0).stringlength);
+  });
+}, function(error) {
+  // OK to close here:
+  console.log('transaction error: ' + error.message);
+  db.close();
+}, function() {
+  // OK to close here:
+  console.log('transaction ok');
+  db.close(function() {
+    console.log('database is closed ok');
+  });
+});
+```
+
+The following example is NOT OK:
+
+```Javascript
+// BROKEN:
+db.transaction(function(tx) {
+  tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function(tx, res) {
+    console.log('got stringlength: ' + res.rows.item(0).stringlength);
+    // BROKEN - this will trigger the error callback:
+    db.close(function() {
+      console.log('database is closed ok');
+    }, function(error) {
+      console.log('ERROR closing database');
+    });
+  });
+});
+```
+
+**BUG 1:** It is currently NOT possible to close a database in a `db.executeSql` callback. For example:
+
+```Javascript
+// BROKEN DUE TO BUG:
+db.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (res) {
+  var stringlength = res.rows.item(0).stringlength;
+  console.log('got stringlength: ' + res.rows.item(0).stringlength);
+
+  // BROKEN - this will trigger the error callback DUE TO BUG:
+  db.close(function() {
+    console.log('database is closed ok');
+  }, function(error) {
+    console.log('ERROR closing database');
+  });
+});
+```
+
+**BUG 2:** If multiple database access objects are opened for the same database and one database access object is closed, the database is no longer available for the other database access objects. Possible workarounds:
+- It is still possible to open one or more new database access objects on a database that has been closed.
+- It *should* be OK not to explicitly close a database handle since database transactions are [ACID](https://en.wikipedia.org/wiki/ACID) compliant and the app's memory resources are cleaned up by the system upon termination.
 
 ## Delete a database
 
@@ -584,9 +746,7 @@ Make a change like this to index.html (or use the sample code) verify proper ins
 
 ## Policy
 
-As described above, free support will be provided on a very limited basis due to some changing priorities. You may have to wait a few days or even 1-2 weeks in some cases. Please follow the steps below to be sure you have done your best before asking for help.
-
-In addition, free support is only available in public forums.
+As described above, free support will be provided on a very limited basis due to some changing priorities. In addition, free support is only available in public forums. Please follow the steps below to be sure you have done your best before requesting help.
 
 Commercial support is available by contacting: <info@litehelpers.net>
 
