@@ -59,12 +59,6 @@ Other projects:
 - [brodybits / node-uvhttp](https://github.com/brodybits/node-uvhttp) - HTTP server library that serves static content from native code - *under development and currently extremely limited*
 - [brodybits / java-node](https://github.com/brodybits/java-node) - two-way binding interface between Java and Node.js (Javascript) - *under development and currently extremely limited*
 
-## New support policy
-
-Due to some changing priorities, free support will be provided on a very limited basis as described in the [support section](#Support).
-
-Commercial support is available by contacting: <info@litehelpers.net>
-
 ## Status
 
 - Windows "Universal" (8.1) version is in an experimental/pre-alpha state:
@@ -534,18 +528,6 @@ As an alternative, which will support the ("Mixed Platforms") target, you can us
 
 Then your project in `CordovaApp.sln` should work with "Mixed Platforms" on both Windows 8.1 and Windows Phone 8.1.
 
-## Easy install with plugman tool
-
-```shell
-plugman install --platform MYPLATFORM --project path.to.my.project.folder --plugin cordova-sqlite-storage
-```
-
-where MYPLATFORM is `android`, `ios`, `windows`, or `wp8`.
-
-A posting how to get started developing on Windows host without the Cordova CLI tool (for Android target only) is available [here](http://brodybits.blogspot.com/2015/03/trying-cordova-for-android-on-windows-without-cordova-cli.html).
-
-**NOTE:** You can use `cordova-sqlite-storage` instead of https://github.com/litehelpers/Cordova-sqlite-storage to get an older, stable version.
-
 ## Easy install with Cordova CLI tool
 
     npm install -g cordova # if you don't have cordova
@@ -562,6 +544,18 @@ You can find more details at [this writeup](http://iphonedevlog.wordpress.com/20
 
     cordova platform rm ios
     cordova platform add ios
+
+**EXTRA NOTE:** You can use https://github.com/litehelpers/Cordova-sqlite-storage instead of `cordova-sqlite-storage` to get the latest version directly from github.
+
+## Easy install with plugman tool
+
+```shell
+plugman install --platform MYPLATFORM --project path.to.my.project.folder --plugin cordova-sqlite-storage
+```
+
+where MYPLATFORM is `android`, `ios`, `windows`, or `wp8`.
+
+A posting how to get started developing on Windows host without the Cordova CLI tool (for Android target only) is available [here](http://brodybits.blogspot.com/2015/03/trying-cordova-for-android-on-windows-without-cordova-cli.html).
 
 **EXTRA NOTE:** You can use https://github.com/litehelpers/Cordova-sqlite-storage instead of `cordova-sqlite-storage` to get the latest version directly from github.
 
