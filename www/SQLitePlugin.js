@@ -548,6 +548,15 @@
       if (!!openargs.externalStorage && openargs.externalStorage === 2) {
         openargs.externalStorage = 2;
       }
+      if (!!openargs.customPath && (typeof(openargs.customPath) == "String" || openargs.customPath instanceof String) && openargs.customPath != "" && openargs.customPath != null) {
+        openargs.customPath = openargs.customPath;
+      }
+      if (!!openargs.importDbPath && (typeof(openargs.importDbPath) == "String" || openargs.importDbPath instanceof String) && openargs.importDbPath != "" && openargs.importDbPath != null) {
+        openargs.importDbPath = openargs.importDbPath;
+      }
+      if (!openargs.importDbPath || openargs.importDbPath == null || openargs.importDbPath == "") {
+        openargs.importDbPath = "www/";
+      };
       return new SQLitePlugin(openargs, okcb, errorcb);
     }),
     deleteDb: function(first, success, error) {
