@@ -1,5 +1,7 @@
 # Changes
 
+## 0.7.12-pre
+
 ## 0.7.11
 
 - Fix plugin ID in plugin.xml to match npm package ID
