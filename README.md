@@ -13,7 +13,7 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 ## Status
 
 - Windows "Universal" (8.1) version is in an experimental/pre-alpha state:
-  - Database close and delete operations not yet implemented
+  - **FIXED:** ~~Database close and delete operations not yet implemented~~
   - No background processing (for future consideration)
   - You *may* encounter issues with Cordova CLI due to [CB-8866](https://issues.apache.org/jira/browse/CB-8866); as a workaround you can install using [litehelpers / cordova-windows-nufix](https://github.com/litehelpers/cordova-windows-nufix) and `plugman` as described below.
   - In addition, problems with the Windows "Universal" version have been reported in case of a Cordova project using a Visual Studio template/extension instead of Cordova/PhoneGap CLI or `plugman`

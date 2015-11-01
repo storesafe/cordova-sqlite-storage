@@ -1616,8 +1616,6 @@ var mytests = function() {
         });
 
         test_it(suiteName + ' test sqlitePlugin.deleteDatabase()', function () {
-          if (isWindows) pending('NOT IMPLEMENTED for Windows'); // XXX TODO
-
           stop();
           var db = openDatabase("DB-Deletable", "1.0", "Demo", DEFAULT_SIZE);
 
@@ -1652,9 +1650,12 @@ var mytests = function() {
                 testDeleteError();
               }, function () {
                 ok(false, 'expected a transaction error');
+                // TODO: start();
               });
             }, function (e) {
+              //console.log("ERROR: " + JSON.stringify(e));
               ok(false, 'error: ' + e);
+              // TODO: start();
             });
           }
 
@@ -1662,6 +1663,7 @@ var mytests = function() {
             // should throw an error if the db doesn't exist
             window.sqlitePlugin.deleteDatabase("Foo-Doesnt-Exist", function () {
               ok(false, 'expected error');
+              // TODO: start();
             }, function (err) {
               ok(!!err, 'got error like we expected');
 
@@ -1687,8 +1689,6 @@ var mytests = function() {
         });
 
         test_it(suiteName + ' database.close calls its success callback', function () {
-          if (isWindows) pending('NOT IMPLEMENTED for Windows'); // XXX TODO
-
           // asynch test coming up
           stop(1);
 
@@ -1706,8 +1706,6 @@ var mytests = function() {
         });
 
         test_it(suiteName + ' database.close fails in transaction', function () {
-          if (isWindows) pending('NOT IMPLEMENTED for Windows'); // XXX TODO
-
           stop(2);
 
           var dbName = "Database-Close-fail";
@@ -1735,8 +1733,6 @@ var mytests = function() {
         });
 
         test_it(suiteName + ' attempt to close db twice', function () {
-          if (isWindows) pending('NOT IMPLEMENTED for Windows'); // XXX TODO
-
           var dbName = "close-db-twice.db";
 
           stop(1);
@@ -1861,12 +1857,11 @@ var mytests = function() {
 
         // Needed to support some large-scale applications:
         test_it(suiteName + ' close then re-open allows subsequent queries to run', function () {
-          if (isWindows) pending('NOT IMPLEMENTED for Windows'); // XXX TODO
-
           // asynch test coming up
           stop(1);
         
           var dbName = "Database-Close-and-Reopen";
+
           openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function (db) {
             db.close(function () {
               openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function (db) {
@@ -1912,8 +1907,6 @@ var mytests = function() {
 
         // Needed to support some large-scale applications:
         test_it(suiteName + ' delete then re-open allows subsequent queries to run', function () {
-          if (isWindows) pending('NOT IMPLEMENTED for Windows'); // XXX TODO
-
           var dbName = "Database-delete-and-Reopen.db";
           var dbLocation = 2;
 
@@ -1955,8 +1948,6 @@ var mytests = function() {
 
         // Needed to support some large-scale applications:
         test_it(suiteName + ' close, then delete then re-open allows subsequent queries to run', function () {
-          if (isWindows) pending('NOT IMPLEMENTED for Windows'); // XXX TODO
-
           var dbName = "Database-Close-delete-Reopen.db";
 
           // asynch test coming up
@@ -1997,7 +1988,7 @@ var mytests = function() {
       if (!!window.hasWebKitBrowser) {
 
         test_it(suiteName + ' repeatedly open and close database (4x)', function () {
-          if (isWindows) pending('NOT IMPLEMENTED for Windows'); // XXX TODO
+          //if (isWindows) pending('NOT IMPLEMENTED for Windows'); // XXX TODO
 
           var dbName = "repeatedly-open-and-close-db-4x.db";
 
@@ -2060,7 +2051,7 @@ var mytests = function() {
         });
 
         test_it(suiteName + ' repeatedly open and close database faster (5x)', function () {
-          if (isWindows) pending('NOT IMPLEMENTED for Windows'); // XXX TODO
+          //if (isWindows) pending('NOT IMPLEMENTED for Windows'); // XXX TODO
 
           var dbName = "repeatedly-open-and-close-faster-5x.db";
 
@@ -2117,7 +2108,7 @@ var mytests = function() {
 
         // Needed to support some large-scale applications:
         test_it(suiteName + ' repeatedly open and delete database (4x)', function () {
-          if (isWindows) pending('NOT IMPLEMENTED for Windows'); // XXX TODO
+          //if (isWindows) pending('NOT IMPLEMENTED for Windows'); // XXX TODO
 
           var dbName = "repeatedly-open-and-delete-4x.db";
 
@@ -2181,7 +2172,7 @@ var mytests = function() {
 
         // Needed to support some large-scale applications:
         test_it(suiteName + ' repeatedly open and delete database faster (5x)', function () {
-          if (isWindows) pending('NOT IMPLEMENTED for Windows'); // XXX TODO
+          //if (isWindows) pending('NOT IMPLEMENTED for Windows'); // XXX TODO
 
           var dbName = "repeatedly-open-and-delete-faster-5x.db";
 
