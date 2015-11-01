@@ -12,6 +12,9 @@ namespace SQLite3
     Database(Platform::String^ dbPath);
     virtual ~Database();
 
+    int close();
+    int close_v2();
+
     Statement^ Prepare(Platform::String^ sql);
 
     int LastInsertRowid();
