@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015, Chris Brody
+ * Copyright (c) 2012-2015: Christopher J. Brody (aka Chris Brody)
  * Copyright (c) 2005-2010, Nitobi Software Inc.
  * Copyright (c) 2010, IBM Corporation
  */
