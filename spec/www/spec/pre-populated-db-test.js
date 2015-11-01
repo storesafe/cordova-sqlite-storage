@@ -27,9 +27,17 @@ var mytests = function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
 
+      it(suiteName + 'extra cleanup',
+        function(done) {
+          // For Windows JS, need to wait for deleteDatabase callback
+          // before attempt to run the pre-populated database test
+          expect(true).toBe(true);
+          window.sqlitePlugin.deleteDatabase('pre.db', done, done);
+        }, MYTIMEOUT);
+
       it(suiteName + 'Pre-populated database test',
         function(done) {
-          if (isIE) pending('NOT IMPLEMENTED for Windows Universal or WP8');
+          if (isWP8 && !isWindows) pending('NOT IMPLEMENTED for WP8.0');
 
           // IMPORTANT: needed in case it is installed by a previous test run
           window.sqlitePlugin.deleteDatabase('pre.db');

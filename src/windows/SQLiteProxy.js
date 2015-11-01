@@ -42,6 +42,48 @@ module.exports = {
 		    //res = SQLitePluginRT.SQLitePlugin.openAsync(options.name);
 			var dbname = options.name;
 
+			if (!!options.createFromResource) {
+				console.log("open pre-populated database " + dbname);
+				WinJS.Application.local.exists(dbname).done(function(isExisting) {
+					if (isExisting) {
+						console.log("database " + dbname + " already exists, opening");
+						try {
+							openImmediate(dbname);
+						} catch(ex) {
+							fail(ex);
+						};
+					} else {
+						console.log("database " + dbname + " not found, copy from resource");
+
+						// THANKS TO: http://stackoverflow.com/a/15905399
+						// answer to: http://stackoverflow.com/questions/15904374/how-to-create-a-blob-object-from-image-url
+						// linked from comment in: http://stackoverflow.com/questions/20555963/how-to-load-blob-from-windows-storage-storagefile-winjs#
+						var sourceUri = new Windows.Foundation.Uri("ms-appx:///www/pre.db");
+						Windows.Storage.StorageFile.getFileFromApplicationUriAsync(sourceUri).then(function(f) {
+							return f.copyAsync(Windows.Storage.ApplicationData.current.localFolder);
+						}, function(e) {
+							console.log('get file from uri failure: ' + JSON.stringify(e));
+							// XXX FUTURE TBD consistent for all platforms:
+							fail(e);
+						}).then(function() {
+							try {
+								console.log('open pre-populated db name: ' + dbname);
+								openImmediate(dbname);
+							} catch(ex) {
+								console.log('open failure: ' + JSON.stringify(ex));
+								fail(ex);
+							};
+						}, function(e) {
+							console.log('copy async failure: ' + JSON.stringify(e));
+							// XXX FUTURE TBD consistent for all platforms:
+							fail(e);
+						});
+					}
+				});
+
+				return;
+			}
+
 			openImmediate(dbname);
 		} catch(ex) {
 			//fail(ex);
