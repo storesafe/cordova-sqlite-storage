@@ -23,18 +23,26 @@ module.exports = {
 	open: function(win, fail, args) {
 	    var options = args[0];
 	    var res;
-		try {
-			dbname = options.name;
-			// from @EionRobb / phonegap-win8-sqlite:
-			opendbname = Windows.Storage.ApplicationData.current.localFolder.path + "\\" + dbname;
-			console.log("db name: " + dbname + " at full path: " + opendbname);
 
-			db = new SQLite3JS.Database(opendbname);
+		function openImmediate(dbname) {
+			//var dbname = options.name;
+			// from @EionRobb / phonegap-win8-sqlite:
+			var opendbname = Windows.Storage.ApplicationData.current.localFolder.path + "\\" + dbname;
+			console.log("open db name: " + dbname + " at full path: " + opendbname);
+
+			var db = new SQLite3JS.Database(opendbname);
 			dbmap[dbname] = db;
 			nextTick(function() {
 				win();
 			});
 		    //res = SQLitePluginRT.SQLitePlugin.openAsync(options.name);
+		}
+
+		try {
+		    //res = SQLitePluginRT.SQLitePlugin.openAsync(options.name);
+			var dbname = options.name;
+
+			openImmediate(dbname);
 		} catch(ex) {
 			//fail(ex);
 			nextTick(function() {
@@ -48,6 +56,15 @@ module.exports = {
 	    var res;
 		try {
 		    //res = SQLitePluginRT.SQLitePlugin.closeAsync(JSON.stringify(options));
+			var dbname = options.path;
+			nextTick(function() {
+				if (!!dbmap[dbname] && dbmap[dbname].close() == 0) {
+					delete dbmap[dbname];
+					win();
+				} else {
+					fail(); // XXX TODO REPORT ERROR
+				}
+			});
         } catch (ex) {
 			fail(ex);
 		}
@@ -101,6 +118,41 @@ module.exports = {
 	    var res;
 		try {
 		    //res = SQLitePluginRT.SQLitePlugin.deleteAsync(JSON.stringify(options));
+			var dbname = options.path;
+
+			WinJS.Application.local.exists(dbname).then(function(isExisting) {
+				if (!isExisting) {
+					// XXX FUTURE TBD consistent for all platforms:
+					fail("file does not exist");
+					return;
+				}
+
+				if (!!dbmap[dbname]) {
+					dbmap[dbname].close_v2();
+
+					delete dbmap[dbname];
+				}
+
+				//console.log('test db name: ' + dbname);
+				Windows.Storage.ApplicationData.current.localFolder.getFileAsync(dbname)
+					.then(function (dbfile) {
+						//console.log('get db file to delete ok');
+						return dbfile.deleteAsync(Windows.Storage.StorageDeleteOption.permanentDelete);
+					}, function (e) {
+						console.log('get file failure: ' + JSON.stringify(e));
+						// XXX FUTURE TBD consistent for all platforms:
+						fail(e);
+					}).then(function () {
+						//console.log('delete ok');
+						win();
+					}, function (e) {
+						console.log('delete failure: ' + JSON.stringify(e));
+						// XXX FUTURE TBD consistent for all platforms:
+						fail(e);
+					});
+
+			});
+
 		} catch(ex) {
 			fail(ex);
 		}

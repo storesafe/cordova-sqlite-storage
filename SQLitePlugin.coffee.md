@@ -151,7 +151,7 @@
         error newSQLError 'database not open'
         return
 
-      @addTransaction new SQLitePluginTransaction(this, fn, error, success, true, true)
+      @addTransaction new SQLitePluginTransaction(this, fn, error, success, false, true)
       return
 
     SQLitePlugin::startNextTransaction = ->
