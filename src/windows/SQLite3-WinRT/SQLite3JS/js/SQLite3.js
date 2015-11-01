@@ -37,7 +37,7 @@
         switch (type(arg)) {
           case 'number':
             if (arg % 1 === 0) {
-              resultCode = this.statement.bindInt(index, arg);
+              resultCode = this.statement.bindInt64(index, arg);
             } else {
               resultCode = this.statement.bindDouble(index, arg);
             }
@@ -100,7 +100,7 @@
     _getColumn: function (index) {
       switch (this.statement.columnType(index)) {
         case SQLite3.Datatype.integer:
-          return this.statement.columnInt(index);
+          return this.statement.columnInt64(index);
         case SQLite3.Datatype.float:
           return this.statement.columnDouble(index);
         case SQLite3.Datatype.text:

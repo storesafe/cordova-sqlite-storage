@@ -53,6 +53,11 @@ namespace SQLite3
     return sqlite3_column_int(statement, index);
   }
 
+  long long Statement::ColumnInt64(int index)
+  {
+    return sqlite3_column_int64(statement, index);
+  }
+
   double Statement::ColumnDouble(int index)
   {
     return sqlite3_column_double(statement, index);
@@ -66,6 +71,11 @@ namespace SQLite3
   int Statement::BindInt(int index, int val)
   {
     return sqlite3_bind_int(statement, index, val);
+  }
+
+  int Statement::BindInt64(int index, long long val)
+  {
+    return sqlite3_bind_int64(statement, index, val);
   }
 
   int Statement::BindDouble(int index, double val)
