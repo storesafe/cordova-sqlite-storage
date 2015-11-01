@@ -1,5 +1,7 @@
 # Changes
 
+## 0.8.0-extra-common-dev
+
 ## 0.7.1-common-dev
 
 - Fix to Windows "Universal" version to support big integers
