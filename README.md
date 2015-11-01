@@ -1,5 +1,5 @@
 # Cordova/PhoneGap sqlite storage adapter (common-src branch)
- 
+
 Native interface to sqlite in a Cordova/PhoneGap plugin for Android, iOS, Windows "Universal" (8.1), and Amazon Fire-OS with API similar to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
 
 License for Android, Windows "Universal" (8.1), and Amazon Fire-OS versions: MIT or Apache 2.0
@@ -22,7 +22,7 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 - Android is supported back to SDK 10 (a.k.a. Gingerbread, Android 2.3.3); support for older versions is available upon request.
 - API to open the database may be changed somewhat to be more streamlined. Transaction and single-statement query API will NOT be changed.
 - In case of memory issues please use smaller transactions or use the version (with a different licensing scheme) at: [litehelpers / Cordova-sqlite-enterprise-free](https://github.com/litehelpers/Cordova-sqlite-enterprise-free)
- 
+
 ## Announcements
 
 - PhoneGap Build is now supported through the npm package: http://phonegap.com/blog/2015/05/26/npm-plugins-available/
@@ -65,7 +65,6 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 - REGEXP is only supported on iOS ... implementation-dependent for Android and Amazon Fire-OS, known to be broken on Windows ("Universal") and WP(7/8).
 - Close database bugs described below.
 - When a database is opened and deleted without closing, the iOS version is known to leak resources.
-- The `readTransaction` call executes BEGIN and COMMIT or ROLLBACK statements even though they are NOT necessary for read-only transactions.
 - It is NOT possible to open multiple databases with the same name but in different locations (iOS version).
 - Problems reported with PhoneGap Build in the past:
   - PhoneGap Build Hydration.
@@ -89,7 +88,6 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 - Problems have been reported when using this plugin with Crosswalk (for Android). A couple of things you can try:
   - Install Crosswalk as a plugin instead of using Crosswalk to create the project.
   - Use `androidDatabaseImplementation: 2` in the openDatabase options as described below.
-- This plugin will not work with JXCore for Cordova since it also includes a version of the SQLite implementation.
 
 ## Further testing needed
 
@@ -98,7 +96,7 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 - UNICODE characters not fully tested in the Windows "Universal" (8.1) version
 - Use with triggers and JOIN
 - TODO add some REGEXP tests
-- Integration with JXCore for Cordova
+- Integration with JXCore for Cordova (must be built without sqlite(3) built-in)
 
 ## Some tips and tricks
 
@@ -119,7 +117,7 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 - Original version for iOS (with a slightly different transaction API): [davibe / Phonegap-SQLitePlugin](https://github.com/davibe/Phonegap-SQLitePlugin)
 - Simpler sqlite plugin with a simpler API: [samikrc / CordovaSQLite](https://github.com/samikrc/CordovaSQLite)
 
-## Other SQLite adapter projects
+### Other SQLite adapter projects
 
 - [an-rahulpandey / cordova-plugin-dbcopy](https://github.com/an-rahulpandey/cordova-plugin-dbcopy) - Alternative way copy pre-populated database
 - [EionRobb / phonegap-win8-sqlite](https://github.com/EionRobb/phonegap-win8-sqlite) - WebSQL add-on for Win8/Metro apps (perhaps with a different API), using an old version of the C++ library from [SQLite3-WinRT Component](https://github.com/doo/SQLite3-WinRT) (as referenced by [01org / cordova-win8](https://github.com/01org/cordova-win8))
@@ -127,6 +125,14 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 - [01org / cordova-win8](https://github.com/01org/cordova-win8) - old, unofficial version of Cordova API support for Windows 8 Metro that includes an old version of the C++ [SQLite3-WinRT Component](https://github.com/doo/SQLite3-WinRT)
 - [MSOpenTech / cordova-plugin-websql](https://github.com/MSOpenTech/cordova-plugin-websql) - Windows 8(+) and Windows Phone 8(+) WebSQL plugin versions in C#
 - [MetaMemoryT / websql-client](https://github.com/MetaMemoryT/websql-client) - provides the same API and connects to [websql-server](https://github.com/MetaMemoryT/websql-server) through WebSockets.
+
+### Alternative solutions
+
+- Another sqlite binding for React-Native (iOS version): [almost/react-native-sqlite](https://github.com/almost/react-native-sqlite)
+- Use [NativeScript](https://www.nativescript.org) with its web view and [NathanaelA / nativescript-sqlite](https://github.com/Natha
+naelA/nativescript-sqlite) (Android and/or iOS)
+- Standard HTML5 [local storage](https://en.wikipedia.org/wiki/Web_storage#localStorage)
+- [Realm.io](https://realm.io/)
 
 # Usage
 
@@ -211,7 +217,7 @@ var db = window.sqlitePlugin.openDatabase({name: "my.db", androidDatabaseImpleme
 
 This option is ignored if `androidDatabaseImplementation: 2` is not specified.
 
-**IMPORTANT NOTE:** This workaround is *only* applied when using `db.transaction()` or `db.readTransaction()`, *not* applied when running `executeSql()` on the database object.
+**IMPORTANT NOTE:** This workaround is *only* applied when using `db.transaction()`, *not* applied when running `executeSql()` on the database object.
 
 ## SQL transactions
 
@@ -233,10 +239,26 @@ db.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (res) 
 
 ## Standard asynchronous transactions
 
-Standard asynchronous transactions follow the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/) which is very well documented. Here is a very simple example from the test suite:
+Standard asynchronous transactions follow the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/) which is very well documented and uses BEGIN and COMMIT or ROLLBACK to keep the transactions failure-safe. Here is a very simple example from the test suite:
 
 ```Javascript
 db.transaction(function(tx) {
+  tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", [], function(tx, res) {
+    console.log("res.rows.item(0).uppertext: " + res.rows.item(0).uppertext);
+  }, function(error) {
+    console.log('SELECT error: ' + error.message);
+  });
+}, function(error) {
+  console.log('transaction error: ' + error.message);
+}, function() {
+  console.log('transaction ok');
+});
+```
+
+In case of a read-only transaction, it is possible to use `readTransaction` which will not use BEGIN, COMMIT, or ROLLBACK:
+
+```Javascript
+db.readTransaction(function(tx) {
   tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", [], function(tx, res) {
     console.log("res.rows.item(0).uppertext: " + res.rows.item(0).uppertext);
   }, function(error) {
@@ -473,7 +495,7 @@ A posting how to get started developing on Windows host without the Cordova CLI 
     npm install -g cordova # if you don't have cordova
     cordova create MyProjectFolder com.my.project MyProject && cd MyProjectFolder # if you are just starting
     cordova plugin add https://github.com/litehelpers/cordova-sqlite-common
- 
+
 You can find more details at [this writeup](http://iphonedevlog.wordpress.com/2014/04/07/installing-chris-brodys-sqlite-database-with-cordova-cli-android/).
 
 **WARNING:** for Windows target platform please read the section above.
@@ -662,7 +684,7 @@ If you continue to see the issue in a new, clean Cordova project:
   - it completely self-contained, i.e. it is using no extra libraries beyond cordova & SQLitePlugin.js;
   - if the issue is with *adding* data to a table, that the test program includes the statements you used to open the database and create the table;
   - if the issue is with *retrieving* data from a table, that the test program includes the statements you used to open the database, create the table, and enter the data you are trying to retrieve.
- 
+
 # Unit tests
 
 Unit testing is done in `spec`.
@@ -670,7 +692,7 @@ Unit testing is done in `spec`.
 ## running tests from shell
 
 To run the tests from \*nix shell, simply do either:
- 
+
     ./bin/test.sh ios
 
 or for Android:
