@@ -37,7 +37,6 @@ var mytests = function() {
       it(suiteName + 'Simple REGEXP test',
         function(done) {
           if (isWebSql && !isAndroid) pending('BROKEN for iOS Web SQL');
-          if (!isWebSql && isAndroid && !isOldImpl) pending('BROKEN for default Android implementation');
           if (isWindows) pending('BROKEN for Windows ("Universal")');
 
           var db = openDatabase('simple-regexp-test.db', '1.0', 'test', DEFAULT_SIZE);

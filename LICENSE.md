@@ -8,6 +8,8 @@ MIT or Apache 2.0
 
 MIT or Apache 2.0
 
+Includes PCRE (BSD 3-clause)
+
 ## iOS version
 
 MIT only
