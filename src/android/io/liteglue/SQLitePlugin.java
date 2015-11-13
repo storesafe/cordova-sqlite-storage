@@ -147,7 +147,7 @@ public class SQLitePlugin extends CordovaPlugin {
                 DBRunner r = dbrmap.get(dbname);
                 if (r != null) {
                     try {
-                        r.q.put(q); 
+                        r.q.put(q);
                     } catch(Exception e) {
                         Log.e(SQLitePlugin.class.getSimpleName(), "couldn't add to queue", e);
                         cbc.error("couldn't add to queue");
@@ -227,7 +227,7 @@ public class SQLitePlugin extends CordovaPlugin {
                     } else {
                         extDirs = this.cordova.getActivity().getExternalFilesDirs(null);
                     }
-                    if (extDirs.length > 1) {
+                    if (extDirs.length > 1 && extDirs[1] != null) {
                         pathDir = extDirs[1].getAbsolutePath();
                     } else {
                         pathDir = extDirs[0].getAbsolutePath();
@@ -237,7 +237,7 @@ public class SQLitePlugin extends CordovaPlugin {
                     dbfile = this.cordova.getActivity().getDatabasePath(dbname);
                 }
             }
-            
+
             if (!dbfile.exists() && createFromAssets) this.createFromAssets(dbname, dbfile, importDbPath);
 
             if (!dbfile.exists()) {
@@ -245,7 +245,7 @@ public class SQLitePlugin extends CordovaPlugin {
             }
 
             Log.v("info", "Open sqlite db: " + dbfile.getAbsolutePath());
-            
+
             SQLiteAndroidDatabase mydb = old_impl ? new SQLiteAndroidDatabase() : new SQLiteDatabaseNDK();
             mydb.open(dbfile);
 
@@ -288,7 +288,7 @@ public class SQLitePlugin extends CordovaPlugin {
                 int len;
                 while ((len = in.read(buf)) > 0)
                     out.write(buf, 0, len);
-    
+
                 Log.v("info", "Copied prepopulated DB content to: " + newDbFile.getAbsolutePath());
             } catch (IOException e) {
                 Log.v("createFromAssets", "No prepopulated DB found, Error=" + e.getMessage());
@@ -299,7 +299,7 @@ public class SQLitePlugin extends CordovaPlugin {
                     } catch (IOException ignored) {
                     }
                 }
-    
+
                 if (out != null) {
                     try {
                         out.close();
@@ -527,9 +527,9 @@ public class SQLitePlugin extends CordovaPlugin {
                     myStatement.bindNull(i + 1);
                 } else {
                     Object p = paramsAsJson.get(i);
-                    if (p instanceof Float || p instanceof Double) 
+                    if (p instanceof Float || p instanceof Double)
                         myStatement.bindDouble(i + 1, paramsAsJson.getDouble(i));
-                    else if (p instanceof Number) 
+                    else if (p instanceof Number)
                         myStatement.bindLong(i + 1, paramsAsJson.getLong(i));
                     else
                         myStatement.bindTextNativeString(i + 1, paramsAsJson.getString(i));
@@ -678,7 +678,7 @@ public class SQLitePlugin extends CordovaPlugin {
                             Log.e(SQLitePlugin.class.getSimpleName(), "couldn't delete database", e);
                             dbq.cbc.error("couldn't delete database: " + e);
                         }
-                    }                    
+                    }
                 } catch (Exception e) {
                     Log.e(SQLitePlugin.class.getSimpleName(), "couldn't close database", e);
                     if (dbq.cbc != null) {
