@@ -77,7 +77,7 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 - The Android and Amazon Fire-OS versions cannot work with more than 100 open db files (due to the threading model used).
 - UNICODE line separator (`\u2028`) and paragraph separator (`\u2029`) are currently not supported and known to be broken in iOS version due to [Cordova bug CB-9435](https://issues.apache.org/jira/browse/CB-9435).
 - Blob type is currently not supported and known to be broken on multiple platforms.
-- UNICODE `\u0000` (same as `\0`) character not working in Windows (8.1) (or Windows Phone XX) version(s)
+- UNICODE `\u0000` (same as `\0`) character not working in Android (default implementation), Windows (8.1/XX), WP8,  or Windows Phone 8.1/XX version(s)
 - Case-insensitive matching and other string manipulations on Unicode characters, which is provided by optional ICU integration in the sqlite source and working with recent versions of Android, is not supported for any target platforms.
 - iOS version uses a thread pool but with only one thread working at a time due to "synchronized" database access
 - Large query result can be slow, also due to JSON implementation
@@ -141,10 +141,10 @@ The idea is to emulate the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/
 ## Opening a database
 
 There are two options to open a database access object:
-- **Recommended:** `var db = window.sqlitePlugin.openDatabase({name: "my.db", location: 1});`
+- **Recommended:** `var db = window.sqlitePlugin.openDatabase({name: "my.db", location: 1}, successcb, errorcb);`
 - **Classical:** `var db = window.sqlitePlugin.openDatabase("myDatabase.db", "1.0", "Demo", -1);`
 
-The new `location` option is used to select the database subdirectory location (iOS *only*) with the following choices:
+The `location` option is used to select the database subdirectory location (iOS *only*) with the following choices:
 - `0` (default): `Documents` - visible to iTunes and backed up by iCloud
 - `1`: `Library` - backed up by iCloud, *NOT* visible to iTunes
 - `2`: `Library/LocalDatabase` - *NOT* visible to iTunes and *NOT* backed up by iCloud
@@ -162,7 +162,21 @@ function onDeviceReady() {
 }
 ```
 
-**NOTES:**
+The successcb and errorcb callback parameters are optional but can be extremely helpful in case anything goes wrong. For example:
+
+```js
+window.sqlitePlugin.openDatabase({name: "my.db"}, function(db) {
+  db.transaction(function(tx) {
+    // ...
+  }, function(err) {
+    console.log('Open database ERROR: ' + JSON.stringify(err));
+  });
+});
+```
+
+If any sql statements or transactions are attempted on a database object before the openDatabase result is known, they will be queued and will be aborted in case the database cannot be opened.
+
+**OTHER NOTES:**
 - The database file name should include the extension, if desired.
 - It is possible to open multiple database access objects for the same database.
 - The database access object can be closed as described below.
