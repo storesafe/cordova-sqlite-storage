@@ -465,16 +465,15 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     return [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultSet];
 }
 
--(void)bindStatement:(sqlite3_stmt *)statement withArg:(NSObject *)arg atIndex:(NSUInteger)argIndex
+-(void)bindStatement:(sqlite3_stmt *)statement withArg:(NSObject *)arg atIndex:(int)argIndex
 {
     if ([arg isEqual:[NSNull null]]) {
         sqlite3_bind_null(statement, argIndex);
     } else if ([arg isKindOfClass:[NSNumber class]]) {
         NSNumber *numberArg = (NSNumber *)arg;
         const char *numberType = [numberArg objCType];
-        if (strcmp(numberType, @encode(int)) == 0) {
-            sqlite3_bind_int(statement, argIndex, [numberArg integerValue]);
-        } else if (strcmp(numberType, @encode(long long int)) == 0) {
+        if (strcmp(numberType, @encode(int)) == 0 ||
+            strcmp(numberType, @encode(long long int)) == 0) {
             sqlite3_bind_int64(statement, argIndex, [numberArg longLongValue]);
         } else if (strcmp(numberType, @encode(double)) == 0) {
             sqlite3_bind_double(statement, argIndex, [numberArg doubleValue]);
@@ -509,7 +508,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 #endif
         {
             NSData *data = [stringArg dataUsingEncoding:NSUTF8StringEncoding];
-            sqlite3_bind_text(statement, argIndex, data.bytes, data.length, SQLITE_TRANSIENT);
+            sqlite3_bind_text(statement, argIndex, data.bytes, (int)data.length, SQLITE_TRANSIENT);
         }
     }
 }
