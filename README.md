@@ -11,8 +11,9 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 ## Status
 
 - This version does *NOT* support the WP8 platform.
-- This version contains the following extra feature(s):
+- This version contains the following extra features:
   - Pre-populated database support for Windows "Universal"
+  - REGEXP support for Android using PCRE 8.37
 - Windows "Universal" for Windows 8.0/8.1(+) and Windows Phone 8.1(+) version is in an alpha state:
   - Issue with UNICODE `\u0000` character (same as `\0`)
   - No background processing (for future consideration)
