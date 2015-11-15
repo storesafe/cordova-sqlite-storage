@@ -30,7 +30,7 @@ typedef int WebSQLError;
 @property (nonatomic, copy) NSMutableDictionary *openDBs;
 @property (nonatomic, copy) NSMutableDictionary *appDBPaths;
 
-// Open / Close
+// Open / Close / Delete
 -(void) open: (CDVInvokedUrlCommand*)command;
 -(void) close: (CDVInvokedUrlCommand*)command;
 -(void) delete: (CDVInvokedUrlCommand*)command;
@@ -38,18 +38,5 @@ typedef int WebSQLError;
 // Batch processing interface
 -(void) backgroundExecuteSqlBatch: (CDVInvokedUrlCommand*)command;
 -(void) executeSqlBatch: (CDVInvokedUrlCommand*)command;
-
-// Single requests interface
--(void) backgroundExecuteSql:(CDVInvokedUrlCommand*)command;
--(void) executeSql:(CDVInvokedUrlCommand*)command;
-
-// Perform the SQL request
--(CDVPluginResult*) executeSqlWithDict: (NSMutableDictionary*)dict andArgs: (NSMutableDictionary*)dbargs;
-
--(id) getDBPath:(NSString *)dbFile at:(NSString *)atkey;
-
-+(NSDictionary *)captureSQLiteErrorFromDb:(struct sqlite3 *)db;
-
-+(int)mapSQLiteErrorCode:(int)code;
 
 @end /* vim: set expandtab : */
