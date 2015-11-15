@@ -14,6 +14,7 @@
 - Transaction batch processing of Android version by @marcucio
 - Maintained by @brodybits (Chris Brody)
 - Fixes to support old Android versions by @nolanlawson
+- Thanks to Mark Oppenheim <mark.oppenheim@mnetics.co.uk> for fixes to open/close callbacks and repeated open/close/delete operations
 
 ## iOS version
 
@@ -25,7 +26,6 @@
 
 - SQLiteProxy.js by @vldmrrr (Vladimir Avdonin) and @brodybits (Chris Brody)
 - SQLite3-WinRT C++ classes and SQLite3JS (Javascript part) by @doo (doo GmbH)
-- SQLite3-Windows8.1.vcxproj to build SQLite3.winmd by @EionRobb
 
 ## WP(7/8) version
 
