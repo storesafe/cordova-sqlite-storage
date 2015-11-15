@@ -1,6 +1,6 @@
 # Changes
 
-## 0.7.12-pre
+## 0.7.12
 
 - Fix to Windows "Universal" version to support big integers
 - Implement database close and delete operations for Windows "Universal"
