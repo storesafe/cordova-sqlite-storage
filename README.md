@@ -28,7 +28,7 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 - Pre-populated database support for Windows "Universal" in addition to Android, iOS, and Amazon Fire-OS, usage described below
 - PhoneGap Build is now supported through the npm package: http://phonegap.com/blog/2015/05/26/npm-plugins-available/
 - [MetaMemoryT / websql-promise](https://github.com/MetaMemoryT/websql-promise) now provides a Promises-based interface to both Web SQL and this plugin
-- *NOT working* in this version branch: Android version is now using the lightweight [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) by default configuration (may be changed as described below)
+- Android version is now using the lightweight [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) by default configuration (may be changed as described below)
 - iOS version is now fixed to override the correct pluginInitialize method and should work with recent versions of iOS
 - The test suite is completely ported to Jasmine (2.2.0) and was used to verify the functionality of the new Windows version
 - [SQLCipher](https://www.zetetic.net/sqlcipher/) for Windows (8.1) in addition to Android & iOS is now supported by [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter)
@@ -42,7 +42,7 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 - As described in [this posting](http://brodyspark.blogspot.com/2012/12/cordovaphonegap-sqlite-plugins-offer.html):
   - Keeps sqlite database in a user data location that is known; can be reconfigured (iOS version); and synchronized to iCloud by default (iOS version; can be disabled as described below).
   - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
-- Pre-populated database option (usage described below)
+- Pre-populated openDatabase option (usage described below)
 
 ## Some apps using this plugin
 
@@ -54,13 +54,13 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 
 ## Known issues
 
-- INSERT statement that affects multiple rows (due to SELECT cause or using triggers, for example) does not report proper rowsAffected on Android ~~(in case [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) is disabled)~~ or Amazon Fire-OS.
+- INSERT statement that affects multiple rows (due to SELECT cause or using triggers, for example) does not report proper rowsAffected on Android (in case [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) is disabled) or Amazon Fire-OS.
 - Memory issue observed when adding a large number of records on Android and Amazon Fire-OS, due to JSON implementation
 - A stability issue was reported on the iOS version when in use together with [SockJS](http://sockjs.org/) client such as [pusher-js](https://github.com/pusher/pusher-js) at the same time. The workaround is to call sqlite functions and [SockJS](http://sockjs.org/) client functions in separate ticks (using setTimeout with 0 timeout).
 - If a sql statement fails for which there is no error handler or the error handler does not return `false` to signal transaction recovery, the plugin fires the remaining sql callbacks before aborting the transaction.
 - In case of an error, the error `code` member is bogus on Android and Windows (fixed for Android in [litehelpers / Cordova-sqlite-enterprise-free](https://github.com/litehelpers/Cordova-sqlite-enterprise-free)).
 - Possible crash on Android when using Unicode emoji characters due to [Android bug 81341](https://code.google.com/p/android/issues/detail?id=81341), which _should_ be fixed in Android 6.x
-- REGEXP is only supported on iOS ... implementation-dependent for Android and Amazon Fire-OS, known to be broken on Windows ("Universal") and WP(7/8).
+- REGEXP is only supported on iOS, known to be broken on Android (default database implementation) and Windows ("Universal").
 - Close database bugs described below.
 - When a database is opened and deleted without closing, the iOS version is known to leak resources.
 - It is NOT possible to open multiple databases with the same name but in different locations (iOS version).
@@ -70,7 +70,6 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 
 ## Other limitations
 
-- Pre-populated database functionality is NOT and will never be supported for WP(7.x/8.0).
 - The db version, display name, and size parameter values are not supported and will be ignored.
 - This plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**. (This is consistent with the other Cordova plugins.)
 - Will not work in a web worker or iframe since these are not supported by the Cordova framework.
@@ -93,9 +92,11 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 - Multi-page apps
 - Use within [InAppBrowser](http://docs.phonegap.com/en/edge/cordova_inappbrowser_inappbrowser.md.html)
 - UNICODE characters not fully tested in the Windows "Universal" (8.1) version
-- Use with triggers and JOIN
+- Use with triggers, JOIN, and ORDER BY RANDOM
 - TODO add some REGEXP tests
+- R-Tree is not tested for Android (in case [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) is disabled) or Amazon Fire-OS
 - Integration with JXCore for Cordova (must be built without sqlite(3) built-in)
+- Delete an open database inside a statement or transaction callback.
 
 ## Some tips and tricks
 
@@ -110,9 +111,10 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 
 ### Other versions
 
+- [litehelpers / Cordova-sqlite-storage](https://github.com/litehelpers/Cordova-sqlite-storage) - Cordova sqlite storage plugin with support for WP(7/8).
 - [litehelpers / Cordova-sqlite-enterprise-free](https://github.com/litehelpers/Cordova-sqlite-enterprise-free) - internal memory improvements to support larger transactions (with a different licensing scheme)
 - [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter) - supports [SQLCipher](https://www.zetetic.net/sqlcipher/) for Android, iOS, and Windows (8.1)
-- Adaptation for React Native (iOS version so far): [andpor / react-native-sqlite-storage](https://github.com/andpor/react-native-sqlite-storage)
+- Adaptation for React Native (both Android and iOS versions): [andpor / react-native-sqlite-storage](https://github.com/andpor/react-native-sqlite-storage)
 - Original version for iOS (with a slightly different transaction API): [davibe / Phonegap-SQLitePlugin](https://github.com/davibe/Phonegap-SQLitePlugin)
 - Simpler sqlite plugin with a simpler API: [samikrc / CordovaSQLite](https://github.com/samikrc/CordovaSQLite)
 
@@ -182,7 +184,7 @@ If any sql statements or transactions are attempted on a database object before 
 - It is possible to open multiple database access objects for the same database.
 - The database access object can be closed as described below.
 
-### Pre-populated database
+### Pre-populated database(s)
 
 For Android, Amazon Fire-OS, iOS, and Windows "Universal": put the database file in the `www` directory and open the database like:
 
@@ -198,13 +200,13 @@ db = sqlitePlugin.openDatabase({name: "my.db", location: 2, createFromLocation: 
 
 **IMPORTANT NOTES:**
 
-- Put the pre-populated database file in the `www` subdirectory. This should work well with using the Cordova CLI to support both Android & iOS versions.
-- The pre-populated database file name must match **exactly** the file name given in `openDatabase`. The automatic extension has been completely eliminated.
+- Put the pre-populated database file in the `www` subdirectory. This should work well with using the Cordova CLI to support Android, iOS, and Windows "Universal" versions.
+- The pre-populated database file name must match **exactly** the file name given in `openDatabase`. This plugin does *not* use an automatic extension.
 - The pre-populated database file is ignored if the database file with the same name already exists in your database file location.
 
 **TIP:** If you don't see the data from the pre-populated database file, completely remove your app and try it again!
 
-**Alternative:** You can also use [an-rahulpandey / cordova-plugin-dbcopy](https://github.com/an-rahulpandey/cordova-plugin-dbcopy) to install your pre-populated database
+**Alternative:** You can also use [an-rahulpandey / cordova-plugin-dbcopy](https://github.com/an-rahulpandey/cordova-plugin-dbcopy) to install a pre-populated database
 
 ### Android sqlite implementation
 
