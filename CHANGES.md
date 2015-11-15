@@ -1,6 +1,6 @@
 # Changes
 
-## 0.7.1-common-dev
+## 0.8.0-ext-dev
 
 - Fix conversion warnings in iOS version
 - Fix to Windows "Universal" version to support big integers
