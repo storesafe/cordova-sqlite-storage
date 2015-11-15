@@ -14,37 +14,37 @@ var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
 var isIE = isWindows || isWP8;
 
-var scenarioList = [ isAndroid ? 'Plugin-sqlite-connector' : 'Plugin', 'HTML5', 'Plugin-android.database' ];
+var pluginScenarioList = [ isAndroid ? 'Plugin-sqlite-connector' : 'Plugin', 'Plugin-android.database' ];
 
-var scenarioCount = 1;
+var pluginScenarioCount = isAndroid ? 2 : 1;
 
 // simple tests:
 var mytests = function() {
 
-  for (var i=0; i<scenarioCount; ++i) {
+  for (var i=0; i<pluginScenarioCount; ++i) {
 
-    describe(scenarioList[i] + ': pre-populated test(s)', function() {
-      var scenarioName = scenarioList[i];
+    describe(pluginScenarioList[i] + ': pre-populated test(s)', function() {
+      var scenarioName = pluginScenarioList[i];
       var suiteName = scenarioName + ': ';
+      var isOldDatabaseImpl = (i === 1);
 
-      it(suiteName + 'extra cleanup',
+      it(suiteName + 'preliminary cleanup',
         function(done) {
-          // For Windows JS, need to wait for deleteDatabase callback
-          // before attempt to run the pre-populated database test
           expect(true).toBe(true);
           window.sqlitePlugin.deleteDatabase('pre.db', done, done);
         }, MYTIMEOUT);
 
       it(suiteName + 'Pre-populated database test',
         function(done) {
-          if (isWP8 && !isWindows) pending('NOT IMPLEMENTED for WP8.0');
-
-          // IMPORTANT: needed in case it is installed by a previous test run
-          window.sqlitePlugin.deleteDatabase('pre.db');
-
-          var dbc1 = window.sqlitePlugin.openDatabase({name: 'pre.db', createFromLocation: 1});
+          var dbc1 = window.sqlitePlugin.openDatabase({
+            name: 'pre.db',
+            createFromLocation: 1,
+            androidDatabaseImplementation: isOldDatabaseImpl ? 2 : 0
+          });
 
           expect(dbc1).toBeDefined()
+
+          var check1 = false;
 
           dbc1.transaction(function(tx) {
 
@@ -52,6 +52,7 @@ var mytests = function() {
 
             tx.executeSql('SELECT * from tt', [], function(tx, res) {
               expect(res.rows.item(0).testcol).toEqual('Test-Value');
+              check1 = true;
 
               // try some changes:
               tx.executeSql('DROP TABLE tt');
@@ -60,11 +61,19 @@ var mytests = function() {
             });
           }, function(e) {
             expect(false).toBe(true);
+            dbc1.close();
             done();
           }, function() {
+            expect(check1).toBe(true);
             dbc1.close(function() {
               // try opening it again:
-              var dbc2 = window.sqlitePlugin.openDatabase({name: 'pre.db', createFromLocation: 1});
+              var dbc2 = window.sqlitePlugin.openDatabase({
+                name: 'pre.db',
+                createFromLocation: 1,
+                androidDatabaseImplementation: isOldDatabaseImpl ? 2 : 0
+              });
+
+              var check2 = false;
 
               dbc2.transaction(function(tx) {
                 expect(tx).toBeDefined()
@@ -72,9 +81,16 @@ var mytests = function() {
                 // verify that the changes were not overwritten:
                 tx.executeSql('SELECT * from tt', [], function(tx, res) {
                   expect(res.rows.item(0).testcol).toEqual('new-value');
-
-                  done();
+                  check2 = true;
                 });
+              }, function(e) {
+                expect(false).toBe(true);
+                dbc2.close();
+                done();
+              }, function() {
+                expect(check2).toBe(true);
+                dbc2.close();
+                done();
               });
             });
           });
