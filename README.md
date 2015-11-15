@@ -11,8 +11,8 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 ## Status
 
 - This version does *NOT* support the WP8 platform.
-- TBD This version contains the following extra feature(s):
-  - ~~Pre-populated database support for Windows "Universal"~~
+- This version contains the following extra feature(s):
+  - Pre-populated database support for Windows "Universal"
 - Windows "Universal" for Windows 8.0/8.1(+) and Windows Phone 8.1(+) version is in an alpha state:
   - Issue with UNICODE `\u0000` character (same as `\0`)
   - No background processing (for future consideration)
@@ -26,6 +26,7 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 
 ## Announcements
 
+- Pre-populated database support for Windows "Universal" in addition to Android, iOS, and Amazon Fire-OS, usage described below
 - PhoneGap Build is now supported through the npm package: http://phonegap.com/blog/2015/05/26/npm-plugins-available/
 - [MetaMemoryT / websql-promise](https://github.com/MetaMemoryT/websql-promise) now provides a Promises-based interface to both Web SQL and this plugin
 - *NOT working* in this version branch: Android version is now using the lightweight [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) by default configuration (may be changed as described below)
@@ -33,7 +34,6 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 - The test suite is completely ported to Jasmine (2.2.0) and was used to verify the functionality of the new Windows version
 - [SQLCipher](https://www.zetetic.net/sqlcipher/) for Windows (8.1) in addition to Android & iOS is now supported by [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter)
 - New `openDatabase` and `deleteDatabase` `location` option to select database location (iOS *only*) and disable iCloud backup
-- Pre-populated databases support for Android, iOS, and Amazon Fire-OS is now integrated, usage described below
 - Fixes to work with PouchDB by [@nolanlawson](https://github.com/nolanlawson)
 
 ## Highlights
@@ -71,6 +71,7 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 
 ## Other limitations
 
+- Pre-populated database functionality is NOT and will never be supported for WP(7.x/8.0).
 - The db version, display name, and size parameter values are not supported and will be ignored.
 - This plugin will not work before the callback for the "deviceready" event has been fired, as described in **Usage**. (This is consistent with the other Cordova plugins.)
 - Will not work in a web worker or iframe since these are not supported by the Cordova framework.
@@ -185,7 +186,7 @@ If any sql statements or transactions are attempted on a database object before 
 
 ### Pre-populated database
 
-For Android, iOS, and Amazon Fire-OS (*only*): put the database file in the `www` directory and open the database like:
+For Android, Amazon Fire-OS, iOS, and Windows "Universal": put the database file in the `www` directory and open the database like:
 
 ```js
 var db = window.sqlitePlugin.openDatabase({name: "my.db", createFromLocation: 1});
