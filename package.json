@@ -1,9 +1,9 @@
 {
-  "name": "cordova-sqlite-extras-common-src",
-  "version": "0.8.0-extras-common-dev",
-  "description": "Native interface to SQLite for PhoneGap/Cordova (common version-limited functionality)",
+  "name": "cordova-sqlite-extras-src",
+  "version": "0.8.0-extras-src",
+  "description": "Native interface to SQLite for PhoneGap/Cordova with extra feature(s)",
   "cordova": {
-    "id": "cordova-sqlite-extras-common",
+    "id": "cordova-sqlite-extras-src",
     "platforms": [
       "android",
       "ios",
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/brodybits/cordova-sqlite-extras.git"
+    "url": "https://github.com/litehelpers/cordova-sqlite-extras.git"
   },
   "keywords": [
     "sqlite",
@@ -32,7 +32,7 @@
   "author": "various",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/brodybits/cordova-sqlite-extras/issues"
+    "url": "https://github.com/litehelpers/cordova-sqlite-extras/issues"
   },
-  "homepage": "https://github.com/brodybits/cordova-sqlite-extras"
+  "homepage": "https://github.com/litehelpers/cordova-sqlite-extras"
 }

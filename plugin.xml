@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    id="cordova-sqlite-extras-common-src"
-    version="0.8.0-extras-common-dev">
+    id="cordova-sqlite-extras-src"
+    version="0.8.0-extras-src">
 
-    <name>Cordova sqlite storage (common)</name>
+    <name>Cordova sqlite storage plugin with extras (src)</name>
 
     <license>MIT</license>
 
     <keywords>sqlite</keywords>
 
     <description>Native interface to SQLite for PhoneGap/Cordova. Allows you to use more storage and provides more flexibility than the standard Web SQL database (window.openDatabase).</description>
-    <author>Various</author>
+    <author>litehelpers (various)</author>
 
     <engines>
         <engine name="cordova" version=">=3.3.0" />
@@ -52,7 +52,6 @@
             </feature>
         </config-file>
 
-        <!-- Note: the ios src is based off src/ios implicitly -->
         <header-file src="src/ios/SQLitePlugin.h" />
         <source-file src="src/ios/SQLitePlugin.m" />
         <framework src="libsqlite3.dylib" />
@@ -85,7 +84,6 @@
             </feature>
         </config-file>
 
-        <!-- NOTE: Amazon Fire-OS will take the SQLitePlugin.java from a different location in master/master-rc -->
         <source-file src="src/android-classic/org/pgsqlite/SQLitePlugin.java" target-dir="src/org/pgsqlite"/>
     </platform>
 
