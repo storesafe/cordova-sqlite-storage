@@ -1,0 +1,14 @@
+language: objective-c
+git:
+  depth: 2
+node_js:
+  - "0.10"
+install:
+  - echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config 
+  - npm install -g cordova-paramedic
+  - npm install -g cordova
+  - npm install -g ios-sim
+script:
+  - cordova-paramedic --platform ios --plugin ${TRAVIS_BUILD_DIR}
+  - cp ${TRAVIS_BUILD_DIR}/spec/www/spec/simple-test.js ${TRAVIS_BUILD_DIR}/tests/tests.js
+  - cordova-paramedic --platform ios --plugin ${TRAVIS_BUILD_DIR} --timeout 3600000

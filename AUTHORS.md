@@ -2,7 +2,7 @@
 
 ## Common Javascript
 
-- Extracted from DroidGap by @brodybits (Chris Brody)
+- Extracted from DroidGap by @brodybits (Christopher J. Brody aka Chris Brody)
 - Fail-safe nested transaction support by @ef4 (Edward Faulkner)
 - Translated to Coffee-Script using js2coffee tool by @brodybits (Chris Brody)
 - API changes by @brodybits (Chris Brody)

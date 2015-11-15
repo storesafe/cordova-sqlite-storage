@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    id="io.litehelpers.sqliteStorage"
-    version="0.7.0">
+    id="cordova-sqlite-common"
+    version="0.7.1-common-dev">
 
-    <name>Cordova sqlite storage</name>
+    <name>Cordova sqlite storage (common)</name>
 
     <license>MIT</license>
+
+    <keywords>sqlite</keywords>
 
     <description>Native interface to SQLite for PhoneGap/Cordova. Allows you to use more storage and provides more flexibility than the standard Web SQL database (window.openDatabase).</description>
     <author>Various</author>
@@ -21,14 +23,6 @@
 
     <!-- android -->
     <platform name="android">
-        <!-- NOTE: AndroidManifest.xml should be specified per-application!
-        <config-file target="AndroidManifest.xml" parent="/manifest/application">
-            <activity android:name="org.pgsqlite.SQLitePlugin"
-                      android:label="@string/app_name">
-            </activity>
-        </config-file>
-          -->
-
         <!-- Cordova >= 3.0.0 -->
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="SQLitePlugin">
@@ -39,6 +33,14 @@
         <source-file src="src/android/io/liteglue/SQLitePlugin.java" target-dir="src/io/liteglue"/>
         <source-file src="src/android/io/liteglue/SQLiteAndroidDatabase.java" target-dir="src/io/liteglue"/>
 
+        <!-- Android-sqlite-connector: -->
+        <source-file src="src/external/libs/sqlite-connector.jar" target-dir="libs"/>
+        <!-- Android-sqlite-connector native driver libs: -->
+        <source-file src="src/external/libs/arm64-v8a/libsqlc-native-driver.so" target-dir="libs/arm64-v8a"/>
+        <source-file src="src/external/libs/armeabi/libsqlc-native-driver.so" target-dir="libs/armeabi"/>
+        <source-file src="src/external/libs/armeabi-v7a/libsqlc-native-driver.so" target-dir="libs/armeabi-v7a"/>
+        <source-file src="src/external/libs/x86/libsqlc-native-driver.so" target-dir="libs/x86"/>
+        <source-file src="src/external/libs/x86_64/libsqlc-native-driver.so" target-dir="libs/x86_64"/>
 
     </platform>
 
@@ -69,24 +71,13 @@
         </js-module>
 
         <!-- Thanks to AllJoyn-Cordova / cordova-plugin-alljoyn: -->
-        <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3.Windows.vcxproj" custom="true" type="projectReference" target="windows" />
-        <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3.WindowsPhone.vcxproj" custom="true" type="projectReference" target="phone" />
-         <!-- old:
-        <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3-Windows8.1.vcxproj" custom="true" type="projectReference" target="windows" />
-          -->
+        <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3.Windows/SQLite3.Windows.vcxproj" custom="true" type="projectReference" target="windows" />
+        <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3.WindowsPhone/SQLite3.WindowsPhone.vcxproj" custom="true" type="projectReference" target="phone" />
 
     </platform>
 
     <!-- amazon-fireos -->
     <platform name="amazon-fireos">
-        <!-- NOTE: AndroidManifest.xml should be specified per-application!
-        <config-file target="AndroidManifest.xml" parent="/manifest/application">
-            <activity android:name="org.pgsqlite.SQLitePlugin"
-                      android:label="@string/app_name">
-            </activity>
-        </config-file>
-          -->
-
         <!-- Cordova >= 3.0.0 -->
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="SQLitePlugin">

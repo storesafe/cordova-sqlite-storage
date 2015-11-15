@@ -68,6 +68,9 @@
       throw newSQLError("Cannot create a SQLitePlugin db instance without a db name");
     }
     dbname = openargs.name;
+    if (typeof dbname !== 'string') {
+      throw newSQLError('sqlite plugin database name must be a string');
+    }
     this.openargs = openargs;
     this.dbname = dbname;
     this.openSuccess = openSuccess;
@@ -119,7 +122,7 @@
       error(newSQLError('database not open'));
       return;
     }
-    this.addTransaction(new SQLitePluginTransaction(this, fn, error, success, true, true));
+    this.addTransaction(new SQLitePluginTransaction(this, fn, error, success, false, true));
   };
 
   SQLitePlugin.prototype.startNextTransaction = function() {
@@ -145,12 +148,12 @@
   };
 
   SQLitePlugin.prototype.abortAllPendingTransactions = function() {
-    var tx, txLock, _i, _len, _ref;
+    var j, len1, ref, tx, txLock;
     txLock = txLocks[this.dbname];
     if (!!txLock && txLock.queue.length > 0) {
-      _ref = txLock.queue;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        tx = _ref[_i];
+      ref = txLock.queue;
+      for (j = 0, len1 = ref.length; j < len1; j++) {
+        tx = ref[j];
         tx.abortFromQ(newSQLError('Invalid database handle'));
       }
       txLock.queue = [];
@@ -307,12 +310,11 @@
   };
 
   SQLitePluginTransaction.prototype.addStatement = function(sql, values, success, error) {
-    var params, qid, t, v, _i, _len;
-    qid = this.executes.length;
+    var j, len1, params, t, v;
     params = [];
     if (!!values && values.constructor === Array) {
-      for (_i = 0, _len = values.length; _i < _len; _i++) {
-        v = values[_i];
+      for (j = 0, len1 = values.length; j < len1; j++) {
+        v = values[j];
         t = typeof v;
         params.push((v === null || v === void 0 || t === 'number' || t === 'string' ? v : v instanceof Blob ? v.valueOf() : v.toString()));
       }
@@ -320,7 +322,6 @@
     this.executes.push({
       success: success,
       error: error,
-      qid: qid,
       sql: sql,
       params: params
     });
@@ -355,7 +356,7 @@
   };
 
   SQLitePluginTransaction.prototype.run = function() {
-    var batchExecutes, handlerFor, i, mycb, mycbmap, qid, request, tropts, tx, txFailure, waiting;
+    var batchExecutes, handlerFor, i, mycb, mycbmap, request, tropts, tx, txFailure, waiting;
     txFailure = null;
     tropts = [];
     batchExecutes = this.executes;
@@ -392,26 +393,25 @@
     mycbmap = {};
     while (i < batchExecutes.length) {
       request = batchExecutes[i];
-      qid = request.qid;
-      mycbmap[qid] = {
+      mycbmap[i] = {
         success: handlerFor(i, true),
         error: handlerFor(i, false)
       };
       tropts.push({
-        qid: qid,
+        qid: 1111,
         sql: request.sql,
         params: request.params
       });
       i++;
     }
     mycb = function(result) {
-      var q, r, res, type, _i, _len;
-      for (_i = 0, _len = result.length; _i < _len; _i++) {
-        r = result[_i];
+      var j, last, q, r, ref, res, type;
+      last = result.length - 1;
+      for (i = j = 0, ref = last; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
+        r = result[i];
         type = r.type;
-        qid = r.qid;
         res = r.result;
-        q = mycbmap[qid];
+        q = mycbmap[i];
         if (q) {
           if (q[type]) {
             q[type](res);

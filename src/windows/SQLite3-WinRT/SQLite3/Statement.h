@@ -20,10 +20,12 @@ namespace SQLite3
 
     Platform::String^ ColumnText(int index);
     int ColumnInt(int index);
+    long long ColumnInt64(int index);
     double ColumnDouble(int index);
 
     int BindText(int index, Platform::String^ val);
     int BindInt(int index, int val);
+    int BindInt64(int index, long long val);
     int BindDouble(int index, double val);
     int BindNull(int index);
 
