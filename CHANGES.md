@@ -2,7 +2,9 @@
 
 ## 0.7.13-dev
 
-TBD
+- REGEXP and pre-populated database support removed from this version branch
+- Amazon Fire-OS support removed
+- Fix conversion warnings in iOS version
 
 ## 0.7.12
 

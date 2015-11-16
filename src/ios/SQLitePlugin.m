@@ -109,7 +109,6 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     }
 
     NSString *dbdir = [appDBPaths objectForKey:atkey];
-    //NSString *dbPath = [NSString stringWithFormat:@"%@/%@", dbdir, dbFile];
     NSString *dbPath = [dbdir stringByAppendingPathComponent: dbFile];
     return dbPath;
 }
@@ -142,13 +141,6 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
             sqlite3 *db;
 
             NSLog(@"open full db path: %@", dbname);
-
-            /* Option to create from resource (pre-populated) if db does not exist: */
-            if (![[NSFileManager defaultManager] fileExistsAtPath:dbname]) {
-                NSString *createFromResource = [options objectForKey:@"createFromResource"];
-                if (createFromResource != NULL)
-                    [self createFromResource:dbfilename withDbname:dbname];
-            }
 
             if (sqlite3_open(name, &db) != SQLITE_OK) {
                 pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unable to open DB"];
@@ -185,25 +177,6 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
 
     // NSLog(@"open cb finished ok");
-}
-
-
--(void)createFromResource:(NSString *)dbfile withDbname:(NSString *)dbname {
-    NSString *bundleRoot = [[NSBundle mainBundle] resourcePath];
-    NSString *www = [bundleRoot stringByAppendingPathComponent:@"www"];
-    NSString *prepopulatedDb = [www stringByAppendingPathComponent: dbfile];
-    // NSLog(@"Look for prepopulated DB at: %@", prepopulatedDb);
-
-    if ([[NSFileManager defaultManager] fileExistsAtPath:prepopulatedDb]) {
-        NSLog(@"Found prepopulated DB: %@", prepopulatedDb);
-        NSError *error;
-        BOOL success = [[NSFileManager defaultManager] copyItemAtPath:prepopulatedDb toPath:dbname error:&error];
-
-        if(success)
-            NSLog(@"Copied prepopulated DB content to: %@", dbname);
-        else
-            NSLog(@"Unable to copy DB file: %@", [error localizedDescription]);
-    }
 }
 
 
@@ -467,16 +440,15 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     return [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultSet];
 }
 
--(void)bindStatement:(sqlite3_stmt *)statement withArg:(NSObject *)arg atIndex:(NSUInteger)argIndex
+-(void)bindStatement:(sqlite3_stmt *)statement withArg:(NSObject *)arg atIndex:(int)argIndex
 {
     if ([arg isEqual:[NSNull null]]) {
         sqlite3_bind_null(statement, argIndex);
     } else if ([arg isKindOfClass:[NSNumber class]]) {
         NSNumber *numberArg = (NSNumber *)arg;
         const char *numberType = [numberArg objCType];
-        if (strcmp(numberType, @encode(int)) == 0) {
-            sqlite3_bind_int(statement, argIndex, [numberArg integerValue]);
-        } else if (strcmp(numberType, @encode(long long int)) == 0) {
+        if (strcmp(numberType, @encode(int)) == 0 ||
+            strcmp(numberType, @encode(long long int)) == 0) {
             sqlite3_bind_int64(statement, argIndex, [numberArg longLongValue]);
         } else if (strcmp(numberType, @encode(double)) == 0) {
             sqlite3_bind_double(statement, argIndex, [numberArg doubleValue]);
@@ -511,7 +483,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 #endif
         {
             NSData *data = [stringArg dataUsingEncoding:NSUTF8StringEncoding];
-            sqlite3_bind_text(statement, argIndex, data.bytes, data.length, SQLITE_TRANSIENT);
+            sqlite3_bind_text(statement, argIndex, data.bytes, (int)data.length, SQLITE_TRANSIENT);
         }
     }
 }
