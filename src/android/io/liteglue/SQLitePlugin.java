@@ -12,6 +12,7 @@ import android.util.Base64;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.lang.IllegalArgumentException;
 import java.lang.Number;
 import java.util.concurrent.ConcurrentHashMap;
@@ -146,7 +147,7 @@ public class SQLitePlugin extends CordovaPlugin {
                 DBRunner r = dbrmap.get(dbname);
                 if (r != null) {
                     try {
-                        r.q.put(q); 
+                        r.q.put(q);
                     } catch(Exception e) {
                         Log.e(SQLitePlugin.class.getSimpleName(), "couldn't add to queue", e);
                         cbc.error("couldn't add to queue");
@@ -207,14 +208,37 @@ public class SQLitePlugin extends CordovaPlugin {
      *
      * @param dbName   The name of the database file
      */
-    private SQLiteAndroidDatabase openDatabase(String dbname, boolean createFromAssets, CallbackContext cbc, boolean old_impl) throws Exception {
+    private SQLiteAndroidDatabase openDatabase(String dbname, boolean createFromAssets, String cpath, String importDbPath, Integer external, CallbackContext cbc, boolean old_impl) throws Exception {
         try {
             // ASSUMPTION: no db (connection/handle) is already stored in the map
             // [should be true according to the code in DBRunner.run()]
 
-            File dbfile = this.cordova.getActivity().getDatabasePath(dbname);
+            File dbfile;
+            File[] extDirs;
+            String pathDir;
+            String state = android.os.Environment.getExternalStorageState();
+            if (!cpath.isEmpty() && cpath != null) {
+                dbfile = new File(cpath, dbname);
+            }
+            else {
+                if (android.os.Environment.MEDIA_MOUNTED.equals(state) && external > 0) {
+                    if (external == 1) {
+                        extDirs = this.cordova.getActivity().getExternalCacheDirs();
+                    } else {
+                        extDirs = this.cordova.getActivity().getExternalFilesDirs(null);
+                    }
+                    if (extDirs.length > 1 && extDirs[1] != null) {
+                        pathDir = extDirs[1].getAbsolutePath();
+                    } else {
+                        pathDir = extDirs[0].getAbsolutePath();
+                    }
+                    dbfile = new File(pathDir, dbname);
+                } else {
+                    dbfile = this.cordova.getActivity().getDatabasePath(dbname);
+                }
+            }
 
-            if (!dbfile.exists() && createFromAssets) this.createFromAssets(dbname, dbfile);
+            if (!dbfile.exists() && createFromAssets) this.createFromAssets(dbname, dbfile, importDbPath);
 
             if (!dbfile.exists()) {
                 dbfile.getParentFile().mkdirs();
@@ -240,13 +264,14 @@ public class SQLitePlugin extends CordovaPlugin {
      * If a prepopulated DB file exists in the assets folder it is copied to the dbPath.
      * Only runs the first time the app runs.
      */
-    private void createFromAssets(String myDBName, File dbfile)
+    private void createFromAssets(String myDBName, File dbfile, String importDbPath)
     {
         InputStream in = null;
         OutputStream out = null;
 
             try {
-                in = this.cordova.getActivity().getAssets().open("www/" + myDBName);
+                in = new FileInputStream(new File(importDbPath, myDBName));
+                //in = this.cordova.getActivity().getAssets().open(importDbPath + myDBName);
                 String dbPath = dbfile.getAbsolutePath();
                 dbPath = dbPath.substring(0, dbPath.lastIndexOf("/") + 1);
 
@@ -263,7 +288,7 @@ public class SQLitePlugin extends CordovaPlugin {
                 int len;
                 while ((len = in.read(buf)) > 0)
                     out.write(buf, 0, len);
-    
+
                 Log.v("info", "Copied prepopulated DB content to: " + newDbFile.getAbsolutePath());
             } catch (IOException e) {
                 Log.v("createFromAssets", "No prepopulated DB found, Error=" + e.getMessage());
@@ -274,7 +299,7 @@ public class SQLitePlugin extends CordovaPlugin {
                     } catch (IOException ignored) {
                     }
                 }
-    
+
                 if (out != null) {
                     try {
                         out.close();
@@ -502,9 +527,9 @@ public class SQLitePlugin extends CordovaPlugin {
                     myStatement.bindNull(i + 1);
                 } else {
                     Object p = paramsAsJson.get(i);
-                    if (p instanceof Float || p instanceof Double) 
+                    if (p instanceof Float || p instanceof Double)
                         myStatement.bindDouble(i + 1, paramsAsJson.getDouble(i));
-                    else if (p instanceof Number) 
+                    else if (p instanceof Number)
                         myStatement.bindLong(i + 1, paramsAsJson.getLong(i));
                     else
                         myStatement.bindTextNativeString(i + 1, paramsAsJson.getString(i));
@@ -579,6 +604,9 @@ public class SQLitePlugin extends CordovaPlugin {
     private class DBRunner implements Runnable {
         final String dbname;
         private boolean createFromAssets;
+        private Integer external;
+        private String cpath;
+        private String importDbPath;
         private boolean oldImpl;
         private boolean bugWorkaround;
 
@@ -590,6 +618,9 @@ public class SQLitePlugin extends CordovaPlugin {
         DBRunner(final String dbname, JSONObject options, CallbackContext cbc) {
             this.dbname = dbname;
             this.createFromAssets = options.has("createFromResource");
+            this.external = options.optInt("externalStorage");
+            this.cpath = options.optString("customPath");
+            this.importDbPath = options.optString("importDbPath");
             this.oldImpl = options.has("androidOldDatabaseImplementation");
             Log.v(SQLitePlugin.class.getSimpleName(), "Android db implementation: " + (oldImpl ? "OLD" : "sqlite4java (NDK)"));
             this.bugWorkaround = this.oldImpl && options.has("androidBugWorkaround");
@@ -602,7 +633,7 @@ public class SQLitePlugin extends CordovaPlugin {
 
         public void run() {
             try {
-                this.mydb = openDatabase(dbname, this.createFromAssets, this.openCbc, this.oldImpl);
+                this.mydb = openDatabase(dbname, this.createFromAssets, this.cpath, this.importDbPath, this.external, this.openCbc, this.oldImpl);
             } catch (Exception e) {
                 Log.e(SQLitePlugin.class.getSimpleName(), "unexpected error, stopping db thread", e);
                 dbrmap.remove(dbname);
@@ -647,7 +678,7 @@ public class SQLitePlugin extends CordovaPlugin {
                             Log.e(SQLitePlugin.class.getSimpleName(), "couldn't delete database", e);
                             dbq.cbc.error("couldn't delete database: " + e);
                         }
-                    }                    
+                    }
                 } catch (Exception e) {
                     Log.e(SQLitePlugin.class.getSimpleName(), "couldn't close database", e);
                     if (dbq.cbc != null) {
