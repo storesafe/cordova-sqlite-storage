@@ -61,6 +61,7 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 - In case of an error, the error `code` member is bogus on Android and Windows (fixed for Android in [litehelpers / Cordova-sqlite-enterprise-free](https://github.com/litehelpers/Cordova-sqlite-enterprise-free)).
 - Possible crash on Android when using Unicode emoji characters due to [Android bug 81341](https://code.google.com/p/android/issues/detail?id=81341), which _should_ be fixed in Android 6.x
 - REGEXP is only supported on iOS ... implementation-dependent for Android and Amazon Fire-OS, known to be broken on Windows ("Universal") and WP(7/8).
+- REGEXP is only supported on iOS, known to be broken on Android (default database implementation) and Windows ("Universal").
 - Close database bugs described below.
 - When a database is opened and deleted without closing, the iOS version is known to leak resources.
 - It is NOT possible to open multiple databases with the same name but in different locations (iOS version).
@@ -93,7 +94,7 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 - Use within [InAppBrowser](http://docs.phonegap.com/en/edge/cordova_inappbrowser_inappbrowser.md.html)
 - UNICODE characters not fully tested in the Windows "Universal" (8.1) version
 - Use with triggers and JOIN
-- TODO add some REGEXP tests
+- TODO add some *more* REGEXP tests
 - Integration with JXCore for Cordova (must be built without sqlite(3) built-in)
 
 ## Some tips and tricks
