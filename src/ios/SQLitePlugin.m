@@ -12,7 +12,9 @@
 
 #include <regex.h>
 
-// NOTE: This is now broken by cordova-ios 4.0:
+// NOTE: This is now broken by cordova-ios 4.0, see:
+// https://issues.apache.org/jira/browse/CB-9638
+// Solution is to use NSJSONSerialization instead.
 #ifdef READ_BLOB_AS_BASE64
 #import <Cordova/NSData+Base64.h>
 #endif
@@ -107,7 +109,6 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     }
 
     NSString *dbdir = [appDBPaths objectForKey:atkey];
-    //NSString *dbPath = [NSString stringWithFormat:@"%@/%@", dbdir, dbFile];
     NSString *dbPath = [dbdir stringByAppendingPathComponent: dbFile];
     return dbPath;
 }
@@ -140,13 +141,6 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
             sqlite3 *db;
 
             NSLog(@"open full db path: %@", dbname);
-
-            /* Option to create from resource (pre-populated) if db does not exist: */
-            if (![[NSFileManager defaultManager] fileExistsAtPath:dbname]) {
-                NSString *createFromResource = [options objectForKey:@"createFromResource"];
-                if (createFromResource != NULL)
-                    [self createFromResource:dbfilename withDbname:dbname];
-            }
 
             if (sqlite3_open(name, &db) != SQLITE_OK) {
                 pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unable to open DB"];
@@ -183,25 +177,6 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
 
     // NSLog(@"open cb finished ok");
-}
-
-
--(void)createFromResource:(NSString *)dbfile withDbname:(NSString *)dbname {
-    NSString *bundleRoot = [[NSBundle mainBundle] resourcePath];
-    NSString *www = [bundleRoot stringByAppendingPathComponent:@"www"];
-    NSString *prepopulatedDb = [www stringByAppendingPathComponent: dbfile];
-    // NSLog(@"Look for prepopulated DB at: %@", prepopulatedDb);
-
-    if ([[NSFileManager defaultManager] fileExistsAtPath:prepopulatedDb]) {
-        NSLog(@"Found prepopulated DB: %@", prepopulatedDb);
-        NSError *error;
-        BOOL success = [[NSFileManager defaultManager] copyItemAtPath:prepopulatedDb toPath:dbname error:&error];
-
-        if(success)
-            NSLog(@"Copied prepopulated DB content to: %@", dbname);
-        else
-            NSLog(@"Unable to copy DB file: %@", [error localizedDescription]);
-    }
 }
 
 

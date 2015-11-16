@@ -12,6 +12,9 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 
 ## Status
 
+- The following features are moved to [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) and removed from this project:
+  - REGEXP support
+  - Pre-populated database
 - Amazon Fire-OS is dropped due reported problems, may be added in case it works again.
 - Windows "Universal" for Windows 8.0/8.1(+) and Windows Phone 8.1(+) version is in an alpha state:
   - Issue with UNICODE `\u0000` character (same as `\0`)
@@ -33,7 +36,6 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 - The test suite is completely ported to Jasmine (2.2.0) and was used to verify the functionality of the new Windows version
 - [SQLCipher](https://www.zetetic.net/sqlcipher/) for Windows (8.1) in addition to Android & iOS is now supported by [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter)
 - New `openDatabase` and `deleteDatabase` `location` option to select database location (iOS *only*) and disable iCloud backup
-- Pre-populated databases support for Android, iOS, ~~and Amazon Fire-OS~~ is now integrated, usage described below
 - Fixes to work with PouchDB by [@nolanlawson](https://github.com/nolanlawson)
 
 ## Highlights
@@ -43,7 +45,6 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 - As described in [this posting](http://brodyspark.blogspot.com/2012/12/cordovaphonegap-sqlite-plugins-offer.html):
   - Keeps sqlite database in a user data location that is known; can be reconfigured (iOS version); and synchronized to iCloud by default (iOS version; can be disabled as described below).
   - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
-- Pre-populated database option (usage described below)
 
 ## Some apps using this plugin
 
@@ -119,7 +120,7 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 
 ### Other SQLite adapter projects
 
-- [an-rahulpandey / cordova-plugin-dbcopy](https://github.com/an-rahulpandey/cordova-plugin-dbcopy) - Alternative way copy pre-populated database
+- [an-rahulpandey / cordova-plugin-dbcopy](https://github.com/an-rahulpandey/cordova-plugin-dbcopy) - Alternative way to copy pre-populated database
 - [EionRobb / phonegap-win8-sqlite](https://github.com/EionRobb/phonegap-win8-sqlite) - WebSQL add-on for Win8/Metro apps (perhaps with a different API), using an old version of the C++ library from [SQLite3-WinRT Component](https://github.com/doo/SQLite3-WinRT) (as referenced by [01org / cordova-win8](https://github.com/01org/cordova-win8))
 - [SQLite3-WinRT Component](https://github.com/doo/SQLite3-WinRT) - C++ component that provides a nice SQLite API with promises for WinJS
 - [01org / cordova-win8](https://github.com/01org/cordova-win8) - old, unofficial version of Cordova API support for Windows 8 Metro that includes an old version of the C++ [SQLite3-WinRT Component](https://github.com/doo/SQLite3-WinRT)
@@ -182,30 +183,6 @@ If any sql statements or transactions are attempted on a database object before 
 - The database file name should include the extension, if desired.
 - It is possible to open multiple database access objects for the same database.
 - The database access object can be closed as described below.
-
-### Pre-populated database
-
-For Android, iOS, ~~and Amazon Fire-OS~~ (*only*): put the database file in the `www` directory and open the database like:
-
-```js
-var db = window.sqlitePlugin.openDatabase({name: "my.db", createFromLocation: 1});
-```
-
-or to disable iCloud backup:
-
-```js
-db = sqlitePlugin.openDatabase({name: "my.db", location: 2, createFromLocation: 1});
-```
-
-**IMPORTANT NOTES:**
-
-- Put the pre-populated database file in the `www` subdirectory. This should work well with using the Cordova CLI to support both Android & iOS versions.
-- The pre-populated database file name must match **exactly** the file name given in `openDatabase`. The automatic extension has been completely eliminated.
-- The pre-populated database file is ignored if the database file with the same name already exists in your database file location.
-
-**TIP:** If you don't see the data from the pre-populated database file, completely remove your app and try it again!
-
-**Alternative:** You can also use [an-rahulpandey / cordova-plugin-dbcopy](https://github.com/an-rahulpandey/cordova-plugin-dbcopy) to install your pre-populated database
 
 ### Android sqlite implementation
 
