@@ -79,7 +79,7 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 - The Android ~~and Amazon Fire-OS~~ versions cannot work with more than 100 open db files (due to the threading model used).
 - UNICODE line separator (`\u2028`) and paragraph separator (`\u2029`) are currently not supported and known to be broken in iOS version due to [Cordova bug CB-9435](https://issues.apache.org/jira/browse/CB-9435).
 - Blob type is currently not supported and known to be broken on multiple platforms.
-- UNICODE `\u0000` (same as `\0`) character not working in Android (default implementation), Windows (8.1/XX), WP8,  or Windows Phone 8.1/XX version(s)
+- UNICODE `\u0000` (same as `\0`) character not working in Android (default implementation), Windows (8.1/XX), WP(7/8),  or Windows Phone 8.1/XX version(s)
 - Case-insensitive matching and other string manipulations on Unicode characters, which is provided by optional ICU integration in the sqlite source and working with recent versions of Android, is not supported for any target platforms.
 - iOS version uses a thread pool but with only one thread working at a time due to "synchronized" database access
 - Large query result can be slow, also due to JSON implementation
@@ -88,6 +88,7 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 - Problems have been reported when using this plugin with Crosswalk (for Android). A couple of things you can try:
   - Install Crosswalk as a plugin instead of using Crosswalk to create the project.
   - Use `androidDatabaseImplementation: 2` in the openDatabase options as described below.
+- Does not work with [axemclion / react-native-cordova-plugin](https://github.com/axemclion/react-native-cordova-plugin) since the `window.sqlitePlugin` object exported (ES5 feature). It is recommended to use [andpor / react-native-sqlite-storage](https://github.com/andpor/react-native-sqlite-storage) for SQLite database access with React Native Android/iOS instead.
 
 ## Further testing needed
 
@@ -114,12 +115,13 @@ NOTE (TBD): no Circle CI or Travis CI working in this version branch.
 
 - [litehelpers / Cordova-sqlite-enterprise-free](https://github.com/litehelpers/Cordova-sqlite-enterprise-free) - internal memory improvements to support larger transactions (with a different licensing scheme)
 - [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter) - supports [SQLCipher](https://www.zetetic.net/sqlcipher/) for Android, iOS, and Windows (8.1)
-- Adaptation for React Native (iOS version so far): [andpor / react-native-sqlite-storage](https://github.com/andpor/react-native-sqlite-storage)
+- Adaptation for React Native Android and iOS: [andpor / react-native-sqlite-storage](https://github.com/andpor/react-native-sqlite-storage)
 - Original version for iOS (with a slightly different transaction API): [davibe / Phonegap-SQLitePlugin](https://github.com/davibe/Phonegap-SQLitePlugin)
-- Simpler sqlite plugin with a simpler API: [samikrc / CordovaSQLite](https://github.com/samikrc/CordovaSQLite)
 
 ### Other SQLite adapter projects
 
+- [object-layer / AnySQL](https://github.com/object-layer/anysql) - Unified SQL API over multiple database engines
+- Simpler sqlite plugin with a simpler API: [samikrc / CordovaSQLite](https://github.com/samikrc/CordovaSQLite)
 - [an-rahulpandey / cordova-plugin-dbcopy](https://github.com/an-rahulpandey/cordova-plugin-dbcopy) - Alternative way to copy pre-populated database
 - [EionRobb / phonegap-win8-sqlite](https://github.com/EionRobb/phonegap-win8-sqlite) - WebSQL add-on for Win8/Metro apps (perhaps with a different API), using an old version of the C++ library from [SQLite3-WinRT Component](https://github.com/doo/SQLite3-WinRT) (as referenced by [01org / cordova-win8](https://github.com/01org/cordova-win8))
 - [SQLite3-WinRT Component](https://github.com/doo/SQLite3-WinRT) - C++ component that provides a nice SQLite API with promises for WinJS
