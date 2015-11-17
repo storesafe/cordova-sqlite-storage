@@ -2,6 +2,7 @@
 
 ## 0.7.13-dev
 
+- Android version with sqlite `3.8.10.2` embedded (with error messages fixed)
 - REGEXP and pre-populated database support removed from this version branch
 - Amazon Fire-OS support removed
 - Fix conversion warnings in iOS version

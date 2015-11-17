@@ -65,7 +65,7 @@ Other projects:
   - REGEXP support
   - Pre-populated database
 - Amazon Fire-OS is dropped due reported problems, may be added in case it works again.
-- Windows "Universal" for Windows 8.0/8.1(+) and Windows Phone 8.1(+) version is in an alpha state:
+- Windows "Universal" for Windows 8.0/8.1(+) and Windows Phone 8.1(+) version is in an alpha state with sqlite `3.8.10.2` embedded:
   - Issue with UNICODE `\u0000` character (same as `\0`)
   - No background processing (for future consideration)
   - You *may* encounter issues with Cordova CLI due to [CB-8866](https://issues.apache.org/jira/browse/CB-8866); as a workaround you can install using [litehelpers / cordova-windows-nufix](https://github.com/litehelpers/cordova-windows-nufix) and `plugman` as described below.
@@ -73,7 +73,7 @@ Other projects:
   - Not tested with a Windows 10 (or Windows Phone 10) target; Windows 10 build is not expected to work with Windows Phone
 - FTS3, FTS4, and R-Tree support is tested working OK in this version (for target platforms Android/iOS/Windows "Universal")
 - Status for the other target platforms:
-  - Android: now using [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) (with sqlite `3.7.17`), with support for FTS3/FTS4 and R-Tree
+  - Android: now using [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) (with sqlite `3.8.10.2` embedded), with support for FTS3/FTS4 and R-Tree
   - iOS: sqlite `3.8.10.2` embedded
   - WP7: possible to build from C#, as specified by `plugin.xml` - **NOT TESTED**
   - WP8: performance/stability issues have been reported with the CSharp-SQLite library. Windows ("Universal") platform is recommended for the future. FTS3/FTS4/R-Tree are NOT supported for WP(7/8).
