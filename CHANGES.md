@@ -1,6 +1,6 @@
 # Changes
 
-## 0.7.13-dev
+## 0.7.13
 
 - Rename Windows C++ Database close function to closedb to resolve conflict for Windows Store certification
 - Android version with sqlite `3.8.10.2` embedded (with error messages fixed)
