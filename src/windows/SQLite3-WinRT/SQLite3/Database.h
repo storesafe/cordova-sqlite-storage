@@ -12,7 +12,7 @@ namespace SQLite3
     Database(Platform::String^ dbPath);
     virtual ~Database();
 
-    int close();
+    int closedb();
     int close_v2();
 
     Statement^ Prepare(Platform::String^ sql);
