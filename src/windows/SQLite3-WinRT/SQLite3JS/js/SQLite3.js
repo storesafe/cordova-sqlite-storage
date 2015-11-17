@@ -185,7 +185,7 @@
       return new GroupDataSource(this, sql, args, keyColumnName, sizeColumnName);
     },
     close: function () {
-      return this.connection.close();
+      return this.connection.closedb();
     },
     close_v2: function () {
       return this.connection.close_v2();
