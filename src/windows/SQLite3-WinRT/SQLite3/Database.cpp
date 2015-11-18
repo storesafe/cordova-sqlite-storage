@@ -29,7 +29,7 @@ namespace SQLite3
     return ref new Statement(this, sql);
   }
 
-  int Database::close()
+  int Database::closedb()
   {
     int rc = sqlite3_close(sqlite);
 	if (rc == SQLITE_OK) sqlite = nullptr;

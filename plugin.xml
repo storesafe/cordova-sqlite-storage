@@ -76,18 +76,7 @@
 
     </platform>
 
-    <!-- amazon-fireos -->
-    <platform name="amazon-fireos">
-        <!-- Cordova >= 3.0.0 -->
-        <config-file target="res/xml/config.xml" parent="/*">
-            <feature name="SQLitePlugin">
-                <param name="android-package" value="org.pgsqlite.SQLitePlugin"/>
-            </feature>
-        </config-file>
-
-        <!-- NOTE: Amazon Fire-OS will take the SQLitePlugin.java from a different location in master/master-rc -->
-        <source-file src="src/android-classic/org/pgsqlite/SQLitePlugin.java" target-dir="src/org/pgsqlite"/>
-    </platform>
+    <!-- FUTURE TBD: fix and test for amazon-fireos -->
 
 </plugin>
 
