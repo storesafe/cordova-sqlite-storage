@@ -19,6 +19,7 @@
 #import <Cordova/NSData+Base64.h>
 #endif
 
+#if 0 // REMOVED from this version branch
 static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** values) {
     if ( argc < 2 ) {
         sqlite3_result_error(context, "SQL function regexp() called with missing arguments.", -1);
@@ -47,6 +48,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 
     sqlite3_result_int(context, (ret != REG_NOMATCH));
 }
+#endif
 
 
 @implementation SQLitePlugin
@@ -146,7 +148,9 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
                 pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unable to open DB"];
                 return;
             } else {
+#if 0 // REMOVED from this version branch
                 sqlite3_create_function(db, "regexp", 2, SQLITE_ANY, NULL, &sqlite_regexp, NULL, NULL);
+#endif
 
                 // for SQLCipher version:
                 // NSString *dbkey = [options objectForKey:@"key"];
