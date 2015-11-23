@@ -1,6 +1,6 @@
 # Changes
 
-## 0.7.14-pre
+## 0.7.14
 
 - REGEXP support removed from this version branch
 - Remove src/android/libs/.gitignore (inadvertently added in 0.7.13)
