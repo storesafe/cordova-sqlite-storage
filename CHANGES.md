@@ -1,5 +1,9 @@
 # Changes
 
+## 0.7.2-common-dev
+
+TBD
+
 ## 0.7.1-common-dev
 
 - REGEXP support removed from this version branch
