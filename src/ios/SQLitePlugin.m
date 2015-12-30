@@ -82,7 +82,34 @@
     return dbPath;
 }
 
+// XXX NOTE: This implementation gets _all_ operations working in the background
+// and _should_ resolve intermittent problems reported with cordova-ios@4.0.1).
+// This implementation _does_ fail certain rapidly repeated
+// open-and close and open-and-delete test scenarios.
+-(void)executeInBackground: (CDVInvokedUrlCommand*)command
+{
+    [self.commandDelegate runInBackground:^{
+        @synchronized(self) {
+            if ([command.methodName isEqualToString: @"open"])
+                [self openNow: command];
+            else if ([command.methodName isEqualToString: @"close"])
+                [self closeNow: command];
+            else if ([command.methodName isEqualToString: @"delete"])
+                [self deleteNow: command];
+            else if ([command.methodName isEqualToString: @"backgroundExecuteSqlBatch"])
+                [self executeSqlBatchNow: command];
+        }
+    }];
+}
+
 -(void)open: (CDVInvokedUrlCommand*)command
+{
+    [self.commandDelegate runInBackground:^{
+        [self executeInBackground: command];
+    }];
+}
+
+-(void)openNow: (CDVInvokedUrlCommand*)command
 {
     CDVPluginResult* pluginResult = nil;
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
@@ -146,8 +173,14 @@
     // NSLog(@"open cb finished ok");
 }
 
-
 -(void) close: (CDVInvokedUrlCommand*)command
+{
+    [self.commandDelegate runInBackground:^{
+        [self executeInBackground: command];
+    }];
+}
+
+-(void)closeNow: (CDVInvokedUrlCommand*)command
 {
     CDVPluginResult* pluginResult = nil;
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
@@ -179,6 +212,13 @@
 }
 
 -(void) delete: (CDVInvokedUrlCommand*)command
+{
+    [self.commandDelegate runInBackground:^{
+        [self executeInBackground: command];
+    }];
+}
+
+-(void)deleteNow: (CDVInvokedUrlCommand*)command
 {
     CDVPluginResult* pluginResult = nil;
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
@@ -212,11 +252,11 @@
 -(void) backgroundExecuteSqlBatch: (CDVInvokedUrlCommand*)command
 {
     [self.commandDelegate runInBackground:^{
-        [self executeSqlBatch: command];
+        [self executeSqlBatchNow: command];
     }];
 }
 
--(void) executeSqlBatch: (CDVInvokedUrlCommand*)command
+-(void) executeSqlBatchNow: (CDVInvokedUrlCommand*)command
 {
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
     NSMutableArray *results = [NSMutableArray arrayWithCapacity:0];

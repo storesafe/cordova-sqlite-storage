@@ -2,7 +2,7 @@
 
 ## 0.7.2-common-dev
 
-TBD
+- All iOS operations are now using background processing (reported to resolve intermittent problems with cordova-ios@4.0.1)
 
 ## 0.7.1-common-dev
 

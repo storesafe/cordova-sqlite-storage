@@ -30,13 +30,20 @@ typedef int WebSQLError;
 @property (nonatomic, copy) NSMutableDictionary *openDBs;
 @property (nonatomic, copy) NSMutableDictionary *appDBPaths;
 
+-(void) executeInBackground: (CDVInvokedUrlCommand*)command;
+
 // Open / Close / Delete
 -(void) open: (CDVInvokedUrlCommand*)command;
 -(void) close: (CDVInvokedUrlCommand*)command;
 -(void) delete: (CDVInvokedUrlCommand*)command;
 
+-(void) openNow: (CDVInvokedUrlCommand*)command;
+-(void) closeNow: (CDVInvokedUrlCommand*)command;
+-(void) deleteNow: (CDVInvokedUrlCommand*)command;
+
 // Batch processing interface
 -(void) backgroundExecuteSqlBatch: (CDVInvokedUrlCommand*)command;
--(void) executeSqlBatch: (CDVInvokedUrlCommand*)command;
+
+-(void) executeSqlBatchNow: (CDVInvokedUrlCommand*)command;
 
 @end /* vim: set expandtab : */
