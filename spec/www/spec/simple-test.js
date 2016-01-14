@@ -14,8 +14,9 @@ var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
 var isIE = isWindows || isWP8;
 var isWebKit = !isIE; // TBD [Android or iOS]
 
-var scenarioList = [ isAndroid ? 'Plugin-sqlite-connector' : 'Plugin', 'HTML5', 'Plugin-android.database' ];
+var scenarioList = [ isAndroid ? 'Plugin-default-db-implementation' : 'Plugin', 'HTML5', 'Plugin-builtin-db-implementation' ];
 
+// XXX FUTURE TBD:
 //var scenarioCount = isAndroid ? 3 : (isIE ? 1 : 2);
 var scenarioCount = (!!window.hasWebKitBrowser) ? 2 : 1;
 

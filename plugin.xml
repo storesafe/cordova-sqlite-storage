@@ -76,8 +76,6 @@
 
     </platform>
 
-    <!-- FUTURE TBD: fix and test for amazon-fireos -->
-
 </plugin>
 
 <!-- vim: set expandtab : -->
