@@ -592,6 +592,18 @@
       sqliteFeatures:
         isSQLitePlugin: true
 
+      echoTest: (okcb, errorcb) ->
+        ok = (s) ->
+          if s is 'test-string'
+            okcb()
+          else
+            errorcb "Mismatch: got: '#{s}' expected 'test-string'"
+
+        error = (e) ->
+          errorcb e
+
+        cordova.exec okcb, errorcb, "SQLitePlugin", "echoStringValue", [{value:'test-string'}]
+
       openDatabase: SQLiteFactory.opendb
       deleteDatabase: SQLiteFactory.deleteDb
 

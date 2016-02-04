@@ -79,9 +79,16 @@ public class SQLitePlugin extends CordovaPlugin {
 
         boolean status = true;
         JSONObject o;
+        String echo_value;
         String dbname;
 
         switch (action) {
+            case echoStringValue:
+                o = args.getJSONObject(0);
+                echo_value = o.getString("value");
+                cbc.success(echo_value);
+                break;
+
             case open:
                 o = args.getJSONObject(0);
                 dbname = o.getString("name");
@@ -429,6 +436,7 @@ public class SQLitePlugin extends CordovaPlugin {
     }
 
     private static enum Action {
+        echoStringValue,
         open,
         close,
         delete,

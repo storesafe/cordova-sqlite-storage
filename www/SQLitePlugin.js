@@ -567,6 +567,24 @@
     sqliteFeatures: {
       isSQLitePlugin: true
     },
+    echoTest: function(okcb, errorcb) {
+      var error, ok;
+      ok = function(s) {
+        if (s === 'test-string') {
+          return okcb();
+        } else {
+          return errorcb("Mismatch: got: '" + s + "' expected 'test-string'");
+        }
+      };
+      error = function(e) {
+        return errorcb(e);
+      };
+      return cordova.exec(okcb, errorcb, "SQLitePlugin", "echoStringValue", [
+        {
+          value: 'test-string'
+        }
+      ]);
+    },
     openDatabase: SQLiteFactory.opendb,
     deleteDatabase: SQLiteFactory.deleteDb
   };

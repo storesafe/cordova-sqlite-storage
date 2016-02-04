@@ -63,6 +63,7 @@ I raised [Cordova bug CB-9830](https://issues.apache.org/jira/browse/CB-9830) to
 
 ## Announcements
 
+- Added echo test function to verify installation of this plugin
 - All iOS operations are now using background processing (reported to resolve intermittent problems with cordova-ios@4.0.1)
 - Published [brodybits / Cordova-quick-start-checklist](https://github.com/brodybits/Cordova-quick-start-checklist) and [brodybits / Cordova-troubleshooting-guide](https://github.com/brodybits/Cordova-troubleshooting-guide)
 - A version with support for web workers is available (with a different licensing scheme) at: [litehelpers / cordova-sqlite-workers-evfree](https://github.com/litehelpers/cordova-sqlite-workers-evfree)
@@ -202,6 +203,18 @@ naelA/nativescript-sqlite) (Android and/or iOS)
 - [Realm.io](https://realm.io/)
 
 # Usage
+
+## Echo test
+
+To verify that both the Javascript and native part of this plugin are installed in your application:
+
+```js
+window.sqlitePlugin.echoTest(successCallback, errorCallback);
+```
+
+**IMPORTANT:** Please wait for the 'deviceready' event, (see below for an example).
+
+## General
 
 The idea is to emulate the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/) as closely as possible. The only major change is to use `window.sqlitePlugin.openDatabase()` (or `sqlitePlugin.openDatabase()`) instead of `window.openDatabase()`. If you see any other major change please report it, it is probably a bug.
 
@@ -655,7 +668,13 @@ Sample change to `config.xml` for Cordova/PhoneGap 2.x:
          <plugin name="Compass" value="CDVLocation" />
 ```
 
-## Quick installation test
+## Installation test
+
+### Easy installation test
+
+Use `window.sqlitePlugin.echoTest` as described above (please wait for the `deviceready` event).
+
+### Quick installation test
 
 Assuming your app has a recent template as used by the Cordova create script, add the following code to the `onDeviceReady` function, after `app.receivedEvent('deviceready');`:
 

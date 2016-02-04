@@ -2,6 +2,7 @@
 
 ## 0.x.x-xx
 
+- Echo test function
 - Remove extra runInBackground: step from iOS version
 - Android-sqlite-connector (NDK) support removed from this version branch
 - Windows version removed from this version branch
