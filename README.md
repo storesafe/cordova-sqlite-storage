@@ -570,7 +570,7 @@ A posting how to get started developing on Windows host without the Cordova CLI 
 - `SQLitePlugin.coffee.md`: platform-independent (Literate coffee-script, can be read by recent coffee-script compiler)
 - `www`: `SQLitePlugin.js` platform-independent Javascript as generated from `SQLitePlugin.coffee.md` (and checked in!)
 - `src`: platform-specific source code:
-   - `external` - placeholder ~~used to import `sqlite3.[hc]` in this version branch-needed to build Windows "Universal" (8.1) version~~
+   - ~~REMOVED from this version branch: `external` - placeholder used to import `sqlite3.[hc]` in this version branch-needed to build Windows "Universal" (8.1) version~~
    - `android` - Java plugin code for Android
    - `ios` - Objective-C plugin code for iOS;
    - ~~`windows` - Javascript proxy code and SQLite3-WinRT project for Windows "Universal" (8.1);~~
