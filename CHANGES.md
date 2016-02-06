@@ -2,6 +2,7 @@
 
 ## 0.x.x-xx
 
+- Renamed SQLiteProxy.js to sqlite-proxy.js in Windows version
 - Move Android version to io.sqlc package
 
 ## 0.7.2-common-dev
