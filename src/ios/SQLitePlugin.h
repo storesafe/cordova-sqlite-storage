@@ -30,7 +30,8 @@ typedef int WebSQLError;
 @property (nonatomic, copy) NSMutableDictionary *openDBs;
 @property (nonatomic, copy) NSMutableDictionary *appDBPaths;
 
--(void) executeInBackground: (CDVInvokedUrlCommand*)command;
+// Self-test
+-(void) echoStringValue: (CDVInvokedUrlCommand*)command;
 
 // Open / Close / Delete
 -(void) open: (CDVInvokedUrlCommand*)command;
