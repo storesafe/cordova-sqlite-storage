@@ -2,6 +2,7 @@
 
 ## 0.x.x-xx
 
+- Simple sql batch transaction function
 - Echo test function
 - Remove extra runInBackground: step from iOS version
 - Android-sqlite-connector (NDK) support removed from this version branch

@@ -63,6 +63,7 @@ I raised [Cordova bug CB-9830](https://issues.apache.org/jira/browse/CB-9830) to
 
 ## Announcements
 
+- Added simple sql batch query function
 - Added echo test function to verify installation of this plugin
 - All iOS operations are now using background processing (reported to resolve intermittent problems with cordova-ios@4.0.1)
 - Published [brodybits / Cordova-quick-start-checklist](https://github.com/brodybits/Cordova-quick-start-checklist) and [brodybits / Cordova-troubleshooting-guide](https://github.com/brodybits/Cordova-troubleshooting-guide)
@@ -297,6 +298,7 @@ This option is ignored if `androidDatabaseImplementation: 2` is not specified.
 
 The following types of SQL transactions are supported by this version:
 - Single-statement transactions
+- SQL batch query transactions
 - Standard asynchronous transactions
 
 ### Single-statement transactions
@@ -311,7 +313,27 @@ db.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (res) 
 });
 ```
 
-## Standard asynchronous transactions
+### SQL batch query transactions
+
+Sample:
+
+```Javascript
+db.sqlBatch([
+  'DROP TABLE IF EXISTS MyTable',
+  'CREATE TABLE MyTable (SampleColumn)',
+  [ 'INSERT INTO MyTable VALUES (?)', ['test-value'] ],
+], function() {
+  db.executeSql('SELECT * FROM MyTable', [], function (res) {
+    console.log('Sample column value: ' + res.rows.item(0).SampleColumn);
+  });
+}, function(error) {
+  console.log('Populate table error: ' + error.message);
+});
+```
+
+In case of an error, all changes in a sql batch are automatically discarded using ROLLBACK.
+
+### Standard asynchronous transactions
 
 Standard asynchronous transactions follow the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/) which is very well documented and uses BEGIN and COMMIT or ROLLBACK to keep the transactions failure-safe. Here is a very simple example from the test suite:
 

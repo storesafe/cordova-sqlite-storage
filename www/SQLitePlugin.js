@@ -252,6 +252,41 @@
     this.addTransaction(new SQLitePluginTransaction(this, myfn, null, null, false, false));
   };
 
+  SQLitePlugin.prototype.sqlBatch = function(sqlStatements, success, error) {
+    var batchList, j, len1, myfn, st;
+    if (!sqlStatements || sqlStatements.constructor !== Array) {
+      throw newSQLError('sqlBatch expects an array');
+    }
+    batchList = [];
+    for (j = 0, len1 = sqlStatements.length; j < len1; j++) {
+      st = sqlStatements[j];
+      if (st.constructor === Array) {
+        if (st.length === 0) {
+          throw newSQLError('sqlBatch array element of zero (0) length');
+        }
+        batchList.push({
+          sql: st[0],
+          params: st.length === 0 ? [] : st[1]
+        });
+      } else {
+        batchList.push({
+          sql: st,
+          params: []
+        });
+      }
+    }
+    myfn = function(tx) {
+      var elem, k, len2, results;
+      results = [];
+      for (k = 0, len2 = batchList.length; k < len2; k++) {
+        elem = batchList[k];
+        results.push(tx.addStatement(elem.sql, elem.params, null, null));
+      }
+      return results;
+    };
+    this.addTransaction(new SQLitePluginTransaction(this, myfn, error, success, true, false));
+  };
+
   SQLitePluginTransaction = function(db, fn, error, success, txlock, readOnly) {
     if (typeof fn !== "function") {
 
