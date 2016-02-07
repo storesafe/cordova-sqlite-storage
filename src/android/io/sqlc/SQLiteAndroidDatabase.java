@@ -4,7 +4,7 @@
  * Copyright (c) 2010, IBM Corporation
  */
 
-package io.liteglue;
+package io.sqlc;
 
 import android.annotation.SuppressLint;
 

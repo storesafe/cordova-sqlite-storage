@@ -1,5 +1,9 @@
 # Changes
 
+## 0.x.x-xx
+
+- Move Android version to io.sqlc package
+
 ## 0.7.2-common-dev
 
 - All iOS operations are now using background processing (reported to resolve intermittent problems with cordova-ios@4.0.1)

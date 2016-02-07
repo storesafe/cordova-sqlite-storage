@@ -26,12 +26,12 @@
         <!-- Cordova >= 3.0.0 -->
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="SQLitePlugin">
-                <param name="android-package" value="io.liteglue.SQLitePlugin"/>
+                <param name="android-package" value="io.sqlc.SQLitePlugin"/>
             </feature>
         </config-file>
 
-        <source-file src="src/android/io/liteglue/SQLitePlugin.java" target-dir="src/io/liteglue"/>
-        <source-file src="src/android/io/liteglue/SQLiteAndroidDatabase.java" target-dir="src/io/liteglue"/>
+        <source-file src="src/android/io/sqlc/SQLitePlugin.java" target-dir="src/io/sqlc"/>
+        <source-file src="src/android/io/sqlc/SQLiteAndroidDatabase.java" target-dir="src/io/sqlc"/>
 
         <!-- Android-sqlite-connector: -->
         <source-file src="src/external/libs/sqlite-connector.jar" target-dir="libs"/>

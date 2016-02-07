@@ -4,7 +4,7 @@
  * Copyright (c) 2010, IBM Corporation
  */
 
-package io.liteglue;
+package io.sqlc;
 
 import android.annotation.SuppressLint;
 
@@ -31,6 +31,12 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
+
+import io.liteglue.SQLColumnType;
+import io.liteglue.SQLiteConnector;
+import io.liteglue.SQLiteConnection;
+import io.liteglue.SQLiteOpenFlags;
+import io.liteglue.SQLiteStatement;
 
 public class SQLitePlugin extends CordovaPlugin {
 
