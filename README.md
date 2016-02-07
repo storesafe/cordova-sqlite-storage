@@ -43,6 +43,9 @@ I raised [Cordova bug CB-9830](https://issues.apache.org/jira/browse/CB-9830) to
 
 ## Status
 
+- This version supports the use of two (2) possible Android sqlite database implementations:
+  - default: lightweight [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector)
+  - optional: built-in Android database classes (usage described below)
 - WP(7/8) is not supported by this version branch (TBD link to where WP(7/8) will be supported)
 - The following features are moved to [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) and removed from this project:
   - REGEXP support
@@ -68,7 +71,6 @@ I raised [Cordova bug CB-9830](https://issues.apache.org/jira/browse/CB-9830) to
 - A version with pre-populated database support added for Windows and REGEXP support added for Android is available at: [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext)
 - PhoneGap Build is now supported through the npm package: http://phonegap.com/blog/2015/05/26/npm-plugins-available/
 - [MetaMemoryT / websql-promise](https://github.com/MetaMemoryT/websql-promise) now provides a Promises-based interface to both Web SQL and this plugin
-- *NOT working* in this version branch: Android version is now using the lightweight [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) by default configuration (may be changed as described below)
 - iOS version is now fixed to override the correct pluginInitialize method and should work with recent versions of iOS
 - [SQLCipher](https://www.zetetic.net/sqlcipher/) for Windows 8.1(+)/Windows Phone 8.1(+) in addition to Android & iOS is now supported by [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter)
 - New `openDatabase` and `deleteDatabase` `location` option to select database location (iOS *only*) and disable iCloud backup
@@ -94,7 +96,7 @@ I raised [Cordova bug CB-9830](https://issues.apache.org/jira/browse/CB-9830) to
 
 - iOS version does not support certain rapidly repeated open-and-close or open-and-delete test scenarios due to how the implementation handles background processing
 - As described below, auto-vacuum is NOT enabled by default.
-- INSERT statement that affects multiple rows (due to SELECT cause or using TRIGGER(s), for example) does not report proper rowsAffected on Android in case [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) is disabled (using the `androidDatabaseImplementation` option in `window.sqlitePlugin.openDatabase`)
+- INSERT statement that affects multiple rows (due to SELECT cause or using TRIGGER(s), for example) does not report proper rowsAffected on Android in case the built-in Android database used (using the `androidDatabaseImplementation` option in `window.sqlitePlugin.openDatabase`)
 - Memory issue observed when adding a large number of records due to the JSON implementation which is improved in [litehelpers / Cordova-sqlite-enterprise-free](https://github.com/litehelpers/Cordova-sqlite-enterprise-free) (available with a different licensing scheme)
 - A stability issue was reported on the iOS version when in use together with [SockJS](http://sockjs.org/) client such as [pusher-js](https://github.com/pusher/pusher-js) at the same time (see [litehelpers/Cordova-sqlite-storage#196](https://github.com/litehelpers/Cordova-sqlite-storage/issues/196)). The workaround is to call sqlite functions and [SockJS](http://sockjs.org/) client functions in separate ticks (using setTimeout with 0 timeout).
 - If a sql statement fails for which there is no error handler or the error handler does not return `false` to signal transaction recovery, the plugin fires the remaining sql callbacks before aborting the transaction.
@@ -251,7 +253,7 @@ If any sql statements or transactions are attempted on a database object before 
 
 ### Android sqlite implementation
 
-By default, this plugin uses [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector), which is lightweight  and should be more efficient than the built-in Android database classes. To use the built-in Android database classes instead:
+By default, this plugin uses [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector), which is lightweight and should be more efficient than the built-in Android database classes. To use the built-in Android database classes instead:
 
 ```js
 var db = window.sqlitePlugin.openDatabase({name: "my.db", androidDatabaseImplementation: 2});

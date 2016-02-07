@@ -2,6 +2,7 @@
 
 ## 0.x.x-xx
 
+- Separate SQLiteConnectorDatabase class for Android
 - Renamed SQLiteProxy.js to sqlite-proxy.js in Windows version
 - Move Android version to io.sqlc package
 

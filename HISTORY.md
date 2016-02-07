@@ -120,6 +120,10 @@ Other major changes by @brodybits in 2015:
 - react-native-sqlite-storage version for Android and iOS developed and maintained
   by @andpor (Andrzej Porebski <fkuciapa@yahoo.com>), based on this project
 
+## Major changes 2016
+
+TBD Android-sqlite-connector & Windows version removed from main version branch
+
 ## Recent changes
 
 See CHANGES.md
