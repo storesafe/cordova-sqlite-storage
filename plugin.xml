@@ -59,23 +59,6 @@
 
     </platform>
 
-    <!-- windows -->
-    <platform name="windows">
-        <js-module src="src/windows/SQLiteProxy.js" name="SQLiteProxy">
-            <merges target="" />
-        </js-module>
-
-        <!-- SQLite3 JS module from SQLite3-WinRT/SQLite3JS: -->
-        <js-module src="src/windows/SQLite3-WinRT/SQLite3JS/js/SQLite3.js" name="SQLite3">
-            <merges target="" />
-        </js-module>
-
-        <!-- Thanks to AllJoyn-Cordova / cordova-plugin-alljoyn: -->
-        <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3.Windows/SQLite3.Windows.vcxproj" custom="true" type="projectReference" target="windows" />
-        <framework src="src/windows/SQLite3-WinRT/SQLite3/SQLite3.WindowsPhone/SQLite3.WindowsPhone.vcxproj" custom="true" type="projectReference" target="phone" />
-
-    </platform>
-
 </plugin>
 
 <!-- vim: set expandtab : -->

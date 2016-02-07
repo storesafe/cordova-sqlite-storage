@@ -2,6 +2,7 @@
 
 ## 0.x.x-xx
 
+- Windows version removed from this version branch
 - Move Android version to io.sqlc package
 
 ## 0.7.2-common-dev
