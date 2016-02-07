@@ -2,6 +2,7 @@
 
 ## 0.x.x-xx
 
+- Android-sqlite-connector (NDK) support removed from this version branch
 - Windows version removed from this version branch
 - Move Android version to io.sqlc package
 

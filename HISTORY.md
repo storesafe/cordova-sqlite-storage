@@ -123,6 +123,7 @@ Other major changes by @brodybits in 2015:
 ## Major changes 2016
 
 - Windows version removed from this version branch (available in cordova-sqlite-ext or Cordova-sqlite-legacy versions)
+- Android-sqlite-connector (NDK) support removed from this version branch (available in cordova-sqlite-ext or Cordova-sqlite-legacy versions)
 
 ## Recent changes
 
