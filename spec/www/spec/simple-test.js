@@ -14,11 +14,16 @@ var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
 var isIE = isWindows || isWP8;
 var isWebKit = !isIE; // TBD [Android or iOS]
 
-var scenarioList = [ isAndroid ? 'Plugin-default-db-implementation' : 'Plugin', 'HTML5', 'Plugin-builtin-db-implementation' ];
+// NOTE: In the core-master branch there is no difference between the default
+// implementation and implementation #2. But the test will also apply
+// the androidLockWorkaround: 1 option in the case of implementation #2.
+var scenarioList = [
+  isAndroid ? 'Plugin-implementation-default' : 'Plugin',
+  'HTML5',
+  'Plugin-implementation-2'
+];
 
-// XXX FUTURE TBD:
-//var scenarioCount = isAndroid ? 3 : (isIE ? 1 : 2);
-var scenarioCount = (!!window.hasWebKitBrowser) ? 2 : 1;
+var scenarioCount = (!!window.hasWebKitBrowser) ? (isAndroid ? 3 : 2) : 1;
 
 // simple tests:
 var mytests = function() {
@@ -34,7 +39,12 @@ var mytests = function() {
       // NOTE: MUST be defined in function scope, NOT outer scope:
       var openDatabase = function(name, ignored1, ignored2, ignored3) {
         if (isOldImpl) {
-          return window.sqlitePlugin.openDatabase({name: name, androidDatabaseImplementation: 2});
+          return window.sqlitePlugin.openDatabase({
+            // prevent reuse of database from default db implementation:
+            name: 'i2-'+name,
+            androidDatabaseImplementation: 2,
+            androidLockWorkaround: 1
+          });
         }
         if (isWebSql) {
           return window.openDatabase(name, '1.0', 'Test', DEFAULT_SIZE);
