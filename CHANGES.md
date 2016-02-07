@@ -1,6 +1,6 @@
 # Changes
 
-## 0.8.0-pre
+## 0.8.0
 
 - Simple sql batch transaction function
 - Echo test function
