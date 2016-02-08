@@ -1,6 +1,6 @@
 # Changes
 
-## 0.8.x-xxx-regexp-dev
+## 0.8.0-regexp-dev
 
 - Separate SQLiteConnectorDatabase class for Android
 - Renamed SQLiteProxy.js to sqlite-proxy.js in Windows version

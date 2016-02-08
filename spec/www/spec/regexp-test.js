@@ -37,7 +37,6 @@ var mytests = function() {
       it(suiteName + 'Simple REGEXP test',
         function(done) {
           if (isWebSql && !isAndroid) pending('BROKEN for iOS Web SQL');
-          //if (!isWebSql && isAndroid && !isOldImpl) pending('BROKEN for default Android implementation'); // [REGEXP-Android]
           if (isWindows) pending('BROKEN for Windows ("Universal")');
           if (!isWebSql && isAndroid && isOldImpl && /Android [1-4]/.test(navigator.userAgent)) pending('BROKEN for android.database [version 1.x-4.x]');
 

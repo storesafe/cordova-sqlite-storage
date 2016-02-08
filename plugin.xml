@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    id="cordova-sqlite-xxx-regexp-dev"
-    version="0.8.x-xxx-regexp-dev">
+    id="cordova-sqlite-regexp-dev"
+    version="0.8.0-regexp-dev">
 
-    <name>Cordova sqlite storage plugin (xxx regexp dev)</name>
+    <name>Cordova sqlite storage plugin (regexp dev)</name>
 
     <license>MIT</license>
 
