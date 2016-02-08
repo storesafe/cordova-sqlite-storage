@@ -6,9 +6,9 @@ License for Android and Windows 8.1(+)/Windows Phone 8.1(+) versions: MIT or Apa
 
 License for iOS version: MIT only
 
-This version branch contains the source code for the Android, iOS, and Windows 8.1(+)/Windows Phone 8.1(+) versions. This version branch does not contain any libraries or source code from www.sqlite.org. This version branch uses the built-in sqlite libraries on Android and iOS.
+This version branch contains the source code for the Android, iOS, and Windows 8.1(+)/Windows Phone 8.1(+) versions. This version branch does not contain any libraries or source code from www.sqlite.org.
 
-NOTE (TBD): no Circle CI or Travis CI working in this version branch.
+NOTE (TBD): no Circle CI or Travis CI is setup for this version branch.
 
 ## IMPORTANT: iCloud backup of SQLite database is NOT allowed
 
