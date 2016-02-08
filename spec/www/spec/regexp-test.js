@@ -7,7 +7,7 @@ var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 var isAndroid = /Android/.test(navigator.userAgent);
 var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
 
-var scenarioList = [ isAndroid ? 'Plugin-sqlite-connector' : 'Plugin', 'HTML5', 'Plugin-android.database' ];
+var scenarioList = [ isAndroid ? 'Plugin-implementation-default' : 'Plugin', 'HTML5', 'Plugin-implementation-2' ];
 
 var scenarioCount = isAndroid ? 3 : (isIE ? 1 : 2);
 
@@ -25,7 +25,7 @@ var mytests = function() {
       // NOTE: MUST be defined in function scope, NOT outer scope:
       var openDatabase = function(name, ignored1, ignored2, ignored3) {
         if (isOldImpl) {
-          return window.sqlitePlugin.openDatabase({name: name, androidDatabaseImplementation: 2});
+          return window.sqlitePlugin.openDatabase({name: 'i2-'+name, androidDatabaseImplementation: 2});
         }
         if (isWebSql) {
           return window.openDatabase(name, "1.0", "Demo", DEFAULT_SIZE);
@@ -37,8 +37,9 @@ var mytests = function() {
       it(suiteName + 'Simple REGEXP test',
         function(done) {
           if (isWebSql && !isAndroid) pending('BROKEN for iOS Web SQL');
-          if (!isWebSql && isAndroid && !isOldImpl) pending('BROKEN for default Android implementation');
+          //if (!isWebSql && isAndroid && !isOldImpl) pending('BROKEN for default Android implementation'); // [REGEXP-Android]
           if (isWindows) pending('BROKEN for Windows ("Universal")');
+          if (!isWebSql && isAndroid && isOldImpl && /Android [1-4]/.test(navigator.userAgent)) pending('BROKEN for android.database [version 1.x-4.x]');
 
           var db = openDatabase('simple-regexp-test.db', '1.0', 'test', DEFAULT_SIZE);
 

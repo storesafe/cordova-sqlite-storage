@@ -40,10 +40,16 @@ var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
 var isIE = isWindows || isWP8;
 var isWebKit = !isIE; // TBD [Android or iOS]
 
-var scenarioList = [ isAndroid ? 'Plugin-sqlite-connector' : 'Plugin', 'HTML5', 'Plugin-android.database' ];
+// NOTE: In the core-master branch there is no difference between the default
+// implementation and implementation #2. But the test will also apply
+// the androidLockWorkaround: 1 option in the case of implementation #2.
+var scenarioList = [
+  isAndroid ? 'Plugin-implementation-default' : 'Plugin',
+  'HTML5',
+  'Plugin-implementation-2'
+];
 
-//var scenarioCount = isAndroid ? 3 : (isIE ? 1 : 2);
-var scenarioCount = (!!window.hasWebKitBrowser) ? 2 : 1;
+var scenarioCount = (!!window.hasWebKitBrowser) ? (isAndroid ? 3 : 2) : 1;
 
 // legacy tests:
 var mytests = function() {
@@ -54,12 +60,17 @@ var mytests = function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
       var isWebSql = (i === 1);
-      var isOldAndroidImpl = (i === 2);
+      var isOldImpl = (i === 2);
 
       // NOTE: MUST be defined in function scope, NOT outer scope:
       var openDatabase = function(name, ignored1, ignored2, ignored3) {
-        if (isOldAndroidImpl) {
-          return window.sqlitePlugin.openDatabase({name: name, androidDatabaseImplementation: 2});
+        if (isOldImpl) {
+          return window.sqlitePlugin.openDatabase({
+            // prevent reuse of database from default db implementation:
+            name: 'i2-'+name,
+            androidDatabaseImplementation: 2,
+            androidLockWorkaround: 1
+          });
         }
         if (isWebSql) {
           return window.openDatabase(name, "1.0", "Demo", DEFAULT_SIZE);
@@ -96,7 +107,7 @@ var mytests = function() {
         test_it(suiteName + ' string encoding test with UNICODE \\u0000', function () {
           if (isWindows) pending('BROKEN for Windows'); // XXX
           if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
-          if (isAndroid && !(isWebSql || isOldAndroidImpl)) pending('BROKEN for Android (sqlite-connector version)'); // XXX
+          if (isAndroid && !isWebSql && !isOldImpl) pending('BROKEN for Android (default sqlite-connector version)'); // XXX
 
           stop();
 
@@ -1046,7 +1057,7 @@ var mytests = function() {
         test_it(suiteName + ' stores [Unicode] string with \\u0000 correctly', function () {
           if (isWindows) pending('BROKEN on Windows'); // XXX
           if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
-          if (isAndroid && !(isWebSql || isOldAndroidImpl)) pending('BROKEN for Android (sqlite-connector version)'); // XXX
+          if (isAndroid && !isWebSql && !isOldImpl) pending('BROKEN for Android (default sqlite-connector version)'); // XXX
 
           stop();
 
@@ -1489,18 +1500,19 @@ var mytests = function() {
 
   describe('Plugin: plugin-specific legacy test(s)', function() {
 
-    //var suiteName = "plugin: ";
-
-    var scenarioList = [ isAndroid ? 'plugin-sqlite-connector' : 'Plugin', 'plugin-android.database' ];
+    var scenarioList = [
+      isAndroid ? 'Plugin-implementation-default' : 'Plugin',
+      'Plugin-implementation-2'
+    ];
 
     var scenarioCount = isAndroid ? 2 : 1;
 
     for (var i=0; i<scenarioCount; ++i) {
-      var scenarioName = scenarioList[i];
-      var suiteName = scenarioName + ': ';
-      var isOldAndroidImpl = (i === 1);
 
-      describe(scenarioList[i] + ': legacy sql test(s)', function() {
+      describe(scenarioList[i] + ': plugin-specific sql test(s)', function() {
+        var scenarioName = scenarioList[i];
+        var suiteName = scenarioName + ': ';
+        var isOldAndroidImpl = (i === 1);
 
         // NOTE: MUST be defined in function scope, NOT outer scope:
         var openDatabase = function(first, second, third, fourth, fifth, sixth) {
@@ -1520,7 +1532,12 @@ var mytests = function() {
             errorcb = third;
           }
 
-          dbopts = { name: dbname, androidDatabaseImplementation: 2 };
+          dbopts = {
+            name: 'i2-'+dbname,
+            androidDatabaseImplementation: 2,
+            androidLockWorkaround: 1
+          };
+
           return window.sqlitePlugin.openDatabase(dbopts, okcb, errorcb);
         }
 
@@ -1605,6 +1622,53 @@ var mytests = function() {
           });
         });
 
+      });
+    }
+
+    // XXX TODO: MOVE remaining [open/close/delete] tests to another module
+
+    for (var i=0; i<scenarioCount; ++i) {
+
+      describe(scenarioList[i] + ': basic sqlitePlugin.deleteDatabase test(s)', function() {
+        var scenarioName = scenarioList[i];
+        var suiteName = scenarioName + ': ';
+        var isOldAndroidImpl = (i === 1);
+
+        // NOTE: MUST be defined in function scope, NOT outer scope:
+        var openDatabase = function(first, second, third, fourth, fifth, sixth) {
+          if (!isOldAndroidImpl) {
+            return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
+          }
+
+          var dbname, okcb, errorcb;
+
+          if (first.constructor === String ) {
+            dbname = first;
+            okcb = fifth;
+            errorcb = sixth;
+          } else {
+            dbname = first.name;
+            okcb = second;
+            errorcb = third;
+          }
+
+          dbopts = {
+            name: 'i2-'+dbname,
+            androidDatabaseImplementation: 2,
+            androidLockWorkaround: 1
+          };
+
+          return window.sqlitePlugin.openDatabase(dbopts, okcb, errorcb);
+        }
+
+        var deleteDatabase = function(first, second, third) {
+          if (!isOldAndroidImpl) {
+            window.sqlitePlugin.deleteDatabase(first, second, third);
+          } else {
+            window.sqlitePlugin.deleteDatabase('i2-'+first, second, third);
+          }
+        }
+
         test_it(suiteName + ' test sqlitePlugin.deleteDatabase()', function () {
           stop();
           var db = openDatabase("DB-Deletable", "1.0", "Demo", DEFAULT_SIZE);
@@ -1638,7 +1702,7 @@ var mytests = function() {
 
           function deleteAndConfirmDeleted() {
 
-            window.sqlitePlugin.deleteDatabase("DB-Deletable", function () {
+            deleteDatabase("DB-Deletable", function () {
 
               // check that the data's gone
               db.transaction(function (tx) {
@@ -1660,7 +1724,7 @@ var mytests = function() {
 
           function testDeleteError() {
             // should throw an error if the db doesn't exist
-            window.sqlitePlugin.deleteDatabase("Foo-Doesnt-Exist", function () {
+            deleteDatabase("Foo-Doesnt-Exist", function () {
               console.log('UNEXPECTED SUCCESS: expected a delete error');
               ok(false, 'expected error');
               start();
@@ -1674,25 +1738,65 @@ var mytests = function() {
           createAndInsertStuff();
         });
 
+      });
+    }
+
+    for (var i=0; i<scenarioCount; ++i) {
+
+      describe(scenarioList[i] + ': basic plugin open-close test(s)', function() {
+        var scenarioName = scenarioList[i];
+        var suiteName = scenarioName + ': ';
+        var isOldAndroidImpl = (i === 1);
+
+        // NOTE: MUST be defined in function scope, NOT outer scope:
+        var openDatabase = function(first, second, third, fourth, fifth, sixth) {
+          if (!isOldAndroidImpl) {
+            return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
+          }
+
+          var dbname, okcb, errorcb;
+
+          if (first.constructor === String ) {
+            dbname = first;
+            okcb = fifth;
+            errorcb = sixth;
+          } else {
+            dbname = first.name;
+            okcb = second;
+            errorcb = third;
+          }
+
+          dbopts = {
+            name: 'i2-'+dbname,
+            androidDatabaseImplementation: 2,
+            androidLockWorkaround: 1
+          };
+
+          return window.sqlitePlugin.openDatabase(dbopts, okcb, errorcb);
+        }
+
         test_it(suiteName + ' database.open calls its success callback', function () {
           // asynch test coming up
           stop(1);
 
           var dbName = "Database-Open-callback";
           openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function (db) {
-            ok(true, 'expected open success callback to be called after database is closed');
+            ok(true, 'expected open success callback to be called ...');
             start(1);
           }, function (error) {
-            ok(false, 'expected open error callback not to be called after database is closed');
+            ok(false, 'expected open error callback not to be called ...');
             start(1);
           });
         });
 
-        test_it(suiteName + ' database.close calls its success callback', function () {
+        test_it(suiteName + ' database.close (immediately after open) calls its success callback', function () {
+          // XXX POSSIBLY BROKEN on iOS due to current background processing implementation
+          if (!(isAndroid || isIE)) pending('POSSIBLY BROKEN on iOS (background processing implementation)');
+
           // asynch test coming up
           stop(1);
 
-          var dbName = "Database-Close-callback";
+          var dbName = "Immediate-close-callback";
           var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
 
           // close database - need to run tests directly in callbacks as nothing is guarenteed to be queued after a close
@@ -1701,6 +1805,27 @@ var mytests = function() {
             start(1);
           }, function (error) {
             ok(false, 'expected close error callback not to be called after database is closed');
+            start(1);
+          });
+        });
+
+        test_it(suiteName + ' database.close after open callback calls its success callback', function () {
+          // asynch test coming up
+          stop(1);
+
+          var dbName = "Close-after-open-callback";
+
+          openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function(db) {
+            // close database - need to run tests directly in callbacks as nothing is guarenteed to be queued after a close
+            db.close(function () {
+              ok(true, 'expected close success callback to be called after database is closed');
+              start(1);
+            }, function (error) {
+              ok(false, 'expected close error callback not to be called after database is closed');
+              start(1);
+            });
+          }, function (error) {
+            ok(false, 'unexpected open error');
             start(1);
           });
         });
@@ -1755,6 +1880,7 @@ var mytests = function() {
           });
         });
 
+        // XXX TODO MOVE:
         // XXX BROKEN [BUG #209]:
         xtest_it(suiteName + ' close writer db handle should not close reader db handle [BROKEN]', function () {
           var dbname = 'close-one-db-handle.db';
@@ -1793,6 +1919,7 @@ var mytests = function() {
           });
         });
 
+        // XXX TODO MOVE:
         // XXX BROKEN [BUG #204]:
         xtest_it(suiteName + ' close DB in db.executeSql() callback [BROKEN]', function () {
           var dbName = "Close-DB-in-db-executeSql-callback.db";
@@ -1817,6 +1944,18 @@ var mytests = function() {
             start(1);
           });
         });
+
+      });
+    }
+
+    describe('repeated open/close/delete test(s)', function() {
+      var scenarioName = isAndroid ? 'Plugin-implementation-default' : 'Plugin';
+      var suiteName = scenarioName + ': ';
+
+        // NOTE: MUST be defined in function scope, NOT outer scope:
+        var openDatabase = function(first, second, third, fourth, fifth, sixth) {
+          return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
+        }
 
         // Needed to support some large-scale applications:
         test_it(suiteName + ' open same database twice in [same] specified location works', function () {
@@ -1856,7 +1995,7 @@ var mytests = function() {
         });
 
         // Needed to support some large-scale applications:
-        test_it(suiteName + ' close then re-open allows subsequent queries to run', function () {
+        test_it(suiteName + ' close then re-open (2x) allows subsequent queries to run', function () {
           // asynch test coming up
           stop(1);
         
@@ -1946,9 +2085,14 @@ var mytests = function() {
           });
         });
 
+        // XXX TODO: repeat scenario but wait for open callback before close/delete/reopen
         // Needed to support some large-scale applications:
-        test_it(suiteName + ' close, then delete then re-open allows subsequent queries to run', function () {
-          var dbName = "Database-Close-delete-Reopen.db";
+        test_it(suiteName + ' immediate close, then delete then re-open allows subsequent queries to run', function () {
+
+          // XXX POSSIBLY BROKEN on iOS due to current background processing implementation
+          if (!(isAndroid || isIE)) pending('POSSIBLY BROKEN on iOS (background processing implementation)');
+
+          var dbName = "Immediate-close-delete-Reopen.db";
 
           // asynch test coming up
           stop(1);
@@ -1984,8 +2128,49 @@ var mytests = function() {
           });
         });
 
-      // skip these in CI testing (for now):
-      if (!!window.hasWebKitBrowser) {
+        test_it(suiteName + ' close (after open cb), then delete then re-open allows subsequent queries to run', function () {
+
+          var dbName = "Close-after-opencb-delete-reopen.db";
+
+          // asynch test coming up
+          stop(1);
+
+          openDatabase({name: dbName}, function(db1) {
+
+            db1.close(function () {
+              window.sqlitePlugin.deleteDatabase(dbName, function () {
+                openDatabase({name: dbName}, function(db) {
+                  db.readTransaction(function (tx) {
+                    tx.executeSql('SELECT 1', [], function (tx, results) {
+                      ok(true, 'database re-opened succesfully');
+                      start(1);
+                    }, function (e) {
+                      ok(false, 'error: ' + e);
+                      start(1);
+                    });
+                  }, function (e) {
+                    ok(false, 'error: ' + e);
+                    start(1);
+                  });
+                }, function (e) {
+                  ok(false, 'error: ' + e);
+                  start(1);
+                });
+              }, function (e) {
+                ok(false, 'error: ' + e);
+                start(1);
+              });
+            }, function (e) {
+              ok(false, 'error: ' + e);
+              start(1);
+            });
+
+          }, function (e) {
+            ok(false, 'open error: ' + e);
+            start(1);
+          });
+
+        });
 
         test_it(suiteName + ' repeatedly open and close database (4x)', function () {
           var dbName = "repeatedly-open-and-close-db-4x.db";
@@ -2049,6 +2234,9 @@ var mytests = function() {
         });
 
         test_it(suiteName + ' repeatedly open and close database faster (5x)', function () {
+          // XXX CURRENTLY BROKEN on iOS due to current background processing implementation
+          if (!(isAndroid || isIE)) pending('CURRENTLY BROKEN on iOS (background processing implementation)');
+
           var dbName = "repeatedly-open-and-close-faster-5x.db";
 
           // async test coming up
@@ -2166,6 +2354,9 @@ var mytests = function() {
 
         // Needed to support some large-scale applications:
         test_it(suiteName + ' repeatedly open and delete database faster (5x)', function () {
+          // XXX CURRENTLY BROKEN on iOS due to current background processing implementation
+          if (!(isAndroid || isIE)) pending('CURRENTLY BROKEN on iOS (background processing implementation)');
+
           var dbName = "repeatedly-open-and-delete-faster-5x.db";
 
           // async test coming up
@@ -2219,10 +2410,7 @@ var mytests = function() {
           });
         });
 
-      }
-
-      });
-    }
+    });
 
   });
 
