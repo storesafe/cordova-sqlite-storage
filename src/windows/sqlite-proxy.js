@@ -62,7 +62,7 @@ module.exports = {
 						// THANKS TO: http://stackoverflow.com/a/15905399
 						// answer to: http://stackoverflow.com/questions/15904374/how-to-create-a-blob-object-from-image-url
 						// linked from comment in: http://stackoverflow.com/questions/20555963/how-to-load-blob-from-windows-storage-storagefile-winjs#
-						var sourceUri = new Windows.Foundation.Uri("ms-appx:///www/pre.db");
+						var sourceUri = new Windows.Foundation.Uri("ms-appx:///www/"+dbname);
 						Windows.Storage.StorageFile.getFileFromApplicationUriAsync(sourceUri).then(function(f) {
 							return f.copyAsync(Windows.Storage.ApplicationData.current.localFolder);
 						}, function(e) {
