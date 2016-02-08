@@ -122,7 +122,13 @@ Other major changes by @brodybits in 2015:
 
 ## Major changes 2016
 
-TBD Android-sqlite-connector & Windows version removed from main version branch
+Features removed from main version branch, available in cordova-sqlite-ext and Cordova-sqlite-legacy versions:
+- Windows version removed from this version branch
+- Android-sqlite-connector (NDK) support removed from this version branch
+
+New features:
+- Echo self-test function
+- Simple sql batch query interface
 
 ## Recent changes
 

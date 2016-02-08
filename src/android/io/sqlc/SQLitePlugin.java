@@ -32,12 +32,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
 
-import io.liteglue.SQLColumnType;
-import io.liteglue.SQLiteConnector;
-import io.liteglue.SQLiteConnection;
-import io.liteglue.SQLiteOpenFlags;
-import io.liteglue.SQLiteStatement;
-
 public class SQLitePlugin extends CordovaPlugin {
 
     /**
@@ -85,9 +79,16 @@ public class SQLitePlugin extends CordovaPlugin {
 
         boolean status = true;
         JSONObject o;
+        String echo_value;
         String dbname;
 
         switch (action) {
+            case echoStringValue:
+                o = args.getJSONObject(0);
+                echo_value = o.getString("value");
+                cbc.success(echo_value);
+                break;
+
             case open:
                 o = args.getJSONObject(0);
                 dbname = o.getString("name");
@@ -326,7 +327,7 @@ public class SQLitePlugin extends CordovaPlugin {
         DBRunner(final String dbname, JSONObject options, CallbackContext cbc) {
             this.dbname = dbname;
             this.oldImpl = options.has("androidOldDatabaseImplementation");
-            Log.v(SQLitePlugin.class.getSimpleName(), "Android db implementation: " + (oldImpl ? "OLD" : "sqlite4java (NDK)"));
+            Log.v(SQLitePlugin.class.getSimpleName(), "Android db implementation: built-in android.database.sqlite package");
             this.bugWorkaround = this.oldImpl && options.has("androidBugWorkaround");
             if (this.bugWorkaround)
                 Log.v(SQLitePlugin.class.getSimpleName(), "Android db closing/locking workaround applied");
@@ -352,7 +353,6 @@ public class SQLitePlugin extends CordovaPlugin {
                 while (!dbq.stop) {
                     mydb.executeSqlBatch(dbq.queries, dbq.jsonparams, dbq.queryIDs, dbq.cbc);
 
-                    // NOTE: androidLock[Bug]Workaround is not necessary and IGNORED for sqlite4java (NDK version).
                     if (this.bugWorkaround && dbq.queries.length == 1 && dbq.queries[0] == "COMMIT")
                         mydb.bugWorkaround();
 
@@ -436,6 +436,7 @@ public class SQLitePlugin extends CordovaPlugin {
     }
 
     private static enum Action {
+        echoStringValue,
         open,
         close,
         delete,

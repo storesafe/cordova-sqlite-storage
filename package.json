@@ -3,7 +3,7 @@
   "version": "0.8.0-common-dev",
   "description": "Native interface to SQLite for PhoneGap/Cordova (common version)",
   "cordova": {
-    "id": "cordova-sqlite-common",
+    "id": "cordova-sqlite-storage",
     "platforms": [
       "android",
       "ios",
@@ -20,6 +20,7 @@
     "cordova-android",
     "cordova-ios",
     "cordova-windows"
+  ],
   "engines": [
     {
       "name": "cordova",

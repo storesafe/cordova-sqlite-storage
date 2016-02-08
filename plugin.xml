@@ -4,14 +4,14 @@
     id="cordova-sqlite-common"
     version="0.8.0-common-dev">
 
-    <name>Cordova sqlite storage (common)</name>
+    <name>Cordova sqlite storage plugin (core version)</name>
 
     <license>MIT</license>
 
     <keywords>sqlite</keywords>
 
     <description>Native interface to SQLite for PhoneGap/Cordova. Allows you to use more storage and provides more flexibility than the standard Web SQL database (window.openDatabase).</description>
-    <author>Various</author>
+    <author>Litehelpers/Various</author>
 
     <engines>
         <engine name="cordova" version=">=3.3.0" />
