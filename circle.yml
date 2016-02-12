@@ -17,5 +17,3 @@ test:
     - cordova-paramedic --platform android --plugin .
     - cp spec/www/spec/simple-test.js tests/tests.js
     - cordova-paramedic --platform android --plugin . --timeout 3600000
-    - cp spec/www/spec/legacy.js tests/tests.js
-    - cordova-paramedic --platform android --plugin . --timeout 7200000
