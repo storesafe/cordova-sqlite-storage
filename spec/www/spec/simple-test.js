@@ -630,9 +630,8 @@ var mytests = function() {
 
         });
 
-        // XXX litehelpers/Cordova-sqlite-storage#409 (broken by 53a1041):
+        // Check fix for litehelpers/Cordova-sqlite-storage#409:
         it(suiteName + 'empty readTransaction (no sql statements) and then SELECT transaction', function (done) {
-          if (!isWebSql) pending('BROKEN in plugin');
 
           var db = openDatabase("empty-read-tx", "1.0", "Demo", DEFAULT_SIZE);
 

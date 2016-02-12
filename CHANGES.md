@@ -1,7 +1,8 @@
 # Changes
 
-## 0.8.x-xx
+## 0.8.2-pre
 
+- Workaround fix for empty readTransaction issue (litehelpers/Cordova-sqlite-storage#409)
 - Split spec/www/spec/legacy.js into db-open-close-delete-test.js & tx-extended.js
 
 ## 0.8.0
