@@ -963,38 +963,6 @@ var mytests = function() {
 
         });
 
-        // NOTE [BUG #230]: this is now working if we do not depend on a valid sqlite_master table
-        // XXX TODO: test with and without transaction callbacks, also with empty db.readTransaction()
-        test_it(suiteName + 'empty transaction (no sql statements) and then SELECT transaction', function () {
-
-          stop(2);
-
-          var db = openDatabase("Database-Undefined", "1.0", "Demo", DEFAULT_SIZE);
-
-          try {
-            db.transaction();
-            ok(false, 'expected a synchronous error');
-          } catch (err) {
-            ok(!!err, 'got error like we expected');
-          }
-
-          // verify we can still continue
-          db.transaction(function (tx) {
-            tx.executeSql('SELECT 1', [], function (tx, res) {
-              equal(res.rows.item(0)['1'], 1);
-
-              start();
-            });
-          }, function (error) {
-            // XXX [BUG #230] iOS, Windows, and WP(8) versions of the plugin fail here:
-            ok(false, 'transaction failed ' + error);
-            start();
-          }, function () {
-            ok(true, 'transaction committed ok');
-            start();
-          });
-        });
-
         test_it(suiteName + ' test simultaneous transactions, different dbs', function () {
           stop();
 
