@@ -1,5 +1,9 @@
 # Changes
 
+## 0.8.x-xx
+
+- Split spec/www/spec/legacy.js into db-open-close-delete-test.js & tx-extended.js
+
 ## 0.8.0
 
 - Simple sql batch transaction function
