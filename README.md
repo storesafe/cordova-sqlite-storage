@@ -380,6 +380,42 @@ db.readTransaction(function(tx) {
 
 You can find more details and a step-by-step description how to do this right in the [Populating Cordova SQLite storage with the JQuery API post](http://www.brodybits.com/cordova/sqlite/api/jquery/2015/10/26/populating-cordova-sqlite-storage-with-the-jquery-api.html):
 
+**BUG:** If a row item object is retrieved twice, they should be safe from each other.
+But this is not the case. This sample program demonstrates the bug:
+
+```Javascript
+var db = window.sqlitePlugin.openDatabase({name: "my.db"});
+
+var res1 = null,
+    res2 = null;
+
+db.transaction(function(tx) {
+  tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
+  tx.executeSql('INSERT INTO test_table (data, data_num) VALUES (?,?)', ['test', 101], function(tx, res) {
+
+  tx.executeSql('SELECT * FROM test_table;', [], function(tx, res) {
+
+    res1 = res.rows.item(0);
+    res2 = res.rows.item(0);
+
+    res1.data = 'another';
+
+    // immediate check:
+    console.log('res1.data = ' + res1.data);
+    // output: res2.data = 'another'
+    console.log('res2.data = ' + res2.data);
+  });
+
+}, function(e) {
+  console.log('Transaction error: ' + e.message);
+}, function() {
+  // check stored info:
+  console.log('res1.data: ' + res1.data);
+  // output: res2.data = 'another';
+  console.log('res2.data: ' + res2.data);
+});
+```
+
 ## Background processing
 
 The threading model depends on which version is used:

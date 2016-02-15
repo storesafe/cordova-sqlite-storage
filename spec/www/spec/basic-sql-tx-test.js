@@ -120,11 +120,11 @@ var mytests = function() {
 
       it(suiteName + 'basic db transaction test',
         function(done) {
-          var db = openDatabase('db-trx-test.db', '1.0', 'Test', DEFAULT_SIZE);
+          var db = openDatabase('basic-db-tx-test.db', '1.0', 'Test', DEFAULT_SIZE);
 
           expect(db).toBeDefined();
 
-          var check = 0;
+          var check_count = 0;
 
           db.transaction(function(tx) {
             // first tx object:
@@ -146,40 +146,47 @@ var mytests = function() {
                 expect(tx).toBeDefined();
 
                 tx.executeSql('SELECT COUNT(id) AS cnt FROM test_table;', [], function(tx, res) {
-                  ++check;
+                  ++check_count;
 
                   expect(res.rows.length).toBe(1);
                   expect(res.rows.item(0).cnt).toBe(1);
                 });
 
                 tx.executeSql('SELECT data_num FROM test_table;', [], function(tx, res) {
-                  ++check;
+                  ++check_count;
 
                   expect(res.rows.length).toBe(1);
                   expect(res.rows.item(0).data_num).toBe(100);
                 });
 
+                tx.executeSql('SELECT data FROM test_table;', [], function(tx, res) {
+                  ++check_count;
+
+                  expect(res.rows.length).toBe(1);
+                  expect(res.rows.item(0).data).toBe('test');
+                });
+
                 tx.executeSql('UPDATE test_table SET data_num = ? WHERE data_num = 100', [101], function(tx, res) {
-                  ++check;
+                  ++check_count;
 
                   expect(res.rowsAffected).toBe(1);
                 });
 
                 tx.executeSql('SELECT data_num FROM test_table;', [], function(tx, res) {
-                  ++check;
+                  ++check_count;
 
                   expect(res.rows.length).toBe(1);
                   expect(res.rows.item(0).data_num).toBe(101);
                 });
 
                 tx.executeSql("DELETE FROM test_table WHERE data LIKE 'tes%'", [], function(tx, res) {
-                  ++check;
+                  ++check_count;
 
                   expect(res.rowsAffected).toBe(1);
                 });
 
                 tx.executeSql('SELECT data_num FROM test_table;', [], function(tx, res) {
-                  ++check;
+                  ++check_count;
 
                   expect(res.rows.length).toBe(0);
                 });
@@ -187,10 +194,11 @@ var mytests = function() {
               }, function(e) {
                 // not expected:
                 expect(false).toBe(true);
-                console.log('ERROR: ' + e.message);
+                expect(JSON.stringify(e).toBe('---'));
+                done();
               }, function() {
                 console.log('second tx ok success cb');
-                expect(check).toBe(6);
+                expect(check_count).toBe(7);
 
                 done();
               });
@@ -198,15 +206,190 @@ var mytests = function() {
             }, function(e) {
               // not expected:
               expect(false).toBe(true);
-              console.log('ERROR: ' + e.message);
+              expect(JSON.stringify(e).toBe('---'));
+              done();
             });
           }, function(e) {
             // not expected:
             expect(false).toBe(true);
-            console.log('ERROR: ' + e.message);
+            expect(JSON.stringify(e).toBe('---'));
             done();
-          }, function() {
-            console.log('first tx success cb OK');
+          // not check_counted:
+          //}, function() {
+          //  console.log('first tx success cb OK');
+          });
+
+        }, MYTIMEOUT);
+
+      it(suiteName + 'db transaction result object lifetime',
+        function(done) {
+          var db = openDatabase('db-tx-result-lifetime-test.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          expect(db).toBeDefined();
+
+          var check_count = 0;
+
+          var store_data_text = null;
+          var store_rows = null;
+          var store_row_item = null;
+
+          db.transaction(function(tx) {
+            // first tx object:
+            expect(tx).toBeDefined();
+
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
+
+            tx.executeSql('INSERT INTO test_table (data, data_num) VALUES (?,?)', ['test', 100], function(tx, res) {
+              // check tx & res object parameters:
+              expect(tx).toBeDefined();
+              expect(res).toBeDefined();
+
+              expect(res.insertId).toBeDefined();
+              expect(res.rowsAffected).toBe(1);
+
+              db.transaction(function(tx) {
+                // second tx object:
+                expect(tx).toBeDefined();
+
+                tx.executeSql('SELECT COUNT(id) AS cnt FROM test_table;', [], function(tx, res) {
+                  ++check_count;
+
+                  expect(res.rows.length).toBe(1);
+                  expect(res.rows.item(0).cnt).toBe(1);
+                });
+
+                tx.executeSql('SELECT data_num FROM test_table;', [], function(tx, res) {
+                  ++check_count;
+
+                  expect(res.rows.length).toBe(1);
+                  expect(res.rows.item(0).data_num).toBe(100);
+                });
+
+                tx.executeSql('SELECT data FROM test_table;', [], function(tx, res) {
+                  ++check_count;
+
+                  expect(res.rows.length).toBe(1);
+                  expect(res.rows.item(0).data).toBe('test');
+                  store_data_text = res.rows.item(0).data;
+                  expect(store_data_text).toBe('test');
+                });
+
+                tx.executeSql('UPDATE test_table SET data_num = ? WHERE data_num = 100', [101], function(tx, res) {
+                  ++check_count;
+
+                  expect(res.rowsAffected).toBe(1);
+                });
+
+                tx.executeSql('SELECT data_num FROM test_table;', [], function(tx, res) {
+                  ++check_count;
+
+                  expect(res.rows.length).toBe(1);
+                  expect(res.rows.item(0).data_num).toBe(101);
+                });
+
+                tx.executeSql('SELECT * FROM test_table;', [], function(tx, res) {
+                  ++check_count;
+
+                  expect(res.rows.length).toBe(1);
+                  expect(res.rows.item(0).data_num).toBe(101);
+                  expect(res.rows.item(0).data).toBe('test');
+
+                  store_rows = res.rows;
+                  expect(store_rows.item(0).data_num).toBe(101);
+                  expect(store_rows.item(0).data).toBe('test');
+                });
+
+                tx.executeSql('SELECT * FROM test_table;', [], function(tx, res) {
+                  ++check_count;
+
+                  expect(store_rows.item(0).data_num).toBe(101);
+                  expect(store_rows.item(0).data).toBe('test');
+
+                  expect(res.rows.length).toBe(1);
+                  expect(res.rows.item(0).data_num).toBe(101);
+                  expect(res.rows.item(0).data).toBe('test');
+
+                  store_row_item = res.rows.item(0);
+                  expect(store_row_item.data_num).toBe(101);
+                  expect(store_row_item.data).toBe('test');
+                });
+
+                tx.executeSql('SELECT * FROM test_table;', [], function(tx, res) {
+                  ++check_count;
+
+                  expect(res.rows.length).toBe(1);
+                  expect(res.rows.item(0).data_num).toBe(101);
+                  expect(res.rows.item(0).data).toBe('test');
+
+                  var temp1 = res.rows.item(0);
+                  // changes to temp2 should NOT change temp1:
+                  var temp2 = res.rows.item(0);
+
+                  expect(temp1.data).toBe('test');
+                  expect(temp2.data).toBe('test');
+
+                  temp1.data = 'another';
+
+                  if (isWebSql) {
+                    // apparently this is a native object that does NOT keep the change:
+                    expect(temp1.data).toBe('test');
+                    // correct:
+                    expect(temp2.data).toBe('test');
+                  } else {
+                    // [plugin] temp1 is just like any other Javascript object:
+                    expect(temp1.data).toBe('another');
+
+                    // correct:
+                    //expect(temp2.data).toBe('test');
+                    // actual:
+                    expect(temp2.data).toBe('another');
+                  }
+                });
+
+                tx.executeSql("DELETE FROM test_table WHERE data LIKE 'tes%'", [], function(tx, res) {
+                  ++check_count;
+
+                  expect(res.rowsAffected).toBe(1);
+                });
+
+                tx.executeSql('SELECT data_num FROM test_table;', [], function(tx, res) {
+                  ++check_count;
+
+                  expect(res.rows.length).toBe(0);
+                });
+
+              }, function(e) {
+                // not expected:
+                expect(false).toBe(true);
+                expect(JSON.stringify(e).toBe('---'));
+                done();
+              }, function() {
+                console.log('second tx ok success cb');
+                expect(check_count).toBe(10);
+
+                expect(store_rows.item(0).data).toBe('test');
+
+                expect(store_data_text).toBe('test');
+                expect(store_row_item.data).toBe('test');
+
+                done();
+              });
+
+            }, function(e) {
+              // not expected:
+              expect(false).toBe(true);
+              expect(JSON.stringify(e).toBe('---'));
+              done();
+            });
+          }, function(e) {
+            // not expected:
+            expect(false).toBe(true);
+            expect(JSON.stringify(e).toBe('---'));
+            done();
+          // not check_counted:
+          //}, function() {
+          //  console.log('first tx success cb OK');
           });
 
         }, MYTIMEOUT);
