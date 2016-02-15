@@ -8,7 +8,7 @@ License for iOS version: MIT only
 
 This version contains the source code for the Android and iOS versions. This version does not contain any libraries or source code from www.sqlite.org. This version uses the built-in sqlite libraries on Android and iOS.
 
-|Android Circle-CI (*full* ~~limited~~ suite)|iOS Travis-CI (*very* limited suite)|
+|Android Circle-CI (**full** suite)|iOS Travis-CI (*very* limited suite)|
 |-----------------------|----------------------|
 |[![Circle CI](https://circleci.com/gh/litehelpers/Cordova-sqlite-storage.svg?style=svg)](https://circleci.com/gh/litehelpers/Cordova-sqlite-storage)|[![Build Status](https://travis-ci.org/litehelpers/Cordova-sqlite-storage.svg?branch=master-rc)](https://travis-ci.org/litehelpers/Cordova-sqlite-storage)|
 
