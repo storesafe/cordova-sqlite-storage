@@ -1,5 +1,9 @@
 # Changes
 
+## 0.8.4-dev
+
+- Split-up of some more spec test scripts
+
 ## 0.8.2
 
 - Workaround fix for empty readTransaction issue (litehelpers/Cordova-sqlite-storage#409)
