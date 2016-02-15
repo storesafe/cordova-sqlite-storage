@@ -15,3 +15,4 @@ script:
   - cp ${TRAVIS_BUILD_DIR}/spec/www/spec/db-tx-string-test.js ${TRAVIS_BUILD_DIR}/tests/tests.js
   - cordova-paramedic --platform ios --plugin ${TRAVIS_BUILD_DIR} --timeout 3600000
   - cp ${TRAVIS_BUILD_DIR}/spec/www/spec/basic-sql-tx-test.js ${TRAVIS_BUILD_DIR}/tests/tests.js
+  - cordova-paramedic --platform ios --plugin ${TRAVIS_BUILD_DIR} --timeout 3600000
