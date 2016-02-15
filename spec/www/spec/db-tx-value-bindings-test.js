@@ -80,37 +80,35 @@ var mytests = function() {
 
       describe(suiteName + 'transaction column value bindings semantics test(s)', function() {
 
-        // FUTURE TODO: fix these tests to follow the Jasmine style and move into a separate spec file:
+        it(suiteName + "all columns should be included in result set (including 'null' columns)", function(done) {
 
-        function withTestTable(func) {
-          //stop();
-          var db = openDatabase("Database", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('all-result-columns-including-null-columns.db', '1.0', 'Demo', DEFAULT_SIZE);
+
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
             tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
-          }, function(err) { ok(false, err.message) }, function() {
-            //start();
-            func(db);
-          });
-        };
 
-        test_it(suiteName + "all columns should be included in result set (including 'null' columns)", function() {
-          withTestTable(function(db) {
-            stop();
+          }, function(err) {
+            expect(false).toBe(true);
+            expect(err.message).toBe('---');
+
+          }, function() {
             db.transaction(function(tx) {
               tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ["test", null], function(tx, res) {
+
                 expect(res).toBeDefined();
-                //if (!isWindows) // XXX TODO
-                  expect(res.rowsAffected).toEqual(1);
+                expect(res.rowsAffected).toEqual(1);
+
                 tx.executeSql("select * from test_table", [], function(tx, res) {
                   var row = res.rows.item(0);
+
                   //deepEqual(row, { id: 1, data: "test", data_num: null }, "all columns should be included in result set.");
                   expect(row.id).toBe(1);
                   expect(row.data).toEqual('test');
                   expect(row.data_num).toBeDefined();
                   expect(row.data_num).toBeNull();
 
-                  start();
+                  done();
                 });
               });
             });
@@ -121,99 +119,119 @@ var mytests = function() {
 
       describe(scenarioList[i] + ': tx column value insertion test(s)', function() {
 
-        test_it(suiteName + "number values inserted using number bindings", function() {
-          stop();
+        it(suiteName + "number values inserted using number bindings", function(done) {
+
           var db = openDatabase("Value-binding-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
             tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data_text1, data_text2, data_int, data_real)');
-          }, function(err) { ok(false, err.message) }, function() {
+          }, function(err) {
+            expect(false).toBe(true);
+            expect(err.message).toBe('---');
+
+          }, function() {
             db.transaction(function(tx) {
+
               // create columns with no type affinity
               tx.executeSql("insert into test_table (data_text1, data_text2, data_int, data_real) VALUES (?,?,?,?)", ["314159", "3.14159", 314159, 3.14159], function(tx, res) {
+
                 expect(res).toBeDefined();
-                //if (!isWindows) // XXX TODO
-                  expect(res.rowsAffected).toBe(1);
+                expect(res.rowsAffected).toBe(1);
 
                 tx.executeSql("select * from test_table", [], function(tx, res) {
                   var row = res.rows.item(0);
-                  strictEqual(row.data_text1, "314159", "data_text1 should have inserted data as text");
-                  if (!isWP8) // JSON issue in WP(8) version
-                    strictEqual(row.data_text2, "3.14159", "data_text2 should have inserted data as text");
-                  strictEqual(row.data_int, 314159, "data_int should have inserted data as an integer");
-                  ok(Math.abs(row.data_real - 3.14159) < 0.000001, "data_real should have inserted data as a real");
 
-                  start();
+                  expect(row.data_text1).toBe("314159"); // (data_text1 should have inserted data as text)
+
+                  if (!isWP8) // JSON issue in WP(8) version
+                    expect(row.data_text2).toBe("3.14159"); // (data_text2 should have inserted data as text)
+
+                  expect(row.data_int).toBe(314159); // (data_int should have inserted data as an integer)
+                  expect(Math.abs(row.data_real - 3.14159) < 0.000001).toBe(true); // (data_real should have inserted data as a real)
+
+                  done();
                 });
               });
             });
           });
         });
 
-        test_it(suiteName + "Big [integer] value bindings", function() {
+        it(suiteName + "Big [integer] value bindings", function(done) {
           if (isWP8) pending('BROKEN for WP(8)'); // XXX [BUG #195]
-
-          stop();
 
           var db = openDatabase("Big-int-bindings.db", "1.0", "Demo", DEFAULT_SIZE);
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS tt');
             tx.executeSql('CREATE TABLE IF NOT EXISTS tt (test_date INTEGER, test_text TEXT)');
-          }, function(err) { ok(false, err.message) }, function() {
+          }, function(err) {
+            expect(false).toBe(true);
+            expect(err.message).toBe('---');
+
+          }, function() {
             db.transaction(function(tx) {
               tx.executeSql("insert into tt (test_date, test_text) VALUES (?,?)",
                   [1424174959894, 1424174959894], function(tx, res) {
                 expect(res).toBeDefined();
                 expect(res.rowsAffected).toBe(1);
                 tx.executeSql("select * from tt", [], function(tx, res) {
+                  // (Big integer number inserted properly)
                   var row = res.rows.item(0);
-                  strictEqual(row.test_date, 1424174959894, "Big integer number inserted properly");
+                  expect(row.test_date).toBe(1424174959894);
 
                   // NOTE: storing big integer in TEXT field WORKING OK with WP(8) version.
                   // It is now suspected that the issue lies with the results handling.
                   // XXX Brody TODO: storing big number in TEXT field is different for Plugin vs. Web SQL!
                   if (isWebSql)
-                    strictEqual(row.test_text, "1424174959894.0", "[Big] number inserted as string ok");
+                    expect(row.test_text).toBe("1424174959894.0"); // ([Big] number inserted as string ok)
                   else
-                    strictEqual(row.test_text, "1424174959894", "Big integer number inserted as string ok");
+                    expect(row.test_text).toBe("1424174959894"); // (Big integer number inserted as string ok)
 
-                  start();
+                  done();
                 });
               });
             });
           });
         });
 
-        test_it(suiteName + "Double precision decimal number insertion", function() {
-          stop();
+        it(suiteName + "Double precision decimal number insertion", function(done) {
           var db = openDatabase("Double-precision-number-insertion.db", "1.0", "Demo", DEFAULT_SIZE);
+
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS tt');
             tx.executeSql('CREATE TABLE IF NOT EXISTS tt (tr REAL)');
-          }, function(err) { ok(false, err.message) }, function() {
+          }, function(err) {
+            expect(false).toBe(true);
+            expect(err.message).toBe('---');
+
+          }, function() {
             db.transaction(function(tx) {
               tx.executeSql("insert into tt (tr) VALUES (?)", [123456.789], function(tx, res) {
                 expect(res).toBeDefined();
-                //if (!isWindows) // XXX TODO
-                  expect(res.rowsAffected).toBe(1);
+                expect(res.rowsAffected).toBe(1);
+
                 tx.executeSql("select * from tt", [], function(tx, res) {
                   var row = res.rows.item(0);
-                  strictEqual(row.tr, 123456.789, "Decimal number inserted properly");
+                  expect(row.tr).toBe(123456.789); // (Decimal number inserted properly)
 
-                  start();
+                  done();
                 });
               });
             });
           });
         });
 
-        test_it(suiteName + "executeSql parameter as array", function() {
-          stop();
+        it(suiteName + "executeSql parameter as array", function(done) {
           var db = openDatabase("array-parameter.db", "1.0", "Demo", DEFAULT_SIZE);
+
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
             tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data1, data2)');
-          }, function(err) { ok(false, err.message) }, function() {
+          }, function(err) {
+            expect(false).toBe(true);
+            expect(err.message).toBe('---');
+
+          }, function() {
             db.transaction(function(tx) {
               // create columns with no type affinity
               tx.executeSql("insert into test_table (data1, data2) VALUES (?,?)", ['abc', [1,2,3]], function(tx, res) {
@@ -225,12 +243,14 @@ var mytests = function() {
                   strictEqual(row.data1, 'abc', "data1: string");
                   strictEqual(row.data2, '1,2,3', "data2: array should have been inserted as text (string)");
 
-                  start();
+                  done();
                 });
               });
             });
           });
         });
+
+        // FUTURE TODO: fix these tests to follow the Jasmine style:
 
         test_it(suiteName + ' stores [Unicode] string with \\u0000 correctly', function () {
           if (isWindows) pending('BROKEN on Windows'); // XXX
