@@ -15,5 +15,5 @@ test:
     - circle-android wait-for-boot
   override:
     - cordova-paramedic --platform android --plugin .
-    - cp spec/www/spec/simple-test.js tests/tests.js
+    - cp spec/www/spec/basic-sql-tx-test.js tests/tests.js
     - cordova-paramedic --platform android --plugin . --timeout 3600000
