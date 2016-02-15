@@ -55,7 +55,7 @@ var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
 
-    describe(scenarioList[i] + ': misc legacy tx test(s)', function() {
+    describe(scenarioList[i] + ': tx value bindings test(s)', function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
       var isWebSql = (i === 1);
@@ -78,7 +78,7 @@ var mytests = function() {
         }
       }
 
-      describe(suiteName + 'legacy transaction columns semantics test(s)', function() {
+      describe(suiteName + 'transaction column value bindings semantics test(s)', function() {
 
         // FUTURE TODO: fix these tests to follow the Jasmine style and move into a separate spec file:
 
@@ -119,7 +119,7 @@ var mytests = function() {
 
       });
 
-      describe(scenarioList[i] + ': tx insertion test(s)', function() {
+      describe(scenarioList[i] + ': tx column value insertion test(s)', function() {
 
         test_it(suiteName + "number values inserted using number bindings", function() {
           stop();
@@ -229,55 +229,6 @@ var mytests = function() {
                 });
               });
             });
-          });
-        });
-
-        // XXX TBD skip for now:
-        // This test shows that the plugin does not throw an error when trying to serialize
-        // a non-standard parameter type. Blob becomes an empty dictionary on iOS, for example,
-        // and so this verifies the type is converted to a string and continues. Web SQL does
-        // the same but on the JavaScript side and converts to a string like `[object Blob]`.
-        xtest_it(suiteName + "INSERT Blob from ArrayBuffer (non-standard parameter type)", function() {
-          if (isWindows) pending('BROKEN for Windows'); // XXX (??)
-          if (isWP8) pending('BROKEN for WP(8)'); // (???)
-          if (typeof Blob === "undefined") pending('Blob type does not exist');
-          if (/Android [1-4]/.test(navigator.userAgent)) pending('BROKEN for Android [version 1.x-4.x]');
-
-          // abort the test if ArrayBuffer is undefined
-          // TODO: consider trying this for multiple non-standard parameter types instead
-          if (typeof ArrayBuffer === "undefined") pending('ArrayBuffer type does not exist');
-
-
-          var db = openDatabase("Blob-test.db", "1.0", "Demo", DEFAULT_SIZE);
-          ok(!!db, "db object");
-          stop(1);
-
-          db.transaction(function(tx) {
-            ok(!!tx, "tx object");
-            stop(1);
-
-            var buffer = new ArrayBuffer(5);
-            var view   = new Uint8Array(buffer);
-            view[0] = 'h'.charCodeAt();
-            view[1] = 'e'.charCodeAt();
-            view[2] = 'l'.charCodeAt();
-            view[3] = 'l'.charCodeAt();
-            view[4] = 'o'.charCodeAt();
-            var blob = new Blob([view.buffer], { type:"application/octet-stream" });
-
-            tx.executeSql('DROP TABLE IF EXISTS test_table');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (foo blob)');
-            tx.executeSql('INSERT INTO test_table VALUES (?)', [blob], function(tx, res) {
-              ok(true, "INSERT blob OK");
-              start(1);
-            }, function(tx, error) {
-              ok(false, "INSERT blob FAILED");
-              start(1);
-            });
-            start(1);
-          }, function(err) { 
-            ok(false, "transaction failure with message: " + err.message);
-            start(1);
           });
         });
 
@@ -450,268 +401,8 @@ var mytests = function() {
 
       });
 
-      describe(scenarioList[i] + ': error mapping test(s)', function() {
-
-        test_it(suiteName + "syntax error", function() {
-          var db = openDatabase("Syntax-error-test.db", "1.0", "Demo", DEFAULT_SIZE);
-          ok(!!db, "db object");
-
-          stop(2);
-          db.transaction(function(tx) {
-            tx.executeSql('DROP TABLE IF EXISTS test_table');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data unique)');
-
-            // This insertion has a sql syntax error
-            tx.executeSql("insert into test_table (data) VALUES ", [123], function(tx) {
-              ok(false, "unexpected success");
-              start();
-              throw new Error('abort tx');
-            }, function(tx, error) {
-              ok(!!error, "valid error object");
-
-              // XXX ONLY WORKING for iOS version of plugin:
-              if (isWebSql || !(isAndroid || isWindows || isWP8))
-                ok(!!error['code'], "valid error.code exists");
-
-              ok(error.hasOwnProperty('message'), "error.message exists");
-              // XXX ONLY WORKING for iOS version of plugin:
-              if (isWebSql || !(isAndroid || isWindows || isWP8))
-                strictEqual(error.code, 5, "error.code === SQLException.SYNTAX_ERR (5)");
-              //equal(error.message, "Request failed: insert into test_table (data) VALUES ,123", "error.message");
-              start();
-
-              // We want this error to fail the entire transaction
-              return true;
-            });
-          }, function (error) {
-            ok(!!error, "valid error object");
-            ok(error.hasOwnProperty('message'), "error.message exists");
-            start();
-          });
-        });
-
-        test_it(suiteName + "constraint violation", function() {
-          if (isWindows) pending('BROKEN for Windows'); // XXX TODO
-          //if (isWindowsPhone_8_1) pending('BROKEN for Windows Phone 8.1'); // XXX TODO
-
-          var db = openDatabase("Constraint-violation-test.db", "1.0", "Demo", DEFAULT_SIZE);
-          ok(!!db, "db object");
-
-          stop(2);
-          db.transaction(function(tx) {
-            tx.executeSql('DROP TABLE IF EXISTS test_table');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data unique)');
-
-            tx.executeSql("insert into test_table (data) VALUES (?)", [123], null, function(tx, error) {
-              ok(false, error.message);
-            });
-
-            // This insertion will violate the unique constraint
-            tx.executeSql("insert into test_table (data) VALUES (?)", [123], function(tx) {
-              ok(false, "unexpected success");
-              ok(!!res['rowsAffected'] || !(res.rowsAffected >= 1), "should not have positive rowsAffected");
-              start();
-              throw new Error('abort tx');
-            }, function(tx, error) {
-              ok(!!error, "valid error object");
-
-              // XXX ONLY WORKING for iOS version of plugin:
-              if (isWebSql || !(isAndroid || isWindows || isWP8))
-                ok(!!error['code'], "valid error.code exists");
-
-              ok(error.hasOwnProperty('message'), "error.message exists");
-              //strictEqual(error.code, 6, "error.code === SQLException.CONSTRAINT_ERR (6)");
-              //equal(error.message, "Request failed: insert into test_table (data) VALUES (?),123", "error.message");
-              start();
-
-              // We want this error to fail the entire transaction
-              return true;
-            });
-          }, function(error) {
-            ok(!!error, "valid error object");
-            ok(error.hasOwnProperty('message'), "error.message exists");
-            start();
-          });
-        });
-
-      });
-
-      describe(scenarioList[i] + ': insert/update test(s)', function() {
-
-        // ref: litehelpers/Cordova-sqlite-storage#128
-        // Was caused by a failure to create temporary transaction files on WP8.
-        // Workaround by Mark Oppenheim mailto:mark.oppenheim@mnetics.co.uk
-        // solved the issue for WP8.
-        // @brodybits noticed similar issue possible with Android-sqlite-connector
-        // if the Android-sqlite-native-driver part is not built correctly.
-        test_it(suiteName + 'Multiple updates with key', function () {
-          var db = openDatabase("MultipleUpdatesWithKey", "1.0",
-"Demo", DEFAULT_SIZE);
-
-          stop();
-
-          db.transaction(function (tx) {
-            tx.executeSql('DROP TABLE IF EXISTS Task');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS Task (id primary key, subject)');
-            tx.executeSql('INSERT INTO Task VALUES (?,?)', ['928238b3-a227-418f-aa15-12bb1943c1f2', 'test1']);
-            tx.executeSql('INSERT INTO Task VALUES (?,?)', ['511e3fb7-5aed-4c1a-b1b7-96bf9c5012e2', 'test2']);
-
-            tx.executeSql('UPDATE Task SET subject="Send reminder", id="928238b3-a227-418f-aa15-12bb1943c1f2" WHERE id = "928238b3-a227-418f-aa15-12bb1943c1f2"', [], function(tx, res) {
-              expect(res).toBeDefined();
-              if (!isWindows) // XXX TODO
-                expect(res.rowsAffected).toEqual(1);
-            }, function (error) {
-              ok(false, '1st update failed ' + error);
-            });
-
-            tx.executeSql('UPDATE Task SET subject="Task", id="511e3fb7-5aed-4c1a-b1b7-96bf9c5012e2" WHERE id = "511e3fb7-5aed-4c1a-b1b7-96bf9c5012e2"', [], function(tx, res) {
-              //if (!isWindows) // XXX TODO
-              expect(res.rowsAffected).toEqual(1);
-            }, function (error) {
-              ok(false, '2nd update failed ' + error);
-            });
-          }, function (error) {
-            ok(false, 'transaction failed ' + error);
-            start(1);
-          }, function () {
-            ok(true, 'transaction committed ok');
-            start(1);
-          });
-        });
-
-      });
-
     });
   }
-
-  describe('Plugin: plugin-specific tx test(s)', function() {
-
-    var scenarioList = [
-      isAndroid ? 'Plugin-implementation-default' : 'Plugin',
-      'Plugin-implementation-2'
-    ];
-
-    var scenarioCount = isAndroid ? 2 : 1;
-
-    for (var i=0; i<scenarioCount; ++i) {
-
-      describe(scenarioList[i] + ': plugin-specific sql test(s)', function() {
-        var scenarioName = scenarioList[i];
-        var suiteName = scenarioName + ': ';
-        var isOldAndroidImpl = (i === 1);
-
-        // NOTE: MUST be defined in function scope, NOT outer scope:
-        var openDatabase = function(first, second, third, fourth, fifth, sixth) {
-          if (!isOldAndroidImpl) {
-            return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
-          }
-
-          var dbname, okcb, errorcb;
-
-          if (first.constructor === String ) {
-            dbname = first;
-            okcb = fifth;
-            errorcb = sixth;
-          } else {
-            dbname = first.name;
-            okcb = second;
-            errorcb = third;
-          }
-
-          dbopts = {
-            name: 'i2-'+dbname,
-            androidDatabaseImplementation: 2,
-            androidLockWorkaround: 1
-          };
-
-          return window.sqlitePlugin.openDatabase(dbopts, okcb, errorcb);
-        }
-
-        test_it(suiteName + "DB String result test", function() {
-          // NOTE: this test checks that for db.executeSql(), the result callback is
-          // called exactly once, with the proper result:
-          var db = openDatabase("DB-String-result-test.db", "1.0", "Demo", DEFAULT_SIZE);
-
-          var expected = [ 'FIRST', 'SECOND' ];
-          var i=0;
-
-          ok(!!db, 'valid db object');
-
-          stop(2);
-
-          var okcb = function(result) {
-            if (i > 1) {
-              ok(false, "unexpected result: " + JSON.stringify(result));
-              console.log("discarding unexpected result: " + JSON.stringify(result))
-              return;
-            }
-
-            ok(!!result, "valid result object");
-
-            // ignore cb (and do not count) if result is undefined:
-            if (!!result) {
-              console.log("result.rows.item(0).uppertext: " + result.rows.item(0).uppertext);
-              equal(result.rows.item(0).uppertext, expected[i], "Check result " + i);
-              i++;
-              start(1);
-            }
-          };
-
-          db.executeSql("select upper('first') as uppertext", [], okcb);
-          db.executeSql("select upper('second') as uppertext", [], okcb);
-        });
-
-        test_it(suiteName + "PRAGMAs and multiple databases", function() {
-          var db = openDatabase("DB1", "1.0", "Demo", DEFAULT_SIZE);
-
-          var db2 = openDatabase("DB2", "1.0", "Demo", DEFAULT_SIZE);
-
-          stop(2);
-
-          db.transaction(function(tx) {
-            tx.executeSql('DROP TABLE IF EXISTS test_table');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)', [], function() {
-              console.log("test_table created");
-            });
-
-            stop();
-            db.executeSql("pragma table_info (test_table);", [], function(res) {
-              start();
-              console.log("PRAGMA res: " + JSON.stringify(res));
-              equal(res.rows.item(2).name, "data_num", "DB1 table number field name");
-            });
-          });
-
-          db2.transaction(function(tx) {
-            tx.executeSql('DROP TABLE IF EXISTS tt2');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS tt2 (id2 integer primary key, data2 text, data_num2 integer)', [], function() {
-              console.log("tt2 created");
-            });
-
-            db.executeSql("pragma table_info (test_table);", [], function(res) {
-              console.log("PRAGMA (db) res: " + JSON.stringify(res));
-              equal(res.rows.item(0).name, "id", "DB1 table key field name");
-              equal(res.rows.item(1).name, "data", "DB1 table text field name");
-              equal(res.rows.item(2).name, "data_num", "DB1 table number field name");
-
-              start();
-            });
-
-            db2.executeSql("pragma table_info (tt2);", [], function(res) {
-              console.log("PRAGMA (tt2) res: " + JSON.stringify(res));
-              equal(res.rows.item(0).name, "id2", "DB2 table key field name");
-              equal(res.rows.item(1).name, "data2", "DB2 table text field name");
-              equal(res.rows.item(2).name, "data_num2", "DB2 table number field name");
-
-              start();
-            });
-          });
-        });
-
-      });
-    }
-
-  });
 
 }
 
