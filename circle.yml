@@ -21,7 +21,19 @@ test:
     - cordova-paramedic --platform android --plugin . --timeout 3600000
     - cp spec/www/spec/basic-sql-tx-test.js tests/tests.js
     - cordova-paramedic --platform android --plugin . --timeout 3600000
+    - cp spec/www/spec/sql-batch-test.js tests/tests.js
+    - cordova-paramedic --platform android --plugin . --timeout 3600000
+    - cp spec/www/spec/db-simultaneous-tx-access-test.js tests/tests.js
+    - cordova-paramedic --platform android --plugin . --timeout 3600000
     - cp spec/www/spec/tx-semantics-test.js tests/tests.js
     - cordova-paramedic --platform android --plugin . --timeout 3600000
+    - cp spec/www/spec/db-tx-value-bindings-test.js tests/tests.js
+    - cordova-paramedic --platform android --plugin . --timeout 3600000
+    - cp spec/www/spec/db-open-close-delete-test.js tests/tests.js
+    - cordova-paramedic --platform android --plugin . --timeout 3600000
     - cp spec/www/spec/basic-misc-test.js tests/tests.js
+    - cordova-paramedic --platform android --plugin . --timeout 3600000
+    - cp spec/www/spec/ext-tx-blob-test.js tests/tests.js
+    - cordova-paramedic --platform android --plugin . --timeout 3600000
+    - cp spec/www/spec/misc-tx-legacy.js tests/tests.js
     - cordova-paramedic --platform android --plugin . --timeout 3600000
