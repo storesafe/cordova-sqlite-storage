@@ -12,6 +12,12 @@ This version contains the source code for the Android and iOS versions. This ver
 |-----------------------|----------------------|
 |[![Circle CI](https://circleci.com/gh/litehelpers/Cordova-sqlite-storage.svg?style=svg)](https://circleci.com/gh/litehelpers/Cordova-sqlite-storage)|[![Build Status](https://travis-ci.org/litehelpers/Cordova-sqlite-storage.svg?branch=master-rc)](https://travis-ci.org/litehelpers/Cordova-sqlite-storage)|
 
+## SURVEY for BREAKING CHANGE for iOS
+
+By default the iOS version stores the database in `Documents` which is visible to iTunes and backed up by iCloud. (This is changed using the `location` option in `sqlitePlugin.openDatabase()` as described below.) [@brodybits](https://github.com/brodybits) would like to change the default behavior to store the database in `Library/LocalDatabase` which is *NOT* visible to iTunes and *NOT* backed up by iCloud.
+
+This would be a *BREAKING CHANGE* and existing iOS apps that do not use the `location` option would need to introduce this option in order to preserve a working upgrade. Issue [litehelpers/Cordova-sqlite-storage#430](https://github.com/litehelpers/Cordova-sqlite-storage/issues/430) was raised to collect comments from the community. Please read [litehelpers/Cordova-sqlite-storage#430](https://github.com/litehelpers/Cordova-sqlite-storage/issues/430) very carefully and leave a comment whether or not you like this idea.
+
 ## IMPORTANT: iCloud backup of SQLite database is NOT allowed
 
 As documented in the "**A User’s iCloud Storage Is Limited**" section of [iCloudFundamentals in Mac Developer Library iCloud Design Guide](https://developer.apple.com/library/mac/documentation/General/Conceptual/iCloudDesignGuide/Chapters/iCloudFundametals.html) (near the beginning):
@@ -33,15 +39,11 @@ As documented in the "**A User’s iCloud Storage Is Limited**" section of [iClo
 - <cite><a href="https://developer.apple.com/library/mac/documentation/General/Conceptual/iCloudDesignGuide/Chapters/iCloudFundametals.html">iCloudFundamentals in Mac Developer Library iCloud Design Guide</a>
 </blockquote>
 
-### More information about iCloud backup
+### How to disable iCloud backup
 
-There are two ways iCloud backup is configured:
-- For each app, iCloud backup is configured in `config.xml` and is *unfortunately* **enabled by default** as documented at: https://cordova.apache.org/docs/en/6.0.0/guide/platforms/ios/config.html
-- In this plugin, the database is stored in the `Documents` subdirectory by default, which is backed up to iCloud. You can use the `location` option in `sqlitePlugin.openDatabase()` to store the database in a subdirectory that is *NOT* backed up to iCloud.
+Use the `location` option in `sqlitePlugin.openDatabase()` to store the database in a subdirectory that is *NOT* backed up to iCloud, as described in the section below.
 
-Unless you want your app to use iCloud backup for some reason, it is recommended to turn it off as documented in: https://cordova.apache.org/docs/en/6.0.0/guide/platforms/ios/config.html
-
-[@brodybits](https://github.com/brodybits) reported [Cordova bug CB-9830](https://issues.apache.org/jira/browse/CB-9830) to disable iCloud backup by default in `config.xml`.
+**NOTE:** Changing `BackupWebStorage` in `config.xml` has no effect on a database created by this plugin. `BackupWebStorage` applies only to local storage and/or Web SQL storage created in the WebView (*not* using this plugin). Ref: [phonegap/build#338 (comment)](https://github.com/phonegap/build/issues/338#issuecomment-113328140)
 
 ## Support this project
 
@@ -113,6 +115,7 @@ Unless you want your app to use iCloud backup for some reason, it is recommended
 ## Other limitations
 
 - The db version, display name, and size parameter values are not supported and will be ignored.
+- _Absolute and relative subdirectory path(s) are not tested or supported._
 - This plugin will not work before the callback for the 'deviceready' event has been fired, as described in **Usage**. (This is consistent with the other Cordova plugins.)
 - This version will not work within a web worker (not properly supported by the Cordova framework).
 - In-memory database `db=window.sqlitePlugin.openDatabase({name: ":memory:"})` is currently not supported.
@@ -129,6 +132,7 @@ Unless you want your app to use iCloud backup for some reason, it is recommended
 
 ## Further testing needed
 
+- _Integration with PhoneGap developer app_
 - Multi-page apps
 - Use within [InAppBrowser](http://docs.phonegap.com/en/edge/cordova_inappbrowser_inappbrowser.md.html)
 - Use within an iframe (see [litehelpers/Cordova-sqlite-storage#368 (comment)](https://github.com/litehelpers/Cordova-sqlite-storage/issues/368#issuecomment-154046367))
