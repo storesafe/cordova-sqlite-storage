@@ -76,6 +76,7 @@ Some other projects by [@brodybits](https://github.com/brodybits):
 
 ## Announcements
 
+- Support for *reading* BLOB values (from pre-populated databases) *tested* for Android _from a database opened with the `androidDatabaseImplementation: 2` option as described below_ ~~and iOS~~
 - More explicit `openDatabase` and `deleteDatabase` `iosDatabaseLocation` option
 - Windows 10 UWP is now supported by this version - along with Windows 8.1 and Windows Phone 8.1
 - Added simple sql batch query function
@@ -135,7 +136,7 @@ Some other projects by [@brodybits](https://github.com/brodybits):
 - The Android version cannot work with more than 100 open db files (due to the threading model used).
 - REGEXP is currently not supported for Windows ~~8.1(+)/Windows Phone 8.1(+)~~
 - UNICODE `\u2028` (line separator) and `\u2029` (paragraph separator) characters are currently not supported and known to be broken in iOS version due to [Cordova bug CB-9435](https://issues.apache.org/jira/browse/CB-9435). There *may* be a similar issue with certain other UNICODE characters in the iOS version (needs further investigation). This is fixed in: [litehelpers / Cordova-sqlite-enterprise-free](https://github.com/litehelpers/Cordova-sqlite-enterprise-free) (available with a different licensing scheme)
-- Blob type is currently not supported and known to be broken on multiple platforms.
+- BLOB type is currently not supported ~~and known to be broken on multiple platforms~~ _for default Android-sqlite-connector implementation, iOS, or Windows_.
 - UNICODE `\u0000` (same as `\0`) character not working in Android (default native database implementation) or Windows
 - Case-insensitive matching and other string manipulations on Unicode characters, which is provided by optional ICU integration in the sqlite source and working with recent versions of Android, is not supported for any target platforms.
 - iOS version uses a thread pool but with only one thread working at a time due to "synchronized" database access
