@@ -1,5 +1,9 @@
 # Changes
 
+## 0.8.x-common-dev
+
+- Introduce Windows 10 UWP build (Windows 8.1 and Windows Phone 8.1 build disabled)
+
 ## 0.8.0-common-dev
 
 - Separate SQLiteConnectorDatabase class for Android
