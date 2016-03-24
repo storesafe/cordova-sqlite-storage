@@ -43,37 +43,29 @@ var isWebKit = !isIE; // TBD [Android or iOS]
 // NOTE: In the core-master branch there is no difference between the default
 // implementation and implementation #2. But the test will also apply
 // the androidLockWorkaround: 1 option in the case of implementation #2.
-var scenarioList = [
+var pluginScenarioList = [
   isAndroid ? 'Plugin-implementation-default' : 'Plugin',
-  'HTML5',
   'Plugin-implementation-2'
 ];
 
-var scenarioCount = (!!window.hasWebKitBrowser) ? (isAndroid ? 3 : 2) : 1;
+var pluginScenarioCount = isAndroid ? 2 : 1;
 
 var mytests = function() {
 
   describe('Plugin: db open-close-delete test(s)', function() {
 
-    var scenarioList = [
-      isAndroid ? 'Plugin-implementation-default' : 'Plugin',
-      'Plugin-implementation-2'
-    ];
+    for (var i=0; i<pluginScenarioCount; ++i) {
 
-    var scenarioCount = isAndroid ? 2 : 1;
-
-    for (var i=0; i<scenarioCount; ++i) {
-
-      describe(scenarioList[i] + ': basic sqlitePlugin.deleteDatabase test(s)', function() {
-        var scenarioName = scenarioList[i];
+      describe(pluginScenarioList[i] + ': basic sqlitePlugin.deleteDatabase test(s)', function() {
+        var scenarioName = pluginScenarioList[i];
         var suiteName = scenarioName + ': ';
         var isOldAndroidImpl = (i === 1);
 
         // NOTE: MUST be defined in function scope, NOT outer scope:
         var openDatabase = function(first, second, third, fourth, fifth, sixth) {
-          if (!isOldAndroidImpl) {
-            return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
-          }
+          //if (!isOldAndroidImpl) {
+          //  return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
+          //}
 
           var dbname, okcb, errorcb;
 
@@ -87,10 +79,15 @@ var mytests = function() {
             errorcb = third;
           }
 
-          dbopts = {
+          if (!isOldAndroidImpl) {
+            return window.sqlitePlugin.openDatabase({name: dbname, location: 0}, okcb, errorcb);
+          }
+
+          var dbopts = {
             name: 'i2-'+dbname,
             androidDatabaseImplementation: 2,
-            androidLockWorkaround: 1
+            androidLockWorkaround: 1,
+            location: 1
           };
 
           return window.sqlitePlugin.openDatabase(dbopts, okcb, errorcb);
@@ -98,9 +95,9 @@ var mytests = function() {
 
         var deleteDatabase = function(first, second, third) {
           if (!isOldAndroidImpl) {
-            window.sqlitePlugin.deleteDatabase(first, second, third);
+            window.sqlitePlugin.deleteDatabase({name: first, location: 0}, second, third);
           } else {
-            window.sqlitePlugin.deleteDatabase('i2-'+first, second, third);
+            window.sqlitePlugin.deleteDatabase({name: 'i2-'+first, location: 0}, second, third);
           }
         }
 
@@ -176,18 +173,18 @@ var mytests = function() {
       });
     }
 
-    for (var i=0; i<scenarioCount; ++i) {
+    for (var i=0; i<pluginScenarioCount; ++i) {
 
-      describe(scenarioList[i] + ': basic plugin open-close test(s)', function() {
-        var scenarioName = scenarioList[i];
+      describe(pluginScenarioList[i] + ': basic plugin open-close test(s)', function() {
+        var scenarioName = pluginScenarioList[i];
         var suiteName = scenarioName + ': ';
         var isOldAndroidImpl = (i === 1);
 
         // NOTE: MUST be defined in function scope, NOT outer scope:
         var openDatabase = function(first, second, third, fourth, fifth, sixth) {
-          if (!isOldAndroidImpl) {
-            return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
-          }
+          //if (!isOldAndroidImpl) {
+          //  return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
+          //}
 
           var dbname, okcb, errorcb;
 
@@ -201,10 +198,15 @@ var mytests = function() {
             errorcb = third;
           }
 
-          dbopts = {
+          if (!isOldAndroidImpl) {
+            return window.sqlitePlugin.openDatabase({name: dbname, location: 0}, okcb, errorcb);
+          }
+
+          var dbopts = {
             name: 'i2-'+dbname,
             androidDatabaseImplementation: 2,
-            androidLockWorkaround: 1
+            androidLockWorkaround: 1,
+            location: 1
           };
 
           return window.sqlitePlugin.openDatabase(dbopts, okcb, errorcb);
@@ -388,8 +390,12 @@ var mytests = function() {
       var suiteName = scenarioName + ': ';
 
         // NOTE: MUST be defined in function scope, NOT outer scope:
-        var openDatabase = function(first, second, third, fourth, fifth, sixth) {
-          return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
+        var openDatabase = function(first, second, third) {
+          return window.sqlitePlugin.openDatabase(first, second, third);
+        }
+
+        var deleteDatabase = function(first, second, third) {
+          window.sqlitePlugin.deleteDatabase(first, second, third);
         }
 
         // Needed to support some large-scale applications:
@@ -436,11 +442,11 @@ var mytests = function() {
         
           var dbName = "Database-Close-and-Reopen";
 
-          openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function (db) {
+          openDatabase({name: dbName, location: 0}, function (db) {
             db.close(function () {
-              openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function (db) {
+              openDatabase({name: dbName, location: 0}, function (db) {
                 db.close(function () {
-                  openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE, function (db) {
+                  openDatabase({name: dbName, location: 0}, function (db) {
                     db.readTransaction(function (tx) {
                       tx.executeSql('SELECT 1', [], function (tx, results) {
                         ok(true, 'database re-opened succesfully');
@@ -480,7 +486,7 @@ var mytests = function() {
         });
 
         // Needed to support some large-scale applications:
-        test_it(suiteName + ' delete then re-open allows subsequent queries to run', function () {
+        test_it(suiteName + ' delete then re-open (location: 2) allows subsequent queries to run', function () {
           var dbName = "Database-delete-and-Reopen.db";
           var dbLocation = 2;
 
@@ -489,7 +495,7 @@ var mytests = function() {
 
           var db = openDatabase({name: dbName, location: dbLocation}, function () {
             // success CB
-            window.sqlitePlugin.deleteDatabase({name: dbName, location: dbLocation}, function () {
+            deleteDatabase({name: dbName, location: dbLocation}, function () {
               db = openDatabase({name: dbName, location: dbLocation}, function () {
                 db.readTransaction(function (tx) {
                   tx.executeSql('SELECT 1', [], function (tx, results) {
@@ -532,11 +538,11 @@ var mytests = function() {
           // asynch test coming up
           stop(1);
 
-          var db1 = openDatabase({name: dbName});
+          var db1 = openDatabase({name: dbName, location: 0});
 
           db1.close(function () {
-            window.sqlitePlugin.deleteDatabase(dbName, function () {
-              openDatabase({name: dbName}, function(db) {
+            deleteDatabase({name: dbName, location: 0}, function () {
+              openDatabase({name: dbName, location: 0}, function(db) {
                 db.readTransaction(function (tx) {
                   tx.executeSql('SELECT 1', [], function (tx, results) {
                     ok(true, 'database re-opened succesfully');
@@ -570,11 +576,11 @@ var mytests = function() {
           // asynch test coming up
           stop(1);
 
-          openDatabase({name: dbName}, function(db1) {
+          openDatabase({name: dbName, location: 0}, function(db1) {
 
             db1.close(function () {
-              window.sqlitePlugin.deleteDatabase(dbName, function () {
-                openDatabase({name: dbName}, function(db) {
+              deleteDatabase({name: dbName, location: 0}, function () {
+                openDatabase({name: dbName, location: 0}, function(db) {
                   db.readTransaction(function (tx) {
                     tx.executeSql('SELECT 1', [], function (tx, results) {
                       ok(true, 'database re-opened succesfully');
@@ -613,22 +619,22 @@ var mytests = function() {
           // async test coming up
           stop(1);
 
-          openDatabase({name: dbName}, function(db) {
+          openDatabase({name: dbName, location: 0}, function(db) {
             ok(!!db, 'valid db object 1/4');
             db.close(function () {
               ok(true, 'success 1/4');
 
-              openDatabase({name: dbName}, function(db) {
+              openDatabase({name: dbName, location: 0}, function(db) {
                 ok(!!db, 'valid db object 2/4');
                 db.close(function () {
                   ok(true, 'success 2/4');
 
-                  openDatabase({name: dbName}, function(db) {
+                  openDatabase({name: dbName, location: 0}, function(db) {
                     ok(!!db, 'valid db object 3/4');
                     db.close(function () {
                       ok(true, 'success 3/4');
 
-                      openDatabase({name: dbName}, function(db) {
+                      openDatabase({name: dbName, location: 0}, function(db) {
                         ok(!!db, 'valid db object 4/4');
                         db.close(function () {
                           ok(true, 'success 4/4');
@@ -677,27 +683,27 @@ var mytests = function() {
           // async test coming up
           stop(1);
 
-          var db = openDatabase({name: dbName});
+          var db = openDatabase({name: dbName, location: 0});
           ok(!!db, 'valid db object 1/5');
           db.close(function () {
             ok(true, 'success 1/5');
 
-            db = openDatabase({name: dbName});
+            db = openDatabase({name: dbName, location: 0});
             ok(!!db, 'valid db object 2/5');
             db.close(function () {
               ok(true, 'success 2/5');
 
-              db = openDatabase({name: dbName});
+              db = openDatabase({name: dbName, location: 0});
               ok(!!db, 'valid db object 3/5');
               db.close(function () {
                 ok(true, 'success 3/5');
 
-                db = openDatabase({name: dbName});
+                db = openDatabase({name: dbName, location: 0});
                 ok(!!db, 'valid db object 4/5');
                 db.close(function () {
                   ok(true, 'success 4/5');
 
-                  db = openDatabase({name: dbName});
+                  db = openDatabase({name: dbName, location: 0});
                   ok(!!db, 'valid db object 5/5');
                   db.close(function () {
                     ok(true, 'success 5/5');
@@ -732,24 +738,24 @@ var mytests = function() {
           // async test coming up
           stop(1);
 
-          openDatabase({name: dbName}, function(db) {
+          openDatabase({name: dbName, location: 0}, function(db) {
             ok(true, 'valid db object 1/4');
-            window.sqlitePlugin.deleteDatabase(dbName, function () {
+            deleteDatabase({name: dbName, location: 0}, function () {
               ok(true, 'success 1/4');
 
-              openDatabase({name: dbName}, function(db) {
+              openDatabase({name: dbName, location: 0}, function(db) {
                 ok(true, 'valid db object 2/4');
-                window.sqlitePlugin.deleteDatabase(dbName, function () {
+                deleteDatabase({name: dbName, location: 0}, function () {
                   ok(true, 'success 2/4');
 
-                  openDatabase({name: dbName}, function(db) {
+                  openDatabase({name: dbName, location: 0}, function(db) {
                     ok(true, 'valid db object 3/4');
-                    window.sqlitePlugin.deleteDatabase(dbName, function () {
+                    deleteDatabase({name: dbName, location: 0}, function () {
                       ok(true, 'success 3/4');
 
-                      openDatabase({name: dbName}, function(db) {
+                      openDatabase({name: dbName, location: 0}, function(db) {
                         ok(true, 'valid db object 4/4');
-                        window.sqlitePlugin.deleteDatabase(dbName, function () {
+                        deleteDatabase({name: dbName, location: 0}, function () {
                           ok(true, 'success 4/4');
 
                           start(1);
@@ -797,29 +803,29 @@ var mytests = function() {
           // async test coming up
           stop(1);
 
-          var db = openDatabase({name: dbName});
+          var db = openDatabase({name: dbName, location: 0});
           ok(!!db, 'valid db object 1/5');
-          window.sqlitePlugin.deleteDatabase(dbName, function () {
+          sqlitePlugin.deleteDatabase({name: dbName, location: 0}, function () {
             ok(true, 'success 1/5');
 
-            db = openDatabase({name: dbName});
+            db = openDatabase({name: dbName, location: 0});
             ok(!!db, 'valid db object 2/5');
-            window.sqlitePlugin.deleteDatabase(dbName, function () {
+            sqlitePlugin.deleteDatabase({name: dbName, location: 0}, function () {
               ok(true, 'success 2/5');
 
-              db = openDatabase({name: dbName});
+              db = openDatabase({name: dbName, location: 0});
               ok(!!db, 'valid db object 3/5');
-              window.sqlitePlugin.deleteDatabase(dbName, function () {
+              sqlitePlugin.deleteDatabase({name: dbName, location: 0}, function () {
                 ok(true, 'success 3/5');
 
-                db = openDatabase({name: dbName});
+                db = openDatabase({name: dbName, location: 0});
                 ok(!!db, 'valid db object 4/5');
-                window.sqlitePlugin.deleteDatabase(dbName, function () {
+                sqlitePlugin.deleteDatabase({name: dbName, location: 0}, function () {
                   ok(true, 'success 4/5');
 
-                  db = openDatabase({name: dbName});
+                  db = openDatabase({name: dbName, location: 0});
                   ok(!!db, 'valid db object 5/5');
-                  window.sqlitePlugin.deleteDatabase(dbName, function () {
+                  sqlitePlugin.deleteDatabase({name: dbName, location: 0}, function () {
                     ok(true, 'success 5/5');
 
                     start(1);

@@ -68,13 +68,14 @@ var mytests = function() {
             // prevent reuse of database from default db implementation:
             name: 'i2-'+name,
             androidDatabaseImplementation: 2,
-            androidLockWorkaround: 1
+            androidLockWorkaround: 1,
+            location: 1
           });
         }
         if (isWebSql) {
           return window.openDatabase(name, "1.0", "Demo", DEFAULT_SIZE);
         } else {
-          return window.sqlitePlugin.openDatabase(name, "1.0", "Demo", DEFAULT_SIZE);
+          return window.sqlitePlugin.openDatabase({name: name, location: 0});
         }
       }
 
@@ -230,9 +231,9 @@ var mytests = function() {
 
         // NOTE: MUST be defined in function scope, NOT outer scope:
         var openDatabase = function(first, second, third, fourth, fifth, sixth) {
-          if (!isOldAndroidImpl) {
-            return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
-          }
+          //if (!isOldAndroidImpl) {
+          //  return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
+          //}
 
           var dbname, okcb, errorcb;
 
@@ -246,10 +247,15 @@ var mytests = function() {
             errorcb = third;
           }
 
-          dbopts = {
+          if (!isOldAndroidImpl) {
+            return window.sqlitePlugin.openDatabase({name: dbname, location: 0}, okcb, errorcb);
+          }
+
+          var dbopts = {
             name: 'i2-'+dbname,
             androidDatabaseImplementation: 2,
-            androidLockWorkaround: 1
+            androidLockWorkaround: 1,
+            location: 1
           };
 
           return window.sqlitePlugin.openDatabase(dbopts, okcb, errorcb);
