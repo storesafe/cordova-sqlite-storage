@@ -52,6 +52,63 @@ var pluginScenarioCount = isAndroid ? 2 : 1;
 
 var mytests = function() {
 
+  describe('Plugin - BASIC sqlitePlugin.openDatabase test(s)', function() {
+
+    var suiteName = 'plugin: ';
+
+        it(suiteName + 'Open plugin database with Web SQL parameters', function(done) {
+          try {
+            var db = window.sqlitePlugin.openDatabase('open-with-web-sql-parameters-test.db', "1.0", "Demo", DEFAULT_SIZE);
+
+            // window.sqlitePlugin.openDatabase did not throw
+            expect(true).toBe(true);
+
+            // check returned db object:
+            expect(db).toBeDefined();
+            expect(db.executeSql).toBeDefined();
+            expect(db.transaction).toBeDefined();
+            expect(db.close).toBeDefined();
+
+            //done();
+            // IMPORTANT FIX: avoid the risk of over 100 db handles open when running the full test suite
+            db.close(done, done);
+          } catch (e) {
+              // not expected:
+              expect(false).toBe(true);
+              done();
+          }
+        }, MYTIMEOUT);
+
+        // NOTE: this was an issue due to the inconsistency ng cordova documentation and source code which
+        // triggered problems reported in litehelpers/Cordova-sqlite-storage#246 and
+        // litehelpers/Cordova-sqlcipher-adapter#5.
+        // The implementation now avoids this problem *by throwing an exception*.
+        // It could be nicer to just signal an error in the error callback, if present,
+        // through throwing an exception does prevent the user from using an invalid db object.
+        // Brody TBD: check how the Web SQL API would handle this condition?
+        it(suiteName + 'check that db name is really a string', function(done) {
+          var p1 = { name: 'my.db.name', location: 1 };
+          try {
+            window.sqlitePlugin.openDatabase({ name: p1 }, function(db) {
+              // not expected:
+              expect(false).toBe(true);
+              done();
+            }, function(error) {
+              // OK but NOT EXPECTED:
+              expect(true).toBe(true);
+              // XXX BRODY TODO:
+              //expect('Behavior changed, please update this test').toBe('--');
+              done();
+            });
+          } catch (e) {
+              // stopped by the implementation:
+              expect(true).toBe(true);
+              done();
+          }
+        }, MYTIMEOUT);
+
+  });
+
   describe('Plugin: db open-close-delete test(s)', function() {
 
     for (var i=0; i<pluginScenarioCount; ++i) {
