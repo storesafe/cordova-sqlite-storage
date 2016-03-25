@@ -25,20 +25,20 @@ var mytests = function() {
       // NOTE: MUST be defined in function scope, NOT outer scope:
       var openDatabase = function(name, ignored1, ignored2, ignored3) {
         if (isOldImpl) {
-          return window.sqlitePlugin.openDatabase({name: 'i2-'+name, androidDatabaseImplementation: 2});
+          return window.sqlitePlugin.openDatabase({name: name, location: 1, androidDatabaseImplementation: 2});
         }
         if (isWebSql) {
           return window.openDatabase(name, "1.0", "Demo", DEFAULT_SIZE);
         } else {
-          return window.sqlitePlugin.openDatabase(name, "1.0", "Demo", DEFAULT_SIZE);
+          return window.sqlitePlugin.openDatabase({name: name, location: 0});
         }
       }
 
       it(suiteName + 'Simple REGEXP test',
         function(done) {
           if (isWebSql && !isAndroid) pending('BROKEN for iOS Web SQL');
-          if (isWindows) pending('BROKEN for Windows ("Universal")');
-          if (!isWebSql && isAndroid && isOldImpl && /Android [1-4]/.test(navigator.userAgent)) pending('BROKEN for android.database [version 1.x-4.x]');
+          if (!isWebSql && isAndroid && isOldImpl && /Android [1-4]/.test(navigator.userAgent)) pending('BROKEN for android.database (version 1.x-4.x)');
+          if (isWindows) pending('BROKEN for Windows');
 
           var db = openDatabase('simple-regexp-test.db', '1.0', 'test', DEFAULT_SIZE);
 
