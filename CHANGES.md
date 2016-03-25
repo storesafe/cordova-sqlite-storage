@@ -1,7 +1,9 @@
 # Changes
 
-## 0.8.4-dev
+## 0.8.5
 
+- More explicit iosDatabaseLocation option
+- iOS database location is now mandatory
 - Split-up of some more spec test scripts
 
 ## 0.8.2
