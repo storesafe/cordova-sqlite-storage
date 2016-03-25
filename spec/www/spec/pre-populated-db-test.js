@@ -31,13 +31,14 @@ var mytests = function() {
       it(suiteName + 'preliminary cleanup',
         function(done) {
           expect(true).toBe(true);
-          window.sqlitePlugin.deleteDatabase('pre.db', done, done);
+          window.sqlitePlugin.deleteDatabase({name: 'pre.db', location: 0}, done, done);
         }, MYTIMEOUT);
 
       it(suiteName + 'Pre-populated database test',
         function(done) {
           var dbc1 = window.sqlitePlugin.openDatabase({
             name: 'pre.db',
+            location: 0,
             createFromLocation: 1,
             androidDatabaseImplementation: isOldDatabaseImpl ? 2 : 0
           });
@@ -69,6 +70,7 @@ var mytests = function() {
               // try opening it again:
               var dbc2 = window.sqlitePlugin.openDatabase({
                 name: 'pre.db',
+                location: 0,
                 createFromLocation: 1,
                 androidDatabaseImplementation: isOldDatabaseImpl ? 2 : 0
               });
