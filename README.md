@@ -12,13 +12,11 @@ This version contains the source code for the Android and iOS versions. This ver
 |-----------------------|----------------------|
 |[![Circle CI](https://circleci.com/gh/litehelpers/Cordova-sqlite-storage.svg?style=svg)](https://circleci.com/gh/litehelpers/Cordova-sqlite-storage)|[![Build Status](https://travis-ci.org/litehelpers/Cordova-sqlite-storage.svg?branch=master-rc)](https://travis-ci.org/litehelpers/Cordova-sqlite-storage)|
 
-## SURVEY for BREAKING CHANGE for iOS
+## BREAKING CHANGE: Database location is now mandatory
 
-By default the iOS version stores the database in `Documents` which is visible to iTunes and backed up by iCloud. (This is changed using the `location` option in `sqlitePlugin.openDatabase()` as described below.) [@brodybits](https://github.com/brodybits) would like to change the default behavior to store the database in `Library/LocalDatabase` which is *NOT* visible to iTunes and *NOT* backed up by iCloud.
+The `location` or `iosDatabaseLocation` *must* be specified in the openDatabase call, as documented below.
 
-This would be a *BREAKING CHANGE* and existing iOS apps that do not use the `location` option would need to introduce this option in order to preserve a working upgrade. Issue [litehelpers/Cordova-sqlite-storage#430](https://github.com/litehelpers/Cordova-sqlite-storage/issues/430) was raised to collect comments from the community. Please read [litehelpers/Cordova-sqlite-storage#430](https://github.com/litehelpers/Cordova-sqlite-storage/issues/430) very carefully and leave a comment whether or not you like this idea.
-
-## IMPORTANT: iCloud backup of SQLite database is NOT allowed
+### IMPORTANT: iCloud backup of SQLite database is NOT allowed
 
 As documented in the "**A User’s iCloud Storage Is Limited**" section of [iCloudFundamentals in Mac Developer Library iCloud Design Guide](https://developer.apple.com/library/mac/documentation/General/Conceptual/iCloudDesignGuide/Chapters/iCloudFundametals.html) (near the beginning):
 
@@ -41,7 +39,7 @@ As documented in the "**A User’s iCloud Storage Is Limited**" section of [iClo
 
 ### How to disable iCloud backup
 
-Use the `location` option in `sqlitePlugin.openDatabase()` to store the database in a subdirectory that is *NOT* backed up to iCloud, as described in the section below.
+Use the `location` or `iosDatabaseLocation` option in `sqlitePlugin.openDatabase()` to store the database in a subdirectory that is *NOT* backed up to iCloud, as described in the section below.
 
 **NOTE:** Changing `BackupWebStorage` in `config.xml` has no effect on a database created by this plugin. `BackupWebStorage` applies only to local storage and/or Web SQL storage created in the WebView (*not* using this plugin). Ref: [phonegap/build#338 (comment)](https://github.com/phonegap/build/issues/338#issuecomment-113328140)
 
@@ -51,6 +49,7 @@ Use the `location` option in `sqlitePlugin.openDatabase()` to store the database
 
 ## Status
 
+- iOS database location is now mandatory, as documented below.
 - Android version in this version branch is now using the built-in Android SQLite database classes. Integration with the lightweight [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) is available in [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) and [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy).
 - Windows 8.1/Windows Phone 8.1 version is removed from this project, available in [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) and [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy).
 - WP(7/8) is not supported by this version branch, moved to [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy).
@@ -65,6 +64,7 @@ Use the `location` option in `sqlitePlugin.openDatabase()` to store the database
 
 ## Announcements
 
+- More explicit `iosDatabaseLocation` openDatabase/deleteDatabase option
 - Added simple sql batch query function
 - Added echo test function to verify installation of this plugin
 - Published [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy) for maintenance of WP(7/8) version, working with the other supported platforms Android/iOS/Windows 8.1(+)/Windows Phone 8.1(+)
@@ -222,12 +222,22 @@ The idea is to emulate the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/
 
 ## Opening a database
 
-There are two options to open a database access object:
-- **Recommended:** `var db = window.sqlitePlugin.openDatabase({name: "my.db", location: 1}, successcb, errorcb);`
-- **Classical:** `var db = window.sqlitePlugin.openDatabase("myDatabase.db", "1.0", "Demo", -1);`
+~~There are two options~~ to open a database access object:
+- **Recommended:** `var db = window.sqlitePlugin.openDatabase({name: 'my.db', iosDatabaseLocation: 'default'}, successcb, errorcb);`
+- No longer supported: ~~**Classical:** `var db = window.sqlitePlugin.openDatabase("myDatabase.db", "1.0", "Demo", -1);`~~
+
+The `iosDatabaseLocation` option is used to select the database subdirectory location (iOS *only*) with the following choices:
+- `default`: `Library/LocalDatabase` subdirectory - *NOT* visible to iTunes and *NOT* backed up by iCloud (will be the default in the future)
+- `Library`: `Library` subdirectory - backed up by iCloud, *NOT* visible to iTunes
+- `Documents`: `Documents` subdirectory - visible to iTunes and backed up by iCloud
+
+**WARNING:** The new "default" iosDatabaseLocation value is *NOT* the same as the old default location and would break an upgrade for an app using the old default.
+
+*ALTERNATIVE (deprecated):*
+- `var db = window.sqlitePlugin.openDatabase({name: "my.db", location: 1}, successcb, errorcb);`
 
 The `location` option is used to select the database subdirectory location (iOS *only*) with the following choices:
-- `0` (default): `Documents` - visible to iTunes and backed up by iCloud
+- `0` ~~(default)~~: `Documents` - visible to iTunes and backed up by iCloud
 - `1`: `Library` - backed up by iCloud, *NOT* visible to iTunes
 - `2`: `Library/LocalDatabase` - *NOT* visible to iTunes and *NOT* backed up by iCloud
 
@@ -568,10 +578,10 @@ db.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (res) 
 ## Delete a database
 
 ```js
-window.sqlitePlugin.deleteDatabase({name: "my.db", location: 1}, successcb, errorcb);
+window.sqlitePlugin.deleteDatabase({name: "my.db", iosDatabaseLocation: 'default'}, successcb, errorcb);
 ```
 
-`location` as described above for `openDatabase` (iOS *only*)
+with `iosDatabaseLocation` or `location` *required* as described above for `openDatabase` (iOS *only*)
 
 # Schema versions
 

@@ -56,12 +56,13 @@ var mytests = function() {
 
     var suiteName = 'plugin: ';
 
-        it(suiteName + 'Open plugin database with Web SQL parameters', function(done) {
+        it(suiteName + 'Open plugin database with Web SQL parameters (REJECTED with exception)', function(done) {
           try {
             var db = window.sqlitePlugin.openDatabase('open-with-web-sql-parameters-test.db', "1.0", "Demo", DEFAULT_SIZE);
 
+            // NOT EXPECTED:
             // window.sqlitePlugin.openDatabase did not throw
-            expect(true).toBe(true);
+            expect(false).toBe(true);
 
             // check returned db object:
             expect(db).toBeDefined();
@@ -73,9 +74,9 @@ var mytests = function() {
             // IMPORTANT FIX: avoid the risk of over 100 db handles open when running the full test suite
             db.close(done, done);
           } catch (e) {
-              // not expected:
-              expect(false).toBe(true);
-              done();
+            // EXPECTED RESULT:
+            expect(true).toBe(true);
+            done();
           }
         }, MYTIMEOUT);
 
@@ -545,15 +546,14 @@ var mytests = function() {
         // Needed to support some large-scale applications:
         test_it(suiteName + ' delete then re-open (location: 2) allows subsequent queries to run', function () {
           var dbName = "Database-delete-and-Reopen.db";
-          var dbLocation = 2;
 
           // async test coming up
           stop(1);
 
-          var db = openDatabase({name: dbName, location: dbLocation}, function () {
+          var db = openDatabase({name: dbName, iosDatabaseLocation: 'default'}, function () {
             // success CB
-            deleteDatabase({name: dbName, location: dbLocation}, function () {
-              db = openDatabase({name: dbName, location: dbLocation}, function () {
+            deleteDatabase({name: dbName, iosDatabaseLocation: 'default'}, function () {
+              db = openDatabase({name: dbName, iosDatabaseLocation: 'default'}, function () {
                 db.readTransaction(function (tx) {
                   tx.executeSql('SELECT 1', [], function (tx, results) {
                     ok(true, 'database re-opened succesfully');
@@ -583,7 +583,7 @@ var mytests = function() {
           });
         });
 
-        // XXX TODO: repeat scenario but wait for open callback before close/delete/reopen
+        // XXX SEE BELOW: repeat scenario but wait for open callback before close/delete/reopen
         // Needed to support some large-scale applications:
         test_it(suiteName + ' immediate close, then delete then re-open allows subsequent queries to run', function () {
 
@@ -595,11 +595,11 @@ var mytests = function() {
           // asynch test coming up
           stop(1);
 
-          var db1 = openDatabase({name: dbName, location: 0});
+          var db1 = openDatabase({name: dbName, iosDatabaseLocation: 'Documents'});
 
           db1.close(function () {
-            deleteDatabase({name: dbName, location: 0}, function () {
-              openDatabase({name: dbName, location: 0}, function(db) {
+            deleteDatabase({name: dbName, iosDatabaseLocation: 'Documents'}, function () {
+              openDatabase({name: dbName, iosDatabaseLocation: 'Documents'}, function(db) {
                 db.readTransaction(function (tx) {
                   tx.executeSql('SELECT 1', [], function (tx, results) {
                     ok(true, 'database re-opened succesfully');
@@ -633,11 +633,11 @@ var mytests = function() {
           // asynch test coming up
           stop(1);
 
-          openDatabase({name: dbName, location: 0}, function(db1) {
+          openDatabase({name: dbName, iosDatabaseLocation: 'Library'}, function(db1) {
 
             db1.close(function () {
-              deleteDatabase({name: dbName, location: 0}, function () {
-                openDatabase({name: dbName, location: 0}, function(db) {
+              deleteDatabase({name: dbName, iosDatabaseLocation: 'Library'}, function () {
+                openDatabase({name: dbName, iosDatabaseLocation: 'Library'}, function(db) {
                   db.readTransaction(function (tx) {
                     tx.executeSql('SELECT 1', [], function (tx, results) {
                       ok(true, 'database re-opened succesfully');
@@ -791,28 +791,29 @@ var mytests = function() {
         // Needed to support some large-scale applications:
         test_it(suiteName + ' repeatedly open and delete database (4x)', function () {
           var dbName = "repeatedly-open-and-delete-4x.db";
+          var dbargs = {name: dbName, iosDatabaseLocation: 'Documents'};
 
           // async test coming up
           stop(1);
 
-          openDatabase({name: dbName, location: 0}, function(db) {
+          openDatabase(dbargs, function(db) {
             ok(true, 'valid db object 1/4');
-            deleteDatabase({name: dbName, location: 0}, function () {
+            deleteDatabase(dbargs, function () {
               ok(true, 'success 1/4');
 
-              openDatabase({name: dbName, location: 0}, function(db) {
+              openDatabase(dbargs, function(db) {
                 ok(true, 'valid db object 2/4');
-                deleteDatabase({name: dbName, location: 0}, function () {
+                deleteDatabase(dbargs, function () {
                   ok(true, 'success 2/4');
 
-                  openDatabase({name: dbName, location: 0}, function(db) {
+                  openDatabase(dbargs, function(db) {
                     ok(true, 'valid db object 3/4');
-                    deleteDatabase({name: dbName, location: 0}, function () {
+                    deleteDatabase(dbargs, function () {
                       ok(true, 'success 3/4');
 
-                      openDatabase({name: dbName, location: 0}, function(db) {
+                      openDatabase(dbargs, function(db) {
                         ok(true, 'valid db object 4/4');
-                        deleteDatabase({name: dbName, location: 0}, function () {
+                        deleteDatabase(dbargs, function () {
                           ok(true, 'success 4/4');
 
                           start(1);

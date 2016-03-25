@@ -1,5 +1,5 @@
 (function() {
-  var DB_STATE_INIT, DB_STATE_OPEN, READ_ONLY_REGEX, SQLiteFactory, SQLitePlugin, SQLitePluginTransaction, argsArray, dblocations, newSQLError, nextTick, root, txLocks;
+  var DB_STATE_INIT, DB_STATE_OPEN, READ_ONLY_REGEX, SQLiteFactory, SQLitePlugin, SQLitePluginTransaction, argsArray, dblocations, iosLocationMap, newSQLError, nextTick, root, txLocks;
 
   root = this;
 
@@ -532,6 +532,12 @@
 
   dblocations = ["docs", "libs", "nosync"];
 
+  iosLocationMap = {
+    'default': 'nosync',
+    'Documents': 'docs',
+    'Library': 'libs'
+  };
+
   SQLiteFactory = {
 
     /*
@@ -540,36 +546,23 @@
     If this function is edited in Javascript then someone will
     have to translate it back to CoffeeScript by hand.
      */
-    opendb: argsArray(function(args) {
-      var dblocation, errorcb, first, okcb, openargs;
-      if (args.length < 1) {
-        return null;
+    openDatabase: argsArray(function(args) {
+      var dblocation, errorcb, okcb, openargs;
+      if (args.length < 1 || !args[0]) {
+        throw newSQLError('Sorry missing mandatory open arguments object in openDatabase call');
       }
-      first = args[0];
-      openargs = null;
-      okcb = null;
-      errorcb = null;
-      if (first.constructor === String) {
-        openargs = {
-          name: first
-        };
-        if (args.length >= 5) {
-          okcb = args[4];
-          if (args.length > 5) {
-            errorcb = args[5];
-          }
-        }
-      } else {
-        openargs = first;
-        if (args.length >= 2) {
-          okcb = args[1];
-          if (args.length > 2) {
-            errorcb = args[2];
-          }
-        }
+      if (args[0].constructor === String) {
+        throw newSQLError('Sorry first openDatabase argument must be an object');
       }
-      dblocation = !!openargs.location ? dblocations[openargs.location] : null;
-      openargs.dblocation = dblocation || dblocations[0];
+      openargs = args[0];
+      if (!openargs.name) {
+        throw newSQLError('Database name value is missing in openDatabase call');
+      }
+      if (!openargs.iosDatabaseLocation && !openargs.location && openargs.location !== 0) {
+        throw newSQLError('Database location or iosDatabaseLocation value is now mandatory in openDatabase call');
+      }
+      dblocation = !!openargs.iosDatabaseLocation ? iosLocationMap[openargs.iosDatabaseLocation] : dblocations[openargs.location];
+      openargs.dblocation = dblocation;
       if (!!openargs.createFromLocation && openargs.createFromLocation === 1) {
         openargs.createFromResource = "1";
       }
@@ -579,22 +572,32 @@
       if (!!openargs.androidLockWorkaround && openargs.androidLockWorkaround === 1) {
         openargs.androidBugWorkaround = 1;
       }
+      okcb = null;
+      errorcb = null;
+      if (args.length >= 2) {
+        okcb = args[1];
+        if (args.length > 2) {
+          errorcb = args[2];
+        }
+      }
       return new SQLitePlugin(openargs, okcb, errorcb);
     }),
-    deleteDb: function(first, success, error) {
+    deleteDatabase: function(first, success, error) {
       var args, dblocation;
       args = {};
       if (first.constructor === String) {
-        args.path = first;
-        args.dblocation = dblocations[0];
+        throw newSQLError('Sorry first deleteDatabase argument must be an object');
       } else {
         if (!(first && first['name'])) {
           throw new Error("Please specify db name");
         }
         args.path = first.name;
-        dblocation = !!first.location ? dblocations[first.location] : null;
-        args.dblocation = dblocation || dblocations[0];
       }
+      if (!first.iosDatabaseLocation && !first.location && first.location !== 0) {
+        throw newSQLError('Database location or iosDatabaseLocation value is now mandatory in deleteDatabase call');
+      }
+      dblocation = !!first.iosDatabaseLocation ? iosLocationMap[first.iosDatabaseLocation] : dblocations[first.location];
+      args.dblocation = dblocation;
       delete SQLitePlugin.prototype.openDBs[args.path];
       return cordova.exec(success, error, "SQLitePlugin", "delete", [args]);
     }
@@ -622,8 +625,8 @@
         }
       ]);
     },
-    openDatabase: SQLiteFactory.opendb,
-    deleteDatabase: SQLiteFactory.deleteDb
+    openDatabase: SQLiteFactory.openDatabase,
+    deleteDatabase: SQLiteFactory.deleteDatabase
   };
 
 }).call(this);
