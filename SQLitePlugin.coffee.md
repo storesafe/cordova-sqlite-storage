@@ -612,7 +612,9 @@
         #  throw newSQLError 'Abiguous: both location or iosDatabaseLocation values are present in openDatabase call'
 
         dblocation =
-          if !!openargs.iosDatabaseLocation
+          if !!openargs.location and openargs.location is 'default'
+            iosLocationMap['default']
+          else if !!openargs.iosDatabaseLocation
             iosLocationMap[openargs.iosDatabaseLocation]
           else
             dblocations[openargs.location]
@@ -664,7 +666,9 @@
         #  throw newSQLError 'Abiguous: both location or iosDatabaseLocation values are present in deleteDatabase call'
 
         dblocation =
-          if !!first.iosDatabaseLocation
+          if !!first.location and first.location is 'default'
+            iosLocationMap['default']
+          else if !!first.iosDatabaseLocation
             iosLocationMap[first.iosDatabaseLocation]
           else
             dblocations[first.location]

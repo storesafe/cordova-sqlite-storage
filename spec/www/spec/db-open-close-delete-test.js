@@ -544,16 +544,16 @@ var mytests = function() {
         });
 
         // Needed to support some large-scale applications:
-        test_it(suiteName + ' delete then re-open (location: 2) allows subsequent queries to run', function () {
+        test_it(suiteName + " delete then re-open (location: 'default') allows subsequent queries to run", function () {
           var dbName = "Database-delete-and-Reopen.db";
 
           // async test coming up
           stop(1);
 
-          var db = openDatabase({name: dbName, iosDatabaseLocation: 'default'}, function () {
+          var db = openDatabase({name: dbName, location: 'default'}, function () {
             // success CB
-            deleteDatabase({name: dbName, iosDatabaseLocation: 'default'}, function () {
-              db = openDatabase({name: dbName, iosDatabaseLocation: 'default'}, function () {
+            deleteDatabase({name: dbName, location: 'default'}, function () {
+              db = openDatabase({name: dbName, location: 'default'}, function () {
                 db.readTransaction(function (tx) {
                   tx.executeSql('SELECT 1', [], function (tx, results) {
                     ok(true, 'database re-opened succesfully');
