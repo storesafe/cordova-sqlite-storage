@@ -1,5 +1,9 @@
 # Changes
 
+## 0.8.6-pre
+
+- Support location: 'default' setting in openDatabase & deleteDatabase
+
 ## 0.8.5
 
 - More explicit iosDatabaseLocation option
