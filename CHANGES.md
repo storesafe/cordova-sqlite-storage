@@ -1,7 +1,8 @@
 # Changes
 
-## 0.8.6-pre
+## 1.2.0
 
+- Rename Lawnchair adapter to prevent clash with standard webkit-sqlite adapter
 - Support location: 'default' setting in openDatabase & deleteDatabase
 
 ## 0.8.5
