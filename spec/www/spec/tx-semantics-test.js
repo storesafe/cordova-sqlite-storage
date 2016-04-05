@@ -71,6 +71,101 @@ var mytests = function() {
         }
       }
 
+        it(suiteName + 'Simple tx sql order test', function(done) {
+          // This test shows that executeSql statements run in intermediate callback
+          // are executed _after_ executeSql statements that were queued before
+
+          var db = openDatabase('Simple-tx-order-test.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql('DROP TABLE IF EXISTS tt');
+            tx.executeSql('CREATE TABLE tt (data)');
+
+            tx.executeSql('INSERT INTO tt VALUES (?)', ['first'], function(tx, res) {
+              expect(res).toBeDefined();
+              expect(res.insertId).toBeDefined();
+              expect(res.rowsAffected).toBe(1);
+
+              tx.executeSql('INSERT INTO tt VALUES (?)', ['middle']);
+            });
+
+            tx.executeSql("INSERT INTO tt VALUES ('last')");
+
+          }, null, function() {
+            db.transaction(function(tx) {
+              tx.executeSql('SELECT * FROM tt', [], function(tx, res) {
+                expect(res).toBeDefined();
+                expect(res.rows).toBeDefined();
+                expect(res.rows.length).toBe(3);
+                expect(res.rows.item(0).data).toBe('first');
+                expect(res.rows.item(1).data).toBe('last');
+                expect(res.rows.item(2).data).toBe('middle');
+                done();
+              });
+            });
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'Simple tx sql order test with error recovery', function(done) {
+          // This test shows that executeSql statements run in intermediate error handling callback
+          // are executed _after_ executeSql statements that were queued before
+
+          var db = openDatabase('tx-order-with-error-test.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql('DROP TABLE IF EXISTS tt');
+            tx.executeSql('CREATE TABLE tt (data)');
+
+            tx.executeSql('INSERT INTO tt VALUES (?)', [1], function(tx, res) {
+              expect(res).toBeDefined();
+              expect(res.insertId).toBeDefined();
+              expect(res.rowsAffected).toBe(1);
+
+              tx.executeSql('INSERT INTO tt VALUES (?)', [2]);
+
+              //done();
+            });
+
+            // syntax error:
+            tx.executeSql('INSRT INTO tt VALUES (?)', ['bogus'], null, function(err) {
+              expect(err).toBeDefined();
+              // TBD check err
+
+              tx.executeSql('INSERT INTO tt VALUES (?)', [3]);
+
+              return false;
+            });
+
+            tx.executeSql('INSERT INTO tt VALUES (?)', [4]);
+
+          }, function(err) {
+            // not expected:
+            expect(false).toBe(true);
+            done();
+          }, function() {
+            db.transaction(function(tx) {
+              tx.executeSql('SELECT * FROM tt', [], function(tx, res) {
+                expect(res).toBeDefined();
+                expect(res.rows).toBeDefined();
+                expect(res.rows.length).toBe(4);
+                expect(res.rows.item(0).data).toBe(1);
+                expect(res.rows.item(1).data).toBe(4);
+                expect(res.rows.item(2).data).toBe(2);
+                expect(res.rows.item(3).data).toBe(3);
+                done();
+              });
+            });
+          });
+        }, MYTIMEOUT);
+
         test_it(suiteName + 'transaction test: check rowsAffected [intermediate]', function () {
           var db = openDatabase("RowsAffected", "1.0", "Demo", DEFAULT_SIZE);
 
