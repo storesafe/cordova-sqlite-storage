@@ -66,7 +66,7 @@
             <merges target="" />
         </js-module>
 
-        <!-- SQLite3 JS module from SQLite3-Win-RT/SQLite3JS: -->
+        <!-- SQLite3 JS module from SQLite3-WinRT/SQLite3JS: -->
         <js-module src="src/windows/SQLite3-Win-RT/SQLite3JS/js/SQLite3.js" name="SQLite3">
             <merges target="" />
         </js-module>
