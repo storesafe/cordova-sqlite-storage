@@ -1,5 +1,25 @@
 # Changes
 
+## 0.9.x-common-dev
+
+- _Support Windows 8.1/Windows Phone 8.1 along with Windows 10_
+
+### cordova-sqlite-storage 1.2.0
+
+- Rename Lawnchair adapter to prevent clash with standard webkit-sqlite adapter
+- Support location: 'default' setting in openDatabase & deleteDatabase
+
+### cordova-sqlite-storage 0.8.5
+
+- More explicit iosDatabaseLocation option
+- iOS database location is now mandatory
+- Split-up of some more spec test scripts
+
+### cordova-sqlite-storage 0.8.2
+
+- Workaround fix for empty readTransaction issue (litehelpers/Cordova-sqlite-storage#409)
+- Split spec/www/spec/legacy.js into db-open-close-delete-test.js & tx-extended.js
+
 ## 0.8.x-common-dev
 
 - Introduce Windows 10 UWP build (Windows 8.1 and Windows Phone 8.1 build disabled)
@@ -8,6 +28,9 @@
 
 - Separate SQLiteConnectorDatabase class for Android
 - Renamed SQLiteProxy.js to sqlite-proxy.js in Windows version
+
+### cordova-sqlite-storage 0.8.0
+
 - Simple sql batch transaction function
 - Echo test function
 - Remove extra runInBackground: step from iOS version

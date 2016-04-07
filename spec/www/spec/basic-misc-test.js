@@ -30,7 +30,7 @@ var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
 
-    describe(scenarioList[i] + ': SIMPLE SQL test(s)', function() {
+    describe(scenarioList[i] + ': misc. sql test(s)', function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
       var isWebSql = (i === 1);
@@ -43,202 +43,17 @@ var mytests = function() {
             // prevent reuse of database from default db implementation:
             name: 'i2-'+name,
             androidDatabaseImplementation: 2,
-            androidLockWorkaround: 1
+            androidLockWorkaround: 1,
+            location: 1
           });
         }
         if (isWebSql) {
           return window.openDatabase(name, '1.0', 'Test', DEFAULT_SIZE);
         } else {
-          return window.sqlitePlugin.openDatabase(name, '1.0', 'Test', DEFAULT_SIZE);
+          return window.sqlitePlugin.openDatabase({name: name, location: 0});
         }
       }
 
-      it(suiteName + 'US-ASCII String manipulation test',
-        function(done) {
-          var db = openDatabase('ASCII-string-test.db', '1.0', 'Test', DEFAULT_SIZE);
-
-          expect(db).toBeDefined();
-
-          db.transaction(function(tx) {
-
-            expect(tx).toBeDefined();
-
-            tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", [], function(tx, res) {
-              console.log('res.rows.item(0).uppertext: ' + res.rows.item(0).uppertext);
-              expect(res.rows.item(0).uppertext).toEqual('SOME US-ASCII TEXT');
-
-              done();
-            });
-          });
-        }, MYTIMEOUT);
-
-      // Only test ICU-UNICODE with Android 5.0(+) (Web SQL):
-      if (isWebSql && /Android [5-9]/.test(navigator.userAgent))
-        it(suiteName + 'ICU-UNICODE string manipulation test', function(done) {
-          if ((!isWebSql) && isAndroid) pending('BROKEN for Android version of plugin [with sqlite-connector]');
-
-          var db = openDatabase('UNICODE-string-test.db', '1.0', 'Test', DEFAULT_SIZE);
-
-          expect(db).toBeDefined();
-
-          db.transaction(function(tx) {
-
-            expect(tx).toBeDefined();
-
-            // 'Some Cyrillic text'
-            tx.executeSql("SELECT UPPER('Какой-то кириллический текст') AS uppertext", [], function (tx, res) {
-              console.log('res.rows.item(0).uppertext: ' + res.rows.item(0).uppertext);
-              expect(res.rows.item(0).uppertext).toEqual('КАКОЙ-ТО КИРИЛЛИЧЕСКИЙ ТЕКСТ');
-
-              done();
-            });
-          });
-        });
-
-        it(suiteName + 'Simple INSERT test: check insertId & rowsAffected in result', function(done) {
-
-          var db = openDatabase('INSERT-test.db', '1.0', 'Test', DEFAULT_SIZE);
-
-          expect(db).toBeDefined();
-
-          db.transaction(function(tx) {
-            expect(tx).toBeDefined();
-
-            tx.executeSql('DROP TABLE IF EXISTS test_table');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
-
-            tx.executeSql('INSERT INTO test_table (data, data_num) VALUES (?,?)', ['test', 100], function(tx, res) {
-              expect(res).toBeDefined();
-              expect(res.insertId).toBeDefined();
-              expect(res.rowsAffected).toBe(1);
-
-              done();
-            });
-
-          });
-        }, MYTIMEOUT);
-
-      it(suiteName + 'db transaction test',
-        function(done) {
-          var db = openDatabase('db-trx-test.db', '1.0', 'Test', DEFAULT_SIZE);
-
-          expect(db).toBeDefined();
-
-          var check = 0;
-
-          db.transaction(function(tx) {
-            // first tx object:
-            expect(tx).toBeDefined();
-
-            tx.executeSql('DROP TABLE IF EXISTS test_table');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
-
-            tx.executeSql('INSERT INTO test_table (data, data_num) VALUES (?,?)', ['test', 100], function(tx, res) {
-              // check tx & res object parameters:
-              expect(tx).toBeDefined();
-              expect(res).toBeDefined();
-
-              expect(res.insertId).toBeDefined();
-              expect(res.rowsAffected).toBe(1);
-
-              db.transaction(function(tx) {
-                // second tx object:
-                expect(tx).toBeDefined();
-
-                tx.executeSql('SELECT COUNT(id) AS cnt FROM test_table;', [], function(tx, res) {
-                  ++check;
-
-                  expect(res.rows.length).toBe(1);
-                  expect(res.rows.item(0).cnt).toBe(1);
-                });
-
-                tx.executeSql('SELECT data_num FROM test_table;', [], function(tx, res) {
-                  ++check;
-
-                  expect(res.rows.length).toBe(1);
-                  expect(res.rows.item(0).data_num).toBe(100);
-                });
-
-                tx.executeSql('UPDATE test_table SET data_num = ? WHERE data_num = 100', [101], function(tx, res) {
-                  ++check;
-
-                  expect(res.rowsAffected).toBe(1);
-                });
-
-                tx.executeSql('SELECT data_num FROM test_table;', [], function(tx, res) {
-                  ++check;
-
-                  expect(res.rows.length).toBe(1);
-                  expect(res.rows.item(0).data_num).toBe(101);
-                });
-
-                tx.executeSql("DELETE FROM test_table WHERE data LIKE 'tes%'", [], function(tx, res) {
-                  ++check;
-
-                  expect(res.rowsAffected).toBe(1);
-                });
-
-                tx.executeSql('SELECT data_num FROM test_table;', [], function(tx, res) {
-                  ++check;
-
-                  expect(res.rows.length).toBe(0);
-                });
-
-              }, function(e) {
-                // not expected:
-                expect(false).toBe(true);
-                console.log('ERROR: ' + e.message);
-              }, function() {
-                console.log('second tx ok success cb');
-                expect(check).toBe(6);
-
-                done();
-              });
-
-            }, function(e) {
-              // not expected:
-              expect(false).toBe(true);
-              console.log('ERROR: ' + e.message);
-            });
-          }, function(e) {
-            // not expected:
-            expect(false).toBe(true);
-            console.log('ERROR: ' + e.message);
-            done();
-          }, function() {
-            console.log('first tx success cb OK');
-          });
-
-        }, MYTIMEOUT);
-
-      it(suiteName + 'number values inserted using number bindings',
-        function(done) {
-          var db = openDatabase('Value-binding-test.db', '1.0', 'Test', DEFAULT_SIZE);
-          db.transaction(function(tx) {
-            tx.executeSql('DROP TABLE IF EXISTS test_table');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data_text1, data_text2, data_int, data_real)');
-          }, function(err) {
-              // went wrong:
-              expect(false).toBe(true);
-          }, function() {
-            db.transaction(function(tx) {
-              // create columns with no type affinity
-              tx.executeSql('INSERT INTO test_table (data_text1, data_text2, data_int, data_real) VALUES (?,?,?,?)', ['314159', '3.14159', 314159, 3.14159], function(tx, res) {
-                expect(res.rowsAffected).toBe(1);
-                tx.executeSql('SELECT * FROM test_table', [], function(tx, res) {
-                  var row = res.rows.item(0);
-                  expect(row.data_text1).toBe('314159'); // data_text1 should have inserted data as text
-                  if (!isWP8) // JSON issue in WP(8) version
-                    expect(row.data_text2).toBe('3.14159'); // data_text2 should have inserted data as text
-                  expect(row.data_int).toBe(314159); // data_int should have inserted data as an integer
-                  expect(Math.abs(row.data_real - 3.14159) < 0.000001).toBe(true); // data_real should have inserted data as a real
-
-                  done();
-                });
-              });
-            });
-          });
-        }, MYTIMEOUT);
 
         /* THANKS to @calebeaires: */
         it(suiteName + 'create virtual table using FTS3', function(done) {
@@ -529,36 +344,146 @@ var mytests = function() {
         // FUTURE TODO ref: litehelpers/Cordova-sqlite-storage#232
         // test case of sql error handler returning values such as "true" (string), 1, 0, null
 
-      if (!isWebSql) {
-        // NOTE: this was an issue due to the inconsistency ng cordova documentation and source code which
-        // triggered problems reported in litehelpers/Cordova-sqlite-storage#246 and
-        // litehelpers/Cordova-sqlcipher-adapter#5.
-        // The implementation now avoids this problem *by throwing an exception*.
-        // It could be nicer to just signal an error in the error callback, if present,
-        // through throwing an exception does prevent the user from using an invalid db object.
-        // Brody TBD: check how the Web SQL API would handle this condition?
-        it(suiteName + 'check that db name is really a string', function(done) {
-          var p1 = { name: 'my.db.name', location: 1 };
+        it(suiteName + 'empty transaction (no callback argument) and then SELECT transaction', function (done) {
+
+          var db = openDatabase("tx-with-no-argment", "1.0", "Demo", DEFAULT_SIZE);
+
           try {
-            window.sqlitePlugin.openDatabase({ name: p1 }, function(db) {
+            // synchronous error expected:
+            db.transaction();
+
+            // not expected to get here:
+            expect(false).toBe(true);
+          } catch (err) {
+            // got error like we expected
+            expect(true).toBe(true);
+          }
+
+          // verify we can still continue
+          var gotStringLength = false; // poor man's spy
+          db.transaction(function (tx) {
+            tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (tx, res) {
+              expect(res.rows.item(0).stringlength).toBe(10);
+              gotStringLength = true;
+            });
+          }, function (error) {
+            // not expected:
+            expect(false).toBe(true);
+          }, function () {
+            // expected result (transaction committed ok)
+            expect(true).toBe(true);
+            expect(gotStringLength).toBe(true);
+            done();
+          });
+        });
+
+        it(suiteName + 'empty readTransaction (no callback argument) and then SELECT transaction', function (done) {
+
+          var db = openDatabase("read-tx-with-no-argment", "1.0", "Demo", DEFAULT_SIZE);
+
+          try {
+            // synchronous error expected:
+            db.readTransaction();
+
+            // not expected to get here:
+            expect(false).toBe(true);
+          } catch (err) {
+            // got error like we expected
+            expect(true).toBe(true);
+          }
+
+          // verify we can still continue
+          var gotStringLength = false; // poor man's spy
+          db.readTransaction(function (tx) {
+            tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (tx, res) {
+              expect(res.rows.item(0).stringlength).toBe(10);
+              gotStringLength = true;
+            });
+          }, function (error) {
+            // not expected:
+            expect(false).toBe(true);
+          }, function () {
+            // expected result (transaction committed ok)
+            expect(true).toBe(true);
+            expect(gotStringLength).toBe(true);
+            done();
+          });
+        });
+
+        it(suiteName + 'empty transaction (no sql statements) and then SELECT transaction', function (done) {
+
+          var db = openDatabase("empty-tx", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            expect(true).toBe(true);
+          }, function(err) {
+            // not expected:
+            expect(false).toBe(true);
+            done();
+          }, function() {
+            // as expected:
+            expect(true).toBe(true);
+
+            // verify we can still continue
+            var gotStringLength = false; // poor man's spy
+            db.transaction(function (tx) {
+              tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (tx, res) {
+                expect(res.rows.item(0).stringlength).toBe(10);
+                gotStringLength = true;
+              });
+            }, function (error) {
               // not expected:
               expect(false).toBe(true);
-              done();
-            }, function(error) {
-              // OK but NOT EXPECTED:
+            }, function () {
+              // expected result (transaction committed ok)
               expect(true).toBe(true);
+              expect(gotStringLength).toBe(true);
               done();
             });
-          } catch (e) {
-              // stopped by the implementation:
-              expect(true).toBe(true);
-              done();
-          }
-        }, MYTIMEOUT);
-      }
 
+          });
+
+        });
+
+        // Check fix for litehelpers/Cordova-sqlite-storage#409:
+        it(suiteName + 'empty readTransaction (no sql statements) and then SELECT transaction', function (done) {
+
+          var db = openDatabase("empty-read-tx", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.readTransaction(function(tx) {
+            expect(true).toBe(true);
+          }, function(err) {
+            // not expected:
+            expect(false).toBe(true);
+            done();
+          }, function() {
+            // as expected:
+            expect(true).toBe(true);
+
+            // verify we can still continue
+            var gotStringLength = false; // poor man's spy
+            db.transaction(function (tx) {
+              tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (tx, res) {
+                expect(res.rows.item(0).stringlength).toBe(10);
+                gotStringLength = true;
+              });
+            }, function (error) {
+              // not expected:
+              expect(false).toBe(true);
+            }, function () {
+              // expected result (transaction committed ok)
+              expect(true).toBe(true);
+              expect(gotStringLength).toBe(true);
+              done();
+            });
+
+          });
+
+        });
     });
-  };
+
+  }
+
 }
 
 if (window.hasBrowser) mytests();

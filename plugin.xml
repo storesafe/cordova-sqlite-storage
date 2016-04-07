@@ -2,7 +2,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-sqlite-common"
-    version="0.8.x-common-dev">
+    version="0.9.x-common-dev">
 
     <name>Cordova sqlite storage plugin (core version)</name>
 

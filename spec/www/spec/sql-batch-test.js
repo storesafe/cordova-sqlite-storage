@@ -17,20 +17,20 @@ var isWebKit = !isIE; // TBD [Android or iOS]
 // NOTE: In the core-master branch there is no difference between the default
 // implementation and implementation #2. But the test will also apply
 // the androidLockWorkaround: 1 option in the case of implementation #2.
-var scenarioList = [
+var pluginScenarioList = [
   isAndroid ? 'Plugin-implementation-default' : 'Plugin',
   'Plugin-implementation-2'
 ];
 
-var scenarioCount = isAndroid ? 2 : 1;
+var pluginScenarioCount = isAndroid ? 2 : 1;
 
 // simple tests:
 var mytests = function() {
 
-  for (var i=0; i<scenarioCount; ++i) {
+  for (var i=0; i<pluginScenarioCount; ++i) {
 
-    describe(scenarioList[i] + ': BATCH SQL test(s)', function() {
-      var scenarioName = scenarioList[i];
+    describe(pluginScenarioList[i] + ': BATCH SQL test(s)', function() {
+      var scenarioName = pluginScenarioList[i];
       var suiteName = scenarioName + ': ';
       var isImpl2 = (i === 1);
 
@@ -41,14 +41,15 @@ var mytests = function() {
             // prevent reuse of database from default db implementation:
             name: 'i2-'+name,
             androidDatabaseImplementation: 2,
-            androidLockWorkaround: 1
+            androidLockWorkaround: 1,
+            location: 1
           });
         } else {
-          return window.sqlitePlugin.openDatabase(name, '1.0', 'Test', DEFAULT_SIZE);
+          return window.sqlitePlugin.openDatabase({name: name, location: 0});
         }
       }
 
-      describe(scenarioList[i] + ': Basic sql batch test(s)', function() {
+      describe(pluginScenarioList[i] + ': Basic sql batch test(s)', function() {
 
         it(suiteName + 'Single-column batch sql test', function(done) {
           var db = openDatabase('Single-column-batch-sql-test.db', '1.0', 'Test', DEFAULT_SIZE);

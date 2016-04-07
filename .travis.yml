@@ -1,14 +1,27 @@
 language: objective-c
+
+env:
+  global:
+    - SPEC_WWW_DIR=${TRAVIS_BUILD_DIR}/spec/www
+    - TESTS_PATH=${TRAVIS_BUILD_DIR}/tests/tests.js
+    - CORDOVA_PARAMEDIC_CMD="cordova-paramedic --platform ios --plugin ${TRAVIS_BUILD_DIR} --timeout 3600000"
+
 git:
   depth: 2
+
 node_js:
-  - "0.10"
+  - "4.4"
+
 install:
   - echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config 
   - npm install -g cordova-paramedic
   - npm install -g cordova
   - npm install -g ios-sim
+
 script:
-  - cordova-paramedic --platform ios --plugin ${TRAVIS_BUILD_DIR}
-  - cp ${TRAVIS_BUILD_DIR}/spec/www/spec/simple-test.js ${TRAVIS_BUILD_DIR}/tests/tests.js
-  - cordova-paramedic --platform ios --plugin ${TRAVIS_BUILD_DIR} --timeout 3600000
+  - date && cordova-paramedic --platform ios --plugin ${TRAVIS_BUILD_DIR} || echo error-ignored
+  - date && cp ${SPEC_WWW_DIR}/spec/self-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
+  - date && cp ${SPEC_WWW_DIR}/spec/db-tx-string-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
+  - date && cp ${SPEC_WWW_DIR}/spec/basic-sql-tx-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
+  - date && cp ${SPEC_WWW_DIR}/spec/sql-batch-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
+  - date
