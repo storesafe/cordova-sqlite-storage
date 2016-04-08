@@ -2,13 +2,13 @@
 
 var MYTIMEOUT = 12000;
 
-// initial test(s):
-exports.defineAutoTests = function() {
+// simple tests:
+var mytests = function() {
 
-  describe('INITIAL test(s)', function() {
+  describe('SELF test(s)', function() {
 
     describe('ECHO test(s)', function() {
-      it('Initial echo test',
+      it('Simple echo test',
         function(done) {
           window.sqlitePlugin.echoTest(function() {
             // ok:
@@ -23,6 +23,10 @@ exports.defineAutoTests = function() {
     });
 
   });
+
 };
+
+if (window.hasBrowser) mytests();
+else exports.defineAutoTests = mytests;
 
 /* vim: set expandtab : */

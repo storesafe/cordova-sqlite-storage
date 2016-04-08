@@ -1,5 +1,5 @@
 (function() {
-  var DB_STATE_INIT, DB_STATE_OPEN, READ_ONLY_REGEX, SQLiteFactory, SQLitePlugin, SQLitePluginTransaction, argsArray, dblocations, newSQLError, nextTick, root, txLocks;
+  var DB_STATE_INIT, DB_STATE_OPEN, READ_ONLY_REGEX, SQLiteFactory, SQLitePlugin, SQLitePluginTransaction, argsArray, dblocations, iosLocationMap, newSQLError, nextTick, root, txLocks;
 
   root = this;
 
@@ -252,6 +252,41 @@
     this.addTransaction(new SQLitePluginTransaction(this, myfn, null, null, false, false));
   };
 
+  SQLitePlugin.prototype.sqlBatch = function(sqlStatements, success, error) {
+    var batchList, j, len1, myfn, st;
+    if (!sqlStatements || sqlStatements.constructor !== Array) {
+      throw newSQLError('sqlBatch expects an array');
+    }
+    batchList = [];
+    for (j = 0, len1 = sqlStatements.length; j < len1; j++) {
+      st = sqlStatements[j];
+      if (st.constructor === Array) {
+        if (st.length === 0) {
+          throw newSQLError('sqlBatch array element of zero (0) length');
+        }
+        batchList.push({
+          sql: st[0],
+          params: st.length === 0 ? [] : st[1]
+        });
+      } else {
+        batchList.push({
+          sql: st,
+          params: []
+        });
+      }
+    }
+    myfn = function(tx) {
+      var elem, k, len2, results;
+      results = [];
+      for (k = 0, len2 = batchList.length; k < len2; k++) {
+        elem = batchList[k];
+        results.push(tx.addStatement(elem.sql, elem.params, null, null));
+      }
+      return results;
+    };
+    this.addTransaction(new SQLitePluginTransaction(this, myfn, error, success, true, false));
+  };
+
   SQLitePluginTransaction = function(db, fn, error, success, txlock, readOnly) {
     if (typeof fn !== "function") {
 
@@ -274,16 +309,18 @@
       this.addStatement("BEGIN", [], null, function(tx, err) {
         throw newSQLError("unable to begin transaction: " + err.message, err.code);
       });
+    } else {
+      this.addStatement("SELECT 1", [], null, null);
     }
   };
 
   SQLitePluginTransaction.prototype.start = function() {
-    var err;
+    var err, error1;
     try {
       this.fn(this);
       this.run();
-    } catch (_error) {
-      err = _error;
+    } catch (error1) {
+      err = error1;
       txLocks[this.db.dbname].inProgress = false;
       this.db.startNextTransaction();
       if (this.error) {
@@ -365,15 +402,15 @@
     tx = this;
     handlerFor = function(index, didSucceed) {
       return function(response) {
-        var err;
+        var err, error1;
         try {
           if (didSucceed) {
             tx.handleStatementSuccess(batchExecutes[index].success, response);
           } else {
             tx.handleStatementFailure(batchExecutes[index].error, newSQLError(response));
           }
-        } catch (_error) {
-          err = _error;
+        } catch (error1) {
+          err = error1;
           if (!txFailure) {
             txFailure = newSQLError(err);
           }
@@ -495,6 +532,12 @@
 
   dblocations = ["docs", "libs", "nosync"];
 
+  iosLocationMap = {
+    'default': 'nosync',
+    'Documents': 'docs',
+    'Library': 'libs'
+  };
+
   SQLiteFactory = {
 
     /*
@@ -503,36 +546,23 @@
     If this function is edited in Javascript then someone will
     have to translate it back to CoffeeScript by hand.
      */
-    opendb: argsArray(function(args) {
-      var dblocation, errorcb, first, okcb, openargs;
-      if (args.length < 1) {
-        return null;
+    openDatabase: argsArray(function(args) {
+      var dblocation, errorcb, okcb, openargs;
+      if (args.length < 1 || !args[0]) {
+        throw newSQLError('Sorry missing mandatory open arguments object in openDatabase call');
       }
-      first = args[0];
-      openargs = null;
-      okcb = null;
-      errorcb = null;
-      if (first.constructor === String) {
-        openargs = {
-          name: first
-        };
-        if (args.length >= 5) {
-          okcb = args[4];
-          if (args.length > 5) {
-            errorcb = args[5];
-          }
-        }
-      } else {
-        openargs = first;
-        if (args.length >= 2) {
-          okcb = args[1];
-          if (args.length > 2) {
-            errorcb = args[2];
-          }
-        }
+      if (args[0].constructor === String) {
+        throw newSQLError('Sorry first openDatabase argument must be an object');
       }
-      dblocation = !!openargs.location ? dblocations[openargs.location] : null;
-      openargs.dblocation = dblocation || dblocations[0];
+      openargs = args[0];
+      if (!openargs.name) {
+        throw newSQLError('Database name value is missing in openDatabase call');
+      }
+      if (!openargs.iosDatabaseLocation && !openargs.location && openargs.location !== 0) {
+        throw newSQLError('Database location or iosDatabaseLocation value is now mandatory in openDatabase call');
+      }
+      dblocation = !!openargs.location && openargs.location === 'default' ? iosLocationMap['default'] : !!openargs.iosDatabaseLocation ? iosLocationMap[openargs.iosDatabaseLocation] : dblocations[openargs.location];
+      openargs.dblocation = dblocation;
       if (!!openargs.createFromLocation && openargs.createFromLocation === 1) {
         openargs.createFromResource = "1";
       }
@@ -542,22 +572,32 @@
       if (!!openargs.androidLockWorkaround && openargs.androidLockWorkaround === 1) {
         openargs.androidBugWorkaround = 1;
       }
+      okcb = null;
+      errorcb = null;
+      if (args.length >= 2) {
+        okcb = args[1];
+        if (args.length > 2) {
+          errorcb = args[2];
+        }
+      }
       return new SQLitePlugin(openargs, okcb, errorcb);
     }),
-    deleteDb: function(first, success, error) {
+    deleteDatabase: function(first, success, error) {
       var args, dblocation;
       args = {};
       if (first.constructor === String) {
-        args.path = first;
-        args.dblocation = dblocations[0];
+        throw newSQLError('Sorry first deleteDatabase argument must be an object');
       } else {
         if (!(first && first['name'])) {
           throw new Error("Please specify db name");
         }
         args.path = first.name;
-        dblocation = !!first.location ? dblocations[first.location] : null;
-        args.dblocation = dblocation || dblocations[0];
       }
+      if (!first.iosDatabaseLocation && !first.location && first.location !== 0) {
+        throw newSQLError('Database location or iosDatabaseLocation value is now mandatory in deleteDatabase call');
+      }
+      dblocation = !!first.location && first.location === 'default' ? iosLocationMap['default'] : !!first.iosDatabaseLocation ? iosLocationMap[first.iosDatabaseLocation] : dblocations[first.location];
+      args.dblocation = dblocation;
       delete SQLitePlugin.prototype.openDBs[args.path];
       return cordova.exec(success, error, "SQLitePlugin", "delete", [args]);
     }
@@ -567,8 +607,26 @@
     sqliteFeatures: {
       isSQLitePlugin: true
     },
-    openDatabase: SQLiteFactory.opendb,
-    deleteDatabase: SQLiteFactory.deleteDb
+    echoTest: function(okcb, errorcb) {
+      var error, ok;
+      ok = function(s) {
+        if (s === 'test-string') {
+          return okcb();
+        } else {
+          return errorcb("Mismatch: got: '" + s + "' expected 'test-string'");
+        }
+      };
+      error = function(e) {
+        return errorcb(e);
+      };
+      return cordova.exec(okcb, errorcb, "SQLitePlugin", "echoStringValue", [
+        {
+          value: 'test-string'
+        }
+      ]);
+    },
+    openDatabase: SQLiteFactory.openDatabase,
+    deleteDatabase: SQLiteFactory.deleteDatabase
   };
 
 }).call(this);

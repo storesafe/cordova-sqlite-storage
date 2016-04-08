@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015: Christopher J. Brody (aka Chris Brody)
+ * Copyright (c) 2012-2016: Christopher J. Brody (aka Chris Brody)
  * Copyright (C) 2011 Davide Bertola
  *
  * This library is available under the terms of the MIT License (2008).
@@ -10,21 +10,25 @@
 
 #import "sqlite3.h"
 
+// REGEXP:
 #include <regex.h>
 
-// NOTE: This is now broken by cordova-ios 4.0:
+// NOTE: This is now broken by cordova-ios 4.0, see:
+// https://issues.apache.org/jira/browse/CB-9638
+// Solution is to use NSJSONSerialization instead.
 #ifdef READ_BLOB_AS_BASE64
 #import <Cordova/NSData+Base64.h>
 #endif
 
-static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** values) {
+static void
+sqlite_regexp(sqlite3_context * context, int argc, sqlite3_value ** values) {
     if ( argc < 2 ) {
         sqlite3_result_error(context, "SQL function regexp() called with missing arguments.", -1);
         return;
     }
 
-    char* reg = (char*)sqlite3_value_text(values[0]);
-    char* text = (char*)sqlite3_value_text(values[1]);
+    char * reg = (char *)sqlite3_value_text(values[0]);
+    char * text = (char *)sqlite3_value_text(values[1]);
 
     if ( argc != 2 || reg == 0 || text == 0) {
         sqlite3_result_error(context, "SQL function regexp() called with invalid arguments.", -1);
@@ -107,12 +111,31 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     }
 
     NSString *dbdir = [appDBPaths objectForKey:atkey];
-    //NSString *dbPath = [NSString stringWithFormat:@"%@/%@", dbdir, dbFile];
     NSString *dbPath = [dbdir stringByAppendingPathComponent: dbFile];
     return dbPath;
 }
 
+-(void)echoStringValue: (CDVInvokedUrlCommand*)command
+{
+    CDVPluginResult * pluginResult = nil;
+    NSMutableDictionary * options = [command.arguments objectAtIndex:0];
+
+    NSString * string_value = [options objectForKey:@"value"];
+
+    NSLog(@"echo string value: %@", string_value);
+
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:string_value];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
+}
+
 -(void)open: (CDVInvokedUrlCommand*)command
+{
+    [self.commandDelegate runInBackground:^{
+        [self openNow: command];
+    }];
+}
+
+-(void)openNow: (CDVInvokedUrlCommand*)command
 {
     CDVPluginResult* pluginResult = nil;
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
@@ -152,7 +175,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
                 pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unable to open DB"];
                 return;
             } else {
-                sqlite3_create_function(db, "regexp", 2, SQLITE_ANY, NULL, &sqlite_regexp, NULL, NULL);
+                sqlite3_create_function(db, "REGEXP", 2, SQLITE_ANY, NULL, &sqlite_regexp, NULL, NULL);
 
                 // for SQLCipher version:
                 // NSString *dbkey = [options objectForKey:@"key"];
@@ -185,7 +208,6 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     // NSLog(@"open cb finished ok");
 }
 
-
 -(void) createFromResource: (NSString *)dbfile withDbname:(NSString *)dbname {
     NSString * bundleRoot = [[NSBundle mainBundle] resourcePath];
     NSString * www = [bundleRoot stringByAppendingPathComponent:@"www"];
@@ -204,8 +226,14 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     }
 }
 
-
 -(void) close: (CDVInvokedUrlCommand*)command
+{
+    [self.commandDelegate runInBackground:^{
+        [self closeNow: command];
+    }];
+}
+
+-(void)closeNow: (CDVInvokedUrlCommand*)command
 {
     CDVPluginResult* pluginResult = nil;
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
@@ -237,6 +265,13 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 }
 
 -(void) delete: (CDVInvokedUrlCommand*)command
+{
+    [self.commandDelegate runInBackground:^{
+        [self deleteNow: command];
+    }];
+}
+
+-(void)deleteNow: (CDVInvokedUrlCommand*)command
 {
     CDVPluginResult* pluginResult = nil;
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
@@ -270,11 +305,11 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 -(void) backgroundExecuteSqlBatch: (CDVInvokedUrlCommand*)command
 {
     [self.commandDelegate runInBackground:^{
-        [self executeSqlBatch: command];
+        [self executeSqlBatchNow: command];
     }];
 }
 
--(void) executeSqlBatch: (CDVInvokedUrlCommand*)command
+-(void) executeSqlBatchNow: (CDVInvokedUrlCommand*)command
 {
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
     NSMutableArray *results = [NSMutableArray arrayWithCapacity:0];

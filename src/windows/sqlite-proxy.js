@@ -20,6 +20,10 @@ function handle(p, win, fail) {
 }
 
 module.exports = {
+	echoStringValue: function(win, fail, args) {
+	    var options = args[0];
+		win(options.value);
+	},
 	open: function(win, fail, args) {
 	    var options = args[0];
 	    var res;
