@@ -1,8 +1,9 @@
 # Changes
 
-## 0.9.x-common-dev
+## x.x.x-common-dev
 
-- _Support Windows 8.1/Windows Phone 8.1 along with Windows 10_
+- Support Windows 8.1/Windows Phone 8.1 along with Windows 10
+- Fix PCH issue with Debug Win32 UWP (Windows 10) build
 
 ### cordova-sqlite-storage 1.2.0
 

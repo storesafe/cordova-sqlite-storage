@@ -68,7 +68,6 @@ Some other projects by [@brodybits](https://github.com/brodybits):
 - Windows version is in an alpha state:
   - Issue with UNICODE `\u0000` character (same as `\0`)
   - No background processing (for future consideration)
-  - ~~You *may* encounter issues with Cordova CLI due to [CB-8866](https://issues.apache.org/jira/browse/CB-8866). *Old workaround:* you can install using [litehelpers / cordova-windows-nufix](https://github.com/litehelpers/cordova-windows-nufix) and `plugman` as described below.~~
   - In addition, problems with the Windows version have been reported in case of a Cordova project using a Visual Studio template/extension instead of Cordova/PhoneGap CLI or `plugman`
 - FTS3, FTS4, and R-Tree support is tested working OK in this version (for all target platforms in this version branch Android/iOS/Windows)
 - Android is supported back to SDK 10 (a.k.a. Gingerbread, Android 2.3.3); support for older versions is available upon request.
@@ -650,12 +649,6 @@ Documentation at: http://ngcordova.com/docs/plugins/sqlite/
 
 ## Windows target platform
 
-~~**IMPORTANT:** There are issues supporing certain Windows target platforms due to [CB-8866](https://issues.apache.org/jira/browse/CB-8866):~~
-- ~~When using Visual Studio, the default target ("Mixed Platforms") will not work~~
-- ~~Problems have been with the Windows "Universal" version case of a Cordova project using a Visual Studio template/extension instead of Cordova/PhoneGap CLI or `plugman`~~
-
-GONE: ~~*Old workaround:* As an alternative, which will support the ("Mixed Platforms") target, you can use `plugman` instead with [litehelpers / cordova-windows-nufix](https://github.com/litehelpers/cordova-windows-nufix) xxx.~~
-
 ## Easy install with Cordova CLI tool
 
     npm install -g cordova # if you don't have cordova
@@ -663,8 +656,6 @@ GONE: ~~*Old workaround:* As an alternative, which will support the ("Mixed Plat
     cordova plugin add cordova-sqlite-xxx
 
 You can find more details at [this writeup](http://iphonedevlog.wordpress.com/2014/04/07/installing-chris-brodys-sqlite-database-with-cordova-cli-android/).
-
-~~**WARNING:** for Windows XXX target platform please read the section above.~~
 
 **IMPORTANT:** sometimes you have to update the version for a platform before you can build, like: `cordova prepare ios`
 
@@ -693,7 +684,7 @@ A posting how to get started developing on Windows host without the Cordova CLI 
 - `SQLitePlugin.coffee.md`: platform-independent (Literate coffee-script, can be read by recent coffee-script compiler)
 - `www`: `SQLitePlugin.js` platform-independent Javascript as generated from `SQLitePlugin.coffee.md` (and checked in!)
 - `src`: platform-specific source code:
-   - `external` - placeholder used to import `sqlite3.[hc]` in this version branch (needed to build Windows 8.1/Windows Phone 8.1(+) version)
+   - `external` - placeholder used to import dependencies in this version branch (needed to build Android and Windows versions)
    - `android` - Java plugin code for Android
    - `ios` - Objective-C plugin code for iOS
    - `windows` - Javascript proxy code and SQLite3-WinRT project for Windows
