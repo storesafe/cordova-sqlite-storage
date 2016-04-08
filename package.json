@@ -1,6 +1,6 @@
 {
   "name": "cordova-sqlite-regexp-dev",
-  "version": "0.8.0-regexp-dev",
+  "version": "x.x.x-regexp-dev",
   "description": "Native interface to SQLite for PhoneGap/Cordova (regexp dev)",
   "cordova": {
     "id": "cordova-sqlite-regexp-dev",
