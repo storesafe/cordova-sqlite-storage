@@ -24,4 +24,5 @@ script:
   - date && cp ${SPEC_WWW_DIR}/spec/db-tx-string-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
   - date && cp ${SPEC_WWW_DIR}/spec/basic-sql-tx-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
   - date && cp ${SPEC_WWW_DIR}/spec/sql-batch-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
+  - date && cp ${SPEC_WWW_DIR}/spec/regexp-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
   - date

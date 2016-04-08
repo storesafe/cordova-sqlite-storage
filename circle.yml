@@ -24,6 +24,7 @@ test:
     - cp $SPEC_ROOT/spec/db-tx-string-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/basic-sql-tx-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/sql-batch-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
+    - cp $SPEC_ROOT/spec/regexp-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/db-simultaneous-tx-access-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/tx-semantics-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/db-tx-value-bindings-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD

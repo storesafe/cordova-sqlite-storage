@@ -9,7 +9,7 @@ var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
 
 var scenarioList = [ isAndroid ? 'Plugin-implementation-default' : 'Plugin', 'HTML5', 'Plugin-implementation-2' ];
 
-var scenarioCount = isAndroid ? 3 : (isIE ? 1 : 2);
+var scenarioCount = (!!window.hasWebKitBrowser) ? (isAndroid ? 3 : 2) : 1;
 
 // simple tests:
 var mytests = function() {
