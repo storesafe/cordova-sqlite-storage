@@ -1,5 +1,10 @@
 # Changes
 
+## 1.2.1-pre1
+
+- Specify minimum Cordova version 6.0.0
+- Lawnchair adapter fix: Changed remove method to work with key array
+
 ## 1.2.0
 
 - Rename Lawnchair adapter to prevent clash with standard webkit-sqlite adapter
