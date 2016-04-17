@@ -1,7 +1,8 @@
 # Changes
 
-## 1.2.1-pre1
+## 1.2.1-pre2
 
+- Close Android SQLiteStatement after INSERT/UPDATE/DELETE
 - Specify minimum Cordova version 6.0.0
 - Lawnchair adapter fix: Changed remove method to work with key array
 
