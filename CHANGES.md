@@ -1,6 +1,6 @@
 # Changes
 
-## 1.2.1-pre2
+## 1.2.1
 
 - Close Android SQLiteStatement after INSERT/UPDATE/DELETE
 - Specify minimum Cordova version 6.0.0

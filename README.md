@@ -41,11 +41,11 @@ As documented in the "**A User’s iCloud Storage Is Limited**" section of [iClo
 
 Use the `location` or `iosDatabaseLocation` option in `sqlitePlugin.openDatabase()` to store the database in a subdirectory that is *NOT* backed up to iCloud, as described in the section below.
 
-**NOTE:** Changing `BackupWebStorage` in `config.xml` has no effect on a database created by this plugin. `BackupWebStorage` applies only to local storage and/or Web SQL storage created in the WebView (*not* using this plugin). Ref: [phonegap/build#338 (comment)](https://github.com/phonegap/build/issues/338#issuecomment-113328140)
+**NOTE:** Changing `BackupWebStorage` in `config.xml` has no effect on a database created by this plugin. `BackupWebStorage` applies only to local storage and/or Web SQL storage created in the WebView (*not* using this plugin). For reference: [phonegap/build#338 (comment)](https://github.com/phonegap/build/issues/338#issuecomment-113328140)
 
 ## Available for hire
 
-The primary author and maintainer [@brodybits (Christopher J. Brody aka Chris Brody)](https://github.com/brodybits) is available for contracting assignments. Part-time contracting assignments would really help keep this project alive. ([@brodybits](https://github.com/brodybits) dedicates a significant amout of working time to maintain and improve this project, and has turned down multiple full-time work opportunities in order to support this project.)
+The primary author and maintainer [@brodybits (Christopher J. Brody aka Chris Brody)](https://github.com/brodybits) is available for contracting assignments. Part-time assignments would really help keep this project alive. ([@brodybits](https://github.com/brodybits) dedicates a significant amount of working time and has turned down multiple full-time work opportunities to maintain and improve this project.)
 
 [@brodybits](https://github.com/brodybits) can be contacted at:
 - <brodybits@litehelpers.net>
@@ -62,41 +62,45 @@ Some other projects by [@brodybits](https://github.com/brodybits):
 - A recent version of Cordova (such as `6.1.1`) is recommended. Cordova versions older than `6.0.0` are not supported by this project.
 - iOS database location is now mandatory, as documented below.
 - Android version in this version branch is now using the built-in Android SQLite database classes. Integration with the lightweight [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) is available in [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) and [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy).
-- Windows 8.1/Windows Phone 8.1 version is removed from this project, available in [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy) (Windows 10 version is available in [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext))
-- WP(7/8) is not supported by this version branch, moved to [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy).
-- The following features are moved to [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) and removed from this project:
-  - REGEXP support
-  - Pre-populated database
-- Amazon Fire-OS is dropped due to lack of support by Cordova. Android version should be used to deploy to Fire-OS 5.0(+) devices ref: [cordova/cordova-discuss#32 (comment)](https://github.com/cordova/cordova-discuss/issues/32#issuecomment-167021676)
-- FTS3, FTS4, and R-Tree support is tested working OK in this version (for all target platforms in this version branch Android/iOS)
+- Windows 8.1/Windows Phone 8.1/Windows 10 version using the performant [doo / SQLite3-WinRT](https://github.com/doo/SQLite3-WinRT) component is available in [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) (with pre-populated database support) and [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy).
+- WP8 support (along with Windows 8.1/Windows Phone 8.1/Windows 10 support) is available in [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy).
+- The following features are available in [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext):
+  - REGEXP support (Android/iOS)
+  - Pre-populated database (all platforms Android/iOS/Windows)
+- Amazon Fire-OS is dropped due to lack of support by Cordova. Android version should be used to deploy to Fire-OS 5.0(+) devices. For reference: [cordova/cordova-discuss#32 (comment)](https://github.com/cordova/cordova-discuss/issues/32#issuecomment-167021676)
+- FTS3 and FTS4 are tested working OK in this version branch (for all target platforms in this version branch Android/iOS)
+- R-Tree is tested and supported for iOS *only* in this version branch
 - Android is supported back to SDK 10 (a.k.a. Gingerbread, Android 2.3.3); support for older versions is available upon request.
 - iOS versions supported: 7.x/8.x/9.x
-- API to open the database may be changed somewhat to be more streamlined. Transaction and single-statement query API will NOT be changed.
 - In case of memory issues please use smaller transactions or use the version (with a different licensing scheme) at: [litehelpers / Cordova-sqlite-enterprise-free](https://github.com/litehelpers/Cordova-sqlite-enterprise-free)
 
 ## Announcements
 
+- Windows 8.1/Windows Phone 8.1/Windows 10 version is available in [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) (with pre-populated database support) and [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy) (with WP8 support).
 - More explicit `openDatabase` and `deleteDatabase` `iosDatabaseLocation` option
-- Windows 10 version is available in [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext)
 - Added simple sql batch query function
 - Added echo test function to verify installation of this plugin
-- Published [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy) for maintenance of WP(7/8) version along with Android/iOS/Windows 8.1(+)/Windows Phone 8.1(+)
 - All iOS operations are now using background processing (reported to resolve intermittent problems with cordova-ios@4.0.1)
 - Published [brodybits / Cordova-quick-start-checklist](https://github.com/brodybits/Cordova-quick-start-checklist) and [brodybits / Cordova-troubleshooting-guide](https://github.com/brodybits/Cordova-troubleshooting-guide)
 - A version with support for web workers is available (with a different licensing scheme) at: [litehelpers / cordova-sqlite-workers-evfree](https://github.com/litehelpers/cordova-sqlite-workers-evfree)
-- A version with pre-populated database support added for Windows (10) "Universal" and REGEXP support added for Android is available at: [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext)
 - PhoneGap Build is now supported through the npm package: http://phonegap.com/blog/2015/05/26/npm-plugins-available/
 - [MetaMemoryT / websql-promise](https://github.com/MetaMemoryT/websql-promise) now provides a Promises-based interface to both Web SQL and this plugin
-- iOS version is now fixed to override the correct pluginInitialize method and should work with recent versions of iOS
-- [SQLCipher](https://www.zetetic.net/sqlcipher/) for Windows (8.1) in addition to Android & iOS is now supported by [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter)
 
 ## Highlights
 
-- Drop-in replacement for HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/), the only change should be `window.openDatabase()` --> `sqlitePlugin.openDatabase()` with parameters as documented below.
-- Failure-safe nested transactions with batch processing optimizations
+- Drop-in replacement for HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/): the only change should be to replace the static `window.openDatabase()` factory call with `window.sqlitePlugin.openDatabase()`, with parameters as documented below.
+- Failure-safe nested transactions with batch processing optimizations (according to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/))
 - As described in [this posting](http://brodyspark.blogspot.com/2012/12/cordovaphonegap-sqlite-plugins-offer.html):
   - Keeps sqlite database in a user data location that is known; can be reconfigured (iOS version); and synchronized to iCloud by default (iOS version; can be disabled as described below).
   - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
+- This project is self-contained: no dependencies on other plugins such as cordova-plugin-file
+- Windows 8.1/Windows Phone 8.1/Windows 10 version available in [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) and [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy) uses the performant C++ [doo / SQLite3-WinRT](https://github.com/doo/SQLite3-WinRT) component.
+- [SQLCipher](https://www.zetetic.net/sqlcipher/) support for Android/iOS/Windows is available at: [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter)
+- Intellectual property:
+  - All source code is tracked to the original author in git
+  - Major authors are tracked in AUTHORS.md
+  - Licensing of each component is tracked in LICENSE.md
+  - History of this project is also described in HISTORY.md
 
 ## Some apps using this plugin
 
@@ -116,7 +120,7 @@ Some other projects by [@brodybits](https://github.com/brodybits):
 - If a sql statement fails for which there is no error handler or the error handler does not return `false` to signal transaction recovery, the plugin fires the remaining sql callbacks before aborting the transaction.
 - In case of an error, the error `code` member is bogus on Android (fixed for Android in [litehelpers / Cordova-sqlite-enterprise-free](https://github.com/litehelpers/Cordova-sqlite-enterprise-free)).
 - Possible crash on Android when using Unicode emoji characters due to [Android bug 81341](https://code.google.com/p/android/issues/detail?id=81341), which _should_ be fixed in Android 6.x
-- Close database bugs described below.
+- Close/delete database bugs described below.
 - When a database is opened and deleted without closing, the iOS version is known to leak resources.
 - It is NOT possible to open multiple databases with the same name but in different locations (iOS version).
 - Problems reported with PhoneGap Build in the past:
@@ -125,21 +129,21 @@ Some other projects by [@brodybits](https://github.com/brodybits):
 
 ## Other limitations
 
-- The db version, display name, and size parameter values are not supported and will be ignored.
+- ~~The db version, display name, and size parameter values are not supported and will be ignored.~~ (No longer supported by the API)
 - Absolute and relative subdirectory path(s) are not tested or supported.
 - This plugin will not work before the callback for the 'deviceready' event has been fired, as described in **Usage**. (This is consistent with the other Cordova plugins.)
-- This version will not work within a web worker (not properly supported by the Cordova framework).
-- In-memory database `db=window.sqlitePlugin.openDatabase({name: ":memory:"})` is currently not supported.
+- This version will not work within a web worker (not properly supported by the Cordova framework). Use within a web worker is supported for Android and iOS in: [litehelpers / cordova-sqlite-workers-evfree](https://github.com/litehelpers/cordova-sqlite-workers-evfree) (available with a different licensing scheme)
+- In-memory database `db=window.sqlitePlugin.openDatabase({name: ':memory:', ...})` is currently not supported.
 - The Android version cannot work with more than 100 open db files (due to the threading model used).
 - UNICODE `\u2028` (line separator) and `\u2029` (paragraph separator) characters are currently not supported and known to be broken in iOS version due to [Cordova bug CB-9435](https://issues.apache.org/jira/browse/CB-9435). There *may* be a similar issue with certain other UNICODE characters in the iOS version (needs further investigation). This is fixed in: [litehelpers / Cordova-sqlite-enterprise-free](https://github.com/litehelpers/Cordova-sqlite-enterprise-free) (available with a different licensing scheme)
 - Blob type is currently not supported and known to be broken on multiple platforms.
 - Case-insensitive matching and other string manipulations on Unicode characters, which is provided by optional ICU integration in the sqlite source and working with recent versions of Android, is not supported for any target platforms.
 - iOS version uses a thread pool but with only one thread working at a time due to "synchronized" database access
 - Large query result can be slow, also due to JSON implementation
-- ATTACH to another database file is not supported, fixed (along with the memory and iOS UNICODE `\u2028` line separator / `\u2029` paragraph separator issues) in: [litehelpers / Cordova-sqlite-evfree-ext](https://github.com/litehelpers/Cordova-sqlite-evfree-ext) (available with a different licensing scheme)
+- ATTACH to another database file is not supported by this version. Attach/detach is supported (along with the memory and iOS UNICODE `\u2028` line separator / `\u2029` paragraph separator fixes) in: [litehelpers / Cordova-sqlite-evfree-ext](https://github.com/litehelpers/Cordova-sqlite-evfree-ext) (available with a different licensing scheme)
 - User-defined savepoints are not supported and not expected to be compatible with the transaction locking mechanism used by this plugin. In addition, the use of BEGIN/COMMIT/ROLLBACK statements is not supported.
 - Problems have been reported when using this plugin with Crosswalk (for Android). It may help to install Crosswalk as a plugin instead of using Crosswalk to create the project.
-- Does not work with [axemclion / react-native-cordova-plugin](https://github.com/axemclion/react-native-cordova-plugin) since the `window.sqlitePlugin` object exported (ES5 feature). It is recommended to use [andpor / react-native-sqlite-storage](https://github.com/andpor/react-native-sqlite-storage) for SQLite database access with React Native Android/iOS instead.
+- Does not work with [axemclion / react-native-cordova-plugin](https://github.com/axemclion/react-native-cordova-plugin) since the `window.sqlitePlugin` object *not* proprly exported (ES5 feature). It is recommended to use [andpor / react-native-sqlite-storage](https://github.com/andpor/react-native-sqlite-storage) for SQLite database access with React Native Android/iOS instead.
 
 ## Further testing needed
 
@@ -147,21 +151,24 @@ Some other projects by [@brodybits](https://github.com/brodybits):
 - Multi-page apps
 - Use within [InAppBrowser](http://docs.phonegap.com/en/edge/cordova_inappbrowser_inappbrowser.md.html)
 - Use within an iframe (see [litehelpers/Cordova-sqlite-storage#368 (comment)](https://github.com/litehelpers/Cordova-sqlite-storage/issues/368#issuecomment-154046367))
-- SAVEPOINT(s)
-- R-Tree is not tested with some older releases of Android
+- Actual behavior when using SAVEPOINT(s)
+- R-Tree is not fully tested with Android
 - UNICODE characters not fully tested
 - Use with TRIGGER(s), JOIN and ORDER BY RANDOM
+- UPDATE/DELETE with LIMIT or ORDER BY (not supported by older sqlite3 versions)
+- WITH clause (not supported by older sqlite3 versions)
+- SQL statements with extra semicolon(s) in the beginning (known to cause issues with android.database implementation)
 - Integration with JXCore for Cordova (must be built without sqlite(3) built-in)
 - Delete an open database inside a statement or transaction callback.
 
 ## Some tips and tricks
 
-- If you run into problems and your code follows the asynchronous HTML5/[Web SQL](http://www.w3.org/TR/webdatabase/) transaction API, you can try opening your database using `window.openDatabase` and see if you get the same problems.
-- In case your database schema may change, it is recommended to keep a table with one row and one column to keep track of your own shema version number. It is possible to add it later. The recommended schema update procedure is described below.
+- If you run into problems and your code follows the asynchronous HTML5/[Web SQL](http://www.w3.org/TR/webdatabase/) transaction API, you can try opening a test database using `window.openDatabase` and see if you get the same problems.
+- In case your database schema may change, it is recommended to keep a table with one row and one column to keep track of your own schema version number. It is possible to add it later. The recommended schema update procedure is described below.
 
 ## Common pitfall(s)
 
-- It is NOT allowed to execute sql statements on a transaction following the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/), as described below.
+- It is NOT allowed to execute sql statements on a transaction that has already finished, as described below. This is consistent with the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
 - The plugin class name starts with "SQL" in capital letters, but in Javascript the `sqlitePlugin` object name starts with "sql" in small letters.
 - Attempting to open a database before receiving the 'deviceready' event callback.
 - Inserting STRING into ID field
@@ -174,18 +181,24 @@ Some other projects by [@brodybits](https://github.com/brodybits):
 ## Angular/ngCordova/Ionic-related pitfalls
 
 - Angular/ngCordova/Ionic controller/factory/service callbacks may be triggered before the 'deviceready' event is fired
-- As discussed in [#355](https://github.com/litehelpers/Cordova-sqlite-storage/issues/355), it may be necessary to install ionic-plugin-keyboard
+- As discussed in [litehelpers/Cordova-sqlite-storage#355](https://github.com/litehelpers/Cordova-sqlite-storage/issues/355), it may be necessary to install ionic-plugin-keyboard
 
 ## Major TODOs
 
 - Integrate with IndexedDBShim and some other libraries such as Sequelize, Squel.js, WebSqlSync, Persistence.js, Knex, etc.
+- Version with proper BLOB support
+
+## For future considertion
+
+- Auto-vacuum option
+- Browser platform
 
 ## Alternatives
 
 ### Other versions
 
-- [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) - version with REGEXP support for Android/iOS and pre-populated database support *added* for Windows 10
-- [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy) - maintenance of WP(7/8) version along with Android/iOS/Windows 8.1(+)/Windows Phone 8.1(+)
+- [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) - version with [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector), Windows 8.1/Windows Phone 8.1/Windows 10 (using [doo / SQLite3-WinRT](https://github.com/doo/SQLite3-WinRT)), REGEXP support for Android/iOS, and pre-populated database support for Android/iOS/Windows
+- [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy) - maintenance of WP8 version along with the other supported platforms Android/iOS/Windows 8.1/Windows Phone 8.1/Windows 10
 - [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter) - supports [SQLCipher](https://www.zetetic.net/sqlcipher/) for Android, iOS, and Windows 8.1(+)/Windows Phone 8.1(+)
 - [litehelpers / Cordova-sqlite-enterprise-free](https://github.com/litehelpers/Cordova-sqlite-enterprise-free) - internal memory improvements to support larger transactions (Android/iOS) and fix to support all Unicode characters (iOS) - with a different licensing scheme
 - [litehelpers / Cordova-sqlite-evfree-ext](https://github.com/litehelpers/Cordova-sqlite-evfree-ext) - version with support for ATTACH, includes internal memory improvements to support larger transactions (Android/iOS) and fix to support all Unicode characters (with a different licensing scheme)
@@ -196,7 +209,7 @@ Some other projects by [@brodybits](https://github.com/brodybits):
 ### Other SQLite adapter projects
 
 - [object-layer / AnySQL](https://github.com/object-layer/anysql) - Unified SQL API over multiple database engines
-- [samikrc / CordovaSQLite](https://github.com/samikrc/CordovaSQLite) - Simpler sqlite plugin with a simpler API
+- [samikrc / CordovaSQLite](https://github.com/samikrc/CordovaSQLite) - Simpler sqlite plugin with a simpler API and browser platform
 - [nolanlawson / sqlite-plugin-2](https://github.com/nolanlawson/sqlite-plugin-2) - Simpler fork/partial rewrite (TBD not sure how much of the code, such as iOS code by [@davibe](https://github.com/davibe), is copied/reused)
 - [nolanlawson / node-websql](https://github.com/nolanlawson/node-websql) - Web SQL API implementation for Node.js
 - [an-rahulpandey / cordova-plugin-dbcopy](https://github.com/an-rahulpandey/cordova-plugin-dbcopy) - Alternative way to copy pre-populated database
@@ -236,7 +249,7 @@ The idea is to emulate the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/
 
 ## Opening a database
 
-To open a database access object (in the **new** default location):
+To open a database access hadle object (in the **new** default location):
 
 ```js
 var db = window.sqlitePlugin.openDatabase({name: 'my.db', location: 'default'}, successcb, errorcb);
@@ -275,7 +288,7 @@ document.addEventListener('deviceready', onDeviceReady, false);
 
 // Cordova is ready
 function onDeviceReady() {
-  var db = window.sqlitePlugin.openDatabase({name: 'my.db', iosDatabaseLocation: 'default'});
+  var db = window.sqlitePlugin.openDatabase({name: 'my.db', location: 'default'});
   // ...
 }
 ```
@@ -283,7 +296,7 @@ function onDeviceReady() {
 The successcb and errorcb callback parameters are optional but can be extremely helpful in case anything goes wrong. For example:
 
 ```js
-window.sqlitePlugin.openDatabase({name: 'my.db', iosDatabaseLocation: 'default'}, function(db) {
+window.sqlitePlugin.openDatabase({name: 'my.db', location: 'default'}, function(db) {
   db.transaction(function(tx) {
     // ...
   }, function(err) {
@@ -296,8 +309,8 @@ If any sql statements or transactions are attempted on a database object before 
 
 **OTHER NOTES:**
 - The database file name should include the extension, if desired.
-- It is possible to open multiple database access objects for the same database.
-- The database access object can be closed as described below.
+- It is possible to open multiple database access handle objects for the same database.
+- The database handle access object can be closed as described below.
 
 **TIP:**
 
@@ -305,7 +318,7 @@ To overwrite `window.openDatabase`:
 
 ```Javascript
 window.openDatabase = function(dbname, ignored1, ignored2, ignored3) {
-  return window.sqlitePlugin.openDatabase({name: dbname, iosDatabaseLocation: 'default'});
+  return window.sqlitePlugin.openDatabase({name: dbname, location: 'default'});
 };
 ```
 
@@ -320,7 +333,7 @@ This issue is suspected to be caused by [this Android sqlite commit](https://git
 There is an optional workaround that simply closes and reopens the database file at the end of every transaction that is committed. The workaround is enabled by opening the database with options as follows:
 
 ```js
-var db = window.sqlitePlugin.openDatabase({name: 'my.db', androidLockWorkaround: 1});
+var db = window.sqlitePlugin.openDatabase({name: 'my.db', location: 'default', androidLockWorkaround: 1});
 ```
 
 **IMPORTANT NOTE:** This workaround is *only* applied when using `db.transaction()`, *not* applied when running `executeSql()` on the database object.
@@ -334,12 +347,34 @@ The following types of SQL transactions are supported by this version:
 
 ### Single-statement transactions
 
-Sample:
+Sample with INSERT:
 
 ```Javascript
-db.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (res) {
-  console.log('got stringlength: ' + res.rows.item(0).stringlength);
+db.executeSql('INSERT INTO MyTable VALUES (?)', ['test-value'], function (resultSet) {
+  console.log('resultSet.insertId: ' + resultSet.insertId);
+  console.log('resultSet.rowsAffected: ' + resultSet.rowsAffected);
 }, function(error) {
+  console.log('SELECT error: ' + error.message);
+});
+```
+
+Sample with SELECT:
+
+```Javascript
+db.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (resultSet) {
+  console.log('got stringlength: ' + resultSet.rows.item(0).stringlength);
+}, function(error) {
+  console.log('SELECT error: ' + error.message);
+});
+```
+
+**NOTE/minor bug:** The object returned by `resultSet.rows.item(rowNumber)` is **not** immutable. In addition, multiple calls to `resultSet.rows.item(rowNumber)` with the same `rowNumber` on the same `resultSet` object return the same object. For example, the following code will show `Second uppertext result: ANOTHER`:
+
+```Javascript
+db.executeSql("SELECT UPPER('First') AS uppertext", [], function (resultSet) {
+  var obj1 = resultSet.rows.item(0);
+  obj1.uppertext = 'ANOTHER';
+  console.log('Second uppertext result: ' + resultSet.rows.item(0).uppertext);
   console.log('SELECT error: ' + error.message);
 });
 ```
@@ -354,8 +389,8 @@ db.sqlBatch([
   'CREATE TABLE MyTable (SampleColumn)',
   [ 'INSERT INTO MyTable VALUES (?)', ['test-value'] ],
 ], function() {
-  db.executeSql('SELECT * FROM MyTable', [], function (res) {
-    console.log('Sample column value: ' + res.rows.item(0).SampleColumn);
+  db.executeSql('SELECT * FROM MyTable', [], function (resultSet) {
+    console.log('Sample column value: ' + resultSet.rows.item(0).SampleColumn);
   });
 }, function(error) {
   console.log('Populate table error: ' + error.message);
@@ -366,14 +401,17 @@ In case of an error, all changes in a sql batch are automatically discarded usin
 
 ### Standard asynchronous transactions
 
-Standard asynchronous transactions follow the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/) which is very well documented and uses BEGIN and COMMIT or ROLLBACK to keep the transactions failure-safe. Here is a very simple example from the test suite:
+Standard asynchronous transactions follow the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/) which is very well documented and uses BEGIN and COMMIT or ROLLBACK to keep the transactions failure-safe. Here is a simple example:
 
 ```Javascript
 db.transaction(function(tx) {
-  tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", [], function(tx, res) {
-    console.log("res.rows.item(0).uppertext: " + res.rows.item(0).uppertext);
+  tx.executeSql('DROP TABLE IF EXISTS MyTable');
+  tx.executeSql('CREATE TABLE MyTable (SampleColumn)');
+  tx.executeSql('INSERT INTO MyTable VALUES (?)', ['test-value'], function(tx, resultSet) {
+    console.log('resultSet.insertId: ' + resultSet.insertId);
+    console.log('resultSet.rowsAffected: ' + resultSet.rowsAffected);
   }, function(error) {
-    console.log('SELECT error: ' + error.message);
+    console.log('INSERT error: ' + error.message);
   });
 }, function(error) {
   console.log('transaction error: ' + error.message);
@@ -386,8 +424,8 @@ In case of a read-only transaction, it is possible to use `readTransaction` whic
 
 ```Javascript
 db.readTransaction(function(tx) {
-  tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", [], function(tx, res) {
-    console.log("res.rows.item(0).uppertext: " + res.rows.item(0).uppertext);
+  tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", [], function(tx, resultSet) {
+    console.log("resultSet.rows.item(0).uppertext: " + resultSet.rows.item(0).uppertext);
   }, function(error) {
     console.log('SELECT error: ' + error.message);
   });
@@ -398,7 +436,7 @@ db.readTransaction(function(tx) {
 });
 ```
 
-**WARNING:** It is NOT allowed to execute sql statements on a transaction after it has finished. Here is an example from my [Populating Cordova SQLite storage with the JQuery API post](http://www.brodybits.com/cordova/sqlite/api/jquery/2015/10/26/populating-cordova-sqlite-storage-with-the-jquery-api.html):
+**WARNING:** It is NOT allowed to execute sql statements on a transaction after it has finished. Here is an example from the **Populating Cordova SQLite storage with the JQuery API post** at <http://www.brodybits.com/cordova/sqlite/api/jquery/2015/10/26/populating-cordova-sqlite-storage-with-the-jquery-api.html>:
 
 ```Javascript
   // BROKEN SAMPLE:
@@ -428,43 +466,22 @@ db.readTransaction(function(tx) {
   });
 ```
 
-You can find more details and a step-by-step description how to do this right in the [Populating Cordova SQLite storage with the JQuery API post](http://www.brodybits.com/cordova/sqlite/api/jquery/2015/10/26/populating-cordova-sqlite-storage-with-the-jquery-api.html):
+You can find more details and a step-by-step description how to do this right in the **Populating Cordova SQLite storage with the JQuery API** post at: <http://www.brodybits.com/cordova/sqlite/api/jquery/2015/10/26/populating-cordova-sqlite-storage-with-the-jquery-api.html>
 
-**BUG:** If a row item object is retrieved twice, they should be safe from each other.
-But this is not the case. This sample program demonstrates the bug:
+**NOTE/minor bug:** Just like the single-statement transaction described above, the object returned by `resultSet.rows.item(rowNumber)` is **not** immutable. In addition, multiple calls to `resultSet.rows.item(rowNumber)` with the same `rowNumber` on the same `resultSet` object return the same object. For example, the following code will show `Second uppertext result: ANOTHER`:
 
 ```Javascript
-var db = window.sqlitePlugin.openDatabase({name: "my.db"});
-
-var res1 = null,
-    res2 = null;
-
-db.transaction(function(tx) {
-  tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
-  tx.executeSql('INSERT INTO test_table (data, data_num) VALUES (?,?)', ['test', 101], function(tx, res) {
-
-  tx.executeSql('SELECT * FROM test_table;', [], function(tx, res) {
-
-    res1 = res.rows.item(0);
-    res2 = res.rows.item(0);
-
-    res1.data = 'another';
-
-    // immediate check:
-    console.log('res1.data = ' + res1.data);
-    // output: res2.data = 'another'
-    console.log('res2.data = ' + res2.data);
+db.readTransaction(function(tx) {
+  tx.executeSql("SELECT UPPER('First') AS uppertext", [], function(tx, resultSet) {
+    var obj1 = resultSet.rows.item(0);
+    obj1.uppertext = 'ANOTHER';
+    console.log('Second uppertext result: ' + resultSet.rows.item(0).uppertext);
+    console.log('SELECT error: ' + error.message);
   });
-
-}, function(e) {
-  console.log('Transaction error: ' + e.message);
-}, function() {
-  // check stored info:
-  console.log('res1.data: ' + res1.data);
-  // output: res2.data = 'another';
-  console.log('res2.data: ' + res2.data);
 });
 ```
+
+**FUTURE TBD:** It should be possible to get a row result object using `resultSet.rows[rowNumber]`, also in case of a single-statement transaction. This is non-standard but is supported by the Chrome desktop browser.
 
 ## Background processing
 
@@ -482,7 +499,7 @@ document.addEventListener('deviceready', onDeviceReady, false);
 
 // Cordova is ready
 function onDeviceReady() {
-  var db = window.sqlitePlugin.openDatabase({name: "my.db"});
+  var db = window.sqlitePlugin.openDatabase({name: 'my.db', location: 'default'});
 
   db.transaction(function(tx) {
     tx.executeSql('DROP TABLE IF EXISTS test_table');
@@ -523,7 +540,7 @@ document.addEventListener('deviceready', onDeviceReady, false);
 
 // Cordova is ready
 function onDeviceReady() {
-  var db = window.sqlitePlugin.openDatabase("Database", "1.0", "Demo", -1);
+  var db = window.sqlitePlugin.openDatabase({name: 'my.db', location: 'default'});
 
   db.transaction(function(tx) {
     tx.executeSql('DROP TABLE IF EXISTS test_table');
@@ -548,6 +565,8 @@ function onDeviceReady() {
 This case will also works with Safari (WebKit), assuming you replace `window.sqlitePlugin.openDatabase` with `window.openDatabase`.
 
 ## Close a database object
+
+This will invalidate **all** handle access handle objects for the database that is closed:
 
 ```js
 db.close(successcb, errorcb);
@@ -590,7 +609,7 @@ db.transaction(function(tx) {
 });
 ```
 
-**BUG 1:** It is currently NOT possible to close a database in a `db.executeSql` callback. For example:
+**BUG:** It is currently NOT possible to close a database in a `db.executeSql` callback. For example:
 
 ```Javascript
 // BROKEN DUE TO BUG:
@@ -607,9 +626,13 @@ db.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (res) 
 });
 ```
 
-**BUG 2:** If multiple database access objects are opened for the same database and one database access object is closed, the database is no longer available for the other database access objects. Possible workarounds:
-- It is still possible to open one or more new database access objects on a database that has been closed.
+**SECOND BUG:** When a database connection is closed, any queued transactions are left hanging. All pending transactions should be errored when a database connection is closed.
+
+**NOTE:** As described above, if multiple database access handle objects are opened for the same database and one database handle access object is closed, the database is no longer available for the other database handle objects. Possible workarounds:
+- It is still possible to open one or more new database handle objects on a database that has been closed.
 - It *should* be OK not to explicitly close a database handle since database transactions are [ACID](https://en.wikipedia.org/wiki/ACID) compliant and the app's memory resources are cleaned up by the system upon termination.
+
+**FUTURE TBD:** `dispose` method on the database access handle object, such that a database is closed once **all** access handle objects are disposed.
 
 ## Delete a database
 
@@ -618,6 +641,8 @@ window.sqlitePlugin.deleteDatabase({name: 'my.db', location: 'default'}, success
 ```
 
 with `location` or `iosDatabaseLocation` parameter *required* as described above for `openDatabase` (affects iOS *only*)
+
+**BUG:** When a database is deleted, any queued transactions for that database are left hanging. All pending transactions should be errored when a database is deleted.
 
 # Database schema versions
 
@@ -639,33 +664,36 @@ Documentation at: http://ngcordova.com/docs/plugins/sqlite/
 
 ## Easy install with Cordova CLI tool
 
-    npm install -g cordova # if you don't have cordova
+    npm install -g cordova # (in case you don't have cordova)
     cordova create MyProjectFolder com.my.project MyProject && cd MyProjectFolder # if you are just starting
-    cordova plugin add https://github.com/litehelpers/Cordova-sqlite-storage
+    cordova plugin add cordova-sqlite-storage
 
-You can find more details at [this writeup](http://iphonedevlog.wordpress.com/2014/04/07/installing-chris-brodys-sqlite-database-with-cordova-cli-android/).
+**CLI NOTES:**
 
-**IMPORTANT:** sometimes you have to update the version for a platform before you can build, like: `cordova prepare ios`
+- You *may* have to update the platform and plugin version(s) before you can build: `cordova prepare` (or for a specific platform such as iOS: `cordova prepare ios`)
+- If you cannot build for a platform after `cordova prepare`, you may have to remove the platform and add it again, such as:
 
-**NOTE:** If you cannot build for a platform after `cordova prepare`, you may have to remove the platform and add it again, such as:
+```shell
+cordova platform rm ios
+cordova platform add ios
+```
 
-    cordova platform rm ios
-    cordova platform add ios
+You can find some more details in a nice writeup (though with old links and package names): <http://iphonedevlog.wordpress.com/2014/04/07/installing-chris-brodys-sqlite-database-with-cordova-cli-android/>.
 
 ## Easy install with plugman tool
 
 ```shell
-plugman install --platform MYPLATFORM --project path.to.my.project.folder --plugin https://github.com/litehelpers/Cordova-sqlite-storage
+plugman install --platform MYPLATFORM --project path.to.my.project.folder --plugin cordova-sqlite-storage
 ```
 
 where MYPLATFORM is `android` or `ios`.
 
 A posting how to get started developing on Windows host without the Cordova CLI tool (for Android target only) is available [here](http://brodybits.blogspot.com/2015/03/trying-cordova-for-android-on-windows-without-cordova-cli.html).
 
-## Installation sources
+## Plugin installation sources
 
-- https://github.com/litehelpers/Cordova-sqlite-storage - latest version
 - `cordova-sqlite-storage` - stable npm package version
+- https://github.com/litehelpers/Cordova-sqlite-storage - latest version
 
 ## Source tree
 
@@ -689,7 +717,7 @@ Use `window.sqlitePlugin.echoTest` as described above (please wait for the `devi
 Assuming your app has a recent template as used by the Cordova create script, add the following code to the `onDeviceReady` function, after `app.receivedEvent('deviceready');`:
 
 ```Javascript
-  window.sqlitePlugin.openDatabase({ name: 'hello-world.db' }, function (db) {
+  window.sqlitePlugin.openDatabase({ name: 'hello-world.db', location: 'default' }, function (db) {
     db.executeSql("select length('tenletters') as stringlength", [], function (res) {
       var stringlength = res.rows.item(0).stringlength;
       console.log('got stringlength: ' + stringlength);
@@ -714,9 +742,9 @@ First steps:
 - Check the troubleshooting steps and pitfalls in [brodybits / Cordova-troubleshooting-guide](https://github.com/brodybits/Cordova-troubleshooting-guide)
 
 and check the following:
-- You are using the latest version of the Plugin Javascript & platform-specific Java or Objective-C source from this repository.
-- You have installed the Javascript & platform-specific Java or Objective-C correctly.
-- You have included the correct version of the cordova Javascript and SQLitePlugin.js and got the path right.
+- You are using the latest version of the Plugin (Javascript and platform-specific part) from this repository.
+- The plugin is installed correctly.
+- You have included the correct version of `cordova.js`.
 - You have registered the plugin properly in `config.xml`.
 
 If you still cannot get something to work:
@@ -853,6 +881,6 @@ The adapter is part of [PouchDB](http://pouchdb.com/) as documented at:
   - Always use `git mv` to move files & directories;
   - Never mix a move/rename operation with any other changes in the same commit.
 
-## Contact
+# Contact
 
 <sales@litehelpers.net>
