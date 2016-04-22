@@ -32,5 +32,8 @@
   "bugs": {
     "url": "https://github.com/brodybits/Cordova-sqlite-storage-dev/issues"
   },
-  "homepage": "https://github.com/brodybits/Cordova-sqlite-storage-dev"
+  "homepage": "https://github.com/brodybits/Cordova-sqlite-storage-dev",
+  "dependencies": {
+    "cordova-sqlite-legacy": "^1.3.1"
+  }
 }

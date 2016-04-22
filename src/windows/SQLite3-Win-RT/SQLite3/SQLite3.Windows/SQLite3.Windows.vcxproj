@@ -139,7 +139,7 @@
 			<AdditionalUsingDirectories>$(WindowsSDK_WindowsMetadata);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
 			<AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
 			<DisableSpecificWarnings>28204</DisableSpecificWarnings>
-			<AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);$(MSBuildThisFileDirectory)..\..\..\..\common;$(MSBuildThisFileDirectory)..\..\..\..\external</AdditionalIncludeDirectories>
+			<AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 		</ClCompile>
 		<Link>
 			<SubSystem>Console</SubSystem>
@@ -157,7 +157,7 @@
 			<AdditionalUsingDirectories>$(WindowsSDK_WindowsMetadata);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
 			<AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
 			<DisableSpecificWarnings>28204</DisableSpecificWarnings>
-			<AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);$(MSBuildThisFileDirectory)..\..\..\..\common;$(MSBuildThisFileDirectory)..\..\..\..\external</AdditionalIncludeDirectories>
+			<AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 		</ClCompile>
 		<Link>
 			<SubSystem>Console</SubSystem>
@@ -175,7 +175,7 @@
 			<AdditionalUsingDirectories>$(WindowsSDK_WindowsMetadata);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
 			<AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
 			<DisableSpecificWarnings>28204</DisableSpecificWarnings>
-			<AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);$(MSBuildThisFileDirectory)..\..\..\..\common;$(MSBuildThisFileDirectory)..\..\..\..\external</AdditionalIncludeDirectories>
+			<AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 			<FunctionLevelLinking>true</FunctionLevelLinking>
 		</ClCompile>
 		<Link>
@@ -194,7 +194,7 @@
 			<AdditionalUsingDirectories>$(WindowsSDK_WindowsMetadata);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
 			<AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
 			<DisableSpecificWarnings>28204</DisableSpecificWarnings>
-			<AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);$(MSBuildThisFileDirectory)..\..\..\..\common;$(MSBuildThisFileDirectory)..\..\..\..\external</AdditionalIncludeDirectories>
+			<AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 			<FunctionLevelLinking>true</FunctionLevelLinking>
 		</ClCompile>
 		<Link>
@@ -213,7 +213,7 @@
 			<AdditionalUsingDirectories>$(WindowsSDK_WindowsMetadata);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
 			<AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
 			<DisableSpecificWarnings>28204</DisableSpecificWarnings>
-			<AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);$(MSBuildThisFileDirectory)..\..\..\..\common;$(MSBuildThisFileDirectory)..\..\..\..\external</AdditionalIncludeDirectories>
+			<AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 		</ClCompile>
 		<Link>
 			<SubSystem>Console</SubSystem>
@@ -231,7 +231,7 @@
 			<AdditionalUsingDirectories>$(WindowsSDK_WindowsMetadata);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
 			<AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
 			<DisableSpecificWarnings>28204</DisableSpecificWarnings>
-			<AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);$(MSBuildThisFileDirectory)..\..\..\..\common;$(MSBuildThisFileDirectory)..\..\..\..\external</AdditionalIncludeDirectories>
+			<AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 		</ClCompile>
 		<Link>
 			<SubSystem>Console</SubSystem>
