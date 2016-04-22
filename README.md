@@ -1,4 +1,4 @@
-# Cordova/PhoneGap sqlite storage adapter (XXX version)
+# Cordova/PhoneGap sqlite storage adapter (XXX common dev version)
 
 Native interface to sqlite in a Cordova/PhoneGap plugin for Android, iOS, Windows 8.1, Windows Phone 8.1, and Windows 10 UWP (Universal Windows Platform), with API similar to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
 
@@ -62,10 +62,10 @@ Some other projects by [@brodybits](https://github.com/brodybits):
 - This version supports the use of two (2) possible Android sqlite database implementations:
   - default: lightweight [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector)
   - optional: built-in Android database classes (usage described below)
-- WP8 support _is available_ in: [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy) _(along with Windows 8.1/Windows Phone 8.1/Windows 10)_
+- WP8 support is available in: [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy) (along with Windows 8.1/Windows Phone 8.1/Windows 10)
 - The following features are available in [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext):
   - REGEXP support (Android/iOS)
-  - Pre-populated database (~~all platforms~~ Android/iOS/Windows)
+  - Pre-populated database (Android/iOS/Windows)
 - Amazon Fire-OS is dropped due to lack of support by Cordova. Android version should be used to deploy to Fire-OS 5.0(+) devices. For reference: [cordova/cordova-discuss#32 (comment)](https://github.com/cordova/cordova-discuss/issues/32#issuecomment-167021676)
 - Windows version is in an alpha state:
   - Issue with UNICODE `\u0000` character (same as `\0`)
@@ -78,7 +78,7 @@ Some other projects by [@brodybits](https://github.com/brodybits):
 
 ## Announcements
 
-- Windows 8.1/Windows Phone 8.1/Windows 10 version is available in [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) (with pre-populated database support) and [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy) (with WP8 support).
+- ~~Windows 8.1/Windows Phone 8.1/Windows 10 version is available in [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) (with pre-populated database support) and [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy) (with WP8 support).~~
 - More explicit `openDatabase` and `deleteDatabase` `iosDatabaseLocation` option
 - Windows 10 UWP is now supported by this version - along with Windows 8.1 and Windows Phone 8.1
 - Added simple sql batch query function
@@ -87,10 +87,10 @@ Some other projects by [@brodybits](https://github.com/brodybits):
 - Published [brodybits / Cordova-quick-start-checklist](https://github.com/brodybits/Cordova-quick-start-checklist) and [brodybits / Cordova-troubleshooting-guide](https://github.com/brodybits/Cordova-troubleshooting-guide)
 - A version with support for web workers is available (with a different licensing scheme) at: [litehelpers / cordova-sqlite-workers-evfree](https://github.com/litehelpers/cordova-sqlite-workers-evfree)
 - A version with pre-populated database support added for Windows and REGEXP support added for Android is available at: [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext)
-- PhoneGap Build is now supported through the npm package: http://phonegap.com/blog/2015/05/26/npm-plugins-available/
+- ~~PhoneGap Build is now supported through the npm package: http://phonegap.com/blog/2015/05/26/npm-plugins-available/~~ *(problems reported, no longer supported)*
 - [MetaMemoryT / websql-promise](https://github.com/MetaMemoryT/websql-promise) now provides a Promises-based interface to both Web SQL and this plugin
 - iOS version is now fixed to override the correct pluginInitialize method and should work with recent versions of iOS
-- [SQLCipher](https://www.zetetic.net/sqlcipher/) for Windows ~~8.1(+)/Windows Phone 8.1(+)~~ in addition to Android & iOS is now supported by [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter)
+- [SQLCipher](https://www.zetetic.net/sqlcipher/) for Android/iOS/Windows is supported by [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter)
 
 ## Highlights
 
@@ -100,7 +100,7 @@ Some other projects by [@brodybits](https://github.com/brodybits):
   - Keeps sqlite database in a user data location that is known; can be reconfigured (iOS version); and synchronized to iCloud by default (iOS version; can be disabled as described below).
   - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
 - This project is self-contained: no dependencies on other plugins such as cordova-plugin-file
-- Windows 8.1/Windows Phone 8.1/Windows 10 version available in _this version,_ [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) and [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy) uses the performant C++ [doo / SQLite3-WinRT](https://github.com/doo/SQLite3-WinRT) component.
+- Windows 8.1/Windows Phone 8.1/Windows 10 version uses the performant C++ [doo / SQLite3-WinRT](https://github.com/doo/SQLite3-WinRT) component.
 - [SQLCipher](https://www.zetetic.net/sqlcipher/) support for Android/iOS/Windows is available at: [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter)
 - Intellectual property:
   - All source code is tracked to the original author in git

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    id="cordova-sqlite-common"
-    version="x.x.y-common-dev">
+    id="cordova-sqlite-storage-common-dev"
+    version="0.10.0-0x-common-dev">
 
-    <name>Cordova sqlite storage plugin (core version)</name>
+    <name>Cordova sqlite storage plugin (common dev version)</name>
 
     <license>MIT</license>
 
@@ -17,6 +17,8 @@
         <engine name="cordova" version=">=6.0.0" />
         <engine name="cordova-android" version=">=5.0.0" />
         <engine name="cordova-ios" version=">=4.0.0" />
+        <!-- FUTURE TBD TEST:
+        <engine name="cordova-windows" version=">=4.0.0" /> -->
     </engines>
 
     <js-module src="www/SQLitePlugin.js" name="SQLitePlugin">
@@ -34,7 +36,7 @@
 
         <source-file src="src/android/io/sqlc/SQLitePlugin.java" target-dir="src/io/sqlc"/>
         <source-file src="src/android/io/sqlc/SQLiteAndroidDatabase.java" target-dir="src/io/sqlc"/>
-        <source-file src="src/android/io/sqlc/SQLiteConnectorDatabase.java" target-dir="src/io/liteglue"/>
+        <source-file src="src/android/io/sqlc/SQLiteConnectorDatabase.java" target-dir="src/io/sqlc"/>
 
         <!-- Android-sqlite-connector [jar]: -->
         <source-file src="src/external/libs/sqlite-connector.jar" target-dir="libs"/>
