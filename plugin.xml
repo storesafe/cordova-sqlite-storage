@@ -2,7 +2,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-sqlite-common"
-    version="x.x.x-common-dev">
+    version="x.x.y-common-dev">
 
     <name>Cordova sqlite storage plugin (core version)</name>
 
@@ -14,7 +14,9 @@
     <author>Litehelpers/Various</author>
 
     <engines>
-        <engine name="cordova" version=">=3.3.0" />
+        <engine name="cordova" version=">=6.0.0" />
+        <engine name="cordova-android" version=">=5.0.0" />
+        <engine name="cordova-ios" version=">=4.0.0" />
     </engines>
 
     <js-module src="www/SQLitePlugin.js" name="SQLitePlugin">

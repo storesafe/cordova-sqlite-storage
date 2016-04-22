@@ -1,5 +1,16 @@
 # Changes
 
+## x.x.y-common-dev
+
+XXX TBD
+
+### cordova-sqlite-storage 1.2.1
+
+- Close Android SQLiteStatement after INSERT/UPDATE/DELETE
+- Specify minimum Cordova version 6.0.0
+- Lawnchair adapter fix: Changed remove method to work with key array
+
+
 ## x.x.x-common-dev
 
 - Support Windows 8.1/Windows Phone 8.1 along with Windows 10
