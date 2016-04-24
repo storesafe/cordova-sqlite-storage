@@ -51,6 +51,8 @@ var scenarioList = [
 
 var scenarioCount = (!!window.hasWebKitBrowser) ? (isAndroid ? 3 : 2) : 1;
 
+// XXX FUTURE TBD split this script further:
+
 var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
@@ -165,7 +167,7 @@ var mytests = function() {
 
       });
 
-      describe(scenarioList[i] + ': insert/update test(s)', function() {
+      describe(scenarioList[i] + ': multiple update test(s)', function() {
 
         // ref: litehelpers/Cordova-sqlite-storage#128
         // Was caused by a failure to create temporary transaction files on WP8.
@@ -224,7 +226,7 @@ var mytests = function() {
 
     for (var i=0; i<scenarioCount; ++i) {
 
-      describe(scenarioList[i] + ': plugin-specific sql test(s)', function() {
+      describe(scenarioList[i] + ': db.executeSql test(s)', function() {
         var scenarioName = scenarioList[i];
         var suiteName = scenarioName + ': ';
         var isOldAndroidImpl = (i === 1);
@@ -261,10 +263,10 @@ var mytests = function() {
           return window.sqlitePlugin.openDatabase(dbopts, okcb, errorcb);
         }
 
-        test_it(suiteName + "DB String result test", function() {
+        test_it(suiteName + "Multiple db.executeSql string result test", function() {
           // NOTE: this test checks that for db.executeSql(), the result callback is
           // called exactly once, with the proper result:
-          var db = openDatabase("DB-String-result-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase("Multiple-DB-sql-String-result-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           var expected = [ 'FIRST', 'SECOND' ];
           var i=0;
@@ -295,7 +297,96 @@ var mytests = function() {
           db.executeSql("select upper('second') as uppertext", [], okcb);
         });
 
-        test_it(suiteName + "PRAGMAs and multiple databases", function() {
+        it(suiteName + "Multiple db.executeSql error result test", function(done) {
+          // NOTE: this test checks that for db.executeSql(), the error result
+          // callback is called exactly once, with the proper result:
+          var db = openDatabase("Multiple-DB-sql-error-result-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          var error_result_count = 0;
+
+          // First: syntax error
+          db.executeSql("SELCT upper('first') AS uppertext", [], function() {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+          }, function(e) {
+            expect(e).toBeDefined();
+            // FUTURE TBD check error fields
+
+            // CHECK that this was not called before
+            expect(error_result_count).toBe(0);
+            ++error_result_count;
+          });
+
+          // Second: SELECT misspelled function name
+          db.executeSql("SELECT uper('second') as uppertext", [], function() {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+          }, function(e) {
+            expect(e).toBeDefined();
+            // FUTURE TBD check error fields
+
+            expect(error_result_count).toBe(1);
+            ++error_result_count;
+
+            // and finish this test:
+            done();
+          });
+        });
+
+      });
+    }
+
+  });
+
+  describe('Plugin: more plugin-specific tx test(s)', function() {
+
+    var scenarioList = [
+      isAndroid ? 'Plugin-implementation-default' : 'Plugin',
+      'Plugin-implementation-2'
+    ];
+
+    var scenarioCount = isAndroid ? 2 : 1;
+
+    for (var i=0; i<scenarioCount; ++i) {
+
+      describe(scenarioList[i] + ': db.executeSql test(s)', function() {
+        var scenarioName = scenarioList[i];
+        var suiteName = scenarioName + ': ';
+        var isOldAndroidImpl = (i === 1);
+
+        // NOTE: MUST be defined in function scope, NOT outer scope:
+        var openDatabase = function(first, second, third, fourth, fifth, sixth) {
+          //if (!isOldAndroidImpl) {
+          //  return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
+          //}
+
+          var dbname, okcb, errorcb;
+
+          if (first.constructor === String ) {
+            dbname = first;
+            okcb = fifth;
+            errorcb = sixth;
+          } else {
+            dbname = first.name;
+            okcb = second;
+            errorcb = third;
+          }
+
+          if (!isOldAndroidImpl) {
+            return window.sqlitePlugin.openDatabase({name: dbname, location: 0}, okcb, errorcb);
+          }
+
+          var dbopts = {
+            name: 'i2-'+dbname,
+            androidDatabaseImplementation: 2,
+            androidLockWorkaround: 1,
+            location: 1
+          };
+
+          return window.sqlitePlugin.openDatabase(dbopts, okcb, errorcb);
+        }
+
+        test_it(suiteName + "PRAGMAs & multiple database transactions mixed together", function() {
           var db = openDatabase("DB1", "1.0", "Demo", DEFAULT_SIZE);
 
           var db2 = openDatabase("DB2", "1.0", "Demo", DEFAULT_SIZE);
