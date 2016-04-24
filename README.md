@@ -249,7 +249,7 @@ The idea is to emulate the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/
 
 ## Opening a database
 
-To open a database access hadle object (in the **new** default location):
+To open a database access _handle_ object (in the **new** default location):
 
 ```js
 var db = window.sqlitePlugin.openDatabase({name: 'my.db', location: 'default'}, successcb, errorcb);
