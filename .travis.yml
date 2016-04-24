@@ -22,6 +22,6 @@ script:
   - date && cordova-paramedic --platform ios --plugin ${TRAVIS_BUILD_DIR} || echo error-ignored
   - date && cp ${SPEC_WWW_DIR}/spec/self-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
   - date && cp ${SPEC_WWW_DIR}/spec/db-tx-string-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
-  - date && cp ${SPEC_WWW_DIR}/spec/basic-sql-tx-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
+  - date && cp ${SPEC_WWW_DIR}/spec/db-tx-sql-results.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
   - date && cp ${SPEC_WWW_DIR}/spec/sql-batch-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
   - date
