@@ -119,9 +119,9 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-      it(suiteName + 'basic db transaction test',
+      it(suiteName + 'basic db sql transaction test',
         function(done) {
-          var db = openDatabase('basic-db-tx-test.db', '1.0', 'Test', DEFAULT_SIZE);
+          var db = openDatabase('basic-db-sql-tx-test.db', '1.0', 'Test', DEFAULT_SIZE);
 
           expect(db).toBeDefined();
 
@@ -215,9 +215,6 @@ var mytests = function() {
             expect(false).toBe(true);
             expect(JSON.stringify(e).toBe('---'));
             done();
-          // not check_counted:
-          //}, function() {
-          //  console.log('first tx success cb OK');
           });
 
         }, MYTIMEOUT);
@@ -320,30 +317,31 @@ var mytests = function() {
                   ++check_count;
 
                   expect(res.rows.length).toBe(1);
+                  // FUTURE TBD support by plugin:
+                  //expect(res.rows[0].data_num).toBe(101);
                   expect(res.rows.item(0).data_num).toBe(101);
                   expect(res.rows.item(0).data).toBe('test');
 
                   var temp1 = res.rows.item(0);
-                  // changes to temp2 should NOT change temp1:
                   var temp2 = res.rows.item(0);
 
                   expect(temp1.data).toBe('test');
                   expect(temp2.data).toBe('test');
 
+                  // Object from rows.item is immutable in Web SQL but NOT in this plugin:
                   temp1.data = 'another';
 
                   if (isWebSql) {
-                    // apparently this is a native object that does NOT keep the change:
+                    // Web SQL STANDARD:
+                    // 1. this is a native object that is NOT affected by the change:
                     expect(temp1.data).toBe('test');
-                    // correct:
+                    // 2. object returned by second resultSet.rows.item call not affected:
                     expect(temp2.data).toBe('test');
                   } else {
-                    // [plugin] temp1 is just like any other Javascript object:
+                    // PLUGIN:
+                    // 1. DEVIATION - temp1 is just like any other Javascript object:
                     expect(temp1.data).toBe('another');
-
-                    // correct:
-                    //expect(temp2.data).toBe('test');
-                    // actual:
+                    // 2. DEVIATION - same object is returned by second resultSet.rows.item IS affected:
                     expect(temp2.data).toBe('another');
                   }
                 });

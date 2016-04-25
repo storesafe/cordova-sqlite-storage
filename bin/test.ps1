@@ -46,7 +46,7 @@ try {
     rm -force -recurse ../.plugin -ErrorAction ignore
   }
   mkdir  -ErrorAction ignore  ../.plugin | out-null
-  cp -recurse ../src, ../plugin.xml, ../www ../.plugin
+  cp -recurse ../scripts, ../src, ../package.json, ../plugin.xml, ../www ../.plugin
 
   # update the plugin, run the test app
   cordova platform add $platform
