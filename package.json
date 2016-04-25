@@ -1,6 +1,6 @@
 {
   "name": "cordova-sqlite-storage",
-  "version": "1.2.1",
+  "version": "1.2.2-0xxx-dev",
   "description": "Native interface to SQLite for PhoneGap/Cordova (core version)",
   "cordova": {
     "id": "cordova-sqlite-storage",
