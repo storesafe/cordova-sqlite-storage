@@ -1,18 +1,14 @@
 # Changes
 
-## 0.10.0-0x-xx-ext-dev
+## 0.10.0-rc1
 
+- Code to read BLOB data fixed and enabled for iOS version (as well as Android version)
 - Now using cordova-sqlite-ext-deps for SQLite 3.8.10.2 Android/iOS/Windows
 - Enforce minimum cordova-windows version (should be OK in Cordova 6.x)
-
-### 0.10.0-0x-common-dev
-
-XXX TBD
 
 ### cordova-sqlite-storage 1.2.2
 
 - Self-test function to verify ability to open/populate/read/delete a test database
-- Read BLOB as Base-64 DISABLED in Android version (was already disabled for iOS)
 
 ### cordova-sqlite-storage 1.2.1
 
@@ -20,9 +16,7 @@ XXX TBD
 - Specify minimum Cordova version 6.0.0
 - Lawnchair adapter fix: Changed remove method to work with key array
 
-## 0.9.x-extras-xx-dev
-
-### x.x.x-common-dev
+## 0.9.1
 
 - Support Windows 8.1/Windows Phone 8.1 along with Windows 10
 - Fix PCH issue with Debug Win32 UWP (Windows 10) build
@@ -38,24 +32,26 @@ XXX TBD
 - iOS database location is now mandatory
 - Split-up of some more spec test scripts
 
+## 0.9.0-prep
+
+- Mark upcoming BREAKING CHANGES to openDatabase parameters
+
+NOTICE: `0.8.6` release was published to npm based on the wrong branch and is withdrawn, to be completely superseded by the `0.9.*` release.
+
+## 0.8.4
+
+- Introduce Windows 10 UWP build (Windows 8.1 and Windows Phone 8.1 build disabled)
+
+## 0.8.3
+
 ### cordova-sqlite-storage 0.8.2
 
 - Workaround fix for empty readTransaction issue (litehelpers/Cordova-sqlite-storage#409)
 - Split spec/www/spec/legacy.js into db-open-close-delete-test.js & tx-extended.js
 
-## 0.x.x-regexp-dev
+## 0.8.1
 
-### 0.8.x-common-dev
-
-- Introduce Windows 10 UWP build (Windows 8.1 and Windows Phone 8.1 build disabled)
-
-## 0.8.0-regexp-dev
-
-- _REGEXP support for Android and iOS integrated in this version branch_
-- _Fix pre-populated database for Windows "Universal"_
-
-### 0.8.0-common-dev
-
+- Fix pre-populated database for Windows 8.1(+)/Windows Phone 8.1(+)
 - Separate SQLiteConnectorDatabase class for Android
 - Renamed SQLiteProxy.js to sqlite-proxy.js in Windows version
 
@@ -65,6 +61,12 @@ XXX TBD
 - Echo test function
 - Remove extra runInBackground: step from iOS version
 - Java source of Android version now using io.sqlc package
+
+## 0.8.0
+
+- Support REGEXP on Android using PCRE (8.37)
+- Support REGEXP for iOS included
+- Support pre-populated database for Windows "Universal" (BROKEN)
 
 ## 0.7.15-pre
 
@@ -82,13 +84,6 @@ XXX TBD
 - Android version with sqlite `3.8.10.2` embedded (with error messages fixed)
 - Pre-populated database support removed from this version branch
 - Amazon Fire-OS support removed
-
-## 0.8.0-extra-common-dev
-
-- Support pre-populated database for Windows "Universal" _(BROKEN)_
-
-## 0.7.1-common-dev
-
 - Fix conversion warnings in iOS version
 
 ## 0.7.12

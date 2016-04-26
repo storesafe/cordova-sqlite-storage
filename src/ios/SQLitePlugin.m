@@ -13,8 +13,7 @@
 // REGEXP:
 #include <regex.h>
 
-// XXX TODO:
-//#define READ_BLOB_AS_BASE64
+#define READ_BLOB_AS_BASE64
 
 // FUTURE TBD (XXX TBD subjet to change):
 //#define INCLUDE_SQL_BLOB_BINDING

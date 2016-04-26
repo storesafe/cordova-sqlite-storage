@@ -4,17 +4,8 @@ var MYTIMEOUT = 12000;
 
 var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 
-// FUTURE TODO replace in test(s):
-function ok(test, desc) { expect(test).toBe(true); }
-function equal(a, b, desc) { expect(a).toEqual(b); } // '=='
-function strictEqual(a, b, desc) { expect(a).toBe(b); } // '==='
-
-//var isAndroid = /Android/.test(navigator.userAgent);
-//var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
-var isWindows = /Windows /.test(navigator.userAgent); // Windows XX
-// XX NEW FIX:
+var isWindows = /Windows /.test(navigator.userAgent);
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
-//var isIE = isWindows || isWP8;
 
 var pluginScenarioList = [ isAndroid ? 'Plugin-sqlite-connector' : 'Plugin', 'Plugin-android.database' ];
 
@@ -107,7 +98,7 @@ var mytests = function() {
       it(suiteName + 'Pre-populated BLOB database test',
         function(done) {
           if (isAndroid && !isOldDatabaseImpl) pending('BROKEN for default Android-sqlite-connector version'); // XXX
-          if (!isAndroid) pending('BROKEN-NOT IMPLEMENTED for iOS/Windows'); // XX FUTURE TBD iOS/Windows
+          if (isWindows) pending('NOT IMPLEMENTED for Windows');
 
           // Pre-populated database with the following dump:
           // PRAGMA foreign_keys=OFF;
@@ -137,9 +128,8 @@ var mytests = function() {
 
               if (isAndroid)
                 expect(res.rows.item(0).blobcol).toEqual('AQID\n');
-              // FUTURE TBD (iOS/Windows)
-              //else
-              //  expect(res.rows.item(0).blobcol).toEqual('AQID');
+              else
+                expect(res.rows.item(0).blobcol).toEqual('AQID');
 
               check1 = true;
 
