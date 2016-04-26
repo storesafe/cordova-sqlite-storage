@@ -95,7 +95,7 @@
 			<PreprocessorDefinitions>_WINRT_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 			<PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
 			<PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-			<AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+			<AdditionalOptions>/bigobj /DSQLITE_WIN32_FILEMAPPING_API %(AdditionalOptions)</AdditionalOptions>
 			<SDLCheck>true</SDLCheck>
 			<AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 		</ClCompile>
@@ -111,7 +111,7 @@
 			<PreprocessorDefinitions>_WINRT_DLL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 			<PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
 			<PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-			<AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+			<AdditionalOptions>/bigobj /DSQLITE_WIN32_FILEMAPPING_API %(AdditionalOptions)</AdditionalOptions>
 			<SDLCheck>true</SDLCheck>
 			<AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 		</ClCompile>
@@ -127,7 +127,7 @@
 			<PreprocessorDefinitions>_WINRT_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 			<PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
 			<PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-			<AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+			<AdditionalOptions>/bigobj /DSQLITE_WIN32_FILEMAPPING_API %(AdditionalOptions)</AdditionalOptions>
 			<SDLCheck>true</SDLCheck>
 			<AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 			<FunctionLevelLinking>true</FunctionLevelLinking>
@@ -144,7 +144,7 @@
 			<PreprocessorDefinitions>_WINRT_DLL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 			<PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
 			<PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-			<AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+			<AdditionalOptions>/bigobj /DSQLITE_WIN32_FILEMAPPING_API %(AdditionalOptions)</AdditionalOptions>
 			<SDLCheck>true</SDLCheck>
 			<AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 			<FunctionLevelLinking>true</FunctionLevelLinking>

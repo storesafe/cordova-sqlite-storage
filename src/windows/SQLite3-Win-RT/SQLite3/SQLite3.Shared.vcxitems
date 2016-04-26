@@ -10,11 +10,12 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);$(MSBuildThisFileDirectory)..\..\..\..\node_modules\cordova-sqlite-legacy\src\common</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);$(MSBuildThisFileDirectory)..\..\..\..\node_modules\cordova-sqlite-common-dev-deps</AdditionalIncludeDirectories>
+      <AdditionalOptions>/DSQLITE_TEMP_STORE=2 /DSQLITE_THREADSAFE=2 /DSQLITE_ENABLE_FTS3 /DSQLITE_ENABLE_FTS3_PARENTHESIS /DSQLITE_ENABLE_FTS4 /DSQLITE_ENABLE_COLUMN_METADATA /DSQLITE_ENABLE_RTREE /DSQLITE_OS_WINRT %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\node_modules\cordova-sqlite-legacy\src\common\sqlite3.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\node_modules\cordova-sqlite-common-dev-deps\sqlite3.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Constants.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Database.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Statement.h" />
@@ -24,7 +25,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)Constants.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Database.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Statement.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\node_modules\cordova-sqlite-legacy\src\common\sqlite3.c">
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\node_modules\cordova-sqlite-common-dev-deps\sqlite3.c">
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)pch.cpp">

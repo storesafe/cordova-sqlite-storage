@@ -1,7 +1,7 @@
 {
   "name": "cordova-sqlite-storage-common-dev",
-  "version": "0.10.0-0x-common-dev",
-  "description": "Native interface to SQLite for PhoneGap/Cordova (common dev version)",
+  "version": "1.4.0-0x-common-dev",
+  "description": "Native interface to SQLite for PhoneGap/Cordova (xxx common-dev version)",
   "cordova": {
     "id": "cordova-sqlite-storage-common-dev",
     "platforms": [
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/brodybits/Cordova-sqlite-storage-dev.git"
+    "url": "https://github.com/brodybits/Cordova-sqlite-storage-common-dev.git"
   },
   "keywords": [
     "sqlite",
@@ -30,10 +30,10 @@
   "author": "various",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/brodybits/Cordova-sqlite-storage-dev/issues"
+    "url": "https://github.com/brodybits/Cordova-sqlite-storage-common-dev/issues"
   },
-  "homepage": "https://github.com/brodybits/Cordova-sqlite-storage-dev",
+  "homepage": "https://github.com/brodybits/Cordova-sqlite-storage-common-dev",
   "dependencies": {
-    "cordova-sqlite-legacy": "^1.3.1"
+    "cordova-sqlite-common-dev-deps": "https://github.com/brodybits/Cordova-sqlite-common-dev-deps.git#0.0.1-common-dev"
   }
 }

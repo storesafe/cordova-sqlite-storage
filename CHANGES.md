@@ -1,8 +1,9 @@
 # Changes
 
-## 0.10.0-0x-common-dev
+## 1.4.0-0x-common-dev
 
-XXX TBD
+- Now using cordova-sqlite-common-dev-deps via git for SQLite 3.8.10.2 Android/iOS/Windows
+- Enforce minimum cordova-windows version (should be OK in Cordova 6.x)
 
 ### cordova-sqlite-storage 1.2.2
 
