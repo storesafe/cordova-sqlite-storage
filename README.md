@@ -62,7 +62,8 @@ Some other projects by [@brodybits](https://github.com/brodybits):
 - The iOS database location is now mandatory, as documented below.
 - This version contains the following extra features:
   - Pre-populated database support for all platforms Android/iOS/Windows;
-  - REGEXP support for Android (using PCRE 8.37) as well as iOS (using the built-in BSD regex library functions).
+  - REGEXP support for Android (using PCRE 8.37) as well as iOS (using the built-in BSD regex library functions);
+  - BLOB data reading (from pre-populated database) for Android/iOS, with the following caveat for the Android version: the database must be opened with the `androidDatabaseImplementation: 2` option to use the built-in android.database implementation.
 - SQLite version `3.8.10.2` is supported for all supported platforms Android/iOS/Windows.
 - This version supports the use of two (2) possible Android sqlite database implementations:
   - default: lightweight [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) (using [litehelpers / Android-sqlite-native-driver-regexp-pcre](https://github.com/litehelpers/Android-sqlite-native-driver-regexp-pcre) with PCRE `8.37`)
@@ -80,7 +81,7 @@ Some other projects by [@brodybits](https://github.com/brodybits):
 ## Announcements
 
 - Self-test functions to verify proper installation and operation of this plugin
-- Support for *reading* BLOB values from pre-populated databases *tested* for Android (database must be opened with the `androidDatabaseImplementation: 2` option) and iOS.
+- Support for *reading* BLOB values from pre-populated databases tested for Android (using built-in android.database implementation as described above) and iOS.
 - Windows 8.1/Windows Phone 8.1/Windows 10 version is available **here** as well as in [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy) (with WP8 support).
 - Ionic starter template with pre-populated SQLite database at: [jdnichollsc / Ionic-Starter-Template](https://github.com/jdnichollsc/Ionic-Starter-Template)
 - More explicit `openDatabase` and `deleteDatabase` `iosDatabaseLocation` option
@@ -253,7 +254,7 @@ To verify that both the Javascript and native part of this plugin are installed 
 window.sqlitePlugin.echoTest(successCallback, errorCallback);
 ```
 
-To verify that this plugin is able to open, populate, read, update, and delete a test database (named `___$$$___litehelpers___$$$___test___$$$___.db`) properly:
+To verify that this plugin is able to open, populate, read, update, and delete a test database (`___$$$___litehelpers___$$$___test___$$$___.db`) properly:
 
 ```js
 window.sqlitePlugin.selfTest(successCallback, errorCallback);
@@ -377,19 +378,26 @@ var db = window.sqlitePlugin.openDatabase({name: "my.db", androidDatabaseImpleme
 
 ### Workaround for Android db locking issue
 
-[litehelpers/Cordova-sqlite-storage#193](https://github.com/litehelpers/Cordova-sqlite-storage/issues/193) was reported (as observed by several app developers) that on some newer versions of the Android database classes, if the app is stopped or aborted without closing the database then:
+[litehelpers/Cordova-sqlite-storage#193](https://github.com/litehelpers/Cordova-sqlite-storage/issues/193) was reported (as observed by several app developers) that on some newer versions of the built-in Android database classes, if the app is stopped or aborted without closing the database then:
 - (sometimes) there is an unexpected database lock
 - the data that was inserted is lost.
 
 This issue is suspected to be caused by [this Android sqlite commit](https://github.com/android/platform_external_sqlite/commit/d4f30d0d1544f8967ee5763c4a1680cb0553039f), which references and includes the sqlite commit at: http://www.sqlite.org/src/info/6c4c2b7dba
 
+This is *not* an issue when default [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) database implementation.
+
 There is an optional workaround that simply closes and reopens the database file at the end of every transaction that is committed. The workaround is enabled by opening the database with options as follows:
 
 ```js
-var db = window.sqlitePlugin.openDatabase({name: 'my.db', location: 'default', androidLockWorkaround: 1});
+var db = window.sqlitePlugin.openDatabase({
+  name: 'my.db',
+  location: 'default',
+  androidDatabaseImplementation: 2,
+  androidLockWorkaround: 1
+});
 ```
 
-**IMPORTANT NOTE:** This workaround is *only* applied when using `db.transaction()`, *not* applied when running `executeSql()` on the database object.
+**IMPORTANT NOTE:** This workaround is *only* applied when using `db.sqlBatch` or `db.transaction()`, *not* applied when running `executeSql()` on the database object.
 
 ## SQL transactions
 

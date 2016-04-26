@@ -1,6 +1,6 @@
 # Changes
 
-## 0.10.0-rc1
+## 0.10.0
 
 - Code to read BLOB data fixed and enabled for iOS version (as well as Android version)
 - Now using cordova-sqlite-ext-deps for SQLite 3.8.10.2 Android/iOS/Windows
