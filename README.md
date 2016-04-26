@@ -59,7 +59,7 @@ Some other projects by [@brodybits](https://github.com/brodybits):
 
 ## Status
 
-- A recent version of Cordova (such as `6.1.1`) is recommended. Cordova versions older than `6.0.0` are not supported by this project.
+- A recent version of the Cordova CLI (such as `6.1.1`) is recommended. Cordova versions older than `6.0.0` are not supported by this project. Use of other systems such as PhoneGap CLI, PhoneGap Build, or plugman is not tested and no longer supported.
 - iOS database location is now mandatory, as documented below.
 - Android version in this version branch is now using the built-in Android SQLite database classes. Integration with the lightweight [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) is available in [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) and [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy).
 - Windows 8.1/Windows Phone 8.1/Windows 10 version using the performant [doo / SQLite3-WinRT](https://github.com/doo/SQLite3-WinRT) component is available in [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) (with pre-populated database support) and [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy).
@@ -83,8 +83,9 @@ Some other projects by [@brodybits](https://github.com/brodybits):
 - All iOS operations are now using background processing (reported to resolve intermittent problems with cordova-ios@4.0.1)
 - Published [brodybits / Cordova-quick-start-checklist](https://github.com/brodybits/Cordova-quick-start-checklist) and [brodybits / Cordova-troubleshooting-guide](https://github.com/brodybits/Cordova-troubleshooting-guide)
 - A version with support for web workers is available (with a different licensing scheme) at: [litehelpers / cordova-sqlite-workers-evfree](https://github.com/litehelpers/cordova-sqlite-workers-evfree)
-- PhoneGap Build is now supported through the npm package: http://phonegap.com/blog/2015/05/26/npm-plugins-available/
+- ~~PhoneGap Build is now supported through the npm package: http://phonegap.com/blog/2015/05/26/npm-plugins-available/~~ (no longer supported due to reported issues)
 - [MetaMemoryT / websql-promise](https://github.com/MetaMemoryT/websql-promise) now provides a Promises-based interface to both Web SQL and this plugin
+- [SQLCipher](https://www.zetetic.net/sqlcipher/) for Android/iOS/Windows is supported by [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter)
 
 ## Highlights
 
@@ -138,7 +139,7 @@ Some other projects by [@brodybits](https://github.com/brodybits):
 - In-memory database `db=window.sqlitePlugin.openDatabase({name: ':memory:', ...})` is currently not supported.
 - The Android version cannot work with more than 100 open db files (due to the threading model used).
 - UNICODE `\u2028` (line separator) and `\u2029` (paragraph separator) characters are currently not supported and known to be broken in iOS version due to [Cordova bug CB-9435](https://issues.apache.org/jira/browse/CB-9435). There *may* be a similar issue with certain other UNICODE characters in the iOS version (needs further investigation). This is fixed in: [litehelpers / Cordova-sqlite-enterprise-free](https://github.com/litehelpers/Cordova-sqlite-enterprise-free) (available with a different licensing scheme)
-- Blob type is currently not supported and known to be broken on multiple platforms.
+- BLOB type is currently not supported.
 - Case-insensitive matching and other string manipulations on Unicode characters, which is provided by optional ICU integration in the sqlite source and working with recent versions of Android, is not supported for any target platforms.
 - iOS version uses a thread pool but with only one thread working at a time due to "synchronized" database access
 - Large query result can be slow, also due to JSON implementation
@@ -257,7 +258,7 @@ The idea is to emulate the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/
 
 ## Opening a database
 
-To open a database access _handle_ object (in the **new** default location):
+To open a database access handle object (in the **new** default location):
 
 ```js
 var db = window.sqlitePlugin.openDatabase({name: 'my.db', location: 'default'}, successcb, errorcb);
@@ -688,16 +689,6 @@ cordova platform add ios
 
 You can find some more details in a nice writeup (though with old links and package names): <http://iphonedevlog.wordpress.com/2014/04/07/installing-chris-brodys-sqlite-database-with-cordova-cli-android/>.
 
-## Easy install with plugman tool
-
-```shell
-plugman install --platform MYPLATFORM --project path.to.my.project.folder --plugin cordova-sqlite-storage
-```
-
-where MYPLATFORM is `android` or `ios`.
-
-A posting how to get started developing on Windows host without the Cordova CLI tool (for Android target only) is available [here](http://brodybits.blogspot.com/2015/03/trying-cordova-for-android-on-windows-without-cordova-cli.html).
-
 ## Plugin installation sources
 
 - `cordova-sqlite-storage` - stable npm package version
@@ -827,6 +818,8 @@ To run from a windows powershell (here is a sample for android target):
 # Adapters
 
 ## Lawnchair Adapter
+
+**BROKEN:** The Lawnchair adapter does not support the `openDatabase` options such as `location` or `iosDatabaseLocation` options and is therefore *not* expected to work with this plugin.
 
 ### Common adapter
 
