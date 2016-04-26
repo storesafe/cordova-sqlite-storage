@@ -2,6 +2,7 @@
 
 ## 1.2.2-0xxx-dev
 
+- Self-test function to verify ability to open/populate/read/delete a test database
 - Read BLOB as Base-64 DISABLED in Android version (was already disabled for iOS)
 
 ## 1.2.1

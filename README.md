@@ -76,10 +76,10 @@ Some other projects by [@brodybits](https://github.com/brodybits):
 
 ## Announcements
 
+- Self-test functions to verify proper installation and operation of this plugin
 - Windows 8.1/Windows Phone 8.1/Windows 10 version is available in [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) (with pre-populated database support) and [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy) (with WP8 support).
 - More explicit `openDatabase` and `deleteDatabase` `iosDatabaseLocation` option
 - Added simple sql batch query function
-- Added echo test function to verify installation of this plugin
 - All iOS operations are now using background processing (reported to resolve intermittent problems with cordova-ios@4.0.1)
 - Published [brodybits / Cordova-quick-start-checklist](https://github.com/brodybits/Cordova-quick-start-checklist) and [brodybits / Cordova-troubleshooting-guide](https://github.com/brodybits/Cordova-troubleshooting-guide)
 - A version with support for web workers is available (with a different licensing scheme) at: [litehelpers / cordova-sqlite-workers-evfree](https://github.com/litehelpers/cordova-sqlite-workers-evfree)
@@ -233,12 +233,18 @@ naelA/nativescript-sqlite) (Android and/or iOS)
 
 # Usage
 
-## Echo test
+## Self-test functions
 
 To verify that both the Javascript and native part of this plugin are installed in your application:
 
 ```js
 window.sqlitePlugin.echoTest(successCallback, errorCallback);
+```
+
+To verify that this plugin is able to open, populate, read, update, and delete a test database (named `___$$$___litehelpers___$$$___test___$$$___.db`) properly:
+
+```js
+window.sqlitePlugin.selfTest(successCallback, errorCallback);
 ```
 
 **IMPORTANT:** Please wait for the 'deviceready' event (see below for an example).
@@ -712,7 +718,7 @@ A posting how to get started developing on Windows host without the Cordova CLI 
 
 ### Easy installation test
 
-Use `window.sqlitePlugin.echoTest` as described above (please wait for the `deviceready` event).
+Use `window.sqlitePlugin.echoTest` and/or `window.sqlitePlugin.selfTest` as described above (please wait for the `deviceready` event).
 
 ### Quick installation test
 
@@ -740,7 +746,7 @@ Commercial support is available by contacting: <sales@litehelpers.net>
 
 First steps:
 - Verify that you have followed the steps in [brodybits / Cordova-quick-start-checklist](https://github.com/brodybits/Cordova-quick-start-checklist)
-- Try the new echo test as described above
+- Try the new self-test functions as described above
 - Check the troubleshooting steps and pitfalls in [brodybits / Cordova-troubleshooting-guide](https://github.com/brodybits/Cordova-troubleshooting-guide)
 
 and check the following:
