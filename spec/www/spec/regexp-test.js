@@ -42,7 +42,6 @@ var mytests = function() {
         function(done) {
           if (isWP8) pending('NOT IMPLEMENTED for WP8');
           if (isWindows) pending('NOT IMPLEMENTED for Windows');
-          if (!isWebSql && isAndroid && !isImplementation2) pending('BROKEN for Android-sqlite-connector'); // XXX TODO FIX
           if (!isWebSql && isAndroid && isImplementation2 && /Android [1-4]/.test(navigator.userAgent)) pending('BROKEN for android.database (version 1.x-4.x)');
           if (isWebSql && !isAndroid) pending('BROKEN for iOS Web SQL');
 

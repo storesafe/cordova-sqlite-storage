@@ -34,6 +34,6 @@
   },
   "homepage": "https://github.com/brodybits/Cordova-sqlite-storage-dev",
   "dependencies": {
-    "cordova-sqlite-legacy": "^1.3.1"
+    "cordova-sqlite-ext-deps": "https://github.com/brodybits/cordova-sqlite-ext-deps.git#0.3.0-ext-deps-dev"
   }
 }

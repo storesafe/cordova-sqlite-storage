@@ -60,12 +60,13 @@ Some other projects by [@brodybits](https://github.com/brodybits):
 - This version uses a `before_plugin_install` hook to install some dependencies via npm
 - A recent version of the Cordova CLI (such as `6.1.1`) is recommended. Cordova versions older than `6.0.0` are not supported by this project. Use of other systems such as PhoneGap CLI, PhoneGap Build, or plugman is not tested and no longer supported.
 - iOS database location is now mandatory, as documented below.
+- _SQLite version `3.8.10.2` for Android/iOS/Windows_
 - This version supports the use of two (2) possible Android sqlite database implementations:
-  - default: lightweight [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector)
+  - default: lightweight [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) (using [litehelpers / Android-sqlite-native-driver-regexp-pcre](https://github.com/litehelpers/Android-sqlite-native-driver-regexp-pcre))
   - optional: built-in Android database classes (usage described below)
 - WP8 support is available in: [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy) (along with Windows 8.1/Windows Phone 8.1/Windows 10)
 - ~~The~~ _This version contains the_ following _extra_ features ~~are available in [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext)~~:
-  - REGEXP support (~~Android _(BROKEN)_/~~iOS)
+  - REGEXP support (Android/iOS)
   - Pre-populated database (Android/iOS/Windows)
 - Amazon Fire-OS is dropped due to lack of support by Cordova. Android version should be used to deploy to Fire-OS 5.0(+) devices. For reference: [cordova/cordova-discuss#32 (comment)](https://github.com/cordova/cordova-discuss/issues/32#issuecomment-167021676)
 - Windows version is in an alpha state:
@@ -84,7 +85,7 @@ Some other projects by [@brodybits](https://github.com/brodybits):
 - Support for *reading* BLOB values (from pre-populated databases) *tested* for Android _from a database opened with the `androidDatabaseImplementation: 2` option as described below_ ~~and iOS~~
 - Windows 8.1/Windows Phone 8.1/Windows 10 version is available **here** as well as in ~~[litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) (with pre-populated database support) and~~ [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy) (with WP8 support).
 - More explicit `openDatabase` and `deleteDatabase` `iosDatabaseLocation` option
-- ~~_This version supports REGEXP on Android (using PCRE 8.37) as well as iOS (using BSD regex library functions)_~~ _(BROKEN for Android)_
+- This version supports REGEXP on Android (using PCRE 8.37) as well as iOS _(using BSD regex library functions)_
 - Added simple sql batch query function
 - All iOS operations are now using background processing (reported to resolve intermittent problems with cordova-ios@4.0.1)
 - Published [brodybits / Cordova-quick-start-checklist](https://github.com/brodybits/Cordova-quick-start-checklist) and [brodybits / Cordova-troubleshooting-guide](https://github.com/brodybits/Cordova-troubleshooting-guide)
@@ -149,7 +150,7 @@ Some other projects by [@brodybits](https://github.com/brodybits):
 - This version will not work within a web worker (not properly supported by the Cordova framework). Use within a web worker is supported for Android and iOS in: [litehelpers / cordova-sqlite-workers-evfree](https://github.com/litehelpers/cordova-sqlite-workers-evfree) (available with a different licensing scheme)
 - In-memory database `db=window.sqlitePlugin.openDatabase({name: ':memory:', ...})` is currently not supported.
 - The Android version cannot work with more than 100 open db files (due to the threading model used).
-- REGEXP is currently not supported for Windows ~~8.1(+)/Windows Phone 8.1(+)~~ _(and is BROKEN for Android)_
+- REGEXP is currently not supported for Windows ~~8.1(+)/Windows Phone 8.1(+)~~
 - UNICODE `\u2028` (line separator) and `\u2029` (paragraph separator) characters are currently not supported and known to be broken in iOS version due to [Cordova bug CB-9435](https://issues.apache.org/jira/browse/CB-9435). There *may* be a similar issue with certain other UNICODE characters in the iOS version (needs further investigation). This is fixed in: [litehelpers / Cordova-sqlite-enterprise-free](https://github.com/litehelpers/Cordova-sqlite-enterprise-free) (available with a different licensing scheme)
 - BLOB type is currently not supported ~~and known to be broken on multiple platforms~~ _for default Android-sqlite-connector implementation, iOS, or Windows_.
 - UNICODE `\u0000` (same as `\0`) character not working in Android (default native database implementation) or Windows

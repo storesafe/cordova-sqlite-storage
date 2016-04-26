@@ -2,7 +2,8 @@
 
 ## 0.10.0-0x-xx-ext-dev
 
-XXX TBD
+- Now using cordova-sqlite-ext-deps for SQLite 3.8.10.2 Android/iOS/Windows
+- Enforce minimum cordova-windows version (should be OK in Cordova 6.x)
 
 ### 0.10.0-0x-common-dev
 

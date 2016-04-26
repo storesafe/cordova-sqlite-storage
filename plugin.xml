@@ -17,13 +17,8 @@
         <engine name="cordova" version=">=6.0.0" />
         <engine name="cordova-android" version=">=5.0.0" />
         <engine name="cordova-ios" version=">=4.0.0" />
-        <!-- FUTURE TBD TEST:
-        <engine name="cordova-windows" version=">=4.0.0" /> -->
+        <engine name="cordova-windows" version=">=4.0.0" />
     </engines>
-
-    <!-- GENERAL: This version is now using a hook to fetch some external dependencies.
-         For now these dependencies come from a supported version: cordova-sqlite-legacy.
-         FUTURE TBD the dependencies will be distributed in a special package. -->
 
     <!-- THANKS to AllJoyn-Cordova / cordova-plugin-alljoyn: -->
     <hook type="before_plugin_install" src="scripts/beforePluginInstall.js" />
@@ -46,13 +41,13 @@
         <source-file src="src/android/io/sqlc/SQLiteConnectorDatabase.java" target-dir="src/io/sqlc"/>
 
         <!-- Android-sqlite-connector [jar]: -->
-        <source-file src="node_modules/cordova-sqlite-legacy/src/android/libs/sqlite-connector.jar" target-dir="libs"/>
+        <source-file src="node_modules/cordova-sqlite-ext-deps/libs/sqlite-connector.jar" target-dir="libs"/>
         <!-- Android-sqlite-connector native driver [native libs]: -->
-        <source-file src="node_modules/cordova-sqlite-legacy/src/android/libs/arm64-v8a/libsqlc-native-driver.so" target-dir="libs/arm64-v8a"/>
-        <source-file src="node_modules/cordova-sqlite-legacy/src/android/libs/armeabi/libsqlc-native-driver.so" target-dir="libs/armeabi"/>
-        <source-file src="node_modules/cordova-sqlite-legacy/src/android/libs/armeabi-v7a/libsqlc-native-driver.so" target-dir="libs/armeabi-v7a"/>
-        <source-file src="node_modules/cordova-sqlite-legacy/src/android/libs/x86/libsqlc-native-driver.so" target-dir="libs/x86"/>
-        <source-file src="node_modules/cordova-sqlite-legacy/src/android/libs/x86_64/libsqlc-native-driver.so" target-dir="libs/x86_64"/>
+        <source-file src="node_modules/cordova-sqlite-ext-deps/libs/arm64-v8a/libsqlc-native-driver.so" target-dir="libs/arm64-v8a"/>
+        <source-file src="node_modules/cordova-sqlite-ext-deps/libs/armeabi/libsqlc-native-driver.so" target-dir="libs/armeabi"/>
+        <source-file src="node_modules/cordova-sqlite-ext-deps/libs/armeabi-v7a/libsqlc-native-driver.so" target-dir="libs/armeabi-v7a"/>
+        <source-file src="node_modules/cordova-sqlite-ext-deps/libs/x86/libsqlc-native-driver.so" target-dir="libs/x86"/>
+        <source-file src="node_modules/cordova-sqlite-ext-deps/libs/x86_64/libsqlc-native-driver.so" target-dir="libs/x86_64"/>
 
     </platform>
 
@@ -67,8 +62,9 @@
         <header-file src="src/ios/SQLitePlugin.h" />
         <source-file src="src/ios/SQLitePlugin.m" />
 
-        <header-file src="node_modules/cordova-sqlite-legacy/src/common/sqlite3.h" />
-        <source-file src="node_modules/cordova-sqlite-legacy/src/common/sqlite3.c" />
+        <header-file src="node_modules/cordova-sqlite-ext-deps/sqlite3.h" />
+        <source-file src="node_modules/cordova-sqlite-ext-deps/sqlite3.c"
+                     compiler-flags="-DSQLITE_TEMP_STORE=2 -DSQLITE_THREADSAFE=2 -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS -DSQLITE_ENABLE_FTS4 -DSQLITE_ENABLE_COLUMN_METADATA -DSQLITE_ENABLE_RTREE -DSQLITE_LOCKING_STYLE=1 -DSQLITE_OMIT_BUILTIN_TEST -DSQLITE_OMIT_LOAD_EXTENSION" />
 
     </platform>
 
