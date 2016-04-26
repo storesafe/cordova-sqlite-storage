@@ -375,10 +375,9 @@ var mytests = function() {
           });
         });
 
-        // XXX TODO MOVE:
-        // XXX BROKEN [BUG #209]:
-        xtest_it(suiteName + ' close writer db handle should not close reader db handle [BROKEN]', function () {
-          var dbname = 'close-one-db-handle.db';
+        /* ** FUTURE TBD (NOT IMPLEMENTED) dispose
+        xtest_it(suiteName + " 'dispose' writer db handle should not close reader db handle [NOT IMPLEMENTED]", function () {
+          var dbname = 'dispose-one-db-handle.db';
           var dbw = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
           var dbr = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
 
@@ -393,7 +392,8 @@ var mytests = function() {
             ok(false, error.message);
             start(1);
           }, function() {
-            dbw.close(function () {
+            // FUTURE TBD (NOT IMPLEMENTED):
+            dbw.dispose(function () {
               // XXX dbr no longer working [BUG #209]:
               dbr.readTransaction(function (tx) {
                 ok(false, "Behavior changed - please update this test");
@@ -413,32 +413,34 @@ var mytests = function() {
             });
           });
         });
+        // ** */
 
-        // XXX TODO MOVE:
-        // XXX BROKEN [BUG #204]:
-        xtest_it(suiteName + ' close DB in db.executeSql() callback [BROKEN]', function () {
+        // XXX TODO BROKEN [BUG #204]:
+        it(suiteName + ' REPRODUCE BUG: close DB in db.executeSql() callback', function (done) {
           var dbName = "Close-DB-in-db-executeSql-callback.db";
-
-          // async test coming up
-          stop(1);
 
           openDatabase({name: dbName}, function (db) {
             db.executeSql("CREATE TABLE IF NOT EXISTS tt (test_data)", [], function() {
               db.close(function () {
-                ok(false, "Behavior changed - please update this test");
-                ok(true, 'DB close OK');
-                start(1);
+                // FUTURE TBD EXPECTED RESULT:
+                expect('Behavior changed - please update this test').toBe('--');
+                expect(true).toBe(true);
+                done();
               }, function (error) {
-                //ok(false, "Could not close DB: " + error.message);
-                ok(true, "BUG REPRODUCED");
-                start(1);
+                // BUG REPRODUCED:
+                //expect(false).toBe(true);
+                //expect('CLOSE ERROR' + error).toBe('--');
+                expect(true).toBe(true);
+                done();
               });
             });
           }, function (error) {
-            ok(false, error.message);
-            start(1);
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect('OPEN ERROR' + error).toBe('--');
+            done();
           });
-        });
+        }, MYTIMEOUT);
 
       });
     }

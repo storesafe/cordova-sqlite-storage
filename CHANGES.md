@@ -4,12 +4,16 @@
 
 XXX TBD
 
+### cordova-sqlite-storage 1.2.2
+
+- Self-test function to verify ability to open/populate/read/delete a test database
+- Read BLOB as Base-64 DISABLED in Android version (was already disabled for iOS)
+
 ### cordova-sqlite-storage 1.2.1
 
 - Close Android SQLiteStatement after INSERT/UPDATE/DELETE
 - Specify minimum Cordova version 6.0.0
 - Lawnchair adapter fix: Changed remove method to work with key array
-
 
 ## x.x.x-common-dev
 
@@ -77,7 +81,7 @@ XXX TBD
 - Fix plugin ID in plugin.xml to match npm package ID
 - Unpacked sqlite-native-driver.so libraries from jar
 - Fix conversion of INTEGER type (iOS version)
-- Disable code to read BLOB as Base-64 due to https://issues.apache.org/jira/browse/CB-9638
+- Disable code to read BLOB as Base-64 (iOS version) due to https://issues.apache.org/jira/browse/CB-9638
 
 ## 0.7.10
 

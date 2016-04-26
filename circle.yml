@@ -22,8 +22,9 @@ test:
     - cordova-paramedic --platform android --plugin . || echo error-ignored
     - cp $SPEC_ROOT/spec/self-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/db-tx-string-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
-    - cp $SPEC_ROOT/spec/basic-sql-tx-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
+    - cp $SPEC_ROOT/spec/db-tx-sql-results.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/sql-batch-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
+    - cp spec/www/spec/regexp-test.js tests/tests.js && cordova-paramedic --platform android --plugin . --timeout 3600000
     - cp $SPEC_ROOT/spec/db-simultaneous-tx-access-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/tx-semantics-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/db-tx-value-bindings-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
