@@ -13,12 +13,11 @@
 // REGEXP:
 #include <regex.h>
 
-// NOTE: This is now broken by cordova-ios 4.0, see:
-// https://issues.apache.org/jira/browse/CB-9638
-// Solution is to use NSJSONSerialization instead.
-#ifdef READ_BLOB_AS_BASE64
-#import <Cordova/NSData+Base64.h>
-#endif
+// XXX TODO:
+//#define READ_BLOB_AS_BASE64
+
+// FUTURE TBD (XXX TBD subjet to change):
+//#define INCLUDE_SQL_BLOB_BINDING
 
 static void
 sqlite_regexp(sqlite3_context * context, int argc, sqlite3_value ** values) {
@@ -614,18 +613,12 @@ sqlite_regexp(sqlite3_context * context, int argc, sqlite3_value ** values) {
 +(NSString*)getBlobAsBase64String:(const char*)blob_chars
                        withLength:(int)blob_length
 {
-    size_t outputLength = 0;
-    char* outputBuffer = CDVNewBase64Encode(blob_chars, blob_length, true, &outputLength);
+    // THANKS for guidance: http://stackoverflow.com/a/8354941/1283667
+    NSData * data = [NSData dataWithBytes: (const void *)blob_chars length: blob_length];
 
-    NSString* result = [[NSString alloc] initWithBytesNoCopy:outputBuffer
-                                                      length:outputLength
-                                                    encoding:NSASCIIStringEncoding
-                                                freeWhenDone:YES];
-#if !__has_feature(objc_arc)
-    [result autorelease];
-#endif
-
-    return result;
+    // THANKS for guidance:
+    // https://github.com/apache/cordova-ios/blob/master/guides/API%20changes%20in%204.0.md#nsdatabase64h-removed
+    return [data base64EncodedStringWithOptions:0];
 }
 #endif
 

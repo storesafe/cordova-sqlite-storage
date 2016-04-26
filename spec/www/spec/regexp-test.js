@@ -4,8 +4,11 @@ var MYTIMEOUT = 12000;
 
 var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 
-var isAndroid = /Android/.test(navigator.userAgent);
-var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
+// Detect actual platform:
+var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
+var isWindows = /Windows /.test(navigator.userAgent); // Windows
+var isAndroidUA = /Android/.test(navigator.userAgent);
+var isAndroid = (isAndroidUA && !isWindows);
 
 var scenarioList = [ isAndroid ? 'Plugin-implementation-default' : 'Plugin', 'HTML5', 'Plugin-implementation-2' ];
 
@@ -20,11 +23,12 @@ var mytests = function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
       var isWebSql = (i === 1);
-      var isOldImpl = (i === 2);
+      var isImplementation2 = (i === 2);
+      var isAndroidSQLiteConnector = false; // (NOT in this version branch)
 
       // NOTE: MUST be defined in function scope, NOT outer scope:
       var openDatabase = function(name, ignored1, ignored2, ignored3) {
-        if (isOldImpl) {
+        if (isImplementation2) {
           return window.sqlitePlugin.openDatabase({name: name, location: 1, androidDatabaseImplementation: 2});
         }
         if (isWebSql) {
@@ -36,10 +40,11 @@ var mytests = function() {
 
       it(suiteName + 'Simple REGEXP test',
         function(done) {
-          if (!isWebSql && isAndroid && !isOldImpl) pending('BROKEN for Android-sqlite-connector'); // XXX TODO FIX
+          if (isWP8) pending('NOT IMPLEMENTED for WP8');
+          if (isWindows) pending('NOT IMPLEMENTED for Windows');
+          if (!isWebSql && isAndroid && !isImplementation2) pending('BROKEN for Android-sqlite-connector'); // XXX TODO FIX
+          if (!isWebSql && isAndroid && isImplementation2 && /Android [1-4]/.test(navigator.userAgent)) pending('BROKEN for android.database (version 1.x-4.x)');
           if (isWebSql && !isAndroid) pending('BROKEN for iOS Web SQL');
-          if (!isWebSql && isAndroid && isOldImpl && /Android [1-4]/.test(navigator.userAgent)) pending('BROKEN for android.database (version 1.x-4.x)');
-          if (isWindows) pending('BROKEN for Windows');
 
           var db = openDatabase('simple-regexp-test.db', '1.0', 'test', DEFAULT_SIZE);
 

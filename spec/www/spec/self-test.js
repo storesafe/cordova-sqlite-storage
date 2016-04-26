@@ -2,13 +2,12 @@
 
 var MYTIMEOUT = 12000;
 
-// simple tests:
 var mytests = function() {
 
-  describe('SELF test(s)', function() {
+  describe('Built-in test(s)', function() {
 
-    describe('ECHO test(s)', function() {
-      it('Simple echo test',
+    describe('Self test(s)', function() {
+      it('Echo test',
         function(done) {
           window.sqlitePlugin.echoTest(function() {
             // ok:
@@ -17,6 +16,21 @@ var mytests = function() {
           }, function(err) {
             // went wrong:
             expect(false).toBe(true);
+            expect('Echo test error: ' + JSON.stringify(err)).toBe('--');
+            done();
+          });
+        }, MYTIMEOUT);
+
+      it('Self-test: open/populate/read/update/delete database',
+        function(done) {
+          window.sqlitePlugin.selfTest(function() {
+            // ok:
+            expect(true).toBe(true);
+            done();
+          }, function(err) {
+            // went wrong:
+            expect(false).toBe(true);
+            expect('Self-test error: ' + JSON.stringify(err)).toBe('--');
             done();
           });
         }, MYTIMEOUT);

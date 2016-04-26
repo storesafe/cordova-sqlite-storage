@@ -1,18 +1,12 @@
 /* 'use strict'; */
 
-var MYTIMEOUT = 12000;
+var MYTIMEOUT = 20000;
 
 var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 
-var isAndroid = /Android/.test(navigator.userAgent);
 var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
-//var isWindows = /Windows NT/.test(navigator.userAgent); // Windows [NT] (8.1)
-var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
-//var isWindowsPC = /Windows NT/.test(navigator.userAgent); // Windows [NT] (8.1)
-//var isWindowsPhone_8_1 = /Windows Phone 8.1/.test(navigator.userAgent); // Windows Phone 8.1
-//var isIE = isWindows || isWP8 || isWindowsPhone_8_1;
-var isIE = isWindows || isWP8;
-var isWebKit = !isIE; // TBD [Android or iOS]
+var isWindows = /Windows /.test(navigator.userAgent); // Windows
+var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 
 // NOTE: In the core-master branch there is no difference between the default
 // implementation and implementation #2. But the test will also apply
@@ -25,12 +19,13 @@ var scenarioList = [
 
 var scenarioCount = (!!window.hasWebKitBrowser) ? (isAndroid ? 3 : 2) : 1;
 
-// simple tests:
+// XXX FUTURE TBD: split this into db feature & tx error handling test scripts
+
 var mytests = function() {
 
+  // sql feature test(s)
   for (var i=0; i<scenarioCount; ++i) {
-
-    describe(scenarioList[i] + ': misc. sql test(s)', function() {
+    describe(scenarioList[i] + ': basic/misc. db tx/sql feature test(s)', function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
       var isWebSql = (i === 1);
@@ -54,12 +49,40 @@ var mytests = function() {
         }
       }
 
+        // Known to work with:
+        // - iOS 9 Web SQL
+        // - Android-sqlite-connector with newer sqlite3 build (in cordova-sqlite-ext version)
+        // - iOS plugin with newer sqlite3 build (also in cordova-sqlite-ext version)
+        // - Windows (with newer sqlite3 build)
+        // SKIPPED in this version branch (fow now)
+        it(suiteName + 'db readTransaction with a WITH clause', function(done) {
+          if (isWP8) pending('NOT IMPLEMENTED for WP(8)');
+          if (isWebSql) pending('SKIP for Web SQL'); // NOT WORKING on all versions (Android/iOS)
+          if (isAndroid && isOldImpl) pending('SKIP for android.database implementation'); // NOT WORKING on all versions
+
+          var db = openDatabase('tx-with-a-with-clause-test.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          db.readTransaction(function(tx) {
+            tx.executeSql('WITH one(x) AS (SELECT 1) SELECT x FROM one;');
+          }, function(e) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(JSON.stringify(e)).toBe('---');
+            done();
+          }, function() {
+            // EXPECTED RESULT:
+            expect(true).toBe(true);
+            done();
+          });
+
+        }, MYTIMEOUT);
 
         /* THANKS to @calebeaires: */
         it(suiteName + 'create virtual table using FTS3', function(done) {
           if (isWP8) pending('NOT IMPLEMENTED for WP(8)'); // NOT IMPLEMENTED in CSharp-SQLite
 
           var db = openDatabase('virtual-table-using-fts3.db', '1.0', 'Test', DEFAULT_SIZE);
+
           expect(db).toBeDefined();
 
           db.transaction(function(tx) {
@@ -70,7 +93,7 @@ var mytests = function() {
             tx.executeSql('CREATE VIRTUAL TABLE IF NOT EXISTS virtual_book USING FTS3 (liv, cap, ver, tex, tes);', [], function(tx, res) {
               // ok:
               expect(true).toBe(true);
-            }, function(err) {
+            }, function(ignored1, ignored2) {
               // went wrong:
               expect(false).toBe(true);
             });
@@ -92,6 +115,7 @@ var mytests = function() {
           if (isWP8) pending('NOT IMPLEMENTED for WP(8)'); // NOT IMPLEMENTED in CSharp-SQLite
 
           var db = openDatabase('virtual-table-using-fts4.db', '1.0', 'Test', DEFAULT_SIZE);
+
           expect(db).toBeDefined();
 
           db.transaction(function(tx) {
@@ -102,7 +126,7 @@ var mytests = function() {
             tx.executeSql('CREATE VIRTUAL TABLE IF NOT EXISTS virtual_book USING FTS4 (liv, cap, ver, tex, tes);', [], function(tx, res) {
               // ok:
               expect(true).toBe(true);
-            }, function(err) {
+            }, function(ignored1, ignored2) {
               // went wrong:
               expect(false).toBe(true);
             });
@@ -118,12 +142,98 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-      if (!isWebSql) {
+        // Test for Cordova-sqlcipher-adapter version (SQLCipher 3.4.0 based on SQLite 3.11.0)
+        it(suiteName + 'Basic JSON1 json test', function(done) {
+          //if (isWebSql) pending('SKIP for Web SQL (not implemented)');
+          pending('SKIP: NOT IMPLEMENTED for this version');
+
+          var db = openDatabase('basic-json1-json-test.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+
+            expect(tx).toBeDefined();
+
+            // Derived from sample in: https://www.sqlite.org/json1.html
+            tx.executeSql("SELECT json(?) AS my_json;", [' { "this" : "is", "a": [ "test" ] } '], function(tx, res) {
+              expect(res.rows.item(0).my_json).toEqual('{"this":"is","a":["test"]}');
+              done();
+            }, function(tx, e) {
+              // went wrong:
+              expect(false).toBe(true);
+              expect(JSON.stringify(e)).toBe('--');
+              done();
+            });
+          });
+        }, MYTIMEOUT);
+
+        // Test for Cordova-sqlcipher-adapter version (SQLCipher 3.4.0 based on SQLite 3.11.0)
+        it(suiteName + 'JSON1 json_object test', function(done) {
+          //if (isWebSql) pending('SKIP for Web SQL (not implemented)');
+          pending('SKIP: NOT IMPLEMENTED for this version');
+
+          var db = openDatabase('json1-json-object-test.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+
+            expect(tx).toBeDefined();
+
+            // Derived from sample in: https://www.sqlite.org/json1.html
+            tx.executeSql("SELECT json_object(?,?) AS my_object;", ['ex','[52,3.14159]'], function(tx, res) {
+              expect(res.rows.item(0).my_object).toEqual('{"ex":"[52,3.14159]"}');
+              done();
+            }, function(tx, e) {
+              // went wrong:
+              expect(false).toBe(true);
+              expect(JSON.stringify(e)).toBe('--');
+              done();
+            });
+          });
+        }, MYTIMEOUT);
+
+        // Test for Cordova-sqlcipher-adapter version (SQLCipher 3.4.0 based on SQLite 3.11.0)
+        it(suiteName + 'create virtual table using FTS5', function(done) {
+          //if (isWebSql) pending('SKIP for Web SQL (not implemented)');
+          pending('SKIP: NOT IMPLEMENTED for this version');
+
+          var db = openDatabase('virtual-table-using-fts5.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql('CREATE INDEX liv_index ON book (liv, cap);');
+            tx.executeSql('DROP TABLE IF EXISTS virtual_book');
+            tx.executeSql('CREATE VIRTUAL TABLE IF NOT EXISTS virtual_book USING FTS5 (liv, cap, ver, tex, tes);', [], function(tx, res) {
+              // ok:
+              expect(true).toBe(true);
+            }, function(tx, e) {
+              // went wrong:
+              expect(false).toBe(true);
+            });
+          }, function(err) {
+            // [ignored here]:
+            //expect(false).toBe(true);
+            expect(true).toBe(true);
+            done();
+          }, function() {
+            // verify tx was ok:
+            expect(true).toBe(true);
+            done();
+          });
+        }, MYTIMEOUT);
+
         it(suiteName + 'create virtual table using R-Tree', function(done) {
+          if (isWebSql) pending('BROKEN (NOT IMPLEMENTED) for Web SQL');
           if (isWP8) pending('NOT IMPLEMENTED for WP(8)'); // NOT IMPLEMENTED in CSharp-SQLite
-          if (isAndroid) pending('NOT IMPLEMENTED for all versions of Android'); // NOT IMPLEMENTED for all versions of Android database (failed in Circle CI)
+          if (isAndroid && isOldImpl) pending('NOT IMPLEMENTED for all versions of android.database'); // NOT IMPLEMENTED for all versions of Android database (failed in Circle CI)
 
           var db = openDatabase('virtual-table-using-r-tree.db', '1.0', 'Test', DEFAULT_SIZE);
+
           expect(db).toBeDefined();
 
           db.transaction(function(tx) {
@@ -149,6 +259,70 @@ var mytests = function() {
             done();
           });
         }, MYTIMEOUT);
+
+        it(suiteName + 'DELETE LIMIT', function(done) {
+          if (isWP8) pending('NOT IMPLEMENTED for WP(8)');
+          if (isWindows) pending('NOT IMPLEMENTED for Windows');
+          if (isAndroid && !isWebSql) pending('SKIP for Android plugin'); // FUTURE TBD test with newer versions (android.database)
+          if (!(isAndroid || isWindows || isWP8)) pending('SKIP for iOS'); // NOT WORKING on all versions
+
+          var db = openDatabase('delete-limit-test.db', '1.0', 'Test', DEFAULT_SIZE);
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql('CREATE TABLE TT(C);');
+            tx.executeSql('INSERT INTO TT VALUES (?),(?),(?),(?),(?);', [1,2,3,4,5]);
+            tx.executeSql('DELETE FROM TT LIMIT 3;', [], function(tx, res) {
+              tx.executeSql('SELECT * FROM TT;', [], function(tx, res) {
+                // OK:
+                expect(true).toBe(true);
+                expect(res.rows.length).toBe(2);
+                done();
+              });
+            }, function(tx, err) {
+              // WENT WRONG:
+              expect(false).toBe(true);
+              expect(JSON.stringify(err)).toBe('--');
+              return true;
+            });
+          }, function(err) {
+            // [ignored here]:
+            expect(true).toBe(true);
+            done();
+          });
+        }, MYTIMEOUT);
+
+    });
+
+  }
+
+  // tx error handling test(s)
+  for (var i=0; i<scenarioCount; ++i) {
+
+    describe(scenarioList[i] + ': basic/misc tx error handling test(s)', function() {
+      var scenarioName = scenarioList[i];
+      var suiteName = scenarioName + ': ';
+      var isWebSql = (i === 1);
+      var isOldImpl = (i === 2);
+
+      // NOTE: MUST be defined in function scope, NOT outer scope:
+      var openDatabase = function(name, ignored1, ignored2, ignored3) {
+        if (isOldImpl) {
+          return window.sqlitePlugin.openDatabase({
+            // prevent reuse of database from default db implementation:
+            name: 'i2-'+name,
+            androidDatabaseImplementation: 2,
+            androidLockWorkaround: 1,
+            location: 1
+          });
+        }
+        if (isWebSql) {
+          return window.openDatabase(name, '1.0', 'Test', DEFAULT_SIZE);
+        } else {
+          return window.sqlitePlugin.openDatabase({name: name, location: 0});
+        }
       }
 
         /* found due to investigation of litehelpers/Cordova-sqlite-storage#226: */
@@ -375,7 +549,7 @@ var mytests = function() {
             expect(gotStringLength).toBe(true);
             done();
           });
-        });
+        }, MYTIMEOUT);
 
         it(suiteName + 'empty readTransaction (no callback argument) and then SELECT transaction', function (done) {
 
@@ -408,7 +582,7 @@ var mytests = function() {
             expect(gotStringLength).toBe(true);
             done();
           });
-        });
+        }, MYTIMEOUT);
 
         it(suiteName + 'empty transaction (no sql statements) and then SELECT transaction', function (done) {
 
@@ -443,7 +617,7 @@ var mytests = function() {
 
           });
 
-        });
+        }, MYTIMEOUT);
 
         // Check fix for litehelpers/Cordova-sqlite-storage#409:
         it(suiteName + 'empty readTransaction (no sql statements) and then SELECT transaction', function (done) {
@@ -479,7 +653,7 @@ var mytests = function() {
 
           });
 
-        });
+        }, MYTIMEOUT);
     });
 
   }
