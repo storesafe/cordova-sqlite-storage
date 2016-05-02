@@ -715,7 +715,6 @@ You can find some more details in a nice writeup (though with old links and pack
 - `SQLitePlugin.coffee.md`: platform-independent (Literate coffee-script, can be read by recent coffee-script compiler)
 - `www`: `SQLitePlugin.js` platform-independent Javascript as generated from `SQLitePlugin.coffee.md` (and checked in!)
 - `src`: platform-specific source code:
-   - `external` - placeholder used to import dependencies in this version branch (needed to build Android and Windows versions)
    - `android` - Java plugin code for Android
    - `ios` - Objective-C plugin code for iOS
    - `windows` - Javascript proxy code and SQLite3-WinRT project for Windows
