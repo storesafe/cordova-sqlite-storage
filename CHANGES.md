@@ -1,6 +1,6 @@
 # Changes
 
-### cordova-sqlite-storage 1.4.0-rc1
+### cordova-sqlite-storage 1.4.0
 
 - Now using cordova-sqlite-storage-dependencies for SQLite 3.8.10.2 Android/iOS/Windows
 - Android-sqlite-connector implementation supported by this version again
