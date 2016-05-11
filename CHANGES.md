@@ -1,5 +1,9 @@
 # Changes
 
+### cordova-sqlite-storage 1.4.1
+
+- Minimum Cordova version no longer enforced in this version
+
 ### cordova-sqlite-storage 1.4.0
 
 - Now using cordova-sqlite-storage-dependencies for SQLite 3.8.10.2 Android/iOS/Windows
