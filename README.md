@@ -265,6 +265,8 @@ The idea is to emulate the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/
 
 **NOTE:** If a sqlite statement in a transaction fails with an error, the error handler *must* return `false` in order to recover the transaction. This is correct according to the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/) standard. This is different from the WebKit implementation of Web SQL in Android and iOS which recovers the transaction if a sql error hander returns a non-`true` value.
 
+For some basic examples, see the [Sample section](#sample).
+
 ## Opening a database
 
 To open a database access handle object (in the **new** default location):
@@ -882,6 +884,182 @@ The adapter is part of [PouchDB](http://pouchdb.com/) as documented at:
 - <https://pouchdb.com/adapters.html>
 - <https://pouchdb.com/api.html#create_database>
 - <http://pouchdb.com/faq.html>.
+
+# Sample: Interact with the SQLite database <a name="sample"></a>
+
+The SQLite storage plugin sample allows you to execute SQL statements to interact with the database. The code snippets in this section demonstrate simple plugin tasks including:
+
+* [Open the database and create a table](#openDb)
+* [Add a row (record) to the database](#addRow)
+* [Read rows from the database](#readRow) that match a column value
+* [Remove a row from the database](#removeRow) that matches a column value
+* [Update rows in the database](#updateRow) that match a column value
+* [Close the database](#closeDb)
+
+##Open the database and create a table <a name="openDb"></a>
+
+Call the `openDatabase()` function to get started, passing in the name and location for the database.
+
+```Javascript
+var db = window.sqlitePlugin.openDatabase({ name: 'my.db', location: 'default' }, function () {
+
+    // Here, you might create or open the table.
+
+}, function (error) {
+    console.log('Open database ERROR: ' + JSON.stringify(error));
+});
+```
+
+Create a table with three columns for first name, last name, and a customer account number. If the table already exists, this SQL statement opens the table.
+
+```Javascript
+db.transaction(function (tx) {
+    // ...
+    tx.executeSql('CREATE TABLE customerAccounts (firstname, lastname, acctNo)');
+}, function (error) {
+    console.log('transaction error: ' + error.message);
+}, function () {
+    console.log('transaction ok');
+});
+```
+
+By wrapping the previous `executeSql()` function call in `db.transaction()`, we will make these tasks asynchronous. If you want to, you can use multiple `executeSql()` statements within a single transaction (not shown).
+
+## Add a row to the database <a name="addRow"></a>
+
+Add a row to the database using the INSERT INTO SQL statement.
+
+```Javascript
+function addItem(first, last, acctNum) {
+
+    db.transaction(function (tx) {
+
+        var query = "INSERT INTO customerAccounts (firstname, lastname, acctNo) VALUES (?,?,?)";
+
+        tx.executeSql(query, [first, last, acctNum], function(tx, res) {
+            console.log("insertId: " + res.insertId + " -- probably 1");
+            console.log("rowsAffected: " + res.rowsAffected + " -- should be 1");
+        },
+        function(tx, error) {
+            console.log('INSERT error: ' + error.message);
+        });
+    }, function(error) {
+        console.log('transaction error: ' + error.message);
+    }, function() {
+        console.log('transaction ok');
+    });
+}
+```
+
+To add some actual rows in your app, call the `addItem` function several times.
+
+```Javascript
+addItem("Fred", "Smith", 100);
+addItem("Bob", "Yerunkle", 101);
+addItem("Joe", "Auzomme", 102);
+addItem("Pete", "Smith", 103);
+```
+
+##Read data from the database <a name="readRow"></a>
+
+Add code to read from the database using a SELECT statement. Include a WHERE condition to match the resultSet to the passed in last name.
+
+```Javascript
+function getData(last) {
+
+    db.transaction(function (tx) {
+
+        var query = "SELECT firstname, lastname, acctNo FROM customerAccounts WHERE lastname = ?";
+
+        tx.executeSql(query, [last], function (tx, resultSet) {
+
+            for(var x = 0; x < resultSet.rows.length; x++) {
+                console.log("First name: " + resultSet.rows.item(x).firstname +
+                    ", Acct: " + resultSet.rows.item(x).acctNo);
+            }
+        },
+        function (tx, error) {
+            console.log('SELECT error: ' + error.message);
+        });
+    }, function (error) {
+        console.log('transaction error: ' + error.message);
+    }, function () {
+        console.log('transaction ok');
+    });
+}
+```
+
+##Remove a row from the database <a name="removeRow"></a>
+
+Add a function to remove a row from the database that matches the passed in customer account number.
+
+```Javascript
+function removeItem(acctNum) {
+
+    db.transaction(function (tx) {
+
+        var query = "DELETE FROM customerAccounts WHERE acctNo = ?";
+
+        tx.executeSql(query, [acctNum], function (tx, res) {
+            console.log("removeId: " + res.insertId);
+            console.log("rowsAffected: " + res.rowsAffected);
+        },
+        function (tx, error) {
+            console.log('DELETE error: ' + error.message);
+        });
+    }, function (error) {
+        console.log('transaction error: ' + error.message);
+    }, function () {
+        console.log('transaction ok');
+    });
+}
+```
+
+##Update rows in the database <a name="updateRow"></a>
+
+Add a function to update rows in the database for records that match the passed in customer account number. In this form, the statement will update multiple rows if the account numbers are not unique.
+
+```Javascript
+function updateItem(first, id) {
+    // UPDATE Cars SET Name='Skoda Octavia' WHERE Id=3;
+    db.transaction(function (tx) {
+
+        var query = "UPDATE customerAccounts SET firstname = ? WHERE acctNo = ?";
+
+        tx.executeSql(query, [first, id], function(tx, res) {
+            console.log("insertId: " + res.insertId);
+            console.log("rowsAffected: " + res.rowsAffected);
+        },
+        function(tx, error) {
+            console.log('UPDATE error: ' + error.message);
+        });
+    }, function(error) {
+        console.log('transaction error: ' + error.message);
+    }, function() {
+        console.log('transaction ok');
+    });
+}
+```
+
+To call the preceding function, add code like this in your app.
+
+```Javascript
+updateItem("Yme", 102);
+```
+
+##Close the database <a name="closeDb"></a>
+
+When you are finished with your transactions, close the database. Call `closeDB` within the transaction success or failure callbacks (rather than the callbacks for `executeSql()`).
+
+```Javascript
+function closeDB() {
+    db.close(function () {
+        console.log("DB closed!");
+    }, function (error) {
+        console.log("Error closing DB:" + error.message);
+    });
+}
+```
 
 # Contributing
 
