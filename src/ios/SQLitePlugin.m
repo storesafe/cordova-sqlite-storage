@@ -16,6 +16,12 @@
 // FUTURE TBD (in another version branch & TBD subjet to change):
 //#define INCLUDE_SQL_BLOB_BINDING
 
+// Defines Macro to only log lines when in DEBUG mode
+#ifdef DEBUG
+#   define DLog(fmt, ...) NSLog((@"%s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
+#else
+#   define DLog(...)
+#endif
 
 @implementation SQLitePlugin
 
@@ -24,7 +30,7 @@
 
 -(void)pluginInitialize
 {
-    NSLog(@"Initializing SQLitePlugin");
+    DLog(@"Initializing SQLitePlugin");
 
     {
         openDBs = [NSMutableDictionary dictionaryWithCapacity:0];
@@ -35,18 +41,18 @@
 #endif
 
         NSString *docs = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
-        NSLog(@"Detected docs path: %@", docs);
+        DLog(@"Detected docs path: %@", docs);
         [appDBPaths setObject: docs forKey:@"docs"];
 
         NSString *libs = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
-        NSLog(@"Detected Library path: %@", libs);
+        DLog(@"Detected Library path: %@", libs);
         [appDBPaths setObject: libs forKey:@"libs"];
 
         NSString *nosync = [libs stringByAppendingPathComponent:@"LocalDatabase"];
         NSError *err;
         if ([[NSFileManager defaultManager] fileExistsAtPath: nosync])
         {
-            NSLog(@"no cloud sync at path: %@", nosync);
+            DLog(@"no cloud sync at path: %@", nosync);
             [appDBPaths setObject: nosync forKey:@"nosync"];
         }
         else
@@ -56,15 +62,15 @@
                 NSURL *nosyncURL = [ NSURL fileURLWithPath: nosync];
                 if (![nosyncURL setResourceValue: [NSNumber numberWithBool: YES] forKey: NSURLIsExcludedFromBackupKey error: &err])
                 {
-                    NSLog(@"IGNORED: error setting nobackup flag in LocalDatabase directory: %@", err);
+                    DLog(@"IGNORED: error setting nobackup flag in LocalDatabase directory: %@", err);
                 }
-                NSLog(@"no cloud sync at path: %@", nosync);
+                DLog(@"no cloud sync at path: %@", nosync);
                 [appDBPaths setObject: nosync forKey:@"nosync"];
             }
             else
             {
                 // fallback:
-                NSLog(@"WARNING: error adding LocalDatabase directory: %@", err);
+                DLog(@"WARNING: error adding LocalDatabase directory: %@", err);
                 [appDBPaths setObject: libs forKey:@"nosync"];
             }
         }
@@ -88,7 +94,7 @@
 
     NSString * string_value = [options objectForKey:@"value"];
 
-    NSLog(@"echo string value: %@", string_value);
+    DLog(@"echo string value: %@", string_value);
 
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:string_value];
     [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
@@ -110,25 +116,25 @@
 
     NSString *dblocation = [options objectForKey:@"dblocation"];
     if (dblocation == NULL) dblocation = @"docs";
-    //NSLog(@"using db location: %@", dblocation);
+    // DLog(@"using db location: %@", dblocation);
 
     NSString *dbname = [self getDBPath:dbfilename at:dblocation];
 
     if (dbname == NULL) {
-        NSLog(@"No db name specified for open");
+        DLog(@"No db name specified for open");
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"You must specify database name"];
     }
     else {
         NSValue *dbPointer = [openDBs objectForKey:dbfilename];
 
         if (dbPointer != NULL) {
-            NSLog(@"Reusing existing database connection for db name %@", dbfilename);
+            DLog(@"Reusing existing database connection for db name %@", dbfilename);
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Database opened"];
         } else {
             const char *name = [dbname UTF8String];
             sqlite3 *db;
 
-            NSLog(@"open full db path: %@", dbname);
+            DLog(@"open full db path: %@", dbname);
 
             if (sqlite3_open(name, &db) != SQLITE_OK) {
                 pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unable to open DB"];
@@ -154,15 +160,15 @@
     }
 
     if (sqlite3_threadsafe()) {
-        NSLog(@"Good news: SQLite is thread safe!");
+        DLog(@"Good news: SQLite is thread safe!");
     }
     else {
-        NSLog(@"Warning: SQLite is not thread safe.");
+        DLog(@"Warning: SQLite is not thread safe.");
     }
 
     [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
 
-    // NSLog(@"open cb finished ok");
+    // DLog(@"open cb finished ok");
 }
 
 -(void) close: (CDVInvokedUrlCommand*)command
@@ -181,7 +187,7 @@
 
     if (dbFileName == NULL) {
         // Should not happen:
-        NSLog(@"No db name specified for close");
+        DLog(@"No db name specified for close");
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify database path"];
     } else {
         NSValue *val = [openDBs objectForKey:dbFileName];
@@ -189,11 +195,11 @@
 
         if (db == NULL) {
             // Should not happen:
-            NSLog(@"close: db name was not open: %@", dbFileName);
+            DLog(@"close: db name was not open: %@", dbFileName);
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Specified db was not open"];
         }
         else {
-            NSLog(@"close db name: %@", dbFileName);
+            DLog(@"close db name: %@", dbFileName);
             sqlite3_close (db);
             [openDBs removeObjectForKey:dbFileName];
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"DB closed"];
@@ -222,18 +228,18 @@
 
     if (dbFileName==NULL) {
         // Should not happen:
-        NSLog(@"No db name specified for delete");
+        DLog(@"No db name specified for delete");
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify database path"];
     } else {
         NSString *dbPath = [self getDBPath:dbFileName at:dblocation];
 
         if ([[NSFileManager defaultManager]fileExistsAtPath:dbPath]) {
-            NSLog(@"delete full db path: %@", dbPath);
+            DLog(@"delete full db path: %@", dbPath);
             [[NSFileManager defaultManager]removeItemAtPath:dbPath error:nil];
             [openDBs removeObjectForKey:dbFileName];
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"DB deleted"];
         } else {
-            NSLog(@"delete: db was not found: %@", dbPath);
+            DLog(@"delete: db was not found: %@", dbPath);
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"The database does not exist on that path"];
         }
     }
