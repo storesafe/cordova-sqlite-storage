@@ -1,9 +1,10 @@
 # Changes
 
-### cordova-sqlite-storage 1.4.2-pre1
+### cordova-sqlite-storage 1.4.2-pre1a
 
 - Fix iOS version to use DLog macro to remove extra logging from release build
 - Fix Lawnchair adapter to use new mandatory "location" parameter
+- Minor cleanup of Android version code
 
 ### cordova-sqlite-storage 1.4.1
 

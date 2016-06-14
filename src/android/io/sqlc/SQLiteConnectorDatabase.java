@@ -78,12 +78,10 @@ class SQLiteConnectorDatabase extends SQLiteAndroidDatabase
      * @param dbname     The name of the database.
      * @param queryarr   Array of query strings
      * @param jsonparams Array of JSON query parameters
-     * @param queryIDs   Array of query ids
      * @param cbc        Callback context from Cordova API
      */
     @Override
-    void executeSqlBatch( String[] queryarr, JSONArray[] jsonparams,
-                          String[] queryIDs, CallbackContext cbc) {
+    void executeSqlBatch( String[] queryarr, JSONArray[] jsonparams, CallbackContext cbc) {
 
         if (mydb == null) {
             // not allowed - can only happen if someone has closed (and possibly deleted) a database and then re-used the database
@@ -97,7 +95,6 @@ class SQLiteConnectorDatabase extends SQLiteAndroidDatabase
         for (int i = 0; i < len; i++) {
             int rowsAffectedCompat = 0;
             boolean needRowsAffectedCompat = false;
-            String query_id = queryIDs[i];
 
             JSONObject queryResult = null;
             String errorMessage = "unknown";
@@ -126,7 +123,6 @@ class SQLiteConnectorDatabase extends SQLiteAndroidDatabase
             try {
                 if (queryResult != null) {
                     JSONObject r = new JSONObject();
-                    r.put("qid", query_id);
 
                     r.put("type", "success");
                     r.put("result", queryResult);
@@ -134,7 +130,6 @@ class SQLiteConnectorDatabase extends SQLiteAndroidDatabase
                     batchResults.put(r);
                 } else {
                     JSONObject r = new JSONObject();
-                    r.put("qid", query_id);
                     r.put("type", "error");
 
                     JSONObject er = new JSONObject();

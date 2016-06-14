@@ -113,48 +113,37 @@ public class SQLitePlugin extends CordovaPlugin {
 
             case executeSqlBatch:
             case backgroundExecuteSqlBatch:
-                String[] queries = null;
-                String[] queryIDs = null;
-
-                JSONArray jsonArr = null;
-                int paramLen = 0;
-                JSONArray[] jsonparams = null;
-
                 JSONObject allargs = args.getJSONObject(0);
                 JSONObject dbargs = allargs.getJSONObject("dbargs");
                 dbname = dbargs.getString("dbname");
                 JSONArray txargs = allargs.getJSONArray("executes");
 
                 if (txargs.isNull(0)) {
-                    queries = new String[0];
+                    cbc.error("missing executes list");
                 } else {
                     int len = txargs.length();
-                    queries = new String[len];
-                    queryIDs = new String[len];
-                    jsonparams = new JSONArray[len];
+                    String[] queries = new String[len];
+                    JSONArray[] jsonparams = new JSONArray[len];
 
                     for (int i = 0; i < len; i++) {
                         JSONObject a = txargs.getJSONObject(i);
                         queries[i] = a.getString("sql");
-                        queryIDs[i] = a.getString("qid");
-                        jsonArr = a.getJSONArray("params");
-                        paramLen = jsonArr.length();
-                        jsonparams[i] = jsonArr;
+                        jsonparams[i] = a.getJSONArray("params");
                     }
-                }
 
-                // put db query in the queue to be executed in the db thread:
-                DBQuery q = new DBQuery(queries, queryIDs, jsonparams, cbc);
-                DBRunner r = dbrmap.get(dbname);
-                if (r != null) {
-                    try {
-                        r.q.put(q); 
-                    } catch(Exception e) {
-                        Log.e(SQLitePlugin.class.getSimpleName(), "couldn't add to queue", e);
-                        cbc.error("couldn't add to queue");
+                    // put db query in the queue to be executed in the db thread:
+                    DBQuery q = new DBQuery(queries, jsonparams, cbc);
+                    DBRunner r = dbrmap.get(dbname);
+                    if (r != null) {
+                        try {
+                            r.q.put(q);
+                        } catch(Exception e) {
+                            Log.e(SQLitePlugin.class.getSimpleName(), "couldn't add to queue", e);
+                            cbc.error("couldn't add to queue");
+                        }
+                    } else {
+                        cbc.error("database not open");
                     }
-                } else {
-                    cbc.error("database not open");
                 }
                 break;
         }
@@ -351,7 +340,7 @@ public class SQLitePlugin extends CordovaPlugin {
                 dbq = q.take();
 
                 while (!dbq.stop) {
-                    mydb.executeSqlBatch(dbq.queries, dbq.jsonparams, dbq.queryIDs, dbq.cbc);
+                    mydb.executeSqlBatch(dbq.queries, dbq.jsonparams, dbq.cbc);
 
                     if (this.bugWorkaround && dbq.queries.length == 1 && dbq.queries[0] == "COMMIT")
                         mydb.bugWorkaround();
@@ -399,16 +388,14 @@ public class SQLitePlugin extends CordovaPlugin {
         final boolean close;
         final boolean delete;
         final String[] queries;
-        final String[] queryIDs;
         final JSONArray[] jsonparams;
         final CallbackContext cbc;
 
-        DBQuery(String[] myqueries, String[] qids, JSONArray[] params, CallbackContext c) {
+        DBQuery(String[] myqueries, JSONArray[] params, CallbackContext c) {
             this.stop = false;
             this.close = false;
             this.delete = false;
             this.queries = myqueries;
-            this.queryIDs = qids;
             this.jsonparams = params;
             this.cbc = c;
         }
@@ -418,7 +405,6 @@ public class SQLitePlugin extends CordovaPlugin {
             this.close = true;
             this.delete = delete;
             this.queries = null;
-            this.queryIDs = null;
             this.jsonparams = null;
             this.cbc = cbc;
         }
@@ -429,7 +415,6 @@ public class SQLitePlugin extends CordovaPlugin {
             this.close = false;
             this.delete = false;
             this.queries = null;
-            this.queryIDs = null;
             this.jsonparams = null;
             this.cbc = null;
         }
