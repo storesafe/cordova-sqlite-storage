@@ -8,13 +8,9 @@ var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 function ok(test, desc) { expect(test).toBe(true); }
 function equal(a, b, desc) { expect(a).toEqual(b); } // '=='
 
-var isAndroid = /Android/.test(navigator.userAgent);
 var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
-//var isWindows = /Windows NT/.test(navigator.userAgent); // Windows [NT] (8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
-//var isWindowsPC = /Windows NT/.test(navigator.userAgent); // Windows [NT] (8.1)
-//var isWindowsPhone_8_1 = /Windows Phone 8.1/.test(navigator.userAgent); // Windows Phone 8.1
-//var isIE = isWindows || isWP8 || isWindowsPhone_8_1;
+var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 var isIE = isWindows || isWP8;
 var isWebKit = !isIE; // TBD [Android or iOS]
 
@@ -68,12 +64,10 @@ var mytests = function() {
             expect(tx).toBeDefined();
 
             tx.executeSql("select upper('Some US-ASCII text') as uppertext", [], function(tx, res) {
-
-              //console.log("res.rows.item(0).uppertext: " + res.rows.item(0).uppertext);
-
               expect(res.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
 
-              done();
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
             });
           });
         });
@@ -108,7 +102,8 @@ var mytests = function() {
                 // default encoding
                 expect(hexvalue.length).toBe(expected_hexvalue_length);
 
-                done();
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
               });
 
             });
@@ -131,7 +126,9 @@ var mytests = function() {
                 equal(res.rows.item(0).uppertext, "CARRIAGE\rRETURN", "CR ok");
                 tx.executeSql("select upper('New\nLine') as uppertext", [], function(tx, res) {
                   equal(res.rows.item(0).uppertext, "NEW\nLINE", "newline ok");
-                  done();
+
+                  // Close (plugin only) & finish:
+                  (isWebSql) ? done() : db.close(done, done);
                 });
               });
             });
@@ -147,7 +144,9 @@ var mytests = function() {
 
             tx.executeSql("select upper('first\tsecond') as uppertext", [], function(tx, res) {
               expect(res.rows.item(0).uppertext).toBe('FIRST\tSECOND');
-              done();
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
             });
           });
         });
@@ -163,7 +162,9 @@ var mytests = function() {
 
             tx.executeSql("select upper('first\vsecond') as uppertext", [], function(tx, res) {
               expect(res.rows.item(0).uppertext).toBe('FIRST\vSECOND');
-              done();
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
             });
           });
         });
@@ -179,7 +180,9 @@ var mytests = function() {
 
             tx.executeSql("select upper('first\fsecond') as uppertext", [], function(tx, res) {
               expect(res.rows.item(0).uppertext).toBe('FIRST\fSECOND');
-              done();
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
             });
           });
         });
@@ -195,7 +198,9 @@ var mytests = function() {
 
             tx.executeSql("select upper('first\bsecond') as uppertext", [], function(tx, res) {
               expect(res.rows.item(0).uppertext).toBe('FIRST\bSECOND');
-              done();
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
             });
           });
         });
@@ -219,7 +224,8 @@ var mytests = function() {
             tx.executeSql("select length(?) as stringlength", ['First\u2028Second'], function (tx, res) {
               expect(res.rows.item(0).stringlength).toBe(12);
 
-              done();
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
             });
           });
         });
@@ -243,7 +249,8 @@ var mytests = function() {
               expect(res).toBeDefined();
               expect(res.rows.item(0).lowertext).toBe("first\u2028second");
 
-              done();
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
             });
           });
         });
@@ -269,7 +276,8 @@ var mytests = function() {
             tx.executeSql("select length(?) as stringlength", ['First\u2029Second'], function (tx, res) {
               expect(res.rows.item(0).stringlength).toBe(12);
 
-              done();
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
             });
           });
         });
@@ -293,7 +301,132 @@ var mytests = function() {
               expect(res).toBeDefined();
               expect(res.rows.item(0).lowertext).toBe("first\u2029second");
 
-              done();
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          });
+        });
+
+        it(suiteName + 'UTF-8 string test', function(done) {
+          var db = openDatabase("UTF8-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+
+            tx.executeSql("SELECT UPPER('Test ¢ é €') AS upper_result", [], function(ignored, rs) {
+              if (isAndroid && isWebSql) expect(rs.rows.item(0).upper_result).toBe('TEST ¢ É €');
+              else expect(rs.rows.item(0).upper_result).toBe('TEST ¢ é €');
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          });
+        });
+
+        it(suiteName + 'UTF-8 string binding test', function(done) {
+          var db = openDatabase("UTF8-string-binding-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+
+            tx.executeSql('SELECT UPPER(?) AS upper_result', ['Test ¢ é €'], function(ignored, rs) {
+              if (isAndroid && isWebSql) expect(rs.rows.item(0).upper_result).toBe('TEST ¢ É €');
+              else expect(rs.rows.item(0).upper_result).toBe('TEST ¢ é €');
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          });
+        });
+
+        it(suiteName + 'Double-quote string test', function(done) {
+          var db = openDatabase("Double-quote-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+
+            tx.executeSql("SELECT UPPER('\"String\" test') AS upper_result", [], function(ignored, rs) {
+              expect(rs.rows.item(0).upper_result).toBe('"STRING" TEST');
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          });
+        });
+
+        it(suiteName + 'Double-quote string binding test', function(done) {
+          var db = openDatabase("Double-quote-string-binding-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+
+            tx.executeSql('SELECT UPPER(?) AS upper_result', ['"String" test'], function(ignored, rs) {
+              expect(rs.rows.item(0).upper_result).toBe('"STRING" TEST');
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          });
+        });
+
+        it(suiteName + 'Backslash string test', function(done) {
+          var db = openDatabase("Backslash-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+
+            tx.executeSql("SELECT UPPER('Test \\') AS upper_result", [], function(ignored, rs) {
+              expect(rs.rows.item(0).upper_result).toBe('TEST \\');
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          });
+        });
+
+        it(suiteName + 'Backslash string binding test', function(done) {
+          var db = openDatabase("Backslash-string-binding-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+
+            tx.executeSql('SELECT UPPER(?) AS upper_result', ['Test \\'], function(ignored, rs) {
+              expect(rs.rows.item(0).upper_result).toBe('TEST \\');
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          });
+        });
+
+        it(suiteName + 'String test with new String object', function(done) {
+          var db = openDatabase("String-object-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+
+            tx.executeSql('SELECT UPPER(?) AS upper_result', [new String('Test value')], function(ignored, rs) {
+              expect(rs.rows.item(0).upper_result).toBe('TEST VALUE');
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          });
+        });
+
+        it(suiteName + 'String test with custom object', function(done) {
+          // MyCustomObject "class":
+          function MyCustomObject() {};
+          MyCustomObject.prototype.toString = function() {return 'toString result';};
+          MyCustomObject.prototype.valueOf = function() {return 'valueOf result';};
+
+          var myObject = new MyCustomObject();
+          // Check myObject:
+          expect(myObject.toString()).toBe('toString result');
+          expect(myObject.valueOf()).toBe('valueOf result');
+
+          var db = openDatabase("Custom-object-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+
+            tx.executeSql('SELECT UPPER(?) AS upper_result', [myObject], function(ignored, rs) {
+              expect(rs.rows.item(0).upper_result).toBe('TOSTRING RESULT');
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
             });
           });
         });

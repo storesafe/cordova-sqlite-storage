@@ -61,7 +61,8 @@ var mytests = function() {
               console.log('res.rows.item(0).uppertext: ' + res.rows.item(0).uppertext);
               expect(res.rows.item(0).uppertext).toEqual('SOME US-ASCII TEXT');
 
-              done();
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
             });
           });
         }, MYTIMEOUT);
@@ -87,7 +88,8 @@ var mytests = function() {
               console.log('res.rows.item(0).uppertext: ' + res.rows.item(0).uppertext);
               expect(res.rows.item(0).uppertext).toEqual('КАКОЙ-ТО КИРИЛЛИЧЕСКИЙ ТЕКСТ');
 
-              done();
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
             });
           });
         });
@@ -109,7 +111,8 @@ var mytests = function() {
               expect(res.insertId).toBeDefined();
               expect(res.rowsAffected).toBe(1);
 
-              done();
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
             });
 
           });
@@ -191,25 +194,26 @@ var mytests = function() {
               }, function(e) {
                 // not expected:
                 expect(false).toBe(true);
-                expect(JSON.stringify(e).toBe('---'));
+                expect(JSON.stringify(e)).toBe('---');
                 done();
               }, function() {
                 console.log('second tx ok success cb');
                 expect(check_count).toBe(7);
 
-                done();
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
               });
 
             }, function(e) {
               // not expected:
               expect(false).toBe(true);
-              expect(JSON.stringify(e).toBe('---'));
+              expect(JSON.stringify(e)).toBe('---');
               done();
             });
           }, function(e) {
             // not expected:
             expect(false).toBe(true);
-            expect(JSON.stringify(e).toBe('---'));
+            expect(JSON.stringify(e)).toBe('---');
             done();
           });
 
@@ -312,8 +316,7 @@ var mytests = function() {
                   ++check_count;
 
                   expect(res.rows.length).toBe(1);
-                  // FUTURE TBD support by plugin:
-                  //expect(res.rows[0].data_num).toBe(101);
+
                   expect(res.rows.item(0).data_num).toBe(101);
                   expect(res.rows.item(0).data).toBe('test');
 
@@ -356,7 +359,7 @@ var mytests = function() {
               }, function(e) {
                 // not expected:
                 expect(false).toBe(true);
-                expect(JSON.stringify(e).toBe('---'));
+                expect(JSON.stringify(e)).toBe('---');
                 done();
               }, function() {
                 console.log('second tx ok success cb');
@@ -367,19 +370,20 @@ var mytests = function() {
                 expect(store_data_text).toBe('test');
                 expect(store_row_item.data).toBe('test');
 
-                done();
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
               });
 
             }, function(e) {
               // not expected:
               expect(false).toBe(true);
-              expect(JSON.stringify(e).toBe('---'));
+              expect(JSON.stringify(e)).toBe('---');
               done();
             });
           }, function(e) {
             // not expected:
             expect(false).toBe(true);
-            expect(JSON.stringify(e).toBe('---'));
+            expect(JSON.stringify(e)).toBe('---');
             done();
           // not check_counted:
           //}, function() {
@@ -465,25 +469,26 @@ var mytests = function() {
               }, function(e) {
                 // not expected:
                 expect(false).toBe(true);
-                expect(JSON.stringify(e).toBe('---'));
+                expect(JSON.stringify(e)).toBe('---');
                 done();
               }, function() {
                 console.log('second tx ok success cb');
                 expect(check_count).toBe(7);
 
-                done();
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
               });
 
             }, function(e) {
               // not expected:
               expect(false).toBe(true);
-              expect(JSON.stringify(e).toBe('---'));
+              expect(JSON.stringify(e)).toBe('---');
               done();
             });
           }, function(e) {
             // not expected:
             expect(false).toBe(true);
-            expect(JSON.stringify(e).toBe('---'));
+            expect(JSON.stringify(e)).toBe('---');
             done();
           });
 
@@ -570,28 +575,129 @@ var mytests = function() {
               }, function(e) {
                 // not expected:
                 expect(false).toBe(true);
-                expect(JSON.stringify(e).toBe('---'));
+                expect(JSON.stringify(e)).toBe('---');
                 done();
               }, function() {
                 console.log('second tx ok success cb');
                 expect(check_count).toBe(7);
 
-                done();
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
               });
 
             }, function(e) {
               // not expected:
               expect(false).toBe(true);
-              expect(JSON.stringify(e).toBe('---'));
+              expect(JSON.stringify(e)).toBe('---');
               done();
             });
           }, function(e) {
             // not expected:
             expect(false).toBe(true);
-            expect(JSON.stringify(e).toBe('---'));
+            expect(JSON.stringify(e)).toBe('---');
             done();
           });
 
+        }, MYTIMEOUT);
+
+      if (!isWebSql) // NOT supported by Web SQL:
+        it(suiteName + 'Multi-row INSERT with parameters - NOT supported by Web SQL', function(done) {
+          var db = openDatabase('Multi-row-INSERT-with-parameters-test.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS TestTable;');
+            tx.executeSql('CREATE TABLE TestTable (x,y);');
+
+            tx.executeSql('INSERT INTO TestTable VALUES (?,?),(?,?)', ['a',1,'b',2], function(ignored1, ignored2) {
+              tx.executeSql('SELECT * FROM TestTable', [], function(ignored, resultSet) {
+                // EXPECTED: CORRECT RESULT:
+                expect(resultSet.rows.length).toBe(2);
+                expect(resultSet.rows.item(0).x).toBe('a');
+                expect(resultSet.rows.item(0).y).toBe(1);
+                expect(resultSet.rows.item(1).x).toBe('b');
+                expect(resultSet.rows.item(1).y).toBe(2);
+
+                // Close (plugin only - always the case in this test) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+            });
+          }, function(e) {
+            // ERROR RESULT (NOT EXPECTED):
+            expect(false).toBe(true);
+            expect(e).toBeDefined();
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+      if (!isWebSql) // NOT covered by Web SQL standard:
+        it(suiteName + 'INSERT statement list (NOT covered by Web SQL standard) - Plugin BROKEN', function(done) {
+          var db = openDatabase('INSERT-statement-list-test.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS TestList;');
+            tx.executeSql('CREATE TABLE TestList (data);');
+
+            // NOT supported by Web SQL, plugin BROKEN:
+            tx.executeSql('INSERT INTO TestList VALUES (1); INSERT INTO TestList VALUES(2);');
+          }, function(e) {
+            // ERROR RESULT (expected for Web SQL):
+            if (!isWebSql)
+              expect('Plugin behavior changed').toBe('--');
+            expect(e).toBeDefined();
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          }, function() {
+            if (isWebSql)
+              expect('Unexpected result for Web SQL').toBe('--');
+
+            db.transaction(function(tx2) {
+              tx2.executeSql('SELECT * FROM TestList', [], function(ignored, resultSet) {
+                // CORRECT RESULT for plugin:
+                //expect(resultSet.rows.length).toBe(2);
+                // ACTUAL RESULT for plugin:
+                expect(resultSet.rows.length).toBe(1);
+
+                // FIRST ROW CORRECT:
+                expect(resultSet.rows.item(0).data).toBe(1);
+                // SECOND ROW MISSING:
+                //expect(resultSet.rows.item(1).data).toBe(2);
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+            });
+          });
+        }, MYTIMEOUT);
+
+      if (!isWebSql) // NOT covered by Web SQL standard:
+        it(suiteName + 'First result from SELECT statement list - NOT covered by Web SQL standard', function(done) {
+          var db = openDatabase('First-result-from-SELECT-statement-list-test.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            // NOT supported by Web SQL:
+            tx.executeSql('SELECT UPPER (?) AS upper1; SELECT 1', ['Test string'], function(ignored, resultSet) {
+              if (isWebSql)
+                expect('Unexpected result for Web SQL').toBe('--');
+
+              expect(resultSet.rows.length).toBe(1); // ACTUAL RESULT for plugin
+              expect(resultSet.rows.item(0).upper1).toBe('TEST STRING');
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            }, function(ignored, e) {
+              // ERROR RESULT (expected for Web SQL):
+              if (!isWebSql)
+                expect('Plugin behavior changed').toBe('--');
+
+              expect(e).toBeDefined();
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          });
         }, MYTIMEOUT);
 
     });

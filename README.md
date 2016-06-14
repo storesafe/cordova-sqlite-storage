@@ -586,7 +586,7 @@ function onDeviceReady() {
         console.log("res.rows.item(0).cnt: " + res.rows.item(0).cnt + " -- should be 1");
       });
 
-    }, function(e) {
+    }, function(tx, e) {
       console.log("ERROR: " + e.message);
     });
   });
@@ -901,7 +901,7 @@ The SQLite storage plugin sample allows you to execute SQL statements to interac
 Call the `openDatabase()` function to get started, passing in the name and location for the database.
 
 ```Javascript
-var db = window.sqlitePlugin.openDatabase({ name: 'my.db', location: 'default' }, function () {
+var db = window.sqlitePlugin.openDatabase({ name: 'my.db', location: 'default' }, function (db) {
 
     // Here, you might create or open the table.
 

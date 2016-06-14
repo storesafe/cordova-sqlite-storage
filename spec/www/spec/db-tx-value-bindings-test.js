@@ -30,13 +30,9 @@ function start(n) {
   if (wait == 0) test_it_done();
 }
 
-var isAndroid = /Android/.test(navigator.userAgent);
 var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
-//var isWindows = /Windows NT/.test(navigator.userAgent); // Windows [NT] (8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
-//var isWindowsPC = /Windows NT/.test(navigator.userAgent); // Windows [NT] (8.1)
-//var isWindowsPhone_8_1 = /Windows Phone 8.1/.test(navigator.userAgent); // Windows Phone 8.1
-//var isIE = isWindows || isWP8 || isWindowsPhone_8_1;
+var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 var isIE = isWindows || isWP8;
 var isWebKit = !isIE; // TBD [Android or iOS]
 
@@ -109,7 +105,8 @@ var mytests = function() {
                   expect(row.data_num).toBeDefined();
                   expect(row.data_num).toBeNull();
 
-                  done();
+                  // Close (plugin only) & finish:
+                  (isWebSql) ? done() : db.close(done, done);
                 });
               });
             });
@@ -151,7 +148,8 @@ var mytests = function() {
                   expect(row.data_int).toBe(314159); // (data_int should have inserted data as an integer)
                   expect(Math.abs(row.data_real - 3.14159) < 0.000001).toBe(true); // (data_real should have inserted data as a real)
 
-                  done();
+                  // Close (plugin only) & finish:
+                  (isWebSql) ? done() : db.close(done, done);
                 });
               });
             });
@@ -188,7 +186,8 @@ var mytests = function() {
                   else
                     expect(row.test_text).toBe("1424174959894"); // (Big integer number inserted as string ok)
 
-                  done();
+                  // Close (plugin only) & finish:
+                  (isWebSql) ? done() : db.close(done, done);
                 });
               });
             });
@@ -215,7 +214,8 @@ var mytests = function() {
                   var row = res.rows.item(0);
                   expect(row.tr).toBe(123456.789); // (Decimal number inserted properly)
 
-                  done();
+                  // Close (plugin only) & finish:
+                  (isWebSql) ? done() : db.close(done, done);
                 });
               });
             });
@@ -237,19 +237,53 @@ var mytests = function() {
               // create columns with no type affinity
               tx.executeSql("insert into test_table (data1, data2) VALUES (?,?)", ['abc', [1,2,3]], function(tx, res) {
                 expect(res).toBeDefined();
-                //if (!isWindows) // XXX TODO
-                  expect(res.rowsAffected).toBe(1);
+                expect(res.rowsAffected).toBe(1);
                 tx.executeSql("select * from test_table", [], function(tx, res) {
                   var row = res.rows.item(0);
                   strictEqual(row.data1, 'abc', "data1: string");
                   strictEqual(row.data2, '1,2,3', "data2: array should have been inserted as text (string)");
 
-                  done();
+                  // Close (plugin only) & finish:
+                  (isWebSql) ? done() : db.close(done, done);
                 });
               });
             });
           });
         });
+
+        it(suiteName + "executeSql parameter as 'boolean' true/false values (apparently stringified)", function(done) {
+          var db = openDatabase("array-parameter.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data1, data2)');
+          }, function(err) {
+            expect(false).toBe(true);
+            expect(err.message).toBe('---');
+
+          }, function() {
+            db.transaction(function(tx) {
+              // create columns with no type affinity
+              tx.executeSql("INSERT INTO test_table (data1, data2) VALUES (?,?)", [true, false], function(tx, rs1) {
+                expect(rs1).toBeDefined();
+                expect(rs1.rowsAffected).toBe(1);
+
+                tx.executeSql("select * from test_table", [], function(tx, rs2) {
+                  expect(rs2.rows.length).toBe(1);
+                  expect(rs2.rows.item(0).data1).toBe('true');
+                  expect(rs2.rows.item(0).data2).toBe('false');
+
+                  // Close (plugin only) & finish:
+                  (isWebSql) ? done() : db.close(done, done);
+                });
+              });
+            });
+          });
+        });
+
+      });
+
+      describe(scenarioList[i] + ': extra tx column value binding test(s)', function() {
 
         // FUTURE TODO: fix these tests to follow the Jasmine style:
 

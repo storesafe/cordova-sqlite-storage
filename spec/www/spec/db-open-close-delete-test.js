@@ -30,13 +30,9 @@ function start(n) {
   if (wait == 0) test_it_done();
 }
 
-var isAndroid = /Android/.test(navigator.userAgent);
 var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
-//var isWindows = /Windows NT/.test(navigator.userAgent); // Windows [NT] (8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
-//var isWindowsPC = /Windows NT/.test(navigator.userAgent); // Windows [NT] (8.1)
-//var isWindowsPhone_8_1 = /Windows Phone 8.1/.test(navigator.userAgent); // Windows Phone 8.1
-//var isIE = isWindows || isWP8 || isWindowsPhone_8_1;
+var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 var isIE = isWindows || isWP8;
 var isWebKit = !isIE; // TBD [Android or iOS]
 
@@ -60,17 +56,9 @@ var mytests = function() {
           try {
             var db = window.sqlitePlugin.openDatabase('open-with-web-sql-parameters-test.db', "1.0", "Demo", DEFAULT_SIZE);
 
-            // NOT EXPECTED:
-            // window.sqlitePlugin.openDatabase did not throw
+            // NOT EXPECTED - window.sqlitePlugin.openDatabase did not throw
             expect(false).toBe(true);
 
-            // check returned db object:
-            expect(db).toBeDefined();
-            expect(db.executeSql).toBeDefined();
-            expect(db.transaction).toBeDefined();
-            expect(db.close).toBeDefined();
-
-            //done();
             // IMPORTANT FIX: avoid the risk of over 100 db handles open when running the full test suite
             db.close(done, done);
           } catch (e) {
@@ -96,14 +84,36 @@ var mytests = function() {
               done();
             }, function(error) {
               // OK but NOT EXPECTED:
-              expect(true).toBe(true);
-              // XXX BRODY TODO:
-              //expect('Behavior changed, please update this test').toBe('--');
+              expect('Behavior changed, please update this test').toBe('--');
               done();
             });
           } catch (e) {
               // stopped by the implementation:
               expect(true).toBe(true);
+              done();
+          }
+        }, MYTIMEOUT);
+
+        it(suiteName + 'Open with both location & iosDatabaseLocation settings (TODO: REJECT)', function(done) {
+          try {
+            window.sqlitePlugin.openDatabase({ name: 'a.db', location: 'default', iosDatabaseLocation: 2 }, function(db) {
+              // ACTUAL BEHAVIOR:
+              expect(true).toBe(true);
+              //expect(false).toBe(true);
+
+              // IMPORTANT FIX: avoid the risk of over 100 db handles open when running the full test suite
+              db.close(done, done);
+            }, function(error) {
+              // OK but NOT EXPECTED:
+              expect('Behavior changed, please update this test').toBe('--');
+
+              done();
+            });
+          } catch (e) {
+              // stopped by the implementation:
+              expect('Behavior FIXED, please update this test').toBe('--');
+              expect(true).toBe(true);
+
               done();
           }
         }, MYTIMEOUT);
