@@ -1,6 +1,6 @@
 # Changes
 
-### cordova-sqlite-storage 1.4.2-pre3
+### cordova-sqlite-storage 1.4.2
 
 - Fix sqlitePlugin.openDatabase and sqlitePlugin.deleteDatabase to check location/iosDatabaseLocation values
 - Fix sqlitePlugin.deleteDatabase to check that db name is really a string (prevents possible crash on iOS)
