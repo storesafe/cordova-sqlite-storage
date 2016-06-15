@@ -561,7 +561,13 @@
       if (!openargs.iosDatabaseLocation && !openargs.location && openargs.location !== 0) {
         throw newSQLError('Database location or iosDatabaseLocation value is now mandatory in openDatabase call');
       }
+      if (!!openargs.location && !!openargs.iosDatabaseLocation) {
+        throw newSQLError('Abiguous: both location or iosDatabaseLocation values are present in openDatabase call');
+      }
       dblocation = !!openargs.location && openargs.location === 'default' ? iosLocationMap['default'] : !!openargs.iosDatabaseLocation ? iosLocationMap[openargs.iosDatabaseLocation] : dblocations[openargs.location];
+      if (!dblocation) {
+        throw newSQLError('Valid iOS database location could not be determined in openDatabase call');
+      }
       openargs.dblocation = dblocation;
       if (!!openargs.createFromLocation && openargs.createFromLocation === 1) {
         openargs.createFromResource = "1";
@@ -583,7 +589,7 @@
       return new SQLitePlugin(openargs, okcb, errorcb);
     }),
     deleteDatabase: function(first, success, error) {
-      var args, dblocation;
+      var args, dblocation, dbname;
       args = {};
       if (first.constructor === String) {
         throw newSQLError('Sorry first deleteDatabase argument must be an object');
@@ -591,12 +597,22 @@
         if (!(first && first['name'])) {
           throw new Error("Please specify db name");
         }
-        args.path = first.name;
+        dbname = first.name;
+        if (typeof dbname !== 'string') {
+          throw newSQLError('delete database name must be a string');
+        }
+        args.path = dbname;
       }
       if (!first.iosDatabaseLocation && !first.location && first.location !== 0) {
         throw newSQLError('Database location or iosDatabaseLocation value is now mandatory in deleteDatabase call');
       }
+      if (!!first.location && !!first.iosDatabaseLocation) {
+        throw newSQLError('Abiguous: both location or iosDatabaseLocation values are present in deleteDatabase call');
+      }
       dblocation = !!first.location && first.location === 'default' ? iosLocationMap['default'] : !!first.iosDatabaseLocation ? iosLocationMap[first.iosDatabaseLocation] : dblocations[first.location];
+      if (!dblocation) {
+        throw newSQLError('Valid iOS database location could not be determined in deleteDatabase call');
+      }
       args.dblocation = dblocation;
       delete SQLitePlugin.prototype.openDBs[args.path];
       return cordova.exec(success, error, "SQLitePlugin", "delete", [args]);

@@ -607,9 +607,8 @@
         if !openargs.iosDatabaseLocation and !openargs.location and openargs.location isnt 0
           throw newSQLError 'Database location or iosDatabaseLocation value is now mandatory in openDatabase call'
 
-        # XXX TODO (with test):
-        #if !!openargs.location and !!openargs.iosDatabaseLocation
-        #  throw newSQLError 'Abiguous: both location or iosDatabaseLocation values are present in openDatabase call'
+        if !!openargs.location and !!openargs.iosDatabaseLocation
+          throw newSQLError 'Abiguous: both location or iosDatabaseLocation values are present in openDatabase call'
 
         dblocation =
           if !!openargs.location and openargs.location is 'default'
@@ -619,9 +618,8 @@
           else
             dblocations[openargs.location]
 
-        # XXX TODO (with test):
-        #if !dblocation
-        #  throw newSQLError 'Valid iOS database location could not be determined in openDatabase call'
+        if !dblocation
+          throw newSQLError 'Valid iOS database location could not be determined in openDatabase call'
 
         openargs.dblocation = dblocation
 
@@ -654,16 +652,20 @@
         else
           #console.log "delete db args: #{JSON.stringify first}"
           if !(first and first['name']) then throw new Error "Please specify db name"
-          args.path = first.name
+          dbname = first.name
+
+          if typeof dbname != 'string'
+            throw newSQLError 'delete database name must be a string'
+
+          args.path = dbname
           #dblocation = if !!first.location then dblocations[first.location] else null
           #args.dblocation = dblocation || dblocations[0]
 
         if !first.iosDatabaseLocation and !first.location and first.location isnt 0
           throw newSQLError 'Database location or iosDatabaseLocation value is now mandatory in deleteDatabase call'
 
-        # XXX TODO (with test):
-        #if !!first.location and !!first.iosDatabaseLocation
-        #  throw newSQLError 'Abiguous: both location or iosDatabaseLocation values are present in deleteDatabase call'
+        if !!first.location and !!first.iosDatabaseLocation
+          throw newSQLError 'Abiguous: both location or iosDatabaseLocation values are present in deleteDatabase call'
 
         dblocation =
           if !!first.location and first.location is 'default'
@@ -673,9 +675,8 @@
           else
             dblocations[first.location]
 
-        # XXX TODO (with test):
-        #if !dblocation
-        #  throw newSQLError 'Valid iOS database location could not be determined in deleteDatabase call'
+        if !dblocation
+          throw newSQLError 'Valid iOS database location could not be determined in deleteDatabase call'
 
         args.dblocation = dblocation
 

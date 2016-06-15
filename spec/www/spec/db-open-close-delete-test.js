@@ -116,16 +116,15 @@ var mytests = function() {
           }
         }, MYTIMEOUT);
 
-        it(suiteName + 'Open with both location & iosDatabaseLocation settings (TODO: REJECT with exception)', function(done) {
+        it(suiteName + 'Open with both location & iosDatabaseLocation settings (REJECTED with exception)', function(done) {
           try {
             window.sqlitePlugin.openDatabase({
               name: 'open-with-both-location-and-iosDatabaseLocation.db',
               location: 'default',
               iosDatabaseLocation: 2
           }, function(db) {
-              // ACTUAL BEHAVIOR:
-              expect(true).toBe(true);
-              //expect(false).toBe(true);
+              // NOT EXPECTED:
+              expect(false).toBe(true);
 
               // Close (plugin) & finish:
               db.close(done, done);
@@ -136,20 +135,18 @@ var mytests = function() {
               done();
             });
           } catch (e) {
-            // stopped by the implementation:
-            expect('Behavior FIXED, please update this test').toBe('--');
+            // EXPECTED RESULT: stopped by the implementation
             expect(true).toBe(true);
 
             done();
           }
         }, MYTIMEOUT);
 
-        it(suiteName + 'Open with location: -1 (TODO: REJECT with exception)', function(done) {
+        it(suiteName + 'Open with location: -1 (REJECTED with exception)', function(done) {
           try {
             window.sqlitePlugin.openDatabase({ name: 'open-with-location--1.db', location: -1 }, function(db) {
-              // ACTUAL BEHAVIOR:
-              expect(true).toBe(true);
-              //expect(false).toBe(true);
+              // NOT EXPECTED:
+              expect(false).toBe(true);
 
               // Close (plugin) & finish:
               db.close(done, done);
@@ -160,23 +157,21 @@ var mytests = function() {
               done();
             });
           } catch (e) {
-            // stopped by the implementation:
-            expect('Behavior FIXED, please update this test').toBe('--');
+            // EXPECTED RESULT: stopped by the implementation
             expect(true).toBe(true);
 
             done();
           }
         }, MYTIMEOUT);
 
-        it(suiteName + 'Open with iosDatabaseLocation: -1 (TODO: REJECT with exception)', function(done) {
+        it(suiteName + 'Open with iosDatabaseLocation: -1 (REJECTED with exception)', function(done) {
           try {
             window.sqlitePlugin.openDatabase({
               name: 'open-iosDatabaseLocation--1.db',
               iosDatabaseLocation: -1
           }, function(db) {
-              // ACTUAL BEHAVIOR:
-              expect(true).toBe(true);
-              //expect(false).toBe(true);
+              // NOT EXPECTED:
+              expect(false).toBe(true);
 
               // Close (plugin) & finish:
               db.close(done, done);
@@ -187,20 +182,18 @@ var mytests = function() {
               done();
             });
           } catch (e) {
-              // stopped by the implementation:
-              expect('Behavior FIXED, please update this test').toBe('--');
-              expect(true).toBe(true);
+            // EXPECTED RESULT: stopped by the implementation
+            expect(true).toBe(true);
 
-              done();
+            done();
           }
         }, MYTIMEOUT);
 
-        it(suiteName + 'Open with location: 3 (TODO: REJECT with exception)', function(done) {
+        it(suiteName + 'Open with location: 3 (REJECTED with exception)', function(done) {
           try {
             window.sqlitePlugin.openDatabase({ name: 'open-with-location-3.db', location: 3 }, function(db) {
-              // ACTUAL BEHAVIOR:
-              expect(true).toBe(true);
-              //expect(false).toBe(true);
+              // NOT EXPECTED:
+              expect(false).toBe(true);
 
               // Close (plugin) & finish:
               db.close(done, done);
@@ -211,23 +204,21 @@ var mytests = function() {
               done();
             });
           } catch (e) {
-              // stopped by the implementation:
-              expect('Behavior FIXED, please update this test').toBe('--');
-              expect(true).toBe(true);
+            // EXPECTED RESULT: stopped by the implementation
+            expect(true).toBe(true);
 
-              done();
+            done();
           }
         }, MYTIMEOUT);
 
-        it(suiteName + 'Open with iosDatabaseLocation: 3 (TODO: REJECT with exception)', function(done) {
+        it(suiteName + 'Open with iosDatabaseLocation: 3 (REJECTED with exception)', function(done) {
           try {
             window.sqlitePlugin.openDatabase({
               name: 'open-iosDatabaseLocation-3.db',
               iosDatabaseLocation: 3
           }, function(db) {
-              // ACTUAL BEHAVIOR:
-              expect(true).toBe(true);
-              //expect(false).toBe(true);
+              // NOT EXPECTED:
+              expect(false).toBe(true);
 
               // Close (plugin) & finish:
               db.close(done, done);
@@ -238,23 +229,21 @@ var mytests = function() {
               done();
             });
           } catch (e) {
-              // stopped by the implementation:
-              expect('Behavior FIXED, please update this test').toBe('--');
-              expect(true).toBe(true);
+            // EXPECTED RESULT: stopped by the implementation
+            expect(true).toBe(true);
 
-              done();
+            done();
           }
         }, MYTIMEOUT);
 
-        it(suiteName + "Open with location: 'bogus' (TODO: REJECT with exception)", function(done) {
+        it(suiteName + "Open with location: 'bogus' (REJECTED with exception)", function(done) {
           try {
             window.sqlitePlugin.openDatabase({
               name: 'open-location-bogus.db',
               location: 'bogus'
           }, function(db) {
-              // ACTUAL BEHAVIOR:
-              expect(true).toBe(true);
-              //expect(false).toBe(true);
+              // NOT EXPECTED:
+              expect(false).toBe(true);
 
               // Close (plugin) & finish:
               db.close(done, done);
@@ -265,23 +254,21 @@ var mytests = function() {
               done();
             });
           } catch (e) {
-              // stopped by the implementation:
-              expect('Behavior FIXED, please update this test').toBe('--');
-              expect(true).toBe(true);
+            // EXPECTED RESULT: stopped by the implementation
+            expect(true).toBe(true);
 
-              done();
+            done();
           }
         }, MYTIMEOUT);
 
-        it(suiteName + "Open with iosDatabaseLocation: 'bogus' (TODO: REJECT with exception)", function(done) {
+        it(suiteName + "Open with iosDatabaseLocation: 'bogus' (REJECTED with exception)", function(done) {
           try {
             window.sqlitePlugin.openDatabase({
               name: 'open-iosDatabaseLocation-bogus.db',
               iosDatabaseLocation: 'bogus'
           }, function(db) {
-              // ACTUAL BEHAVIOR:
-              expect(true).toBe(true);
-              //expect(false).toBe(true);
+              // NOT EXPECTED:
+              expect(false).toBe(true);
 
               // Close (plugin) & finish:
               db.close(done, done);
@@ -292,11 +279,10 @@ var mytests = function() {
               done();
             });
           } catch (e) {
-              // stopped by the implementation:
-              expect('Behavior FIXED, please update this test').toBe('--');
-              expect(true).toBe(true);
+            // EXPECTED RESULT: stopped by the implementation
+            expect(true).toBe(true);
 
-              done();
+            done();
           }
         }, MYTIMEOUT);
 
@@ -356,8 +342,6 @@ var mytests = function() {
       var suiteName = 'plugin: ';
 
         it(suiteName + 'check that sqlitePlugin.deleteDatabase db name is really a string', function(done) {
-          if (!(isAndroid || isIE)) pending('SKIP for iOS'); // XXX CRASH on iOS
-
           var p1 = { name: 'my.db.name', location: 1 };
           try {
             // FUTURE TBD test without callbacks?
@@ -369,14 +353,12 @@ var mytests = function() {
               // Close (plugin) & finish:
               db.close(done, done);
             }, function(error) {
-              // ACTUAL BEHAVIOR:
-              expect(true).toBe(true);
+              expect('Behavior changed, please update this test').toBe('--');
 
               done();
             });
           } catch (e) {
-            // stopped by the implementation:
-            expect('Behavior FIXED, please update this test').toBe('--');
+            // EXPECTED RESULT: stopped by the implementation
             expect(true).toBe(true);
 
             done();
@@ -409,9 +391,8 @@ var mytests = function() {
         it(suiteName + 'sqlitePlugin.deleteDatabase with string parameter (REJECTED with exception)', function(done) {
           try {
             window.sqlitePlugin.deleteDatabase('my.db', function() {
-              // ACTUAL BEHAVIOR:
-              expect(true).toBe(true);
-              //expect(false).toBe(true);
+              // NOT EXPECTED:
+              expect(false).toBe(true);
 
               // Close (plugin) & finish:
               db.close(done, done);
@@ -433,7 +414,7 @@ var mytests = function() {
           }
         }, MYTIMEOUT);
 
-        it(suiteName + 'sqlitePlugin.deleteDatabase with both location & iosDatabaseLocation settings (TODO: REJECT with exception)', function(done) {
+        it(suiteName + 'sqlitePlugin.deleteDatabase with both location & iosDatabaseLocation settings (REJECTED with exception)', function(done) {
           try {
             window.sqlitePlugin.deleteDatabase({ name: 'my.db', location: 'default', iosDatabaseLocation: 2 }, function() {
               // NOT EXPECTED:
@@ -442,20 +423,19 @@ var mytests = function() {
               // Close (plugin) & finish:
               db.close(done, done);
             }, function(error) {
-              // ACTUAL BEHAVIOR:
-              expect(true).toBe(true);
+              expect('Behavior changed, please update this test').toBe('--');
 
               done();
             });
           } catch (e) {
-            // stopped by the implementation:
-            expect('Behavior FIXED, please update this test').toBe('--');
+            // EXPECTED RESULT: stopped by the implementation
             expect(true).toBe(true);
+
             done();
           }
         }, MYTIMEOUT);
 
-        it(suiteName + 'sqlitePlugin.deleteDatabase with location: -1 (TODO: REJECT with exception)', function(done) {
+        it(suiteName + 'sqlitePlugin.deleteDatabase with location: -1 (REJECTED with exception)', function(done) {
           try {
             window.sqlitePlugin.deleteDatabase({ name: 'my.db', location: -1 }, function() {
               // NOT EXPECTED:
@@ -464,20 +444,19 @@ var mytests = function() {
               // Close (plugin) & finish:
               db.close(done, done);
             }, function(error) {
-              // ACTUAL BEHAVIOR:
-              expect(true).toBe(true);
+              expect('Behavior changed, please update this test').toBe('--');
 
               done();
             });
           } catch (e) {
-            // stopped by the implementation:
-            expect('Behavior FIXED, please update this test').toBe('--');
+            // EXPECTED RESULT: stopped by the implementation
             expect(true).toBe(true);
+
             done();
           }
         }, MYTIMEOUT);
 
-        it(suiteName + 'sqlitePlugin.deleteDatabase with iosDatabaseLocation: -1 (TODO: REJECT with exception)', function(done) {
+        it(suiteName + 'sqlitePlugin.deleteDatabase with iosDatabaseLocation: -1 (REJECTED with exception)', function(done) {
           try {
             window.sqlitePlugin.deleteDatabase({ name: 'my.db', iosDatabaseLocation: -1 }, function() {
               // NOT EXPECTED:
@@ -486,20 +465,19 @@ var mytests = function() {
               // Close (plugin) & finish:
               db.close(done, done);
             }, function(error) {
-              // ACTUAL BEHAVIOR:
-              expect(true).toBe(true);
+              expect('Behavior changed, please update this test').toBe('--');
 
               done();
             });
           } catch (e) {
-            // stopped by the implementation:
-            expect('Behavior FIXED, please update this test').toBe('--');
+            // EXPECTED RESULT: stopped by the implementation
             expect(true).toBe(true);
+
             done();
           }
         }, MYTIMEOUT);
 
-        it(suiteName + 'sqlitePlugin.deleteDatabase with location: 3 (TODO: REJECT with exception)', function(done) {
+        it(suiteName + 'sqlitePlugin.deleteDatabase with location: 3 (REJECTED with exception)', function(done) {
           try {
             window.sqlitePlugin.deleteDatabase({ name: 'my.db', location: 3 }, function() {
               // NOT EXPECTED:
@@ -508,20 +486,19 @@ var mytests = function() {
               // Close (plugin) & finish:
               db.close(done, done);
             }, function(error) {
-              // ACTUAL BEHAVIOR:
-              expect(true).toBe(true);
+              expect('Behavior changed, please update this test').toBe('--');
 
               done();
             });
           } catch (e) {
-            // stopped by the implementation:
-            expect('Behavior FIXED, please update this test').toBe('--');
+            // EXPECTED RESULT: stopped by the implementation
             expect(true).toBe(true);
+
             done();
           }
         }, MYTIMEOUT);
 
-        it(suiteName + 'sqlitePlugin.deleteDatabase with iosDatabaseLocation: 3 (TODO: REJECT with exception)', function(done) {
+        it(suiteName + 'sqlitePlugin.deleteDatabase with iosDatabaseLocation: 3 (REJECTED with exception)', function(done) {
           try {
             window.sqlitePlugin.deleteDatabase({ name: 'my.db', iosDatabaseLocation: 3 }, function() {
               // NOT EXPECTED:
@@ -530,20 +507,19 @@ var mytests = function() {
               // Close (plugin) & finish:
               db.close(done, done);
             }, function(error) {
-              // ACTUAL BEHAVIOR:
-              expect(true).toBe(true);
+              expect('Behavior changed, please update this test').toBe('--');
 
               done();
             });
           } catch (e) {
-            // stopped by the implementation:
-            expect('Behavior FIXED, please update this test').toBe('--');
+            // EXPECTED RESULT: stopped by the implementation
             expect(true).toBe(true);
+
             done();
           }
         }, MYTIMEOUT);
 
-        it(suiteName + "sqlitePlugin.deleteDatabase with location: 'bogus' (TODO: REJECT with exception)", function(done) {
+        it(suiteName + "sqlitePlugin.deleteDatabase with location: 'bogus' (REJECTED with exception)", function(done) {
           try {
             // FUTURE TBD test without callbacks?
             //window.sqlitePlugin.deleteDatabase({ name: 'my.db', location: 'bogus' }); // callbacks ignored
@@ -554,20 +530,19 @@ var mytests = function() {
               // Close (plugin) & finish:
               db.close(done, done);
             }, function(error) {
-              // ACTUAL BEHAVIOR:
-              expect(true).toBe(true);
+              expect('Behavior changed, please update this test').toBe('--');
 
               done();
             });
           } catch (e) {
-            // stopped by the implementation:
-            expect('Behavior FIXED, please update this test').toBe('--');
+            // EXPECTED RESULT: stopped by the implementation
             expect(true).toBe(true);
+
             done();
           }
         }, MYTIMEOUT);
 
-        it(suiteName + "sqlitePlugin.deleteDatabase with iosDatabaseLocation: 'bogus' (TODO: REJECT with exception)", function(done) {
+        it(suiteName + "sqlitePlugin.deleteDatabase with iosDatabaseLocation: 'bogus' (REJECTED with exception)", function(done) {
           try {
             // FUTURE TBD test without callbacks?
             //window.sqlitePlugin.deleteDatabase({ name: 'my.db', iosDatabaseLocation: 'bogus' }); // callbacks ignored
@@ -578,15 +553,14 @@ var mytests = function() {
               // Close (plugin) & finish:
               db.close(done, done);
             }, function(error) {
-              // ACTUAL BEHAVIOR:
-              expect(true).toBe(true);
+              expect('Behavior changed, please update this test').toBe('--');
 
               done();
             });
           } catch (e) {
-            // stopped by the implementation:
-            expect('Behavior FIXED, please update this test').toBe('--');
+            // EXPECTED RESULT: stopped by the implementation
             expect(true).toBe(true);
+
             done();
           }
         }, MYTIMEOUT);
