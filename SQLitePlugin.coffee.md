@@ -381,7 +381,6 @@
           t = typeof v
           params.push (
             if v == null || v == undefined || t == 'number' || t == 'string' then v
-            else if v instanceof Blob then v.valueOf()
             else v.toString()
           )
 

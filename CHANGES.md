@@ -1,11 +1,12 @@
 # Changes
 
-### cordova-sqlite-storage 1.4.2-pre2
+### cordova-sqlite-storage 1.4.2-pre3
 
 - Fix sqlitePlugin.openDatabase and sqlitePlugin.deleteDatabase to check location/iosDatabaseLocation values
 - Fix sqlitePlugin.deleteDatabase to check that db name is really a string (prevents possible crash on iOS)
 - Fix iOS version to use DLog macro to remove extra logging from release build
 - Fix Lawnchair adapter to use new mandatory "location" parameter
+- Remove special handling of Blob parameters, use toString for all non-value parameter objects
 - Minor cleanup of Android version code
 
 ### cordova-sqlite-storage 1.4.1
