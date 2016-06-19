@@ -761,6 +761,570 @@ var mytests = function() {
 
         }, MYTIMEOUT);
 
+        it(suiteName + "transaction.executeSql on BOGUS empty SQL string ('')", function (done) {
+
+          var db = openDatabase("tx-empty-sql-string.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            transaction.executeSql('');
+
+          }, function(err) {
+            // EXPECTED RESULT:
+            expect(true).toBe(true);
+
+            // VERIFY we can still continue:
+            var gotStringLength = false; // poor man's spy
+            db.transaction(function (tx) {
+              tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (tx, res) {
+                expect(res.rows.item(0).stringlength).toBe(10);
+                gotStringLength = true;
+              });
+            }, function (error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+
+            }, function () {
+              // EXPECTED RESULT (transaction finished OK):
+              expect(true).toBe(true);
+              expect(gotStringLength).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function() {
+            // NOT EXPECTED by Web SQL, Android, or iOS:
+            if (isWindows)
+              expect(true).toBe(true);
+            else
+              expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+
+        }, MYTIMEOUT);
+
+        it(suiteName + "transaction.executeSql on BOGUS ';' SQL statement", function (done) {
+
+          var db = openDatabase("tx-semicolon-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            transaction.executeSql(';');
+
+          }, function(err) {
+            // EXPECTED RESULT:
+            expect(true).toBe(true);
+
+            // VERIFY we can still continue:
+            var gotStringLength = false; // poor man's spy
+            db.transaction(function (tx) {
+              tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (tx, res) {
+                expect(res.rows.item(0).stringlength).toBe(10);
+                gotStringLength = true;
+              });
+
+            }, function (error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+
+            }, function () {
+              // EXPECTED RESULT (transaction finished OK):
+              expect(true).toBe(true);
+              expect(gotStringLength).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function() {
+            // NOT EXPECTED by Web SQL, Android, or iOS:
+            if (isWindows)
+              expect(true).toBe(true);
+            else
+              expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+
+        }, MYTIMEOUT);
+
+        it(suiteName + 'transaction.executeSql on BOGUS object', function (done) {
+          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin due to CRASH BUG'); // XXX
+
+          var db = openDatabase("tx-with-object-for-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            transaction.executeSql({key1:'value1', key2:2});
+
+          }, function(err) {
+            // EXPECTED RESULT:
+            expect(true).toBe(true);
+
+            // VERIFY we can still continue:
+            var gotStringLength = false; // poor man's spy
+            db.transaction(function (tx) {
+              tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (tx, res) {
+                expect(res.rows.item(0).stringlength).toBe(10);
+                gotStringLength = true;
+              });
+
+            }, function (error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+
+            }, function () {
+              // EXPECTED RESULT (transaction finished OK):
+              expect(true).toBe(true);
+              expect(gotStringLength).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function() {
+            // NOT EXPECTED by Web SQL, Android, or iOS:
+            if (isWindows)
+              expect(true).toBe(true);
+            else
+              expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+
+        }, MYTIMEOUT);
+
+        it(suiteName + 'transaction.executeSql with BOGUS array', function (done) {
+          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin due to CRASH BUG'); // XXX
+
+          var db = openDatabase("tx-with-array-for-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            transaction.executeSql(['first', 2]);
+
+          }, function(err) {
+            // EXPECTED RESULT:
+            expect(true).toBe(true);
+
+            // VERIFY we can still continue:
+            var gotStringLength = false; // poor man's spy
+            db.transaction(function (tx) {
+              tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (tx, res) {
+                expect(res.rows.item(0).stringlength).toBe(10);
+                gotStringLength = true;
+              });
+            }, function (error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+
+            }, function () {
+              // EXPECTED RESULT (transaction finished OK):
+              expect(true).toBe(true);
+              expect(gotStringLength).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function() {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+
+        }, MYTIMEOUT);
+
+        it(suiteName + 'transaction.executeSql on BOGUS number', function (done) {
+          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin due to CRASH BUG'); // XXX
+
+          var db = openDatabase("tx-with-number-for-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            transaction.executeSql(101);
+
+          }, function(err) {
+            // EXPECTED RESULT:
+            expect(true).toBe(true);
+
+            // VERIFY we can still continue:
+            var gotStringLength = false; // poor man's spy
+            db.transaction(function (tx) {
+              tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (tx, res) {
+                expect(res.rows.item(0).stringlength).toBe(10);
+                gotStringLength = true;
+              });
+
+            }, function (error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+
+            }, function () {
+              // EXPECTED RESULT (transaction finished OK):
+              expect(true).toBe(true);
+              expect(gotStringLength).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function() {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+
+        }, MYTIMEOUT);
+
+        it(suiteName + 'transaction.executeSql with null for SQL statement (BOGUS)', function (done) {
+          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin due to CRASH BUG'); // XXX
+
+          var db = openDatabase("tx-with-number-for-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            transaction.executeSql(null);
+
+          }, function(err) {
+            // EXPECTED RESULT:
+            expect(true).toBe(true);
+
+            // VERIFY we can still continue:
+            var gotStringLength = false; // poor man's spy
+            db.transaction(function (tx) {
+              tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (tx, res) {
+                expect(res.rows.item(0).stringlength).toBe(10);
+                gotStringLength = true;
+              });
+            }, function (error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+
+            }, function () {
+              // EXPECTED RESULT (transaction finished OK):
+              expect(true).toBe(true);
+              expect(gotStringLength).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function() {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+
+        }, MYTIMEOUT);
+
+        it(suiteName + 'transaction.executeSql with true for SQL statement (BOGUS)', function (done) {
+          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin due to CRASH BUG'); // XXX
+
+          var db = openDatabase("tx-with-true-for-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            transaction.executeSql(true);
+
+          }, function(err) {
+            // EXPECTED RESULT:
+            expect(true).toBe(true);
+
+            // Verify we can still continue:
+            var gotStringLength = false; // poor man's spy
+            db.transaction(function (tx) {
+              tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (tx, res) {
+                expect(res.rows.item(0).stringlength).toBe(10);
+                gotStringLength = true;
+              });
+            }, function (error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+
+            }, function () {
+              // EXPECTED RESULT (transaction finished OK):
+              expect(true).toBe(true);
+              expect(gotStringLength).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function() {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+
+        }, MYTIMEOUT);
+
+        it(suiteName + 'transaction.executeSql with false for SQL statement (BOGUS)', function (done) {
+          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin due to CRASH BUG'); // XXX
+
+          var db = openDatabase("tx-with-false-for-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            transaction.executeSql(false);
+
+          }, function(err) {
+            // EXPECTED RESULT:
+            expect(true).toBe(true);
+
+            // Verify we can still continue:
+            var gotStringLength = false; // poor man's spy
+            db.transaction(function (tx) {
+              tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (tx, res) {
+                expect(res.rows.item(0).stringlength).toBe(10);
+                gotStringLength = true;
+              });
+            }, function (error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+
+            }, function () {
+              // EXPECTED RESULT (transaction finished OK):
+              expect(true).toBe(true);
+              expect(gotStringLength).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function() {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+
+        }, MYTIMEOUT);
+
+        it(suiteName + 'transaction.executeSql with undefined executeSql argument (BOGUS)', function (done) {
+          if (isAndroid && !isWebSql) pending('SKIP for Android plugin [BROKEN]'); // XXX
+
+          var db = openDatabase("tx-with-undefined-executeSql-argument.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            transaction.executeSql(undefined);
+
+          }, function(err) {
+            // EXPECTED RESULT:
+            expect(true).toBe(true);
+
+            // Verify we can still continue:
+            var gotStringLength = false; // poor man's spy
+            db.transaction(function (tx) {
+              tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (tx, res) {
+                expect(res.rows.item(0).stringlength).toBe(10);
+                gotStringLength = true;
+              });
+            }, function (error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+
+            }, function () {
+              // EXPECTED RESULT (transaction finished OK):
+              expect(true).toBe(true);
+              expect(gotStringLength).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function() {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+
+        }, MYTIMEOUT);
+
+        it(suiteName + 'transaction.executeSql with no executeSql argument (BOGUS)', function (done) {
+          if (isAndroid && !isWebSql) pending('SKIP for Android plugin [BROKEN]'); // XXX
+
+          var db = openDatabase("tx-with-no-executeSql-argument.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql();
+
+          }, function(err) {
+            // EXPECTED RESULT:
+            expect(true).toBe(true);
+
+            // Verify we can still continue:
+            var gotStringLength = false; // poor man's spy
+            db.transaction(function (tx) {
+              tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (tx, res) {
+                expect(res.rows.item(0).stringlength).toBe(10);
+                gotStringLength = true;
+              });
+            }, function (error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+
+            }, function () {
+              // EXPECTED RESULT (transaction finished OK):
+              expect(true).toBe(true);
+              expect(gotStringLength).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function() {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+
+        }, MYTIMEOUT);
+
+        it(suiteName + 'Error recovery for transaction with object for SQL statement', function (done) {
+          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin due to CRASH BUG'); // XXX
+
+          var db = openDatabase("tx-with-object-for-sql-recovery.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          var firstError = null;
+          var selectResultSet = null;
+
+          db.transaction(function(tx) {
+            tx.executeSql({key1:'value1', key2:2}, [], function(tx_ignored, rs_ignored) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+            }, function(tx_ignored, error) {
+              // EXPECTED RESULT:
+              expect(true).toBe(true);
+              firstError = error;
+              return false; // RECOVER TRANSACTION
+            });
+
+            tx.executeSql('SELECT 1', [], function(tx_ignored, resultSet) {
+              // EXPECTED RESULT:
+              expect(true).toBe(true);
+              selectResultSet = resultSet;
+            }, function(tx_ignored, error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              return false; // RECOVER TRANSACTION
+            });
+
+          }, function(err) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+
+          }, function() {
+            // EXPECTED RESULT:
+            expect(true).toBe(true);
+            expect(firstError).toBeDefined();
+            expect(firstError).not.toBeNull();
+            expect(selectResultSet).toBeDefined();
+            expect(selectResultSet).not.toBeNull();
+
+            // Verify we can still continue:
+            var gotStringLength = false; // poor man's spy
+            db.transaction(function (tx) {
+              tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (tx, res) {
+                expect(res.rows.item(0).stringlength).toBe(10);
+                gotStringLength = true;
+              });
+            }, function (error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            }, function () {
+              // EXPECTED RESULT (transaction finished OK):
+              expect(true).toBe(true);
+              expect(gotStringLength).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          });
+
+        }, MYTIMEOUT);
+
+        it(suiteName + 'Error recovery for transaction with array for SQL statement', function (done) {
+          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin due to CRASH BUG'); // XXX
+
+          var db = openDatabase("tx-with-array-for-sql-recovery.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          var firstError = null;
+          var selectResultSet = null;
+
+          db.transaction(function(tx) {
+            tx.executeSql(['first', 2], [], function(tx_ignored, rs_ignored) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+            }, function(tx_ignored, error) {
+              // EXPECTED RESULT:
+              expect(true).toBe(true);
+              firstError = error;
+              return false; // RECOVER TRANSACTION
+            });
+
+            tx.executeSql('SELECT 1', [], function(tx_ignored, resultSet) {
+              // EXPECTED RESULT:
+              expect(true).toBe(true);
+              selectResultSet = resultSet;
+            }, function(tx_ignored, error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              return false; // RECOVER TRANSACTION
+            });
+
+          }, function(err) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+
+          }, function() {
+            // EXPECTED RESULT:
+            expect(true).toBe(true);
+            expect(firstError).toBeDefined();
+            expect(firstError).not.toBeNull();
+            expect(selectResultSet).toBeDefined();
+            expect(selectResultSet).not.toBeNull();
+
+            // Verify we can still continue:
+            var gotStringLength = false; // poor man's spy
+            db.transaction(function (tx) {
+              tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (tx, res) {
+                expect(res.rows.item(0).stringlength).toBe(10);
+                gotStringLength = true;
+              });
+            }, function (error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            }, function () {
+              // EXPECTED RESULT (transaction finished OK):
+              expect(true).toBe(true);
+              expect(gotStringLength).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          });
+
+        }, MYTIMEOUT);
+
       });
 
     });

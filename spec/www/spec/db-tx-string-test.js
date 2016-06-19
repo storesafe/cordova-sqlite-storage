@@ -66,6 +66,19 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        it(suiteName + 'US-ASCII String binding test', function(done) {
+          var db = openDatabase("ASCII-string-binding-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('SELECT UPPER(?) AS uppertext', ['Some US-ASCII text'], function(tx, res) {
+              expect(res.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          });
+        }, MYTIMEOUT);
+
         it(suiteName + 'tx.executeSql(new String(sql))', function(done) {
           var db = openDatabase("tx-executeSql-new-String-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
@@ -444,7 +457,50 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        it(suiteName + 'String test with custom object in place of sql', function(done) {
+          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin due to CRASH BUG'); // XXX
+          if (isAndroid && !isWebSql) pending('SKIP for Android plugin [BROKEN]'); // XXX
+
+          // MyCustomObject "class":
+          function MyCustomObject() {};
+          MyCustomObject.prototype.toString = function() {return "SELECT UPPER('Alice') as u1";};
+          MyCustomObject.prototype.valueOf = function() {return "SELECT UPPER('Betty') as u1";};
+
+          var myObject = new MyCustomObject();
+          // Check myObject:
+          expect(myObject.toString()).toBe("SELECT UPPER('Alice') as u1");
+          expect(myObject.valueOf()).toBe("SELECT UPPER('Betty') as u1");
+
+          var db = openDatabase("Custom-sql-object-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          var check1 = false;
+
+          db.transaction(function(tx) {
+            tx.executeSql(myObject, [], function(tx_ignored, resultSet) {
+              // EXPECTED RESULT:
+              expect(true).toBe(true);
+              expect(resultSet).toBeDefined();
+              expect(resultSet.rows).toBeDefined();
+              expect(resultSet.rows.length).toBe(1);
+              expect(resultSet.rows.item(0)).toBeDefined();
+              expect(resultSet.rows.item(0).u1).toBeDefined();
+              expect(resultSet.rows.item(0).u1).toBe('ALICE');
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+
+            }, function(tx_ignored, error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              expect(error.message).toBe('--');
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          });
+        }, MYTIMEOUT);
+
     });
+
   }
 
 }
