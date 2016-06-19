@@ -347,7 +347,8 @@
   };
 
   SQLitePluginTransaction.prototype.addStatement = function(sql, values, success, error) {
-    var j, len1, params, t, v;
+    var j, len1, params, sqlStatement, t, v;
+    sqlStatement = typeof sql === 'string' ? sql : sql.toString();
     params = [];
     if (!!values && values.constructor === Array) {
       for (j = 0, len1 = values.length; j < len1; j++) {
@@ -359,7 +360,7 @@
     this.executes.push({
       success: success,
       error: error,
-      sql: sql,
+      sql: sqlStatement,
       params: params
     });
   };

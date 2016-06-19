@@ -341,6 +341,7 @@
 
       # Workaround for litehelpers/Cordova-sqlite-storage#409
       # extra statement in case user function does not add any SQL statements
+      # TBD This also adds an extra statement to db.executeSql()
       else
         @addStatement "SELECT 1", [], null, null
 
@@ -374,6 +375,10 @@
     # This method adds the SQL statement to the transaction queue but does not check for
     # finalization since it is used to execute COMMIT and ROLLBACK.
     SQLitePluginTransaction::addStatement = (sql, values, success, error) ->
+      sqlStatement = if typeof sql is 'string'
+        sql
+      else
+        sql.toString()
 
       params = []
       if !!values && values.constructor == Array
@@ -388,7 +393,7 @@
         success: success
         error: error
 
-        sql: sql
+        sql: sqlStatement
         params: params
 
       return

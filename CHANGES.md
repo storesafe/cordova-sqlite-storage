@@ -1,5 +1,9 @@
 # Changes
 
+### cordova-sqlite-storage 1.4.3
+
+- Handle executeSql with object sql value (solves another possible crash on iOS)
+
 ### cordova-sqlite-storage 1.4.2
 
 - Fix sqlitePlugin.openDatabase and sqlitePlugin.deleteDatabase to check location/iosDatabaseLocation values

@@ -458,9 +458,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'String test with custom object in place of sql', function(done) {
-          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin due to CRASH BUG'); // XXX
-          if (isAndroid && !isWebSql) pending('SKIP for Android plugin [BROKEN]'); // XXX
-
           // MyCustomObject "class":
           function MyCustomObject() {};
           MyCustomObject.prototype.toString = function() {return "SELECT UPPER('Alice') as u1";};

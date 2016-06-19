@@ -851,8 +851,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'transaction.executeSql on BOGUS object', function (done) {
-          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin due to CRASH BUG'); // XXX
-
           var db = openDatabase("tx-with-object-for-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -897,8 +895,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'transaction.executeSql with BOGUS array', function (done) {
-          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin due to CRASH BUG'); // XXX
-
           var db = openDatabase("tx-with-array-for-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -939,8 +935,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'transaction.executeSql on BOGUS number', function (done) {
-          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin due to CRASH BUG'); // XXX
-
           var db = openDatabase("tx-with-number-for-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -982,8 +976,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'transaction.executeSql with null for SQL statement (BOGUS)', function (done) {
-          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin due to CRASH BUG'); // XXX
-
           var db = openDatabase("tx-with-number-for-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -1024,8 +1016,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'transaction.executeSql with true for SQL statement (BOGUS)', function (done) {
-          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin due to CRASH BUG'); // XXX
-
           var db = openDatabase("tx-with-true-for-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -1066,8 +1056,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'transaction.executeSql with false for SQL statement (BOGUS)', function (done) {
-          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin due to CRASH BUG'); // XXX
-
           var db = openDatabase("tx-with-false-for-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -1108,8 +1096,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'transaction.executeSql with undefined executeSql argument (BOGUS)', function (done) {
-          if (isAndroid && !isWebSql) pending('SKIP for Android plugin [BROKEN]'); // XXX
-
           var db = openDatabase("tx-with-undefined-executeSql-argument.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -1150,8 +1136,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'transaction.executeSql with no executeSql argument (BOGUS)', function (done) {
-          if (isAndroid && !isWebSql) pending('SKIP for Android plugin [BROKEN]'); // XXX
-
           var db = openDatabase("tx-with-no-executeSql-argument.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -1192,8 +1176,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'Error recovery for transaction with object for SQL statement', function (done) {
-          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin due to CRASH BUG'); // XXX
-
           var db = openDatabase("tx-with-object-for-sql-recovery.db", "1.0", "Demo", DEFAULT_SIZE);
 
           var firstError = null;
@@ -1259,8 +1241,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'Error recovery for transaction with array for SQL statement', function (done) {
-          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin due to CRASH BUG'); // XXX
-
           var db = openDatabase("tx-with-array-for-sql-recovery.db", "1.0", "Demo", DEFAULT_SIZE);
 
           var firstError = null;
