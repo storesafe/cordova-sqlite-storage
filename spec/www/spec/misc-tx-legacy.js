@@ -30,18 +30,12 @@ function start(n) {
   if (wait == 0) test_it_done();
 }
 
-var isAndroid = /Android/.test(navigator.userAgent);
 var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
-//var isWindows = /Windows NT/.test(navigator.userAgent); // Windows [NT] (8.1)
-var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
-//var isWindowsPC = /Windows NT/.test(navigator.userAgent); // Windows [NT] (8.1)
-//var isWindowsPhone_8_1 = /Windows Phone 8.1/.test(navigator.userAgent); // Windows Phone 8.1
-//var isIE = isWindows || isWP8 || isWindowsPhone_8_1;
-var isIE = isWindows || isWP8;
-var isWebKit = !isIE; // TBD [Android or iOS]
+var isWindows = /Windows /.test(navigator.userAgent); // Windows
+var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 
-// NOTE: In the core-master branch there is no difference between the default
-// implementation and implementation #2. But the test will also apply
+// NOTE: In the common storage-master branch there is no difference between the
+// default implementation and implementation #2. But the test will also apply
 // the androidLockWorkaround: 1 option in the case of implementation #2.
 var scenarioList = [
   isAndroid ? 'Plugin-implementation-default' : 'Plugin',
@@ -189,14 +183,12 @@ var mytests = function() {
 
             tx.executeSql('UPDATE Task SET subject="Send reminder", id="928238b3-a227-418f-aa15-12bb1943c1f2" WHERE id = "928238b3-a227-418f-aa15-12bb1943c1f2"', [], function(tx, res) {
               expect(res).toBeDefined();
-              if (!isWindows) // XXX TODO
-                expect(res.rowsAffected).toEqual(1);
+              expect(res.rowsAffected).toEqual(1);
             }, function (error) {
               ok(false, '1st update failed ' + error);
             });
 
             tx.executeSql('UPDATE Task SET subject="Task", id="511e3fb7-5aed-4c1a-b1b7-96bf9c5012e2" WHERE id = "511e3fb7-5aed-4c1a-b1b7-96bf9c5012e2"', [], function(tx, res) {
-              //if (!isWindows) // XXX TODO
               expect(res.rowsAffected).toEqual(1);
             }, function (error) {
               ok(false, '2nd update failed ' + error);
@@ -215,25 +207,25 @@ var mytests = function() {
     });
   }
 
-  describe('Plugin: plugin-specific tx test(s)', function() {
+  describe('Plugin: plugin-specific sql test(s)', function() {
 
-    var scenarioList = [
+    var pluginScenarioList = [
       isAndroid ? 'Plugin-implementation-default' : 'Plugin',
       'Plugin-implementation-2'
     ];
 
-    var scenarioCount = isAndroid ? 2 : 1;
+    var pluginScenarioCount = isAndroid ? 2 : 1;
 
-    for (var i=0; i<scenarioCount; ++i) {
+    for (var i=0; i<pluginScenarioCount; ++i) {
 
-      describe(scenarioList[i] + ': db.executeSql test(s)', function() {
-        var scenarioName = scenarioList[i];
+      describe(pluginScenarioList[i] + ': db.executeSql test(s)', function() {
+        var scenarioName = pluginScenarioList[i];
         var suiteName = scenarioName + ': ';
-        var isOldAndroidImpl = (i === 1);
+        var isImpl2 = (i === 1);
 
         // NOTE: MUST be defined in function scope, NOT outer scope:
         var openDatabase = function(first, second, third, fourth, fifth, sixth) {
-          //if (!isOldAndroidImpl) {
+          //if (!isImpl2) {
           //  return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
           //}
 
@@ -249,7 +241,7 @@ var mytests = function() {
             errorcb = third;
           }
 
-          if (!isOldAndroidImpl) {
+          if (!isImpl2) {
             return window.sqlitePlugin.openDatabase({name: dbname, location: 0}, okcb, errorcb);
           }
 
@@ -297,6 +289,59 @@ var mytests = function() {
           db.executeSql("select upper('second') as uppertext", [], okcb);
         });
 
+      });
+    }
+
+  });
+
+  describe('Plugin: plugin-specific error test(s)', function() {
+
+    var pluginScenarioList = [
+      isAndroid ? 'Plugin-implementation-default' : 'Plugin',
+      'Plugin-implementation-2'
+    ];
+
+    var pluginScenarioCount = isAndroid ? 2 : 1;
+
+    for (var i=0; i<pluginScenarioCount; ++i) {
+
+      describe(pluginScenarioList[i] + ': db.executeSql error test(s)', function() {
+        var scenarioName = pluginScenarioList[i];
+        var suiteName = scenarioName + ': ';
+        var isImpl2 = (i === 1);
+
+        // NOTE: MUST be defined in function scope, NOT outer scope:
+        var openDatabase = function(first, second, third, fourth, fifth, sixth) {
+          //if (!isImpl2) {
+          //  return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
+          //}
+
+          var dbname, okcb, errorcb;
+
+          if (first.constructor === String ) {
+            dbname = first;
+            okcb = fifth;
+            errorcb = sixth;
+          } else {
+            dbname = first.name;
+            okcb = second;
+            errorcb = third;
+          }
+
+          if (!isImpl2) {
+            return window.sqlitePlugin.openDatabase({name: dbname, location: 0}, okcb, errorcb);
+          }
+
+          var dbopts = {
+            name: 'i2-'+dbname,
+            androidDatabaseImplementation: 2,
+            androidLockWorkaround: 1,
+            location: 1
+          };
+
+          return window.sqlitePlugin.openDatabase(dbopts, okcb, errorcb);
+        }
+
         it(suiteName + "Multiple db.executeSql error result test", function(done) {
           // NOTE: this test checks that for db.executeSql(), the error result
           // callback is called exactly once, with the proper result:
@@ -338,25 +383,25 @@ var mytests = function() {
 
   });
 
-  describe('Plugin: more plugin-specific tx test(s)', function() {
+  describe('Plugin: more plugin-specific test(s)', function() {
 
-    var scenarioList = [
+    var pluginScenarioList = [
       isAndroid ? 'Plugin-implementation-default' : 'Plugin',
       'Plugin-implementation-2'
     ];
 
-    var scenarioCount = isAndroid ? 2 : 1;
+    var pluginScenarioCount = isAndroid ? 2 : 1;
 
-    for (var i=0; i<scenarioCount; ++i) {
+    for (var i=0; i<pluginScenarioCount; ++i) {
 
-      describe(scenarioList[i] + ': db.executeSql test(s)', function() {
-        var scenarioName = scenarioList[i];
+      describe(pluginScenarioList[i] + ': more db.executeSql test(s)', function() {
+        var scenarioName = pluginScenarioList[i];
         var suiteName = scenarioName + ': ';
-        var isOldAndroidImpl = (i === 1);
+        var isImpl2 = (i === 1);
 
         // NOTE: MUST be defined in function scope, NOT outer scope:
         var openDatabase = function(first, second, third, fourth, fifth, sixth) {
-          //if (!isOldAndroidImpl) {
+          //if (!isImpl2) {
           //  return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
           //}
 
@@ -372,7 +417,7 @@ var mytests = function() {
             errorcb = third;
           }
 
-          if (!isOldAndroidImpl) {
+          if (!isImpl2) {
             return window.sqlitePlugin.openDatabase({name: dbname, location: 0}, okcb, errorcb);
           }
 
