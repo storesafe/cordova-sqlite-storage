@@ -123,6 +123,7 @@ var mytests = function() {
 
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
+            // create columns with no type affinity
             tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data_text1, data_text2, data_int, data_real)');
           }, function(err) {
             expect(false).toBe(true);
@@ -131,7 +132,6 @@ var mytests = function() {
           }, function() {
             db.transaction(function(tx) {
 
-              // create columns with no type affinity
               tx.executeSql("insert into test_table (data_text1, data_text2, data_int, data_real) VALUES (?,?,?,?)", ["314159", "3.14159", 314159, 3.14159], function(tx, res) {
 
                 expect(res).toBeDefined();
@@ -227,6 +227,7 @@ var mytests = function() {
 
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
+            // CREATE columns with no type affinity
             tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data1, data2)');
           }, function(err) {
             expect(false).toBe(true);
@@ -234,7 +235,6 @@ var mytests = function() {
 
           }, function() {
             db.transaction(function(tx) {
-              // create columns with no type affinity
               tx.executeSql("insert into test_table (data1, data2) VALUES (?,?)", ['abc', [1,2,3]], function(tx, res) {
                 expect(res).toBeDefined();
                 expect(res.rowsAffected).toBe(1);
@@ -256,6 +256,7 @@ var mytests = function() {
 
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
+            // create columns with no type affinity
             tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data1, data2)');
           }, function(err) {
             expect(false).toBe(true);
@@ -263,7 +264,6 @@ var mytests = function() {
 
           }, function() {
             db.transaction(function(tx) {
-              // create columns with no type affinity
               tx.executeSql("INSERT INTO test_table (data1, data2) VALUES (?,?)", [true, false], function(tx, rs1) {
                 expect(rs1).toBeDefined();
                 expect(rs1.rowsAffected).toBe(1);
@@ -276,6 +276,88 @@ var mytests = function() {
                   // Close (plugin only) & finish:
                   (isWebSql) ? done() : db.close(done, done);
                 });
+              });
+            });
+          });
+        });
+
+        it(suiteName + "executeSql with not enough parameters", function(done) {
+          var db = openDatabase("not-enough-parameters.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            // CREATE columns with no type affinity
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data1, data2)');
+
+          }, function(error) {
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+
+          }, function() {
+            db.transaction(function(tx) {
+              tx.executeSql("INSERT INTO test_table (data1, data2) VALUES (?,?)", ['first'], function(tx, rs1) {
+                // ACTUAL for plugin (Android/iOS/Windows):
+                if (isWebSql) expect('RESULT NOT EXPECTED for Web SQL').toBe('--');
+                expect(rs1).toBeDefined();
+                expect(rs1.rowsAffected).toBe(1);
+
+                tx.executeSql("select * from test_table", [], function(tx, rs2) {
+                  expect(rs2.rows.length).toBe(1);
+                  expect(rs2.rows.item(0).data1).toBe('first');
+                  expect(rs2.rows.item(0).data2).toBeNull();
+                  // Close (plugin only) & finish:
+                  (isWebSql) ? done() : db.close(done, done);
+                });
+
+              }, function(error) {
+                // CORRECT (Web SQL):
+                if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
+                expect(true).toBe(true);
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+            });
+          });
+        });
+
+        it(suiteName + "executeSql with too many parameters", function(done) {
+          var db = openDatabase("too-many-parameters.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            // CREATE columns with no type affinity
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data1, data2)');
+
+          }, function(error) {
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+
+          }, function() {
+            db.transaction(function(tx) {
+              tx.executeSql("INSERT INTO test_table (data1, data2) VALUES (?,?)", ['first', 'second', 'third'], function(tx, rs1) {
+                // ACTUAL for iOS plugin:
+                if (isWebSql) expect('RESULT NOT EXPECTED for Web SQL').toBe('--');
+                expect(rs1).toBeDefined();
+                expect(rs1.rowsAffected).toBe(1);
+
+                tx.executeSql("select * from test_table", [], function(tx, rs2) {
+                  expect(rs2.rows.length).toBe(1);
+                  expect(rs2.rows.item(0).data1).toBe('first');
+                  expect(rs2.rows.item(0).data2).toBe('second');
+                  // Close (plugin only) & finish:
+                  (isWebSql) ? done() : db.close(done, done);
+                });
+
+              }, function(error) {
+                // CORRECT (Web SQL; Android & Windows plugin):
+                if (!isWebSql && !isAndroid && !isWindows) expect('Plugin behavior changed please update this test').toBe('--');
+                expect(true).toBe(true);
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
               });
             });
           });
