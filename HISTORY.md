@@ -115,20 +115,24 @@ Other major changes by @brodybits in 2015:
 - Introduction of other version projects:
   - Cordova-sqlcipher-adapter
   - cordova-sqlite-ext with REGEXP and pre-populated database support
-  - Cordova-sqlite-enterprise-free with memory fix and other enhancements,
+  - Enterprise version with memory fix and other enhancements,
     available under GPL or commercial licensing options
 - react-native-sqlite-storage version for Android and iOS developed and maintained
   by @andpor (Andrzej Porebski <fkuciapa@yahoo.com>), based on this project
 
 ## Major changes 2016
 
-Features removed from main version branch, available in cordova-sqlite-ext and Cordova-sqlite-legacy versions:
-- Windows version removed from this version branch
-- Android-sqlite-connector (NDK) support removed from this version branch
-
 New features:
 - Echo self-test function
 - Simple sql batch query interface
+
+Installation changes
+- Use of `before_plugin_install` hook to install external dependencies
+
+New versions introduced
+- Cordova-sqlite-evcore-extbuild-free with major performance and memory fixes for Android,
+  available under GPL or commercial licensing options with support for PhoneGap Build
+- Cordova-sqlite-evplus (legacy) versions with GPL or premium commercial licensing options
 
 ## Recent changes
 
