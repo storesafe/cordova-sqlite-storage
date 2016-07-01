@@ -8,7 +8,6 @@ package io.sqlc;
 
 import android.annotation.SuppressLint;
 
-import android.util.Base64;
 import android.util.Log;
 
 import java.io.File;
@@ -17,8 +16,6 @@ import java.lang.Number;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;

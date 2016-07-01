@@ -700,6 +700,35 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        it(suiteName + 'BLOB inserted as a literal', function(done) {
+          var db = openDatabase('Literal-BLOB-INSERT-test.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS TestTable;');
+            tx.executeSql('CREATE TABLE TestTable (x);');
+
+            tx.executeSql("INSERT INTO TestTable VALUES (X'010203')", [], function(ignored1, ignored2) {
+              tx.executeSql('SELECT HEX(x) AS hex_value FROM TestTable', [], function(ignored, resultSet) {
+                // EXPECTED: CORRECT RESULT:
+                expect(resultSet).toBeDefined();
+                expect(resultSet.rows).toBeDefined();
+                expect(resultSet.rows.length).toBe(1);
+                expect(resultSet.rows.item(0).hex_value).toBe('010203');
+
+                // Close (plugin only - always the case in this test) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+            });
+          }, function(e) {
+            // ERROR RESULT (NOT EXPECTED):
+            expect(false).toBe(true);
+            expect(e).toBeDefined();
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
     });
 
   }

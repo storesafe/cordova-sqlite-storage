@@ -1,6 +1,6 @@
 # Changes
 
-### cordova-sqlite-storage 1.4.4-pre1
+### cordova-sqlite-storage 1.4.4-pre2
 
 - Fix readTransaction to reject modification statements with extra semicolon(s) in the beginning
 

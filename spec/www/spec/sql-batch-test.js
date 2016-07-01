@@ -4,7 +4,6 @@ var MYTIMEOUT = 12000;
 
 var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 
-var isAndroid = /Android/.test(navigator.userAgent);
 var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
