@@ -1,5 +1,9 @@
 # Changes
 
+### cordova-sqlite-storage 1.4.4-pre1
+
+- Fix readTransaction to reject modification statements with extra semicolon(s) in the beginning
+
 ### cordova-sqlite-storage 1.4.3
 
 - Handle executeSql with object sql value (solves another possible crash on iOS)

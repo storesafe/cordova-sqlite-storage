@@ -3,7 +3,7 @@
 
   root = this;
 
-  READ_ONLY_REGEX = /^\s*(?:drop|delete|insert|update|create)\s/i;
+  READ_ONLY_REGEX = /^(\s|;)*(?:drop|delete|insert|update|create)\s/i;
 
   DB_STATE_INIT = "INIT";
 
