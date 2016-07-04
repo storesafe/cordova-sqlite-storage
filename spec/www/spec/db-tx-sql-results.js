@@ -602,6 +602,8 @@ var mytests = function() {
 
       if (!isWebSql) // NOT supported by Web SQL:
         it(suiteName + 'Multi-row INSERT with parameters - NOT supported by Web SQL', function(done) {
+          if (isWP8) pending('NOT SUPPORTED for WP8');
+
           var db = openDatabase('Multi-row-INSERT-with-parameters-test.db', '1.0', 'Test', DEFAULT_SIZE);
 
           db.transaction(function(tx) {

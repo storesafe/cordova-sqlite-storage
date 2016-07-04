@@ -23,12 +23,11 @@ var mytests = function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
       var isWebSql = (i === 1);
-      var isImplementation2 = (i === 2);
-      var isAndroidSQLiteConnector = false; // (NOT in this version branch)
+      var isImpl2 = (i === 2);
 
       // NOTE: MUST be defined in function scope, NOT outer scope:
       var openDatabase = function(name, ignored1, ignored2, ignored3) {
-        if (isImplementation2) {
+        if (isImpl2) {
           return window.sqlitePlugin.openDatabase({name: name, location: 1, androidDatabaseImplementation: 2});
         }
         if (isWebSql) {
@@ -43,7 +42,7 @@ var mytests = function() {
           // Test for Android Web SQL ONLY
           if (isWP8) pending('NOT IMPLEMENTED for WP8');
           if (isWindows) pending('NOT IMPLEMENTED for Windows');
-          //if (!isWebSql && isAndroid && isImplementation2 && /Android [1-4]/.test(navigator.userAgent)) pending('BROKEN for android.database (version 1.x-4.x)');
+          //if (!isWebSql && isAndroid && isImpl2 && /Android [1-4]/.test(navigator.userAgent)) pending('BROKEN for android.database (version 1.x-4.x)');
           if (!isWebSql && isAndroid) pending('SKIP for android.database'); // TBD (SKIP for Android plugin for now)
           if (!isAndroid && !isWindows && !isWP8) pending('SKIP for iOS');
 

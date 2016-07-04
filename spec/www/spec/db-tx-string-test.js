@@ -334,6 +334,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'UTF-8 string test', function(done) {
+          if (isWP8) pending('SKIP for WP(8)');
+
           var db = openDatabase("UTF8-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -349,6 +351,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'UTF-8 string binding test', function(done) {
+          if (isWP8) pending('SKIP for WP(8)');
+
           var db = openDatabase("UTF8-string-binding-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
