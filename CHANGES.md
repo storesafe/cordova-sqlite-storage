@@ -1,5 +1,9 @@
 # Changes
 
+### cordova-sqlite-storage 1.4.5-pre1
+
+- Log/error message fixes; remove extra qid from internal JSON interface
+
 ### cordova-sqlite-storage 1.4.4
 
 - Fix readTransaction to reject modification statements with extra semicolon(s) in the beginning

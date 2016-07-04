@@ -269,7 +269,6 @@
             if ([result.status intValue] == CDVCommandStatus_ERROR) {
                 /* add error with result.message: */
                 NSMutableDictionary *r = [NSMutableDictionary dictionaryWithCapacity:0];
-                [r setObject:[dict objectForKey:@"qid"] forKey:@"qid"];
                 [r setObject:@"error" forKey:@"type"];
                 [r setObject:result.message forKey:@"error"];
                 [r setObject:result.message forKey:@"result"];
@@ -277,7 +276,6 @@
             } else {
                 /* add result with result.message: */
                 NSMutableDictionary *r = [NSMutableDictionary dictionaryWithCapacity:0];
-                [r setObject:[dict objectForKey:@"qid"] forKey:@"qid"];
                 [r setObject:@"success" forKey:@"type"];
                 [r setObject:result.message forKey:@"result"];
                 [results addObject: r];

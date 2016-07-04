@@ -213,7 +213,7 @@
 
         opensuccesscb = =>
           # NOTE: the db state is NOT stored (in @openDBs) if the db was closed or deleted.
-          # console.log 'OPEN database: ' + @dbname + ' succeeded'
+          console.log 'OPEN database: ' + @dbname + ' - OK'
 
           #if !@openDBs[@dbname] then call open error cb, and abort pending tx if any
           if !@openDBs[@dbname]
@@ -233,7 +233,7 @@
           return
 
         openerrorcb = =>
-          console.log 'OPEN database: ' + @dbname + ' failed, aborting any pending transactions'
+          console.log 'OPEN database: ' + @dbname + ' FAILED, aborting any pending transactions'
           # XXX TODO: newSQLError missing the message part!
           if !!error then error newSQLError 'Could not open database'
           delete @openDBs[@dbname]
@@ -350,13 +350,16 @@
     SQLitePluginTransaction::start = ->
       try
         @fn this
+
         @run()
+
       catch err
         # If "fn" throws, we must report the whole transaction as failed.
         txLocks[@db.dbname].inProgress = false
         @db.startNextTransaction()
         if @error
           @error newSQLError err
+
       return
 
     SQLitePluginTransaction::executeSql = (sql, values, success, error) ->
@@ -370,6 +373,7 @@
         return
 
       @addStatement(sql, values, success, error)
+
       return
 
     # This method adds the SQL statement to the transaction queue but does not check for
@@ -433,7 +437,8 @@
       # FUTURE TBD: It would be better to fix the problem here.
       waiting = batchExecutes.length
       @executes = []
-      tx = this
+      # my tx object (this)
+      tx = @
 
       handlerFor = (index, didSucceed) ->
         (response) ->
@@ -458,10 +463,9 @@
 
           return
 
-      i = 0
-
       mycbmap = {}
 
+      i = 0
       while i < batchExecutes.length
         request = batchExecutes[i]
 
@@ -470,7 +474,6 @@
           error: handlerFor(i, false)
 
         tropts.push
-          qid: 1111
           sql: request.sql
           params: request.params
 
@@ -479,11 +482,11 @@
       mycb = (result) ->
         #console.log "mycb result #{JSON.stringify result}"
 
-        last = result.length-1
-        for i in [0..last]
+        i = 0
+        reslength = result.length
+        while i < reslength
           r = result[i]
           type = r.type
-          # NOTE: r.qid can be ignored
           res = r.result
 
           q = mycbmap[i]
@@ -491,6 +494,8 @@
           if q
             if q[type]
               q[type] res
+
+          ++i
 
         return
 
@@ -612,7 +617,7 @@
           throw newSQLError 'Database location or iosDatabaseLocation value is now mandatory in openDatabase call'
 
         if !!openargs.location and !!openargs.iosDatabaseLocation
-          throw newSQLError 'Abiguous: both location or iosDatabaseLocation values are present in openDatabase call'
+          throw newSQLError 'AMBIGUOUS: both location or iosDatabaseLocation values are present in openDatabase call'
 
         dblocation =
           if !!openargs.location and openargs.location is 'default'
@@ -669,7 +674,7 @@
           throw newSQLError 'Database location or iosDatabaseLocation value is now mandatory in deleteDatabase call'
 
         if !!first.location and !!first.iosDatabaseLocation
-          throw newSQLError 'Abiguous: both location or iosDatabaseLocation values are present in deleteDatabase call'
+          throw newSQLError 'AMBIGUOUS: both location or iosDatabaseLocation values are present in deleteDatabase call'
 
         dblocation =
           if !!first.location and first.location is 'default'

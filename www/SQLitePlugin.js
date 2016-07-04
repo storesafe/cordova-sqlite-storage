@@ -175,6 +175,7 @@
       opensuccesscb = (function(_this) {
         return function() {
           var txLock;
+          console.log('OPEN database: ' + _this.dbname + ' - OK');
           if (!_this.openDBs[_this.dbname]) {
             console.log('database was closed during open operation');
           }
@@ -192,7 +193,7 @@
       })(this);
       openerrorcb = (function(_this) {
         return function() {
-          console.log('OPEN database: ' + _this.dbname + ' failed, aborting any pending transactions');
+          console.log('OPEN database: ' + _this.dbname + ' FAILED, aborting any pending transactions');
           if (!!error) {
             error(newSQLError('Could not open database'));
           }
@@ -427,8 +428,8 @@
         }
       };
     };
-    i = 0;
     mycbmap = {};
+    i = 0;
     while (i < batchExecutes.length) {
       request = batchExecutes[i];
       mycbmap[i] = {
@@ -436,16 +437,16 @@
         error: handlerFor(i, false)
       };
       tropts.push({
-        qid: 1111,
         sql: request.sql,
         params: request.params
       });
       i++;
     }
     mycb = function(result) {
-      var j, last, q, r, ref, res, type;
-      last = result.length - 1;
-      for (i = j = 0, ref = last; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
+      var q, r, res, reslength, type;
+      i = 0;
+      reslength = result.length;
+      while (i < reslength) {
         r = result[i];
         type = r.type;
         res = r.result;
@@ -455,6 +456,7 @@
             q[type](res);
           }
         }
+        ++i;
       }
     };
     cordova.exec(mycb, null, "SQLitePlugin", "backgroundExecuteSqlBatch", [
@@ -563,7 +565,7 @@
         throw newSQLError('Database location or iosDatabaseLocation value is now mandatory in openDatabase call');
       }
       if (!!openargs.location && !!openargs.iosDatabaseLocation) {
-        throw newSQLError('Abiguous: both location or iosDatabaseLocation values are present in openDatabase call');
+        throw newSQLError('AMBIGUOUS: both location or iosDatabaseLocation values are present in openDatabase call');
       }
       dblocation = !!openargs.location && openargs.location === 'default' ? iosLocationMap['default'] : !!openargs.iosDatabaseLocation ? iosLocationMap[openargs.iosDatabaseLocation] : dblocations[openargs.location];
       if (!dblocation) {
@@ -608,7 +610,7 @@
         throw newSQLError('Database location or iosDatabaseLocation value is now mandatory in deleteDatabase call');
       }
       if (!!first.location && !!first.iosDatabaseLocation) {
-        throw newSQLError('Abiguous: both location or iosDatabaseLocation values are present in deleteDatabase call');
+        throw newSQLError('AMBIGUOUS: both location or iosDatabaseLocation values are present in deleteDatabase call');
       }
       dblocation = !!first.location && first.location === 'default' ? iosLocationMap['default'] : !!first.iosDatabaseLocation ? iosLocationMap[first.iosDatabaseLocation] : dblocations[first.location];
       if (!dblocation) {
