@@ -2,7 +2,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-sqlite-ext"
-    version="0.10.0">
+    version="0.10.1-pre1">
 
     <name>Cordova sqlite storage plugin with extras (xx dev version branch)</name>
 
@@ -13,12 +13,14 @@
     <description>Native interface to SQLite for PhoneGap/Cordova. Allows you to use more storage and provides more flexibility than the standard Web SQL database (window.openDatabase).</description>
     <author>Litehelpers/Various</author>
 
+    <!-- No longer enforced in this version (branch):
     <engines>
         <engine name="cordova" version=">=6.0.0" />
         <engine name="cordova-android" version=">=5.0.0" />
         <engine name="cordova-ios" version=">=4.0.0" />
         <engine name="cordova-windows" version=">=4.0.0" />
     </engines>
+     -->
 
     <!-- THANKS to AllJoyn-Cordova / cordova-plugin-alljoyn: -->
     <hook type="before_plugin_install" src="scripts/beforePluginInstall.js" />

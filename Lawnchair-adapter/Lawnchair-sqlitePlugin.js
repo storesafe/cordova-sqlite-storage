@@ -28,10 +28,11 @@ Lawnchair.adapter('cordova-sqlite', (function () {
             ,   cb     = that.fn(that.name, callback)
             ,   dbname = options.db || this.name
             ,   bgType = options.bgType || 1
+            , 	location = options.location || 'default'
             ,   create = "CREATE TABLE IF NOT EXISTS " + this.name + " (id NVARCHAR(32) UNIQUE PRIMARY KEY, value TEXT, timestamp REAL)"
             ,   win    = function(){ return cb.call(that, that); }
             // open a connection and create the db if it doesn't exist 
-            this.db = sqlitePlugin.openDatabase({name:dbname,bgType:bgType})
+            this.db = sqlitePlugin.openDatabase({name:dbname,bgType:bgType, location: location})
             this.db.transaction(function (t) { 
                 t.executeSql(create, [], win, fail) 
             })

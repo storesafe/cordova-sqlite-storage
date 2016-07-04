@@ -12,7 +12,7 @@
 
 ## constant(s):
 
-    READ_ONLY_REGEX = /^\s*(?:drop|delete|insert|update|create)\s/i
+    READ_ONLY_REGEX = /^(\s|;)*(?:drop|delete|insert|update|create)\s/i
 
     # per-db state
     DB_STATE_INIT = "INIT"
@@ -213,7 +213,7 @@
 
         opensuccesscb = =>
           # NOTE: the db state is NOT stored (in @openDBs) if the db was closed or deleted.
-          # console.log 'OPEN database: ' + @dbname + ' succeeded'
+          console.log 'OPEN database: ' + @dbname + ' - OK'
 
           #if !@openDBs[@dbname] then call open error cb, and abort pending tx if any
           if !@openDBs[@dbname]
@@ -233,7 +233,7 @@
           return
 
         openerrorcb = =>
-          console.log 'OPEN database: ' + @dbname + ' failed, aborting any pending transactions'
+          console.log 'OPEN database: ' + @dbname + ' FAILED, aborting any pending transactions'
           # XXX TODO: newSQLError missing the message part!
           if !!error then error newSQLError 'Could not open database'
           delete @openDBs[@dbname]
@@ -341,6 +341,7 @@
 
       # Workaround for litehelpers/Cordova-sqlite-storage#409
       # extra statement in case user function does not add any SQL statements
+      # TBD This also adds an extra statement to db.executeSql()
       else
         @addStatement "SELECT 1", [], null, null
 
@@ -349,13 +350,16 @@
     SQLitePluginTransaction::start = ->
       try
         @fn this
+
         @run()
+
       catch err
         # If "fn" throws, we must report the whole transaction as failed.
         txLocks[@db.dbname].inProgress = false
         @db.startNextTransaction()
         if @error
           @error newSQLError err
+
       return
 
     SQLitePluginTransaction::executeSql = (sql, values, success, error) ->
@@ -369,11 +373,16 @@
         return
 
       @addStatement(sql, values, success, error)
+
       return
 
     # This method adds the SQL statement to the transaction queue but does not check for
     # finalization since it is used to execute COMMIT and ROLLBACK.
     SQLitePluginTransaction::addStatement = (sql, values, success, error) ->
+      sqlStatement = if typeof sql is 'string'
+        sql
+      else
+        sql.toString()
 
       params = []
       if !!values && values.constructor == Array
@@ -381,7 +390,6 @@
           t = typeof v
           params.push (
             if v == null || v == undefined || t == 'number' || t == 'string' then v
-            else if v instanceof Blob then v.valueOf()
             else v.toString()
           )
 
@@ -389,7 +397,7 @@
         success: success
         error: error
 
-        sql: sql
+        sql: sqlStatement
         params: params
 
       return
@@ -429,7 +437,8 @@
       # FUTURE TBD: It would be better to fix the problem here.
       waiting = batchExecutes.length
       @executes = []
-      tx = this
+      # my tx object (this)
+      tx = @
 
       handlerFor = (index, didSucceed) ->
         (response) ->
@@ -454,10 +463,9 @@
 
           return
 
-      i = 0
-
       mycbmap = {}
 
+      i = 0
       while i < batchExecutes.length
         request = batchExecutes[i]
 
@@ -466,7 +474,6 @@
           error: handlerFor(i, false)
 
         tropts.push
-          qid: 1111
           sql: request.sql
           params: request.params
 
@@ -475,11 +482,11 @@
       mycb = (result) ->
         #console.log "mycb result #{JSON.stringify result}"
 
-        last = result.length-1
-        for i in [0..last]
+        i = 0
+        reslength = result.length
+        while i < reslength
           r = result[i]
           type = r.type
-          # NOTE: r.qid can be ignored
           res = r.result
 
           q = mycbmap[i]
@@ -487,6 +494,8 @@
           if q
             if q[type]
               q[type] res
+
+          ++i
 
         return
 
@@ -607,9 +616,8 @@
         if !openargs.iosDatabaseLocation and !openargs.location and openargs.location isnt 0
           throw newSQLError 'Database location or iosDatabaseLocation value is now mandatory in openDatabase call'
 
-        # XXX TODO (with test):
-        #if !!openargs.location and !!openargs.iosDatabaseLocation
-        #  throw newSQLError 'Abiguous: both location or iosDatabaseLocation values are present in openDatabase call'
+        if !!openargs.location and !!openargs.iosDatabaseLocation
+          throw newSQLError 'AMBIGUOUS: both location or iosDatabaseLocation values are present in openDatabase call'
 
         dblocation =
           if !!openargs.location and openargs.location is 'default'
@@ -619,9 +627,8 @@
           else
             dblocations[openargs.location]
 
-        # XXX TODO (with test):
-        #if !dblocation
-        #  throw newSQLError 'Valid iOS database location could not be determined in openDatabase call'
+        if !dblocation
+          throw newSQLError 'Valid iOS database location could not be determined in openDatabase call'
 
         openargs.dblocation = dblocation
 
@@ -654,16 +661,20 @@
         else
           #console.log "delete db args: #{JSON.stringify first}"
           if !(first and first['name']) then throw new Error "Please specify db name"
-          args.path = first.name
+          dbname = first.name
+
+          if typeof dbname != 'string'
+            throw newSQLError 'delete database name must be a string'
+
+          args.path = dbname
           #dblocation = if !!first.location then dblocations[first.location] else null
           #args.dblocation = dblocation || dblocations[0]
 
         if !first.iosDatabaseLocation and !first.location and first.location isnt 0
           throw newSQLError 'Database location or iosDatabaseLocation value is now mandatory in deleteDatabase call'
 
-        # XXX TODO (with test):
-        #if !!first.location and !!first.iosDatabaseLocation
-        #  throw newSQLError 'Abiguous: both location or iosDatabaseLocation values are present in deleteDatabase call'
+        if !!first.location and !!first.iosDatabaseLocation
+          throw newSQLError 'AMBIGUOUS: both location or iosDatabaseLocation values are present in deleteDatabase call'
 
         dblocation =
           if !!first.location and first.location is 'default'
@@ -673,9 +684,8 @@
           else
             dblocations[first.location]
 
-        # XXX TODO (with test):
-        #if !dblocation
-        #  throw newSQLError 'Valid iOS database location could not be determined in deleteDatabase call'
+        if !dblocation
+          throw newSQLError 'Valid iOS database location could not be determined in deleteDatabase call'
 
         args.dblocation = dblocation
 

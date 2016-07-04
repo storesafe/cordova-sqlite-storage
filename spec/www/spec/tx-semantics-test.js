@@ -541,13 +541,12 @@ var mytests = function() {
             tx.executeSql('DROP TABLE IF EXISTS ExtraTestTable1');
             tx.executeSql('DROP TABLE IF EXISTS ExtraTestTable2');
             tx.executeSql('DROP TABLE IF EXISTS ExtraTestTable3');
+            tx.executeSql('DROP TABLE IF EXISTS ExtraTestTable4');
+            tx.executeSql('DROP TABLE IF EXISTS ExtraTestTable5');
+            tx.executeSql('DROP TABLE IF EXISTS ExtraTestTable6');
 
             tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data)');
             tx.executeSql('INSERT INTO test_table VALUES (?)', ['first']);
-
-            tx.executeSql('DROP TABLE IF EXISTS ExtraTestTable1');
-            tx.executeSql('DROP TABLE IF EXISTS ExtraTestTable2');
-            tx.executeSql('DROP TABLE IF EXISTS ExtraTestTable3');
           }, function () {}, function () {
             db.readTransaction(function (tx) {
               tx.executeSql('SELECT * from test_table', [], function (tx, res) {
@@ -620,63 +619,35 @@ var mytests = function() {
                     tx.executeSql('  CREATE TABLE test_table3 (data)');
                   }, checkDone, fail);
                 },
-
-                // BUG #460:
                 function () {
                   db.readTransaction(function (tx) {
                     tx.executeSql(';  CREATE TABLE ExtraTestTable1 (data)');
-                  }, function(e) {
-                    // CORRECT
-                    if (!isWebSql) expect('Plugin FIXED, please update this test').toBe('--');
-                    checkDone();
-                  }, function() {
-                    // BUG #460: IGNORED for Plugin ONLY:
-                    if (!isWebSql) return checkDone(); // (returns undefined)
-                    expect(false).toBe(true);
-                    fail();
-                  });
+                  }, checkDone, fail);
                 },
                 function () {
                   db.readTransaction(function (tx) {
                     tx.executeSql(' ;  CREATE TABLE ExtraTestTable2 (data)');
-                  }, function(e) {
-                    // CORRECT
-                    if (!isWebSql) expect('Plugin FIXED, please update this test').toBe('--');
-                    checkDone();
-                  }, function() {
-                    // BUG #460: IGNORED for Plugin ONLY:
-                    if (!isWebSql) return checkDone(); // (returns undefined)
-                    expect(false).toBe(true);
-                    fail();
-                  });
+                  }, checkDone, fail);
                 },
                 function () {
                   db.readTransaction(function (tx) {
                     tx.executeSql(';CREATE TABLE ExtraTestTable3 (data)');
-                  }, function(e) {
-                    // CORRECT
-                    if (!isWebSql) expect('Plugin FIXED, please update this test').toBe('--');
-                    checkDone();
-                  }, function() {
-                    // BUG #460: IGNORED for Plugin ONLY:
-                    if (!isWebSql) return checkDone(); // (returns undefined)
-                    expect(false).toBe(true);
-                    fail();
-                  });
+                  }, checkDone, fail);
                 },
                 function () {
                   db.readTransaction(function (tx) {
                     tx.executeSql(';; CREATE TABLE ExtraTestTable4 (data)');
-                  }, function(e) {
-                    // CORRECT
-                    if (!isWebSql) expect('Plugin FIXED, please update this test').toBe('--');
-                    checkDone();
-                  }, function() {
-                    // BUG #460: IGNORED for Plugin ONLY:
-                    if (!isWebSql) return checkDone(); // (returns undefined)
-                    expect(false).toBe(true);
-                    fail();
-                  });
+                  }, checkDone, fail);
+                },
+                function () {
+                  db.readTransaction(function (tx) {
+                    tx.executeSql('; ;CREATE TABLE ExtraTestTable5 (data)');
+                  }, checkDone, fail);
+                },
+                function () {
+                  db.readTransaction(function (tx) {
+                    tx.executeSql('; ; CREATE TABLE ExtraTestTable6 (data)');
+                  }, checkDone, fail);
                 },
               ];
               for (var i = 0; i < tasks.length; i++) {

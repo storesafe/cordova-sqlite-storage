@@ -83,15 +83,11 @@ class SQLiteAndroidDatabase
     /**
      * Executes a batch request and sends the results via cbc.
      *
-     * @param dbname     The name of the database.
      * @param queryarr   Array of query strings
-     * @param jsonparams Array of JSON query parameters
-     * @param queryIDs   Array of query ids
+     * @param jsonparamsArr Array of JSON query parameters
      * @param cbc        Callback context from Cordova API
      */
-    @SuppressLint("NewApi")
-    void executeSqlBatch(String[] queryarr, JSONArray[] jsonparams,
-                                 String[] queryIDs, CallbackContext cbc) {
+    void executeSqlBatch(String[] queryarr, JSONArray[] jsonparamsArr, CallbackContext cbc) {
 
         if (mydb == null) {
             // not allowed - can only happen if someone has closed (and possibly deleted) a database and then re-used the database
@@ -99,15 +95,27 @@ class SQLiteAndroidDatabase
             return;
         }
 
-        String query = "";
-        String query_id = "";
         int len = queryarr.length;
         JSONArray batchResults = new JSONArray();
 
         for (int i = 0; i < len; i++) {
+            executeSqlBatchStatement(queryarr[i], jsonparamsArr[i], batchResults);
+        }
+
+        cbc.success(batchResults);
+    }
+
+    @SuppressLint("NewApi")
+    private void executeSqlBatchStatement(String query, JSONArray json_params, JSONArray batchResults) {
+
+        if (mydb == null) {
+            // Should not happen here
+            return;
+
+        } else {
+
             int rowsAffectedCompat = 0;
             boolean needRowsAffectedCompat = false;
-            query_id = queryIDs[i];
 
             JSONObject queryResult = null;
             String errorMessage = "unknown";
@@ -115,16 +123,14 @@ class SQLiteAndroidDatabase
             try {
                 boolean needRawQuery = true;
 
-                query = queryarr[i];
-
                 QueryType queryType = getQueryType(query);
 
                 if (queryType == QueryType.update || queryType == queryType.delete) {
                     if (android.os.Build.VERSION.SDK_INT >= 11) {
                         SQLiteStatement myStatement = mydb.compileStatement(query);
 
-                        if (jsonparams != null) {
-                            bindArgsToStatement(myStatement, jsonparams[i]);
+                        if (json_params != null) {
+                            bindArgsToStatement(myStatement, json_params);
                         }
 
                         int rowsAffected = -1; // (assuming invalid)
@@ -152,19 +158,21 @@ class SQLiteAndroidDatabase
                             queryResult = new JSONObject();
                             queryResult.put("rowsAffected", rowsAffected);
                         }
-                    } else { // pre-honeycomb
-                        rowsAffectedCompat = countRowsAffectedCompat(queryType, query, jsonparams, mydb, i);
+                    }
+
+                    if (needRawQuery) { // for pre-honeycomb behavior
+                        rowsAffectedCompat = countRowsAffectedCompat(queryType, query, json_params, mydb);
                         needRowsAffectedCompat = true;
                     }
                 }
 
                 // INSERT:
-                if (queryType == QueryType.insert && jsonparams != null) {
+                if (queryType == QueryType.insert && json_params != null) {
                     needRawQuery = false;
 
                     SQLiteStatement myStatement = mydb.compileStatement(query);
 
-                    bindArgsToStatement(myStatement, jsonparams[i]);
+                    bindArgsToStatement(myStatement, json_params);
 
                     long insertId = -1; // (invalid)
 
@@ -236,7 +244,7 @@ class SQLiteAndroidDatabase
 
                 // raw query for other statements:
                 if (needRawQuery) {
-                    queryResult = this.executeSqlStatementQuery(mydb, query, jsonparams[i], cbc);
+                    queryResult = this.executeSqlStatementQuery(mydb, query, json_params);
 
                     if (needRowsAffectedCompat) {
                         queryResult.put("rowsAffected", rowsAffectedCompat);
@@ -251,7 +259,6 @@ class SQLiteAndroidDatabase
             try {
                 if (queryResult != null) {
                     JSONObject r = new JSONObject();
-                    r.put("qid", query_id);
 
                     r.put("type", "success");
                     r.put("result", queryResult);
@@ -259,7 +266,6 @@ class SQLiteAndroidDatabase
                     batchResults.put(r);
                 } else {
                     JSONObject r = new JSONObject();
-                    r.put("qid", query_id);
                     r.put("type", "error");
 
                     JSONObject er = new JSONObject();
@@ -274,12 +280,10 @@ class SQLiteAndroidDatabase
                 // TODO what to do?
             }
         }
-
-        cbc.success(batchResults);
     }
 
-    private int countRowsAffectedCompat(QueryType queryType, String query, JSONArray[] jsonparams,
-                                         SQLiteDatabase mydb, int i) throws JSONException {
+    private final int countRowsAffectedCompat(QueryType queryType, String query, JSONArray json_params,
+                                         SQLiteDatabase mydb) throws JSONException {
         // quick and dirty way to calculate the rowsAffected in pre-Honeycomb.  just do a SELECT
         // beforehand using the same WHERE clause. might not be perfect, but it's better than nothing
         Matcher whereMatcher = WHERE_CLAUSE.matcher(query);
@@ -304,9 +308,9 @@ class SQLiteAndroidDatabase
 
         JSONArray subParams = null;
 
-        if (jsonparams != null) {
+        if (json_params != null) {
             // only take the last n of every array of sqlArgs
-            JSONArray origArray = jsonparams[i];
+            JSONArray origArray = json_params;
             subParams = new JSONArray();
             int startPos = origArray.length() - numQuestionMarks;
             for (int j = startPos; j < origArray.length(); j++) {
@@ -373,9 +377,8 @@ class SQLiteAndroidDatabase
      * @param cur Cursor into query results
      * @return results in string form
      */
-    private JSONObject executeSqlStatementQuery(SQLiteDatabase mydb,
-                                                String query, JSONArray paramsAsJson,
-                                                CallbackContext cbc) throws Exception {
+    private JSONObject executeSqlStatementQuery(SQLiteDatabase mydb, String query,
+                                                JSONArray paramsAsJson) throws Exception {
         JSONObject rowsResult = new JSONObject();
 
         Cursor cur = null;
