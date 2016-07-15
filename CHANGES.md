@@ -1,5 +1,9 @@
 # Changes
 
+### cordova-sqlite-storage 1.4.6-pre1
+
+- Fix Windows 10 ARM Release Build of SQLite3 by disabling SDL check (ARM Release only)
+
 ### cordova-sqlite-storage 1.4.5
 
 - Log/error message fixes; remove extra qid from internal JSON interface
