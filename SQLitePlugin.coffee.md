@@ -12,7 +12,7 @@
 
 ## constant(s):
 
-    READ_ONLY_REGEX = /^(\s|;)*(?:drop|delete|insert|update|create)\s/i
+    READ_ONLY_REGEX = /^(\s|;)*(?:alter|create|delete|drop|insert|reindex|replace|update)/i
 
     # per-db state
     DB_STATE_INIT = "INIT"

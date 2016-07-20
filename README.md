@@ -142,7 +142,7 @@ Some other projects by [@brodybits](https://github.com/brodybits):
 - When a database is opened and deleted without closing, the iOS version is known to leak resources.
 - It is NOT possible to open multiple databases with the same name but in different locations (iOS version).
 - Incorrect or missing insertId/rowsAffected in results for INSERT/UPDATE/DELETE SQL statements with extra semicolon(s) in the beginning for Android in case the `androidDatabaseImplementation: 2` (built-in android.database implementation) option is used.
-- Within a readTransaction the plugin executes SQL write statements that start with extra semicolon(s).
+- FIXED: ~~Within a readTransaction the plugin executes SQL write statements that start with extra semicolon(s).~~
 - Unlike the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/) this plugin handles executeSql calls with too few parameters without error reporting and the iOS version handles executeSql calls with too many parameters without error reporting.
 
 ## Other limitations

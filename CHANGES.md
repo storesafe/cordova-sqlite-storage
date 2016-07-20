@@ -1,7 +1,8 @@
 # Changes
 
-### cordova-sqlite-storage 1.4.6-pre2
+### cordova-sqlite-storage 1.4.6-pre3
 
+- Fix readTransaction to reject ALTER, REINDEX, and REPLACE operations
 - Fix Windows 10 ARM Release Build of SQLite3 by disabling SDL check (ARM Release only)
 - Fix Windows 8.1/Windows Phone 8.1 Release Build of SQLite3 by disabling SDL check
 
