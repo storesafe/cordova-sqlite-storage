@@ -261,7 +261,7 @@ To verify that both the Javascript and native part of this plugin are installed 
 window.sqlitePlugin.echoTest(successCallback, errorCallback);
 ```
 
-To verify that this plugin is able to open, populate, read, update, and delete a test database (named `___$$$___litehelpers___$$$___test___$$$___.db`) properly:
+To verify that this plugin is able to open a database, (named `___$$$___litehelpers___$$$___test___$$$___.db`), execute the CRUD (create, read, update, and delete) operations, and clean it up properly:
 
 ```js
 window.sqlitePlugin.selfTest(successCallback, errorCallback);
