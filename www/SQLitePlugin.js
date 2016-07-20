@@ -405,20 +405,21 @@
     handlerFor = function(index, didSucceed) {
       return function(response) {
         var err, error1;
-        try {
-          if (didSucceed) {
-            tx.handleStatementSuccess(batchExecutes[index].success, response);
-          } else {
-            tx.handleStatementFailure(batchExecutes[index].error, newSQLError(response));
-          }
-        } catch (error1) {
-          err = error1;
-          if (!txFailure) {
+        if (!txFailure) {
+          try {
+            if (didSucceed) {
+              tx.handleStatementSuccess(batchExecutes[index].success, response);
+            } else {
+              tx.handleStatementFailure(batchExecutes[index].error, newSQLError(response));
+            }
+          } catch (error1) {
+            err = error1;
             txFailure = newSQLError(err);
           }
         }
         if (--waiting === 0) {
           if (txFailure) {
+            tx.executes = [];
             tx.abort(txFailure);
           } else if (tx.executes.length > 0) {
             tx.run();

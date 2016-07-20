@@ -1,7 +1,8 @@
 # Changes
 
-### cordova-sqlite-storage 1.4.6-pre4
+### cordova-sqlite-storage 1.4.6-pre5
 
+- Stop remaining transaction callback in case of an error with no error handler returning false
 - Expand selfTest function to cover CRUD with unique record keys
 - Fix readTransaction to reject ALTER, REINDEX, and REPLACE operations
 - Fix Windows 10 ARM Release Build of SQLite3 by disabling SDL check (ARM Release only)

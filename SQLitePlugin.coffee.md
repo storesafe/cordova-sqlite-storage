@@ -442,17 +442,19 @@
 
       handlerFor = (index, didSucceed) ->
         (response) ->
-          try
-            if didSucceed
-              tx.handleStatementSuccess batchExecutes[index].success, response
-            else
-              tx.handleStatementFailure batchExecutes[index].error, newSQLError(response)
-          catch err
-            if !txFailure
+          if !txFailure
+            try
+              if didSucceed
+                tx.handleStatementSuccess batchExecutes[index].success, response
+              else
+                tx.handleStatementFailure batchExecutes[index].error, newSQLError(response)
+            catch err
+              # NOTE: txFailure is expected to be null at this point.
               txFailure = newSQLError(err)
 
           if --waiting == 0
             if txFailure
+              tx.executes = []
               tx.abort txFailure
             else if tx.executes.length > 0
               # new requests have been issued by the callback

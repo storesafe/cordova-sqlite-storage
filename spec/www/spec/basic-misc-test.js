@@ -389,11 +389,9 @@ var mytests = function() {
       describe(scenarioList[i] + ': basic tx error semantics test(s)', function() {
 
         /* found due to investigation of litehelpers/Cordova-sqlite-storage#226: */
-        it(suiteName + 'SKIP SQL CALLBACKS after syntax error with no handler (REPRODUCE BUG in plugin)', function(done) {
+        it(suiteName + 'SKIP SQL CALLBACKS after syntax error with no handler', function(done) {
           var db = openDatabase('first-syntax-error-with-no-handler.db', '1.0', 'Test', DEFAULT_SIZE);
           expect(db).toBeDefined();
-
-          var isExtraErrorHandlerCalled = false; // poor man's spy
 
           db.transaction(function(tx) {
             expect(tx).toBeDefined();
@@ -403,16 +401,14 @@ var mytests = function() {
             // This insertion has a sql syntax error-which is not handled:
             tx.executeSql('insert into tt (data) VALUES ', [123]);
 
-            // SKIPPED by Web SQL:
+            // SKIPPED by Web SQL and this plugin:
             // SECOND insertion with syntax error in transaction
             tx.executeSql('insert into tt (data) VALUES ', [456], function(tx, res) {
               // NOT EXPECTED:
               expect(false).toBe(true);
             }, function(err) {
-              // [BUG REPRODUCED] ACTUAL for plugin only
-              //expect(false).toBe(true);
-              if (isWebSql) expect('NOT EXPECTED for Web SQL').toBe('--');
-              isExtraErrorHandlerCalled = true;
+              // NOT EXPECTED:
+              expect(false).toBe(true);
               // TRY to RECOVER:
               return false;
             });
@@ -420,7 +416,6 @@ var mytests = function() {
           }, function(err) {
             // EXPECTED RESULT:
             expect(true).toBe(true);
-            if (!isWebSql && !isExtraErrorHandlerCalled) expect('PLUGIN FIXED please update this test').toBe('--');
             // Close (plugin only) & finish:
             (isWebSql) ? done() : db.close(done, done);
 
@@ -433,12 +428,11 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         /* found due to investigation of litehelpers/Cordova-sqlite-storage#226: */
-        it(suiteName + 'SKIP SQL CALLBACKS after syntax error handler returns true (REPRODUCE BUG in plugin)', function(done) {
+        it(suiteName + 'SKIP SQL CALLBACKS after syntax error handler returns true', function(done) {
           var db = openDatabase('first-syntax-error-handler-returns-true.db', '1.0', 'Test', DEFAULT_SIZE);
           expect(db).toBeDefined();
 
           var isFirstErrorHandlerCalled = false; // poor man's spy
-          var isSecondErrorHandlerCalled = false;
 
           db.transaction(function(tx) {
             expect(tx).toBeDefined();
@@ -457,16 +451,14 @@ var mytests = function() {
               return true;
             });
 
-            // SKIPPED by Web SQL:
+            // SKIPPED by Web SQL and this plugin:
             // SECOND insertion with syntax error with handler that signals explicit recovery
             tx.executeSql('insert into tt (data) VALUES ', [456], function(tx, res) {
               // NOT EXPECTED:
               expect(false).toBe(true);
             }, function(err) {
-              // [BUG REPRODUCED] ACTUAL for plugin only
-              //expect(false).toBe(true);
-              if (isWebSql) expect('NOT EXPECTED for Web SQL').toBe('--');
-              isSecondErrorHandlerCalled = true;
+              // NOT EXPECTED:
+              expect(false).toBe(true);
               // explicit recovery:
               return false;
             });
@@ -475,7 +467,6 @@ var mytests = function() {
             // EXPECTED RESULT:
             expect(true).toBe(true);
             expect(isFirstErrorHandlerCalled).toBe(true);
-            if (!isWebSql && !isSecondErrorHandlerCalled) expect('PLUGIN FIXED please update this test').toBe('--');
             // Close (plugin only) & finish:
             (isWebSql) ? done() : db.close(done, done);
 
@@ -592,16 +583,14 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'STOP nested transaction if syntax error handler returns true (REPRODUCE BUG in plugin)', function(done) {
+        it(suiteName + 'STOP nested transaction if syntax error handler returns true', function(done) {
           var db = openDatabase('stop-nested-tx-if-syntax-error-handler-returns-true.db', '1.0', 'Test', DEFAULT_SIZE);
           expect(db).toBeDefined();
 
           // poor man's spy:
           var isFirstSuccessHandlerCalled = false;
           var isFirstErrorHandlerCalled = false;
-          var isExtraSuccessHandlerCalled = false;
           var isFirstNestedErrorHandlerCalled = false;
-          var isExtraNestedSuccessHandlerCalled = false;
 
           db.transaction(function(tx) {
             tx.executeSql('SELECT 1', [], function(tx, res) {
@@ -609,15 +598,13 @@ var mytests = function() {
               expect(true).toBe(true);
               isFirstSuccessHandlerCalled = true;
 
-              // FIRST NESTED:
+              // NESTED:
               tx.executeSql('SELCT 1', [], function(tx, res) {
                 // NOT EXPECTED:
                 expect(false).toBe(true);
               }, function(err) {
-                // ACTUAL RESULT for plugin ONLY:
-                //expect(false).toBe(true);
-                if (isWebSql) expect('NOT EXPECTED for Web SQL').toBe('--');
-                isFirstNestedErrorHandlerCalled = true;
+                // NOT EXPECTED:
+                expect(false).toBe(true);
                 // TRY to RECOVER in NESTED:
                 return true;
               });
@@ -640,24 +627,10 @@ var mytests = function() {
               return true;
             });
 
-            // SKIPPED by Web SQL:
+            // SKIPPED by Web SQL and this plugin:
             tx.executeSql('SELECT 1', [], function(tx, res) {
-              // ACTUAL RESULT for plugin ONLY:
-              //expect(false).toBe(true);
-              if (isWebSql) expect('NOT EXPECTED for Web SQL').toBe('--');
-              isExtraSuccessHandlerCalled = true;
-
-              // ACTUAL: EXTRA NESTED (ACTUAL for plugin only):
-              tx.executeSql('SELECT 1', [], function(tx, res) {
-                // ACTUAL RESULT for plugin ONLY:
-                //expect(false).toBe(true);
-                if (isWebSql) expect('NOT EXPECTED for Web SQL').toBe('--');
-                isExtraNestedSuccessHandlerCalled = true;
-              }, function(err) {
-                // NOT EXPECTED - error callback for SECOND nested:
-                expect(false).toBe(true);
-              });
-
+              // NOT EXPECTED:
+              expect(false).toBe(true);
             }, function(err) {
               // NOT EXPECTED:
               expect(false).toBe(true);
@@ -668,9 +641,6 @@ var mytests = function() {
             // EXPECTED RESULT:
             expect(true).toBe(true);
             expect(isFirstErrorHandlerCalled).toBe(true);
-            if (!isWebSql && !isExtraSuccessHandlerCalled) expect('PLUGIN FIXED please update this test').toBe('--');
-            if (!isWebSql && !isExtraNestedSuccessHandlerCalled) expect('PLUGIN FIXED please update this test').toBe('--');
-            if (!isWebSql && !isExtraNestedSuccessHandlerCalled) expect('PLUGIN FIXED please update this test').toBe('--');
             // Close (plugin only) & finish:
             (isWebSql) ? done() : db.close(done, done);
 
