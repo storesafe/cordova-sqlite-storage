@@ -1,6 +1,6 @@
 # Changes
 
-### cordova-sqlite-storage 1.4.6-pre5
+### cordova-sqlite-storage 1.4.6-pre6a
 
 - Stop remaining transaction callback in case of an error with no error handler returning false
 - Expand selfTest function to cover CRUD with unique record keys
