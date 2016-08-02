@@ -10,6 +10,12 @@ License for iOS version: MIT only
 |-----------------------|----------------------|
 |[![Circle CI](https://circleci.com/gh/litehelpers/Cordova-sqlite-storage.svg?style=svg)](https://circleci.com/gh/litehelpers/Cordova-sqlite-storage)|[![Build Status](https://travis-ci.org/litehelpers/Cordova-sqlite-storage.svg)](https://travis-ci.org/litehelpers/Cordova-sqlite-storage)|
 
+## About this version
+
+This is the common version which supports the most widely used features and serves as the basis for the other versions.
+
+<!-- END About this version -->
+
 ## Professional services available
 
 The following professional services are available for this project:
@@ -43,7 +49,7 @@ document.addEventListener('deviceready', function() {
 });
 ```
 
-**IMPORTANT:** Like with the other Cordova plugins you must wait for the `deviceready` event. This is especially tricky in Angular/ngCordova/Ionic controller/factory/service callbacks which may be triggered before the 'deviceready' event is fired.
+**IMPORTANT:** As with the other Cordova plugins you must wait for the `deviceready` event. This is especially tricky in Angular/ngCordova/Ionic controller/factory/service callbacks which may be triggered before the `deviceready` event is fired.
 
 To populate a database using the standard transaction API:
 
@@ -126,7 +132,7 @@ See the [Sample section](#sample) for a sample with a more detailed explanation.
 
 ## Announcements
 
-- The [brodybits / Cordova-sqlite-bootstrap-starter-test](https://github.com/brodybits/Cordova-sqlite-bootstrap-starter-test) project is a CC0 (public domain) starting point to reproduce issues with this plugin and may be used as a quick way to start developing a new app.
+- The [brodybits / Cordova-sqlite-bootstrap-test](https://github.com/brodybits/Cordova-sqlite-bootstrap-test) project is a CC0 (public domain) starting point to reproduce issues with this plugin and may be used as a quick way to start developing a new app.
 - New [litehelpers / Cordova-sqlite-evcore-extbuild-free](https://github.com/litehelpers/Cordova-sqlite-evcore-extbuild-free) version with Android JSON and SQL statement handling implemented in C, as well as support for PhoneGap Build, available with GPL or commercial license options. Handles large SQL batches in less than half the time as this version.
 - Windows 8.1/Windows Phone 8.1/Windows 10 version is available **here** as well as in [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) (with pre-populated database support) and [litehelpers / Cordova-sqlite-legacy-build-support](https://github.com/litehelpers/Cordova-sqlite-legacy-build-support) (with WP8 support).
 - Published [brodybits / Cordova-quick-start-checklist](https://github.com/brodybits/Cordova-quick-start-checklist) and [brodybits / Avoiding-some-Cordova-pitfalls](https://github.com/brodybits/Avoiding-some-Cordova-pitfalls).
@@ -168,7 +174,7 @@ See the [Sample section](#sample) for a sample with a more detailed explanation.
 - Install a recent version of Cordova CLI, create a simple app with no plugins, and run it on the desired target platforms.
 - Add a very simple plugin such as `cordova-plugin-dialogs` or an echo plugin and get it working. Ideally you should be able to handle a callback with some data coming from a prompt.
 
-These prereqisites are very well documented by a number of excellent resources including:
+These prereqisites are very well documented in a number of excellent resources including:
 - <http://cordova.apache.org/> (redirected from <http://cordova.io>)
 - <http://www.tutorialspoint.com/cordova/>
 - <https://ccoenraets.github.io/cordova-tutorial/>
@@ -255,9 +261,13 @@ document.addEventListener('deviceready', function() {
 
 It is recommended to read through the [usage](#usage) and [sample](#sample) sections before building more complex applications. In general it is recommended to start by doing things one step at a time, especially when an application does not work as expected.
 
-The new [brodybits / Cordova-sqlite-bootstrap-starter-test](https://github.com/brodybits/Cordova-sqlite-bootstrap-starter-test) sample is intended to be a boilerplate to reproduce and demonstrate any issues you may have with this plugin. You may also use it as a starting point to build a new app.
+The new [brodybits / Cordova-sqlite-bootstrap-test](https://github.com/brodybits/Cordova-sqlite-bootstrap-test) sample is intended to be a boilerplate to reproduce and demonstrate any issues you may have with this plugin. You may also use it as a starting point to build a new app.
 
 In case you get stuck with something please read through the [support](#support) section and follow the instructions before raising an issue. Professional support is also available by contacting: <sales@litehelpers.net>
+
+### SQLite resources
+
+- <http://www.tutorialspoint.com/sqlite/index.htm> with a number of helpful articles
 
 ### Some other Cordova resources
 
@@ -304,6 +314,8 @@ In case you get stuck with something please read through the [support](#support)
 - Incorrect or missing insertId/rowsAffected in results for INSERT/UPDATE/DELETE SQL statements with extra semicolon(s) in the beginning for Android in case the `androidDatabaseImplementation: 2` (built-in android.database implementation) option is used.
 - Unlike the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/) this plugin handles executeSql calls with too few parameters without error reporting and the iOS version handles executeSql calls with too many parameters without error reporting.
 
+Some more known issues are tracked in the [open Cordova-sqlite-storage bugs](https://github.com/litehelpers/Cordova-sqlite-storage/issues?q=is%3Aissue+is%3Aopen+label%3Abug).
+
 <!-- END Known issues -->
 
 ## Other limitations
@@ -327,6 +339,8 @@ In case you get stuck with something please read through the [support](#support)
 - Problems have been reported when using this plugin with Crosswalk (for Android). It may help to install Crosswalk as a plugin instead of using Crosswalk to create the project.
 - Does not work with [axemclion / react-native-cordova-plugin](https://github.com/axemclion/react-native-cordova-plugin) since the `window.sqlitePlugin` object is *not* properly exported (ES5 feature). It is recommended to use [andpor / react-native-sqlite-storage](https://github.com/andpor/react-native-sqlite-storage) for SQLite database access with React Native Android/iOS instead.
 
+Some more limitations are tracked in the [open Cordova-sqlite-storage bugs](https://github.com/litehelpers/Cordova-sqlite-storage/issues?q=is%3Aissue+is%3Aopen+label%3Abug).
+
 <!-- END Other limitations -->
 
 ## Further testing needed
@@ -338,7 +352,7 @@ In case you get stuck with something please read through the [support](#support)
 - Actual behavior when using SAVEPOINT(s)
 - R-Tree is not fully tested with Android
 - UNICODE characters not fully tested
-- Use with TRIGGER(s), JOIN and ORDER BY RANDOM
+- ORDER BY random() (ref: [litehelpers/Cordova-sqlite-storage#334](https://github.com/litehelpers/Cordova-sqlite-storage/issues/334))
 - UPDATE/DELETE with LIMIT or ORDER BY (newer Android/iOS versions)
 - Integration with JXCore for Cordova (must be built without sqlite(3) built-in)
 - Delete an open database inside a statement or transaction callback.
@@ -384,8 +398,9 @@ Documented in: [brodybits / Avoiding-some-Cordova-pitfalls](https://github.com/b
 - Integrate with IndexedDBShim and some other libraries such as Sequelize, Squel.js, WebSqlSync, Persistence.js, Knex, etc.
 - Version with proper BLOB support
 - Further cleanup of [support](#support) section
-- Improve [brodybits / Cordova-sqlite-bootstrap-starter-test](https://github.com/brodybits/Cordova-sqlite-bootstrap-starter-test) to be a better app template
+- Improve [brodybits / Cordova-sqlite-bootstrap-test](https://github.com/brodybits/Cordova-sqlite-bootstrap-test) to be a better app template
 - Add starter project with pre-populated database
+- Resolve or document remaining [open Cordova-sqlite-storage bugs](https://github.com/litehelpers/Cordova-sqlite-storage/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
 - Resolve [open Cordova-sqlite-storage documentation issues](https://github.com/litehelpers/Cordova-sqlite-storage/issues?q=is%3Aissue+is%3Aopen+label%3Adocumentation)
 
 ## For future considertion
@@ -608,6 +623,8 @@ The following types of SQL transactions are supported by this version:
 - Single-statement transactions
 - SQL batch query transactions
 - Standard asynchronous transactions
+
+**NOTE:** Transaction requests are kept in one queue per database and executed in sequential order, according to the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
 
 ### Single-statement transactions
 
@@ -983,19 +1000,6 @@ You can find some more details in a nice writeup (though with old links and pack
 
 <!-- END Plugin installation sources -->
 
-## Source tree
-
-- `SQLitePlugin.coffee.md`: platform-independent (Literate coffee-script, can be read by recent coffee-script compiler)
-- `www`: platform-independent Javascript as generated from `SQLitePlugin.coffee.md` (and committed!)
-- `src`: platform-specific source code
-- `node_modules`: placeholder for external dependencies
-- `scripts`: installation hook script to fetch the external dependencies via `npm`
-- `spec`: test suite using Jasmine (`2.4.1`)
-- `tests`: very simple Jasmine test suite that is run on Circle CI (Android version) and Travis CI (iOS version) (used as a placeholder)
-- `Lawnchair-adapter`: Lawnchair adaptor, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
-
-<!-- END Source tree -->
-
 ## Installation test
 
 ### Easy installation test
@@ -1034,7 +1038,7 @@ For more information: <http://litehelpers.net/>
 
 First steps:
 - Verify that you have followed the steps in [brodybits / Cordova-quick-start-checklist](https://github.com/brodybits/Cordova-quick-start-checklist)
-- Try the new self-test functions as described above
+- Try the self-test functions as described above
 - Check the pitfalls and troubleshooting steps in the [pitfalls](#pitfalls) section and [brodybits / Avoiding-some-Cordova-pitfalls](https://github.com/brodybits/Avoiding-some-Cordova-pitfalls) for possible troubleshooting
 
 and check the following:
@@ -1044,7 +1048,7 @@ and check the following:
 - You have registered the plugin properly in `config.xml`.
 
 If you still cannot get something to work:
-- create a fresh, clean Cordova project, ideally based on [brodybits / Cordova-sqlite-bootstrap-starter-test](https://github.com/brodybits/Cordova-sqlite-bootstrap-starter-test);
+- create a fresh, clean Cordova project, ideally based on [brodybits / Cordova-sqlite-bootstrap-test](https://github.com/brodybits/Cordova-sqlite-bootstrap-test);
 - add this plugin according to the instructions above;
 - double-check that you follwed the steps in [brodybits / Cordova-quick-start-checklist](https://github.com/brodybits/Cordova-quick-start-checklist);
 - try a simple test program;
@@ -1054,20 +1058,20 @@ If you still cannot get something to work:
 
 General: As documented above with a negative example the application must wait for the AJAX query to finish before starting a transaction and adding the data elements.
 
-In case of issues *it is recommended to* rework the reproduction program insert the data from a JavaScript object after a delay. There is already a test function for this in [brodybits / Cordova-sqlite-bootstrap-starter-test](https://github.com/brodybits/Cordova-sqlite-bootstrap-starter-test).
+In case of issues *it is recommended to* rework the reproduction program insert the data from a JavaScript object after a delay. There is already a test function for this in [brodybits / Cordova-sqlite-bootstrap-test](https://github.com/brodybits/Cordova-sqlite-bootstrap-test).
 
 FUTURE TBD examples
 
 ## Test program to seek help
 
-If you continue to see the issue: please make the simplest test program possible based on [brodybits / Cordova-sqlite-bootstrap-starter-test](https://github.com/brodybits/Cordova-sqlite-bootstrap-starter-test) to demonstrate the issue with the following characteristics:
+If you continue to see the issue: please make the simplest test program possible based on [brodybits / Cordova-sqlite-bootstrap-test](https://github.com/brodybits/Cordova-sqlite-bootstrap-test) to demonstrate the issue with the following characteristics:
   - it completely self-contained, i.e. it is using no extra libraries beyond cordova & SQLitePlugin.js;
   - if the issue is with *adding* data to a table, that the test program includes the statements you used to open the database and create the table;
   - if the issue is with *retrieving* data from a table, that the test program includes the statements you used to open the database, create the table, and enter the data you are trying to retrieve.
 
 ## What will be supported for free
 
-It is *recommended* to make a small, self-contained test program based on [brodybits / Cordova-sqlite-bootstrap-starter-test](https://github.com/brodybits/Cordova-sqlite-bootstrap-starter-test) that can demonstrate your problem and post it. Please do not use any other plugins or frameworks than are absolutely necessary to demonstrate your problem.
+It is *recommended* to make a small, self-contained test program based on [brodybits / Cordova-sqlite-bootstrap-test](https://github.com/brodybits/Cordova-sqlite-bootstrap-test) that can demonstrate your problem and post it. Please do not use any other plugins or frameworks than are absolutely necessary to demonstrate your problem.
 
 In case of a problem with a pre-populated database, please post your entire project.
 
@@ -1084,7 +1088,7 @@ Professional support is available for use with Ionic and other forms of ngCordov
 Please include the following:
 - Which platform(s) Android/iOS/Windows 8.1/Windows Phone 8.1/Windows 10
 - Clear description of the issue
-- A small, complete, self-contained program that demonstrates the problem, preferably as a Github project, based on [brodybits / Cordova-sqlite-bootstrap-starter-test](https://github.com/brodybits/Cordova-sqlite-bootstrap-starter-test). ZIP/TGZ/BZ2 archive available from a public link is OK. No RAR or other such formats please!
+- A small, complete, self-contained program that demonstrates the problem, preferably as a Github project, based on [brodybits / Cordova-sqlite-bootstrap-test](https://github.com/brodybits/Cordova-sqlite-bootstrap-test). ZIP/TGZ/BZ2 archive available from a public link is OK. No RAR or other such formats please!
 
 ## Please do NOT use any of these formats
 
@@ -1358,6 +1362,19 @@ function closeDB() {
 ```
 
 <!-- END Sample -->
+
+## Source tree
+
+- `SQLitePlugin.coffee.md`: platform-independent (Literate coffee-script, can be read by recent coffee-script compiler)
+- `www`: platform-independent Javascript as generated from `SQLitePlugin.coffee.md` (and committed!)
+- `src`: platform-specific source code
+- `node_modules`: placeholder for external dependencies
+- `scripts`: installation hook script to fetch the external dependencies via `npm`
+- `spec`: test suite using Jasmine (`2.4.1`)
+- `tests`: very simple Jasmine test suite that is run on Circle CI (Android version) and Travis CI (iOS version) (used as a placeholder)
+- `Lawnchair-adapter`: Lawnchair adaptor, based on the version from the Lawnchair repository, with the basic Lawnchair test suite in `test-www` subdirectory
+
+<!-- END Source tree -->
 
 # Contributing
 

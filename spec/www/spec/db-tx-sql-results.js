@@ -27,11 +27,11 @@ var mytests = function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
       var isWebSql = (i === 1);
-      var isOldImpl = (i === 2);
+      var isImpl2 = (i === 2);
 
       // NOTE: MUST be defined in function scope, NOT outer scope:
       var openDatabase = function(name, ignored1, ignored2, ignored3) {
-        if (isOldImpl) {
+        if (isImpl2) {
           return window.sqlitePlugin.openDatabase({
             // prevent reuse of database from default db implementation:
             name: 'i2-'+name,
@@ -495,11 +495,9 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'tx sql starting with extra semicolon results test', function(done) {
+          // XXX [BUG #458] BROKEN for android.database & WP8
           if (isWP8) pending('BROKEN for WP8');
-
-          // XXX [BUG #458] BROKEN for android.database
-          // NOTE: This is NOT broken when using Android-sqlite-connector
-          if (isAndroid && !isWebSql) pending('SKIP for Android version of plugin');
+          if (isAndroid && isImpl2) pending('BROKEN for android.database implementation');
 
           var db = openDatabase('tx-sql-starting-with-extra-semicolon-results-test.db', '1.0', 'Test', DEFAULT_SIZE);
 
@@ -729,6 +727,208 @@ var mytests = function() {
             // Close (plugin only) & finish:
             (isWebSql) ? done() : db.close(done, done);
           });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'INSERT with SELECT', function(done) {
+          if (isAndroid && isImpl2) pending('BUG with android.database implementation');
+
+          var db = openDatabase('INSERT-with-SELECT-test.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS tt1;');
+            tx.executeSql('DROP TABLE IF EXISTS tt2;');
+
+            tx.executeSql('CREATE TABLE tt1 (data);');
+            tx.executeSql('CREATE TABLE tt2 (data);');
+
+            tx.executeSql('INSERT INTO tt1 VALUES (?)', ['test-value-1']);
+            tx.executeSql('INSERT INTO tt1 VALUES (?)', ['test-value-2']);
+
+            // THANKS for GUIDANCE: http://www.tutorialspoint.com/sqlite/sqlite_insert_query.htm
+            tx.executeSql('INSERT INTO tt2 SELECT data FROM tt1;', [], function(ignored1, rs1) {
+              // EXPECTED: CORRECT RESULT:
+              expect(rs1).toBeDefined();
+              expect(rs1.insertId).toBeDefined();
+              expect(rs1.rowsAffected).toBeDefined();
+              if (!(isAndroid && isImpl2))
+                expect(rs1.rowsAffected).toBe(2);
+
+              tx.executeSql('SELECT * FROM tt2', [], function(ignored, rs2) {
+                // EXPECTED: CORRECT RESULT:
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(2);
+                expect(rs2.rows.item(0).data).toBe('test-value-1');
+                expect(rs2.rows.item(1).data).toBe('test-value-2');
+
+                // Close (plugin only - always the case in this test) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+            });
+          }, function(e) {
+            // ERROR RESULT (NOT EXPECTED):
+            expect(false).toBe(true);
+            expect(e).toBeDefined();
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'INSERT with TRIGGER', function(done) {
+          if (isAndroid && isImpl2) pending('BUG with android.database implementation');
+          if (isWP8) pending('SKIP (NOT SUPPORTED) for WP8'); // NOT SUPPORTED for WP8
+
+          var db = openDatabase('INSERT-with-TRIGGER-test.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS tt1;');
+            tx.executeSql('DROP TABLE IF EXISTS tt2;');
+
+            tx.executeSql('CREATE TABLE tt1 (data);');
+            tx.executeSql('CREATE TABLE tt2 (data);');
+
+            // THANKS for GUIDANCE: http://www.tutorialspoint.com/sqlite/sqlite_triggers.htm
+            tx.executeSql("CREATE TRIGGER t1 AFTER INSERT ON tt1 BEGIN INSERT INTO tt2 VALUES(datetime('now')); END;");
+
+            tx.executeSql('INSERT INTO tt1 VALUES (?)', ['test-value'], function(ignored1, rs1) {
+              // EXPECTED: CORRECT RESULT:
+              expect(rs1).toBeDefined();
+              expect(rs1.insertId).toBeDefined();
+              expect(rs1.rowsAffected).toBeDefined();
+              if (!(isAndroid && isImpl2))
+                expect(rs1.rowsAffected).toBe(2);
+
+              tx.executeSql('SELECT count(*) AS cnt FROM tt2', [], function(ignored, rs2) {
+                // EXPECTED: CORRECT RESULT:
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+                expect(rs2.rows.item(0).cnt).toBeDefined();
+                expect(rs2.rows.item(0).cnt).toBe(1);
+
+                // Close (plugin only - always the case in this test) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+            });
+          }, function(e) {
+            // ERROR RESULT (NOT EXPECTED):
+            expect(false).toBe(true);
+            expect(e).toBeDefined();
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'ALTER TABLE ADD COLUMN test', function(done) {
+          var createdb = openDatabase('ALTER-TABLE-ADD-COLUMN-test.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          createdb.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS TestTable;');
+            tx.executeSql('CREATE TABLE TestTable (data1);');
+
+            tx.executeSql('INSERT INTO TestTable VALUES (?)', ['test-value-1']);
+          }, function(e) {
+            // ERROR RESULT (NOT EXPECTED):
+            expect(false).toBe(true);
+            expect(e).toBeDefined();
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : createdb.close(done, done);
+          }, function() {
+            if (isWebSql) {
+              addColumnTest();
+            } else {
+              createdb.close(addColumnTest, function(e) {
+                // ERROR RESULT (NOT EXPECTED):
+                expect(false).toBe(true);
+                expect(e).toBeDefined();
+              });
+            }
+          });
+
+          function addColumnTest() {
+            var db = openDatabase('ALTER-TABLE-ADD-COLUMN-test.db', '1.0', 'Test', DEFAULT_SIZE);
+
+            db.transaction(function(tx) {
+              tx.executeSql('ALTER TABLE TestTable ADD COLUMN data2;');
+              tx.executeSql('UPDATE TestTable SET data2=?;', ['test-value-2']);
+
+              tx.executeSql('SELECT * FROM TestTable', [], function(ignored, resultSet) {
+                // EXPECTED: CORRECT RESULT:
+                expect(resultSet).toBeDefined();
+                expect(resultSet.rows).toBeDefined();
+                expect(resultSet.rows.length).toBe(1);
+                expect(resultSet.rows.item(0).data1).toBe('test-value-1');
+                expect(resultSet.rows.item(0).data2).toBe('test-value-2');
+
+                // Close (plugin only - always the case in this test) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+            }, function(e) {
+              // ERROR RESULT (NOT EXPECTED):
+              expect(false).toBe(true);
+              expect(e).toBeDefined();
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }
+        }, MYTIMEOUT);
+
+        it(suiteName + 'ALTER TABLE RENAME test', function(done) {
+          var createdb = openDatabase('ALTER-TABLE-RENAME-test.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          createdb.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS TestTable;');
+            tx.executeSql('CREATE TABLE TestTable (data1);');
+
+            tx.executeSql('INSERT INTO TestTable VALUES (?)', ['test-value-1']);
+          }, function(e) {
+            // ERROR RESULT (NOT EXPECTED):
+            expect(false).toBe(true);
+            expect(e).toBeDefined();
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : createdb.close(done, done);
+          }, function() {
+            if (isWebSql) {
+              tableRenameTest();
+            } else {
+              createdb.close(tableRenameTest, function(e) {
+                // ERROR RESULT (NOT EXPECTED):
+                expect(false).toBe(true);
+                expect(e).toBeDefined();
+              });
+            }
+          });
+
+          function tableRenameTest() {
+            var db = openDatabase('ALTER-TABLE-RENAME-test.db', '1.0', 'Test', DEFAULT_SIZE);
+
+            db.transaction(function(tx) {
+              tx.executeSql('ALTER TABLE TestTable RENAME TO tt2;');
+
+              tx.executeSql('SELECT * FROM tt2', [], function(ignored, resultSet) {
+                // EXPECTED: CORRECT RESULT:
+                expect(resultSet).toBeDefined();
+                expect(resultSet.rows).toBeDefined();
+                expect(resultSet.rows.length).toBe(1);
+                expect(resultSet.rows.item(0).data1).toBe('test-value-1');
+
+                // Close (plugin only - always the case in this test) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+            }, function(e) {
+              // ERROR RESULT (NOT EXPECTED):
+              expect(false).toBe(true);
+              expect(e).toBeDefined();
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }
         }, MYTIMEOUT);
 
     });
