@@ -438,26 +438,24 @@
         error: handlerFor(i, false)
       };
       tropts.push({
+        qid: null,
         sql: request.sql,
         params: request.params
       });
       i++;
     }
     mycb = function(result) {
-      var q, r, res, reslength, type;
-      i = 0;
-      reslength = result.length;
-      while (i < reslength) {
-        r = result[i];
+      var j, q, r, ref, res, resultIndex, type;
+      for (resultIndex = j = 0, ref = result.length - 1; 0 <= ref ? j <= ref : j >= ref; resultIndex = 0 <= ref ? ++j : --j) {
+        r = result[resultIndex];
         type = r.type;
         res = r.result;
-        q = mycbmap[i];
+        q = mycbmap[resultIndex];
         if (q) {
           if (q[type]) {
             q[type](res);
           }
         }
-        ++i;
       }
     };
     cordova.exec(mycb, null, "SQLitePlugin", "backgroundExecuteSqlBatch", [

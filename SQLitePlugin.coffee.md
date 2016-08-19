@@ -433,10 +433,12 @@
 
       tropts = []
       batchExecutes = @executes
+
       # NOTE: If this is zero it will not work. Workaround is applied in the constructor.
       # FUTURE TBD: It would be better to fix the problem here.
       waiting = batchExecutes.length
       @executes = []
+
       # my tx object (this)
       tx = @
 
@@ -476,6 +478,7 @@
           error: handlerFor(i, false)
 
         tropts.push
+          qid: null # TBD NEEDED to pass @brodybits/Cordova-sql-test-app for some reason
           sql: request.sql
           params: request.params
 
@@ -484,20 +487,17 @@
       mycb = (result) ->
         #console.log "mycb result #{JSON.stringify result}"
 
-        i = 0
-        reslength = result.length
-        while i < reslength
-          r = result[i]
+        for resultIndex in [0 .. result.length-1]
+          r = result[resultIndex]
           type = r.type
+          # NOTE: r.qid can be ignored
           res = r.result
 
-          q = mycbmap[i]
+          q = mycbmap[resultIndex]
 
           if q
             if q[type]
               q[type] res
-
-          ++i
 
         return
 

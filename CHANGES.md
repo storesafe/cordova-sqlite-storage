@@ -1,5 +1,9 @@
 # Changes
 
+### cordova-sqlite-storage 1.4.7-pre1
+
+- Minor JavaScript fixes to pass @brodybits/Cordova-sql-test-app
+
 ### cordova-sqlite-storage 1.4.6
 
 - Stop remaining transaction callback in case of an error with no error handler returning false
