@@ -1,6 +1,6 @@
 # Changes
 
-### cordova-sqlite-storage 1.4.7-pre1
+### cordova-sqlite-storage 1.4.7
 
 - Minor JavaScript fixes to pass @brodybits/Cordova-sql-test-app
 

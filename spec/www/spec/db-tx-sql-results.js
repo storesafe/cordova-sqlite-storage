@@ -822,7 +822,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'ALTER TABLE ADD COLUMN test', function(done) {
-          var createdb = openDatabase('ALTER-TABLE-ADD-COLUMN-test.db', '1.0', 'Test', DEFAULT_SIZE);
+          var dbname = 'ALTER-TABLE-ADD-COLUMN-test.db';
+          var createdb = openDatabase(dbname, '1.0', 'Test', DEFAULT_SIZE);
 
           createdb.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS TestTable;');
@@ -849,7 +850,7 @@ var mytests = function() {
           });
 
           function addColumnTest() {
-            var db = openDatabase('ALTER-TABLE-ADD-COLUMN-test.db', '1.0', 'Test', DEFAULT_SIZE);
+            var db = openDatabase(dbname, '1.0', 'Test', DEFAULT_SIZE);
 
             db.transaction(function(tx) {
               tx.executeSql('ALTER TABLE TestTable ADD COLUMN data2;');
@@ -878,10 +879,12 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'ALTER TABLE RENAME test', function(done) {
-          var createdb = openDatabase('ALTER-TABLE-RENAME-test.db', '1.0', 'Test', DEFAULT_SIZE);
+          var dbname = 'ALTER-TABLE-RENAME-test.db';
+          var createdb = openDatabase(dbname, '1.0', 'Test', DEFAULT_SIZE);
 
           createdb.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS TestTable;');
+            tx.executeSql('DROP TABLE IF EXISTS tt2;');
             tx.executeSql('CREATE TABLE TestTable (data1);');
 
             tx.executeSql('INSERT INTO TestTable VALUES (?)', ['test-value-1']);
@@ -905,7 +908,7 @@ var mytests = function() {
           });
 
           function tableRenameTest() {
-            var db = openDatabase('ALTER-TABLE-RENAME-test.db', '1.0', 'Test', DEFAULT_SIZE);
+            var db = openDatabase(dbname, '1.0', 'Test', DEFAULT_SIZE);
 
             db.transaction(function(tx) {
               tx.executeSql('ALTER TABLE TestTable RENAME TO tt2;');
@@ -929,6 +932,32 @@ var mytests = function() {
               (isWebSql) ? done() : db.close(done, done);
             });
           }
+        }, MYTIMEOUT);
+
+        // FUTURE TODO more +/- INFINITY, NAN tests
+
+        it(suiteName + "SELECT abs('9e999') (Infinity) result test", function(done) {
+          if (isWP8) pending('SKIP for WP(8)');
+          if (isAndroid && !isWebSql) pending('SKIP for Android plugin');
+          if (!isWP8 && !isWindows && !isAndroid && !isWebSql) pending('SKIP for iOS plugin');
+
+          var db = openDatabase('Infinite-results-test.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql('SELECT abs(?) AS absResult', ['9e999'], function(tx, res) {
+              expect(res).toBeDefined();
+              expect(res.rows).toBeDefined();
+              expect(res.rows.length).toBe(1);
+              expect(res.rows.item(0).absResult).toBeDefined();
+              expect(res.rows.item(0).absResult).toBe(Infinity);
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          });
         }, MYTIMEOUT);
 
     });
