@@ -116,9 +116,6 @@ var mytests = function() {
         });
 
         test_it(suiteName + "constraint violation", function() {
-          if (isWindows) pending('BROKEN for Windows'); // XXX TODO
-          //if (isWindowsPhone_8_1) pending('BROKEN for Windows Phone 8.1'); // XXX TODO
-
           var db = openDatabase("Constraint-violation-test.db", "1.0", "Demo", DEFAULT_SIZE);
           ok(!!db, "db object");
 

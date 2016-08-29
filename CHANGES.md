@@ -1,5 +1,9 @@
 # Changes
 
+### cordova-sqlite-storage 1.4.8-pre1
+
+- Fix reporting of SQL processing errors in Windows version
+
 ### cordova-sqlite-storage 1.4.7
 
 - Minor JavaScript fixes to pass @brodybits/Cordova-sql-test-app
