@@ -1,6 +1,6 @@
 # Changes
 
-### cordova-sqlite-storage 1.4.8-pre1
+### cordova-sqlite-storage 1.4.8-pre2
 
 - Fix reporting of SQL processing errors in Windows version
 

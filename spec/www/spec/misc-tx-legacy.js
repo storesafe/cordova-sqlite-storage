@@ -55,11 +55,11 @@ var mytests = function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
       var isWebSql = (i === 1);
-      var isOldImpl = (i === 2);
+      var isImpl2 = (i === 2);
 
       // NOTE: MUST be defined in function scope, NOT outer scope:
       var openDatabase = function(name, ignored1, ignored2, ignored3) {
-        if (isOldImpl) {
+        if (isImpl2) {
           return window.sqlitePlugin.openDatabase({
             // prevent reuse of database from default db implementation:
             name: 'i2-'+name,
@@ -92,17 +92,26 @@ var mytests = function() {
               start();
               throw new Error('abort tx');
             }, function(tx, error) {
-              ok(!!error, "valid error object");
+              expect(error).toBeDefined();
+              expect(error.code).toBeDefined();
+              expect(error.message).toBeDefined();
 
-              // XXX ONLY WORKING for iOS version of plugin:
-              if (isWebSql || !(isAndroid || isWindows || isWP8))
-                ok(!!error['code'], "valid error.code exists");
+              // BROKEN on Windows/WP8:
+              if (!isWindows && !isWP8)
+                expect(error.code).toBe(5);
 
-              ok(error.hasOwnProperty('message'), "error.message exists");
-              // XXX ONLY WORKING for iOS version of plugin:
-              if (isWebSql || !(isAndroid || isWindows || isWP8))
-                strictEqual(error.code, 5, "error.code === SQLException.SYNTAX_ERR (5)");
-              //equal(error.message, "Request failed: insert into test_table (data) VALUES ,123", "error.message");
+              // BROKEN (INCONSISTENT) on Windows (OK on wp8 platform):
+              if (!isWindows)
+                expect(error.message).toMatch(/near .*\"*\"*:*syntax error/);
+
+              // From built-in Android database exception message:
+              if (!isWebSql && isAndroid && isImpl2)
+                expect(error.message).toMatch(/near .*\"*\"*:*syntax error.*code 1/);
+
+              // SQLite error code part of Web SQL error.message:
+              if (isWebSql)
+                expect(error.message).toMatch(/1 near .*\"*\"*:*syntax error/);
+
               start();
 
               // We want this error to fail the entire transaction
@@ -135,15 +144,31 @@ var mytests = function() {
               start();
               throw new Error('abort tx');
             }, function(tx, error) {
-              ok(!!error, "valid error object");
+              expect(error).toBeDefined();
+              expect(error.code).toBeDefined();
+              expect(error.message).toBeDefined();
 
-              // XXX ONLY WORKING for iOS version of plugin:
-              if (isWebSql || !(isAndroid || isWindows || isWP8))
-                ok(!!error['code'], "valid error.code exists");
+              // BROKEN on Windows/WP8:
+              if (!isWindows && !isWP8)
+                expect(error.code).toBe(6);
 
-              ok(error.hasOwnProperty('message'), "error.message exists");
-              //strictEqual(error.code, 6, "error.code === SQLException.CONSTRAINT_ERR (6)");
-              //equal(error.message, "Request failed: insert into test_table (data) VALUES (?),123", "error.message");
+              if (isWebSql) // WebSQL may have a missing 'r' (iOS):
+                expect(error.message).toMatch(/constr?aint fail/);
+              else if (!isWindows && !isWP8) // BROKEN (INCONSISTENT) on Windows/WP8
+                expect(error.message).toMatch(/constraint fail/);
+
+              // From built-in Android database exception message:
+              if (!isWebSql && isAndroid && isImpl2)
+                expect(error.message).toMatch(/not unique.*code 19/);
+
+              // SQLite error code part of Web SQL error.message (Android):
+              if (isWebSql && isAndroid)
+                expect(error.message).toMatch(/19 .*constraint fail/);
+
+              // SQLite error code part of Web SQL error.message (iOS):
+              if (isWebSql && !isAndroid)
+                expect(error.message).toMatch(/19 .*not unique/);
+
               start();
 
               // We want this error to fail the entire transaction
