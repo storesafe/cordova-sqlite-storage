@@ -23,6 +23,7 @@ test:
     - cp $SPEC_ROOT/spec/self-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/db-tx-string-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/db-tx-sql-results.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
+    - cp $SPEC_ROOT/spec/db-sql-operations-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/sql-batch-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/db-tx-sql-features-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp spec/www/spec/regexp-test.js tests/tests.js && cordova-paramedic --platform android --plugin . --timeout 3600000
@@ -31,5 +32,4 @@ test:
     - cp $SPEC_ROOT/spec/db-tx-error-handling-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/db-tx-value-bindings-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/ext-tx-blob-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
-    - cp $SPEC_ROOT/spec/misc-tx-legacy.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/db-open-close-delete-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
