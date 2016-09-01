@@ -7,7 +7,6 @@ var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 // FUTURE TODO replace in test(s):
 function ok(test, desc) { expect(test).toBe(true); }
 function equal(a, b, desc) { expect(a).toEqual(b); } // '=='
-function strictEqual(a, b, desc) { expect(a).toBe(b); } // '==='
 
 // XXX TODO REFACTOR OUT OF OLD TESTS:
 var wait = 0;
@@ -30,7 +29,6 @@ function start(n) {
   if (wait == 0) test_it_done();
 }
 
-var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 
@@ -45,189 +43,7 @@ var scenarioList = [
 
 var scenarioCount = (!!window.hasWebKitBrowser) ? (isAndroid ? 3 : 2) : 1;
 
-// XXX FUTURE TBD split this script further:
-
 var mytests = function() {
-
-  for (var i=0; i<scenarioCount; ++i) {
-
-    describe(scenarioList[i] + ': misc legacy tx test(s)', function() {
-      var scenarioName = scenarioList[i];
-      var suiteName = scenarioName + ': ';
-      var isWebSql = (i === 1);
-      var isImpl2 = (i === 2);
-
-      // NOTE: MUST be defined in function scope, NOT outer scope:
-      var openDatabase = function(name, ignored1, ignored2, ignored3) {
-        if (isImpl2) {
-          return window.sqlitePlugin.openDatabase({
-            // prevent reuse of database from default db implementation:
-            name: 'i2-'+name,
-            androidDatabaseImplementation: 2,
-            androidLockWorkaround: 1,
-            location: 1
-          });
-        }
-        if (isWebSql) {
-          return window.openDatabase(name, "1.0", "Demo", DEFAULT_SIZE);
-        } else {
-          return window.sqlitePlugin.openDatabase({name: name, location: 0});
-        }
-      }
-
-      describe(scenarioList[i] + ': error mapping test(s)', function() {
-
-        test_it(suiteName + "syntax error", function() {
-          var db = openDatabase("Syntax-error-test.db", "1.0", "Demo", DEFAULT_SIZE);
-          ok(!!db, "db object");
-
-          stop(2);
-          db.transaction(function(tx) {
-            tx.executeSql('DROP TABLE IF EXISTS test_table');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data unique)');
-
-            // This insertion has a sql syntax error
-            tx.executeSql("insert into test_table (data) VALUES ", [123], function(tx) {
-              ok(false, "unexpected success");
-              start();
-              throw new Error('abort tx');
-            }, function(tx, error) {
-              expect(error).toBeDefined();
-              expect(error.code).toBeDefined();
-              expect(error.message).toBeDefined();
-
-              // BROKEN on Windows/WP8:
-              if (!isWindows && !isWP8)
-                expect(error.code).toBe(5);
-
-              // BROKEN (INCONSISTENT) on Windows (OK on wp8 platform):
-              if (!isWindows)
-                expect(error.message).toMatch(/near .*\"*\"*:*syntax error/);
-
-              // From built-in Android database exception message:
-              if (!isWebSql && isAndroid && isImpl2)
-                expect(error.message).toMatch(/near .*\"*\"*:*syntax error.*code 1/);
-
-              // SQLite error code part of Web SQL error.message:
-              if (isWebSql)
-                expect(error.message).toMatch(/1 near .*\"*\"*:*syntax error/);
-
-              start();
-
-              // We want this error to fail the entire transaction
-              return true;
-            });
-          }, function (error) {
-            ok(!!error, "valid error object");
-            ok(error.hasOwnProperty('message'), "error.message exists");
-            start();
-          });
-        });
-
-        test_it(suiteName + "constraint violation", function() {
-          var db = openDatabase("Constraint-violation-test.db", "1.0", "Demo", DEFAULT_SIZE);
-          ok(!!db, "db object");
-
-          stop(2);
-          db.transaction(function(tx) {
-            tx.executeSql('DROP TABLE IF EXISTS test_table');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data unique)');
-
-            tx.executeSql("insert into test_table (data) VALUES (?)", [123], null, function(tx, error) {
-              ok(false, error.message);
-            });
-
-            // This insertion will violate the unique constraint
-            tx.executeSql("insert into test_table (data) VALUES (?)", [123], function(tx) {
-              ok(false, "unexpected success");
-              ok(!!res['rowsAffected'] || !(res.rowsAffected >= 1), "should not have positive rowsAffected");
-              start();
-              throw new Error('abort tx');
-            }, function(tx, error) {
-              expect(error).toBeDefined();
-              expect(error.code).toBeDefined();
-              expect(error.message).toBeDefined();
-
-              // BROKEN on Windows/WP8:
-              if (!isWindows && !isWP8)
-                expect(error.code).toBe(6);
-
-              if (isWebSql) // WebSQL may have a missing 'r' (iOS):
-                expect(error.message).toMatch(/constr?aint fail/);
-              else if (!isWindows && !isWP8) // BROKEN (INCONSISTENT) on Windows/WP8
-                expect(error.message).toMatch(/constraint fail/);
-
-              // From built-in Android database exception message:
-              if (!isWebSql && isAndroid && isImpl2)
-                expect(error.message).toMatch(/not unique.*code 19/);
-
-              // SQLite error code part of Web SQL error.message (Android):
-              if (isWebSql && isAndroid)
-                expect(error.message).toMatch(/19 .*constraint fail/);
-
-              // SQLite error code part of Web SQL error.message (iOS):
-              if (isWebSql && !isAndroid)
-                expect(error.message).toMatch(/19 .*not unique/);
-
-              start();
-
-              // We want this error to fail the entire transaction
-              return true;
-            });
-          }, function(error) {
-            ok(!!error, "valid error object");
-            ok(error.hasOwnProperty('message'), "error.message exists");
-            start();
-          });
-        });
-
-      });
-
-      describe(scenarioList[i] + ': multiple update test(s)', function() {
-
-        // ref: litehelpers/Cordova-sqlite-storage#128
-        // Was caused by a failure to create temporary transaction files on WP8.
-        // Workaround by Mark Oppenheim mailto:mark.oppenheim@mnetics.co.uk
-        // solved the issue for WP8.
-        // @brodybits noticed similar issue possible with Android-sqlite-connector
-        // if the Android-sqlite-native-driver part is not built correctly.
-        test_it(suiteName + 'Multiple updates with key', function () {
-          var db = openDatabase("MultipleUpdatesWithKey", "1.0",
-"Demo", DEFAULT_SIZE);
-
-          stop();
-
-          db.transaction(function (tx) {
-            tx.executeSql('DROP TABLE IF EXISTS Task');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS Task (id primary key, subject)');
-            tx.executeSql('INSERT INTO Task VALUES (?,?)', ['928238b3-a227-418f-aa15-12bb1943c1f2', 'test1']);
-            tx.executeSql('INSERT INTO Task VALUES (?,?)', ['511e3fb7-5aed-4c1a-b1b7-96bf9c5012e2', 'test2']);
-
-            tx.executeSql('UPDATE Task SET subject="Send reminder", id="928238b3-a227-418f-aa15-12bb1943c1f2" WHERE id = "928238b3-a227-418f-aa15-12bb1943c1f2"', [], function(tx, res) {
-              expect(res).toBeDefined();
-              expect(res.rowsAffected).toEqual(1);
-            }, function (error) {
-              ok(false, '1st update failed ' + error);
-            });
-
-            tx.executeSql('UPDATE Task SET subject="Task", id="511e3fb7-5aed-4c1a-b1b7-96bf9c5012e2" WHERE id = "511e3fb7-5aed-4c1a-b1b7-96bf9c5012e2"', [], function(tx, res) {
-              expect(res.rowsAffected).toEqual(1);
-            }, function (error) {
-              ok(false, '2nd update failed ' + error);
-            });
-          }, function (error) {
-            ok(false, 'transaction failed ' + error);
-            start(1);
-          }, function () {
-            ok(true, 'transaction committed ok');
-            start(1);
-          });
-        });
-
-      });
-
-    });
-  }
 
   describe('Plugin: plugin-specific sql test(s)', function() {
 
