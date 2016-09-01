@@ -31,5 +31,6 @@ test:
     - cp $SPEC_ROOT/spec/tx-semantics-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/db-tx-error-handling-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/db-tx-value-bindings-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
+    - cp $SPEC_ROOT/spec/db-tx-error-mapping-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/ext-tx-blob-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/db-open-close-delete-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
