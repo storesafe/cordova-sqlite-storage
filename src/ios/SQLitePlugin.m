@@ -114,6 +114,19 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     return dbPath;
 }
 
+-(void)enableDatabaseWhenLocked:(BOOL)enable path:(NSString*)path{
+    NSDictionary *attributes = @{NSFileProtectionKey: enable ? NSFileProtectionNone : NSFileProtectionComplete};
+    NSError *error;
+    if(![[NSFileManager defaultManager] setAttributes:attributes
+                                         ofItemAtPath:path
+                                                error:&error]){
+        NSLog(@"DATABASE WARNING! Database access was not enabled because of an error: %@", [error localizedDescription]);
+    }
+    else{
+        NSLog(@"Database access enabled when locked.");
+    }
+}
+
 -(void)open: (CDVInvokedUrlCommand*)command
 {
     CDVPluginResult* pluginResult = nil;
@@ -127,13 +140,15 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 
     NSString *dbname = [self getDBPath:dbfilename at:dblocation];
 
+    NSNumber *enableDatabaseWhenLocked = [options valueForKey:@"enableDatabaseWhenLocked"];
+    
     if (dbname == NULL) {
         NSLog(@"No db name specified for open");
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"You must specify database name"];
     }
     else {
         NSValue *dbPointer = [openDBs objectForKey:dbfilename];
-
+        
         if (dbPointer != NULL) {
             NSLog(@"Reusing existing database connection for db name %@", dbfilename);
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Database opened"];
@@ -154,8 +169,12 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
                 pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unable to open DB"];
                 return;
             } else {
+                if(![enableDatabaseWhenLocked isEqual:[NSNull null]]){
+                    [self enableDatabaseWhenLocked:[enableDatabaseWhenLocked boolValue] path:dbname];
+                }
+                
                 sqlite3_create_function(db, "regexp", 2, SQLITE_ANY, NULL, &sqlite_regexp, NULL, NULL);
-
+                
                 // for SQLCipher version:
                 // NSString *dbkey = [options objectForKey:@"key"];
                 // const char *key = NULL;
@@ -166,6 +185,7 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
                 if(sqlite3_exec(db, (const char*)"SELECT count(*) FROM sqlite_master;", NULL, NULL, NULL) == SQLITE_OK) {
                     dbPointer = [NSValue valueWithPointer:db];
                     [openDBs setObject: dbPointer forKey: dbfilename];
+                    
                     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Database opened"];
                 } else {
                     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unable to open DB with key"];
@@ -199,10 +219,12 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
         NSError *error;
         BOOL success = [[NSFileManager defaultManager] copyItemAtPath:prepopulatedDb toPath:dbname error:&error];
 
-        if(success)
+        if(success){
             NSLog(@"Copied prepopulated DB content to: %@", dbname);
-        else
+        }
+        else{
             NSLog(@"Unable to copy DB file: %@", [error localizedDescription]);
+        }
     }
 }
 
