@@ -353,7 +353,12 @@
         keepGoing = NO;
     } else if (params != NULL) {
         for (int b = 0; b < params.count; b++) {
-            [self bindStatement:statement withArg:[params objectAtIndex:b] atIndex:(b+1)];
+            result = [self bindStatement:statement withArg:[params objectAtIndex:b] atIndex:(b+1)];
+            if (result != SQLITE_OK) {
+                error = [SQLitePlugin captureSQLiteErrorFromDb:db];
+                keepGoing = NO;
+                break;
+            }
         }
     }
 
@@ -443,20 +448,22 @@
     return [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultSet];
 }
 
--(void)bindStatement:(sqlite3_stmt *)statement withArg:(NSObject *)arg atIndex:(int)argIndex
+-(int)bindStatement:(sqlite3_stmt *)statement withArg:(NSObject *)arg atIndex:(int)argIndex
 {
+    int bindResult = SQLITE_ERROR;
+
     if ([arg isEqual:[NSNull null]]) {
-        sqlite3_bind_null(statement, argIndex);
+        bindResult = sqlite3_bind_null(statement, argIndex);
     } else if ([arg isKindOfClass:[NSNumber class]]) {
         NSNumber *numberArg = (NSNumber *)arg;
         const char *numberType = [numberArg objCType];
+
+        // Bind each number as INTEGER (long long int) or REAL (double):
         if (strcmp(numberType, @encode(int)) == 0 ||
             strcmp(numberType, @encode(long long int)) == 0) {
-            sqlite3_bind_int64(statement, argIndex, [numberArg longLongValue]);
-        } else if (strcmp(numberType, @encode(double)) == 0) {
-            sqlite3_bind_double(statement, argIndex, [numberArg doubleValue]);
+            bindResult = sqlite3_bind_int64(statement, argIndex, [numberArg longLongValue]);
         } else {
-            sqlite3_bind_text(statement, argIndex, [[arg description] UTF8String], -1, SQLITE_TRANSIENT);
+            bindResult = sqlite3_bind_double(statement, argIndex, [numberArg doubleValue]);
         }
     } else { // NSString
         NSString *stringArg;
@@ -480,15 +487,17 @@
             // convert to data URI, decode, store as blob
             stringArg = [stringArg stringByReplacingCharactersInRange:NSMakeRange(0,7) withString:@"data"];
             NSData *data = [NSData dataWithContentsOfURL: [NSURL URLWithString:stringArg]];
-            sqlite3_bind_blob(statement, argIndex, data.bytes, data.length, SQLITE_TRANSIENT);
+            bindResult = sqlite3_bind_blob(statement, argIndex, data.bytes, data.length, SQLITE_TRANSIENT);
         }
         else
 #endif
         {
             NSData *data = [stringArg dataUsingEncoding:NSUTF8StringEncoding];
-            sqlite3_bind_text(statement, argIndex, data.bytes, (int)data.length, SQLITE_TRANSIENT);
+            bindResult = sqlite3_bind_text(statement, argIndex, data.bytes, (int)data.length, SQLITE_TRANSIENT);
         }
     }
+
+    return bindResult;
 }
 
 -(void)dealloc

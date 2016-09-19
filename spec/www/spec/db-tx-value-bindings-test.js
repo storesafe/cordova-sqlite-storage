@@ -322,8 +322,10 @@ var mytests = function() {
           });
         });
 
-        it(suiteName + "executeSql with too many parameters", function(done) {
-          var db = openDatabase("too-many-parameters.db", "1.0", "Demo", DEFAULT_SIZE);
+        it(suiteName + 'executeSql with too many parameters [extra TEXT string]', function(done) {
+          if (isWP8) pending('SKIP for WP8'); // TBD BROKEN on WP8
+
+          var db = openDatabase("too-many-parameters-extra-text-string.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
@@ -338,30 +340,135 @@ var mytests = function() {
 
           }, function() {
             db.transaction(function(tx) {
-              tx.executeSql("INSERT INTO test_table (data1, data2) VALUES (?,?)", ['first', 'second', 'third'], function(tx, rs1) {
-                // ACTUAL for iOS plugin:
-                if (isWebSql) expect('RESULT NOT EXPECTED for Web SQL').toBe('--');
-                expect(rs1).toBeDefined();
-                expect(rs1.rowsAffected).toBe(1);
+              tx.executeSql("INSERT INTO test_table (data1, data2) VALUES (?,?)", ['first', 'second', 'third'], function(ignored1, ignored2) {
+                // NOT EXPECTED:
+                expect(false).toBe(true);
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
 
-                tx.executeSql("select * from test_table", [], function(tx, rs2) {
-                  expect(rs2.rows.length).toBe(1);
-                  expect(rs2.rows.item(0).data1).toBe('first');
-                  expect(rs2.rows.item(0).data2).toBe('second');
-                  // Close (plugin only) & finish:
-                  (isWebSql) ? done() : db.close(done, done);
-                });
+              }, function(ignored, error) {
+                // EXPECTED RESULT:
+                expect(error).toBeDefined();
+                expect(error.code).toBeDefined();
+                expect(error.message).toBeDefined();
 
-              }, function(error) {
-                // CORRECT (Web SQL; Android & Windows plugin):
-                if (!isWebSql && !isAndroid && !isWindows) expect('Plugin behavior changed please update this test').toBe('--');
-                expect(true).toBe(true);
                 // Close (plugin only) & finish:
                 (isWebSql) ? done() : db.close(done, done);
               });
             });
           });
-        });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'executeSql with too many parameters [extra REAL value]', function(done) {
+          if (isWP8) pending('SKIP for WP8'); // TBD BROKEN on WP8
+
+          var db = openDatabase("too-many-parameters-extra-real-value.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            // CREATE columns with no type affinity
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data1, data2)');
+
+          }, function(error) {
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+
+          }, function() {
+            db.transaction(function(tx) {
+              tx.executeSql("INSERT INTO test_table (data1, data2) VALUES (?,?)", ['first', 'second', 123.456], function(ignored1, ignored2) {
+                // NOT EXPECTED:
+                expect(false).toBe(true);
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+
+              }, function(ignored, error) {
+                // EXPECTED RESULT:
+                expect(error).toBeDefined();
+                expect(error.code).toBeDefined();
+                expect(error.message).toBeDefined();
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+            });
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'executeSql with too many parameters [extra INTEGER value]', function(done) {
+          if (isWP8) pending('SKIP for WP8'); // TBD BROKEN on WP8
+
+          var db = openDatabase("too-many-parameters-extra-integer-value.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            // CREATE columns with no type affinity
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data1, data2)');
+
+          }, function(error) {
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+
+          }, function() {
+            db.transaction(function(tx) {
+              tx.executeSql("INSERT INTO test_table (data1, data2) VALUES (?,?)", ['first', 'second', 789], function(ignored1, ignored2) {
+                // NOT EXPECTED:
+                expect(false).toBe(true);
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+
+              }, function(ignored, error) {
+                // EXPECTED RESULT:
+                expect(error).toBeDefined();
+                expect(error.code).toBeDefined();
+                expect(error.message).toBeDefined();
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+            });
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'executeSql with too many parameters [extra NULL value]', function(done) {
+          if (isWP8) pending('SKIP for WP8'); // TBD BROKEN on WP8
+
+          var db = openDatabase("too-many-parameters-extra-null-value.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            // CREATE columns with no type affinity
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data1, data2)');
+
+          }, function(error) {
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+
+          }, function() {
+            db.transaction(function(tx) {
+              tx.executeSql("INSERT INTO test_table (data1, data2) VALUES (?,?)", ['first', 'second', null], function(ignored1, ignored2) {
+                // NOT EXPECTED:
+                expect(false).toBe(true);
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+
+              }, function(ignored, error) {
+                // EXPECTED RESULT:
+                expect(error).toBeDefined();
+                expect(error.code).toBeDefined();
+                expect(error.message).toBeDefined();
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+            });
+          });
+        }, MYTIMEOUT);
 
       });
 
@@ -471,7 +578,7 @@ var mytests = function() {
                             JSON.stringify(name) + ' should not be in this until a bug is fixed ' +
                             JSON.stringify(expected));
 
-                        equal(name.length, 0, 'length of field === 0'); 
+                        equal(name.length, 0, 'length of field === 0');
                         start();
                         return;
                     }
