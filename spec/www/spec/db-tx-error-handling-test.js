@@ -388,7 +388,7 @@ var mytests = function() {
             expect(ex.message).toBeDefined();
 
             if (!isWebSql)
-              expect(ex.code).toBe(0); // [UNKNOWN_ERR]
+              expect(ex.code).toBe(0); // (SQLite.UNKNOWN_ERR)
 
             if (!isWebSql)
               expect(ex.message).toMatch(/transaction expected a function/);
@@ -441,7 +441,7 @@ var mytests = function() {
             expect(ex.message).toBeDefined();
 
             if (!isWebSql)
-              expect(ex.code).toBe(0); // [UNKNOWN_ERR]
+              expect(ex.code).toBe(0); // (SQLite.UNKNOWN_ERR)
 
             if (!isWebSql)
               expect(ex.message).toMatch(/transaction expected a function/);
@@ -580,7 +580,7 @@ var mytests = function() {
             else if (isWebSql)
               expect(error.message).toMatch(/the SQLTransactionCallback was null or threw an exception/);
             else if (isAndroid)
-              expect(error.message).toMatch(/Cannot call method 'toString' of undefined/);
+              expect(error.message).toMatch(/Cannot .* 'toString' of undefined/);
             else
               expect(error.message).toMatch(/undefined is not an object \(evaluating 'sql\.toString'\)/);
 
@@ -969,7 +969,7 @@ var mytests = function() {
             else if (isWindows)
               expect(error.message).toMatch(/Unable to get property 'toString' of undefined or null reference/);
             else if (isAndroid)
-              expect(error.message).toMatch(/Cannot call method 'toString' of null/);
+              expect(error.message).toMatch(/Cannot .* 'toString' of null/);
             else
               expect(error.message).toMatch(/null is not an object \(evaluating 'sql\.toString'\)/);
 
@@ -1155,7 +1155,7 @@ var mytests = function() {
             else if (isWindows)
               expect(error.message).toMatch(/Unable to get property 'toString' of undefined or null reference/);
             else if (isAndroid)
-              expect(error.message).toMatch(/Cannot call method 'toString' of undefined/);
+              expect(error.message).toMatch(/Cannot .* 'toString' of undefined/);
             else
               expect(error.message).toMatch(/undefined is not an object \(evaluating 'sql\.toString'\)/);
 
@@ -1215,7 +1215,7 @@ var mytests = function() {
               else if (isWindows)
                 expect(ex.message).toMatch(/Unable to get property 'toString' of undefined or null reference/);
               else if (!isWebSql && isAndroid)
-                expect(ex.message).toMatch(/Cannot call method 'toString' of undefined/);
+                expect(ex.message).toMatch(/Cannot .* 'toString' of undefined/);
               else if (!isWebSql)
                 expect(ex.message).toMatch(/undefined is not an object \(evaluating 'sql\.toString'\)/);
               else if (isAndroid)
@@ -1239,7 +1239,7 @@ var mytests = function() {
             else if (isWindows)
               expect(error.message).toMatch(/Unable to get property 'toString' of undefined or null reference/);
             else if (!isWebSql && isAndroid)
-              expect(error.message).toMatch(/Cannot call method 'toString' of undefined/);
+              expect(error.message).toMatch(/Cannot .* 'toString' of undefined/);
             else if (!isWebSql)
               expect(error.message).toMatch(/undefined is not an object \(evaluating 'sql\.toString'\)/);
             else

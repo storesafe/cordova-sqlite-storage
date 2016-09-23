@@ -51,15 +51,15 @@ var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
 
-    describe(scenarioList[i] + ': tx value bindings test(s)', function() {
+    describe(scenarioList[i] + ': tx INSERT value bindings test(s)', function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
       var isWebSql = (i === 1);
-      var isOldImpl = (i === 2);
+      var isImpl2 = (i === 2);
 
       // NOTE: MUST be defined in function scope, NOT outer scope:
       var openDatabase = function(name, ignored1, ignored2, ignored3) {
-        if (isOldImpl) {
+        if (isImpl2) {
           return window.sqlitePlugin.openDatabase({
             // prevent reuse of database from default db implementation:
             name: 'i2-'+name,
@@ -75,7 +75,7 @@ var mytests = function() {
         }
       }
 
-      describe(suiteName + 'transaction column value bindings semantics test(s)', function() {
+      describe(suiteName + 'transaction column value insertion test(s)', function() {
 
         it(suiteName + "all columns should be included in result set (including 'null' columns)", function(done) {
 
@@ -113,9 +113,52 @@ var mytests = function() {
           });
         });
 
-      });
+        // NOTE: emojis and other 4-octet UTF-8 characters apparently not stored
+        // properly by Android-sqlite-connector/Windows ref: litehelpers/Cordova-sqlite-storage#564
+        it(suiteName + 'INSERT TEXT string with emoji [\\u1F603 SMILING FACE (MOUTH OPEN)], SELECT the data, and check' +
+           ((!isWebSql && (isWindows || (isAndroid && !isImpl2))) ?
+            ' [BROKEN: SELECT HEX(data) result on Android-sqlite-connector/Windows]' : ''), function(done) {
+          if (isWP8) pending('SKIP for WP8'); // [TBD CRASH with uncaught exception]
 
-      describe(scenarioList[i] + ': tx column value insertion test(s)', function() {
+          var db = openDatabase('INSERT-emoji-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data)', [], function(ignored1, ignored2) {
+
+              tx.executeSql('INSERT INTO test_table VALUES (?)', ['@\uD83D\uDE03!'], function(tx, res) {
+
+                expect(res).toBeDefined();
+                expect(res.rowsAffected).toBe(1);
+
+                tx.executeSql('SELECT * FROM test_table', [], function(tx, res) {
+                  var row = res.rows.item(0);
+
+                  // Full object check:
+                  expect(row).toEqual({data: '@\uD83D\uDE03!'});
+                  // Check individual members:
+                  expect(row.data).toBe('@\uD83D\uDE03!');
+
+                  tx.executeSql('SELECT HEX(data) AS hexvalue FROM test_table', [], function(tx, res) {
+                    // BROKEN: INCORRECT value Android-sqlite-connector/Windows
+                    if (!isWebSql && !isWindows && !isWP8 && !(isAndroid && !isImpl2))
+                      expect(res.rows.item(0).hexvalue).toBe('40F09F988321');
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  });
+
+                });
+              });
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
 
         it(suiteName + "number values inserted using number bindings", function(done) {
 
@@ -140,6 +183,7 @@ var mytests = function() {
                 tx.executeSql("select * from test_table", [], function(tx, res) {
                   var row = res.rows.item(0);
 
+                  expect(row.id).toBe(1);
                   expect(row.data_text1).toBe("314159"); // (data_text1 should have inserted data as text)
 
                   if (!isWP8) // JSON issue in WP(8) version
@@ -157,9 +201,8 @@ var mytests = function() {
         });
 
         it(suiteName + "Big [integer] value bindings", function(done) {
-          if (isWP8) pending('BROKEN for WP(8)'); // XXX [BUG #195]
-
           var db = openDatabase("Big-int-bindings.db", "1.0", "Demo", DEFAULT_SIZE);
+
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS tt');
             tx.executeSql('CREATE TABLE IF NOT EXISTS tt (test_date INTEGER, test_text TEXT)');
@@ -178,9 +221,8 @@ var mytests = function() {
                   var row = res.rows.item(0);
                   expect(row.test_date).toBe(1424174959894);
 
-                  // NOTE: storing big integer in TEXT field WORKING OK with WP(8) version.
-                  // It is now suspected that the issue lies with the results handling.
-                  // XXX Brody TODO: storing big number in TEXT field is different for Plugin vs. Web SQL!
+                  // NOTE: big number apparently stored in field with TEXT affinity with slightly
+                  // different conversion in plugin vs. WebKit Web SQL!
                   if (isWebSql)
                     expect(row.test_text).toBe("1424174959894.0"); // ([Big] number inserted as string ok)
                   else
@@ -270,6 +312,7 @@ var mytests = function() {
 
                 tx.executeSql("select * from test_table", [], function(tx, rs2) {
                   expect(rs2.rows.length).toBe(1);
+                  expect(rs2.rows.item(0).id).toBe(1);
                   expect(rs2.rows.item(0).data1).toBe('true');
                   expect(rs2.rows.item(0).data2).toBe('false');
 
@@ -281,46 +324,117 @@ var mytests = function() {
           });
         });
 
-        it(suiteName + "executeSql with not enough parameters", function(done) {
+        it(suiteName + "INSERT inline BLOB value (X'40414243') and check stored data [SELECT BLOB ISSUE with androidDatabaseImplementation: 2 & Windows/WP8]", function(done) {
+          var db = openDatabase('INSERT-inline-BLOB-value-and-check-stored-data.db', '1.0', 'Demo', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data)', [], function(ignored1, ignored2) {
+
+              tx.executeSql("INSERT INTO test_table VALUES (X'40414243')", [], function(ignored, rs1) {
+
+                expect(rs1).toBeDefined();
+                expect(rs1.rowsAffected).toBe(1);
+
+                tx.executeSql('SELECT HEX(data) AS hexValue FROM test_table', [], function(ignored, rs2) {
+                  expect(rs2).toBeDefined();
+                  expect(rs2.rows).toBeDefined();
+                  expect(rs2.rows.length).toBeDefined();
+
+                  var row = rs2.rows.item(0);
+                  expect(row).toBeDefined();
+                  expect(row.hexValue).toBe('40414243');
+
+                  if (isWP8) return done(); // STOP CRASH on WP8
+
+                  tx.executeSql('SELECT * FROM test_table', [], function(ignored, rs3) {
+                    if (!isWebSql && isAndroid && isImpl2) expect('Behavior changed please update this test').toBe('--');
+                    expect(rs3).toBeDefined();
+                    expect(rs3.rows).toBeDefined();
+                    expect(rs3.rows.length).toBeDefined();
+
+                    var row = rs3.rows.item(0);
+                    expect(row).toBeDefined();
+                    expect(row.data).toBe('@ABC');
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  }, function(ignored, error) {
+                    if (!isWebSql && isWindows || (isAndroid && isImpl2)) {
+                      expect(error).toBeDefined();
+                      expect(error.code).toBeDefined();
+                      expect(error.message).toBeDefined();
+
+                      expect(error.code).toBe(0);
+
+                      if (isWindows)
+                        expect(error.message).toMatch(/Unsupported column type in column 0/);
+                      else
+                        expect(error.message).toMatch(/unknown error.*code 0.*Unable to convert BLOB to string/);
+                    } else {
+                      // NOT EXPECTED:
+                      expect(false).toBe(true);
+                      expect(error.message).toBe('---');
+                    }
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  });
+
+                });
+
+              });
+
+            });
+          });
+        }, MYTIMEOUT);
+
+      });
+
+      describe(suiteName + 'parameter count mismatch tests', function() {
+
+        it(suiteName + 'executeSql with not enough parameters (Plugin DEVIATION: does not reject such SQL statements)', function(done) {
           var db = openDatabase("not-enough-parameters.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
             // CREATE columns with no type affinity
-            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data1, data2)');
-
-          }, function(error) {
-            expect(false).toBe(true);
-            expect(error.message).toBe('---');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
-
-          }, function() {
-            db.transaction(function(tx) {
-              tx.executeSql("INSERT INTO test_table (data1, data2) VALUES (?,?)", ['first'], function(tx, rs1) {
-                // ACTUAL for plugin (Android/iOS/Windows):
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data1, data2)', [], function(ignored1, ignored2) {
+              tx.executeSql("INSERT INTO test_table VALUES (?,?)", ['first'], function(tx, rs1) {
+                // ACTUAL BEHAVIOR for plugin (Android/iOS/Windows):
                 if (isWebSql) expect('RESULT NOT EXPECTED for Web SQL').toBe('--');
                 expect(rs1).toBeDefined();
                 expect(rs1.rowsAffected).toBe(1);
 
-                tx.executeSql("select * from test_table", [], function(tx, rs2) {
+                tx.executeSql('SELECT * FROM test_table', [], function(tx, rs2) {
                   expect(rs2.rows.length).toBe(1);
                   expect(rs2.rows.item(0).data1).toBe('first');
                   expect(rs2.rows.item(0).data2).toBeNull();
+
                   // Close (plugin only) & finish:
                   (isWebSql) ? done() : db.close(done, done);
                 });
 
-              }, function(error) {
+              }, function(ignored, error) {
                 // CORRECT (Web SQL):
-                if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
-                expect(true).toBe(true);
+                if (!isWebSql) expect('Plugin behavior changed, please update this test').toBe('--');
+
+                expect(error).toBeDefined();
+                expect(error.code).toBeDefined();
+                expect(error.message).toBeDefined();
+
+                // WebKit Web SQL reports correct error code (5 - SYNTAX_ERR) in this case.
+                expect(error.code).toBe(5);
+
+                // WebKit Web SQL error message (Android/iOS):
+                expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
+
                 // Close (plugin only) & finish:
                 (isWebSql) ? done() : db.close(done, done);
               });
             });
           });
-        });
+        }, MYTIMEOUT);
 
         it(suiteName + 'executeSql with too many parameters [extra TEXT string]', function(done) {
           if (isWP8) pending('SKIP for WP8'); // TBD BROKEN on WP8
@@ -351,6 +465,7 @@ var mytests = function() {
                 expect(error).toBeDefined();
                 expect(error.code).toBeDefined();
                 expect(error.message).toBeDefined();
+
 
                 // Close (plugin only) & finish:
                 (isWebSql) ? done() : db.close(done, done);
@@ -389,6 +504,23 @@ var mytests = function() {
                 expect(error.code).toBeDefined();
                 expect(error.message).toBeDefined();
 
+                // PLUGIN BROKEN: reports INCORRECT error code: 0 (SQLite.UNKNOWN_ERR)
+                // WebKit Web SQL reports correct error code: 5 (SQLite.SYNTAX_ERR) in this case.
+                // ref: https://www.w3.org/TR/webdatabase/#dom-sqlexception-code-syntax
+                if (isWebSql)
+                  expect(error.code).toBe(5);
+                else
+                  expect(error.code).toBe(0);
+
+                // WebKit Web SQL vs plugin error message
+                // FUTURE TBD plugin error message subject to change
+                if (isWebSql)
+                  expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
+                else if (isWindows)
+                  expect(error.message).toMatch(/Error 25 when binding argument to SQL query/);
+                else
+                  expect(error.message).toMatch(/index.*out of range/);
+
                 // Close (plugin only) & finish:
                 (isWebSql) ? done() : db.close(done, done);
               });
@@ -425,6 +557,23 @@ var mytests = function() {
                 expect(error).toBeDefined();
                 expect(error.code).toBeDefined();
                 expect(error.message).toBeDefined();
+
+                // PLUGIN BROKEN: reports INCORRECT error code: 0 (SQLite.UNKNOWN_ERR)
+                // WebKit Web SQL reports correct error code: 5 (SQLite.SYNTAX_ERR) in this case.
+                // ref: https://www.w3.org/TR/webdatabase/#dom-sqlexception-code-syntax
+                if (isWebSql)
+                  expect(error.code).toBe(5);
+                else
+                  expect(error.code).toBe(0);
+
+                // WebKit Web SQL vs plugin error message
+                // FUTURE TBD plugin error message subject to change
+                if (isWebSql)
+                  expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
+                else if (isWindows)
+                  expect(error.message).toMatch(/Error 25 when binding argument to SQL query/);
+                else
+                  expect(error.message).toMatch(/index.*out of range/);
 
                 // Close (plugin only) & finish:
                 (isWebSql) ? done() : db.close(done, done);
@@ -463,6 +612,23 @@ var mytests = function() {
                 expect(error.code).toBeDefined();
                 expect(error.message).toBeDefined();
 
+                // PLUGIN BROKEN: reports INCORRECT error code: 0 (SQLite.UNKNOWN_ERR)
+                // WebKit Web SQL reports correct error code: 5 (SQLite.SYNTAX_ERR) in this case.
+                // ref: https://www.w3.org/TR/webdatabase/#dom-sqlexception-code-syntax
+                if (isWebSql)
+                  expect(error.code).toBe(5);
+                else
+                  expect(error.code).toBe(0);
+
+                // WebKit Web SQL vs plugin error message
+                // FUTURE TBD plugin error message subject to change
+                if (isWebSql)
+                  expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
+                else if (isWindows)
+                  expect(error.message).toMatch(/Error 25 when binding argument to SQL query/);
+                else
+                  expect(error.message).toMatch(/index.*out of range/);
+
                 // Close (plugin only) & finish:
                 (isWebSql) ? done() : db.close(done, done);
               });
@@ -477,9 +643,9 @@ var mytests = function() {
         // FUTURE TODO: fix these tests to follow the Jasmine style:
 
         test_it(suiteName + ' stores [Unicode] string with \\u0000 correctly', function () {
-          if (isWindows) pending('BROKEN on Windows'); // XXX
           if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
-          if (isAndroid && !isWebSql && !isOldImpl) pending('BROKEN for Android (default sqlite-connector version)'); // XXX
+          if (isWindows) pending('BROKEN on Windows'); // [FUTURE TBD, already documented]
+          if (!isWebSql && isAndroid && !isImpl2) pending('BROKEN for Android (default sqlite-connector version)'); // [FUTURE TBD (documented)]
 
           stop();
 
