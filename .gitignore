@@ -1,5 +1,7 @@
 .DS_Store
-.plugin
 .metadata/*
 *.swp
 *~
+spec/myplugin
+spec/plugins
+spec/platforms
