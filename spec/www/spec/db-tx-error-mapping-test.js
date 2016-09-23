@@ -23,9 +23,11 @@ var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
 
+    // GENERAL: SKIP ALL on WP8 for now
     describe(scenarioList[i] + ': db tx error mapping test(s)' +
-             (!isWindows ? '' :
-              ' [Windows version with INVALID error code (-1) & INCONSISTENT error message (missing actual error info)]'), function() {
+             ((isWindows && !isWP8) ?
+              ' [Windows version with INCORRECT error code (0) & INCONSISTENT error message (missing actual error info)]' :
+               ''), function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
       var isWebSql = (i === 1);
@@ -61,10 +63,8 @@ var mytests = function() {
         //   https://www.w3.org/TR/webdatabase/#dom-sqlerror-code-1
         // - Android plugin with androidDatabaseImplementation: 2 setting indicates SQLError code 0
         //   (SQLError.UNKNOWN_ERR) in cases other than a syntax error or constraint violation
-        // - Windows plugin BROKEN: INVALID "SQLException" error code -1
-        //   According to https://www.w3.org/TR/webdatabase/#errors-and-exceptions
-        //   the code member is "unsigned short" and may not be negative!
-        //   Also with INCONSISTENT messages: missing actual error info
+        // - Windows plugin always reports error code 0 (SQLError.UNKNOWN_ERR) and
+        //   INCONSISTENT messages (missing actual error info)
 
         // OTHER ERROR MAPPING NOTES:
         //
@@ -102,7 +102,7 @@ var mytests = function() {
               expect(error.message).toBeDefined();
 
               if (isWindows)
-                expect(error.code).toBe(-1);
+                expect(error.code).toBe(0);
               else
                 expect(error.code).toBe(5);
 
@@ -127,9 +127,7 @@ var mytests = function() {
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
 
-            if (isWindows)
-              expect(error.code).toBe(-1);
-            else if (isWebSql)
+            if (isWindows || isWebSql)
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -174,7 +172,7 @@ var mytests = function() {
               expect(error.message).toBeDefined();
 
               if (isWindows)
-                expect(error.code).toBe(-1);
+                expect(error.code).toBe(0);
               else
                 expect(error.code).toBe(5);
 
@@ -198,9 +196,7 @@ var mytests = function() {
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
 
-            if (isWindows)
-              expect(error.code).toBe(-1);
-            else if (isWebSql)
+            if (isWindows || isWebSql)
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -252,7 +248,7 @@ var mytests = function() {
               expect(error.message).toBeDefined();
 
               if (isWindows)
-                expect(error.code).toBe(-1);
+                expect(error.code).toBe(0);
               else
                 expect(error.code).toBe(6);
 
@@ -280,9 +276,7 @@ var mytests = function() {
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
 
-            if (isWindows)
-              expect(error.code).toBe(-1);
-            else if (isWebSql)
+            if (isWindows || isWebSql)
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(6);
@@ -323,12 +317,10 @@ var mytests = function() {
               expect(error.code).toBeDefined();
               expect(error.message).toBeDefined();
 
-              if (isWindows)
-                expect(error.code).toBe(-1);
-              else if (isWebSql || !(isAndroid && isImpl2))
-                expect(error.code).toBe(5);
-              else
+              if (isWindows || (isAndroid && isImpl2))
                 expect(error.code).toBe(0);
+              else
+                expect(error.code).toBe(5);
 
               // ACTUAL WebKit Web SQL vs plugin error.message
               if (isWebSql)
@@ -352,9 +344,7 @@ var mytests = function() {
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
 
-            if (isWindows)
-              expect(error.code).toBe(-1);
-            else if (isWebSql || (isAndroid && isImpl2))
+            if (isWebSql || isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -396,12 +386,10 @@ var mytests = function() {
               expect(error.code).toBeDefined();
               expect(error.message).toBeDefined();
 
-              if (isWindows)
-                expect(error.code).toBe(-1);
-              else if (isWebSql || !(isAndroid && isImpl2))
-                expect(error.code).toBe(5);
-              else
+              if (isWindows || (isAndroid && isImpl2))
                 expect(error.code).toBe(0);
+              else
+                expect(error.code).toBe(5);
 
               if (isWebSql)
                 expect(error.message).toMatch(/could not prepare statement.*1 no such table: BogusTable/);
@@ -423,9 +411,7 @@ var mytests = function() {
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
 
-            if (isWindows)
-              expect(error.code).toBe(-1);
-            else if (isWebSql || (isAndroid && isImpl2))
+            if (isWebSql || isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -468,12 +454,10 @@ var mytests = function() {
               expect(error.code).toBeDefined();
               expect(error.message).toBeDefined();
 
-              if (isWindows)
-                expect(error.code).toBe(-1);
-              else if (isWebSql || !(isAndroid && isImpl2))
-                expect(error.code).toBe(5);
-              else
+              if (isWindows || (isAndroid && isImpl2))
                 expect(error.code).toBe(0);
+              else
+                expect(error.code).toBe(5);
 
               if (isWebSql)
                 expect(error.message).toMatch(/could not prepare statement.*1 table test_table has 2 columns but 1 values were supplied/);
@@ -496,9 +480,7 @@ var mytests = function() {
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
 
-            if (isWindows)
-              expect(error.code).toBe(-1);
-            else if (isWebSql || (isAndroid && isImpl2))
+            if (isWebSql || isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -541,12 +523,10 @@ var mytests = function() {
               expect(error.code).toBeDefined();
               expect(error.message).toBeDefined();
 
-              if (isWindows)
-                expect(error.code).toBe(-1);
-              else if (isWebSql || !(isAndroid && isImpl2))
-                expect(error.code).toBe(5);
-              else
+              if (isWindows || (isAndroid && isImpl2))
                 expect(error.code).toBe(0);
+              else
+                expect(error.code).toBe(5);
 
               if (isWebSql)
                 expect(error.message).toMatch(/could not prepare statement.*1 table test_table has no column named wrong_column/);
@@ -569,9 +549,7 @@ var mytests = function() {
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
 
-            if (isWindows)
-              expect(error.code).toBe(-1);
-            else if (isWebSql || (isAndroid && isImpl2))
+            if (isWebSql || isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -616,12 +594,10 @@ var mytests = function() {
               expect(error.code).toBeDefined();
               expect(error.message).toBeDefined();
 
-              if (isWindows)
-                expect(error.code).toBe(-1);
-              else if (isWebSql || !(isAndroid && isImpl2))
-                expect(error.code).toBe(5);
-              else
+              if (isWindows || (isAndroid && isImpl2))
                 expect(error.code).toBe(0);
+              else
+                expect(error.code).toBe(5);
 
               if (isWebSql)
                 expect(error.message).toMatch(/could not prepare statement.*1 not authorized/);
@@ -643,9 +619,7 @@ var mytests = function() {
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
 
-            if (isWindows)
-              expect(error.code).toBe(-1);
-            else if (isWebSql || (isAndroid && isImpl2))
+            if (isWebSql || isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -680,7 +654,7 @@ var mytests = function() {
             expect(error.message).toBeDefined();
 
             if (isWindows)
-              expect(error.code).toBe(-1);
+              expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
 
@@ -722,7 +696,7 @@ var mytests = function() {
             expect(error.message).toBeDefined();
 
             if (isWindows)
-              expect(error.code).toBe(-1);
+              expect(error.code).toBe(0);
             else
               expect(error.code).toBe(6);
 

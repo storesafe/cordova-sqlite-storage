@@ -83,7 +83,7 @@ var mytests = function() {
             if (isWP8)
               expect(true).toBe(true); // SKIP for now
             else if (isWindows)
-              expect(error.code).toBe(-1);
+              expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
 
@@ -636,8 +636,6 @@ var mytests = function() {
 
             if (isWP8)
               expect(true).toBe(true); // SKIP for now
-            else if (isWindows)
-              expect(error.code).toBe(-1);
             else if (!isWebSql)
               expect(error.code).toBe(0);
             else
@@ -704,8 +702,6 @@ var mytests = function() {
 
             if (isWP8)
               expect(true).toBe(true); // SKIP for now
-            else if (isWindows)
-              expect(error.code).toBe(-1);
             else if (!isWebSql)
               expect(error.code).toBe(0);
             else
@@ -773,7 +769,7 @@ var mytests = function() {
             if (isWP8)
               expect(true).toBe(true); // SKIP for now
             else if (isWindows)
-              expect(error.code).toBe(-1);
+              expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
 
@@ -839,7 +835,7 @@ var mytests = function() {
             if (isWP8)
               expect(true).toBe(true); // SKIP for now
             else if (isWindows)
-              expect(error.code).toBe(-1);
+              expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
 
@@ -901,7 +897,7 @@ var mytests = function() {
             if (isWP8)
               expect(true).toBe(true); // SKIP for now
             else if (isWindows)
-              expect(error.code).toBe(-1);
+              expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
 
@@ -1026,7 +1022,7 @@ var mytests = function() {
             if (isWP8)
               expect(true).toBe(true); // SKIP for now
             else if (isWindows)
-              expect(error.code).toBe(-1);
+              expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
 
@@ -1088,7 +1084,7 @@ var mytests = function() {
             if (isWP8)
               expect(true).toBe(true); // SKIP for now
             else if (isWindows)
-              expect(error.code).toBe(-1);
+              expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
 

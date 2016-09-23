@@ -105,7 +105,7 @@ module.exports = {
 				console.log("sql exception error: " + ex.message);
 				results.push({
 					type: "error",
-					result: { code: -1, message: ex.message }
+					result: { message: ex.message, code: 0 }
 				});
 			}
 		}
