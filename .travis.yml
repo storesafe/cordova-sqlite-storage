@@ -13,7 +13,7 @@ node_js:
   - "4.4"
 
 install:
-  - echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config 
+  - echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
   - npm install -g cordova-paramedic
   - npm install -g cordova
   - npm install -g ios-sim
@@ -23,5 +23,14 @@ script:
   - date && cp ${SPEC_WWW_DIR}/spec/self-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
   - date && cp ${SPEC_WWW_DIR}/spec/db-tx-string-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
   - date && cp ${SPEC_WWW_DIR}/spec/db-tx-sql-results.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
+  - date && cp ${SPEC_WWW_DIR}/spec/db-sql-operations-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
   - date && cp ${SPEC_WWW_DIR}/spec/sql-batch-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
+  - date && cp ${SPEC_WWW_DIR}/spec/db-tx-sql-features-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
+  - date && cp ${SPEC_WWW_DIR}/spec/regexp-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
+  - date && cp ${SPEC_WWW_DIR}/spec/db-simultaneous-tx-access-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
+  - date && cp ${SPEC_WWW_DIR}/spec/db-tx-multiple-update-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
+  - date && cp ${SPEC_WWW_DIR}/spec/tx-semantics-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
+  - date && cp ${SPEC_WWW_DIR}/spec/db-tx-error-handling-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
+  - date && cp ${SPEC_WWW_DIR}/spec/db-tx-value-bindings-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
+  - date && cp ${SPEC_WWW_DIR}/spec/db-tx-error-mapping-test.js ${TESTS_PATH} && ${CORDOVA_PARAMEDIC_CMD}
   - date
