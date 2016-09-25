@@ -22,7 +22,7 @@ test:
     - cordova-paramedic --platform android --plugin . || echo error-ignored
     - cp $SPEC_ROOT/spec/self-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/db-tx-string-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
-    - cp $SPEC_ROOT/spec/db-tx-sql-results.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
+    - cp $SPEC_ROOT/spec/basic-db-tx-sql-storage-results.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/db-sql-operations-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/sql-batch-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
     - cp $SPEC_ROOT/spec/db-tx-sql-features-test.js $TESTS_PATH && $CORDOVA_PARAMEDIC_CMD
