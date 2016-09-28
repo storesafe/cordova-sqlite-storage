@@ -77,7 +77,110 @@ var mytests = function() {
 
       describe(suiteName + 'transaction column value insertion test(s)', function() {
 
-        it(suiteName + "all columns should be included in result set (including 'null' columns)", function(done) {
+        it(suiteName + 'INSERT with null parameter argument value and check stored data', function(done) {
+          var db = openDatabase('INSERT-null-arg-value-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data1, data2)', [], function(ignored1, ignored2) {
+
+              tx.executeSql('INSERT INTO test_table VALUES (?,?)', [null, 'test-string'], function(ignored, rs1) {
+
+                expect(rs1).toBeDefined();
+                expect(rs1.rowsAffected).toBe(1);
+
+                tx.executeSql('SELECT * FROM test_table', [], function(ignored, rs2) {
+                  var row = rs2.rows.item(0);
+
+                  expect(row.data1).toBeNull();
+                  expect(row.data2).toBe('test-string');
+
+                  tx.executeSql('SELECT TYPEOF(data1) AS t1, TYPEOF(data2) AS t2 FROM test_table', null, function(ignored, rs3) {
+                    expect(rs3).toBeDefined();
+                    expect(rs3.rows).toBeDefined();
+                    expect(rs3.rows.length).toBe(1);
+                    expect(rs3.rows.item(0).t1).toBe('null');
+                    expect(rs3.rows.item(0).t2).toBe('text');
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  });
+
+                });
+              });
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'INSERT with undefined parameter argument value (inserted as null) and check stored data [BROKEN for Windows: Unsupported argument type ERROR]', function(done) {
+          if (isWP8) pending('SKIP for WP8'); // SKIP for now
+
+          var db = openDatabase('INSERT-undefined-arg-value-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data1, data2)', [], function(ignored1, ignored2) {
+
+              tx.executeSql('INSERT INTO test_table VALUES (?,?)', [undefined, 'test-string'], function(ignored, rs1) {
+
+                if (isWindows) expect('Windows plugin version FIXED please update this test').toBe('--');
+
+                expect(rs1).toBeDefined();
+                expect(rs1.rowsAffected).toBe(1);
+
+                tx.executeSql('SELECT * FROM test_table', [], function(ignored, rs2) {
+                  var row = rs2.rows.item(0);
+
+                  if (isWebSql && isAndroid)
+                    expect(row.data1).toBe('undefined');
+                  else
+                    expect(row.data1).toBeNull();
+                  expect(row.data2).toBe('test-string');
+
+                  tx.executeSql('SELECT TYPEOF(data1) AS t1, TYPEOF(data2) AS t2 FROM test_table', null, function(ignored, rs3) {
+                    expect(rs3).toBeDefined();
+                    expect(rs3.rows).toBeDefined();
+                    expect(rs3.rows.length).toBe(1);
+                    if (isWebSql && isAndroid)
+                      expect(rs3.rows.item(0).t1).toBe('text');
+                    else
+                      expect(rs3.rows.item(0).t1).toBe('null');
+                    expect(rs3.rows.item(0).t2).toBe('text');
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  });
+
+                });
+              });
+            });
+          }, function(error) {
+            // ERROR in case of Windows:
+            if (isWindows) {
+              expect(error).toBeDefined();
+              expect(error.code).toBeDefined();
+              expect(error.message).toBeDefined();
+              expect(error.code).toBe(0);
+              expect(error.message).toMatch(/a statement with no error handler failed: Unsupported argument type: undefined/);
+              return done();
+            }
+
+            // OTHERWISE
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "all columns should be included in result set including id integer primary key & 'null' columns", function(done) {
 
           var db = openDatabase('all-result-columns-including-null-columns.db', '1.0', 'Demo', DEFAULT_SIZE);
 
@@ -112,6 +215,157 @@ var mytests = function() {
             });
           });
         });
+
+        it(suiteName + 'INSERT Infinity with no/NUMERIC/REAL/INTEGER/TEXT type affinity and check stored data [Android/iOS Plugin BROKEN: stored with null value]', function(done) {
+          if (isWP8) pending('SKIP for WP8'); // SKIP for now
+
+          var db = openDatabase('INSERT-Infinity-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE test_table (data, data_num NUMERIC, data_real REAL, data_int INTEGER, data_text TEXT)', [], function(ignored1, ignored2) {
+
+              tx.executeSql('INSERT INTO test_table VALUES (?,?,?,?,?)', [Infinity, Infinity, Infinity, Infinity, Infinity], function(ignored, res) {
+
+                expect(res).toBeDefined();
+                expect(res.rowsAffected).toBe(1);
+
+                tx.executeSql('SELECT * FROM test_table', [], function(tx, rs) {
+                  expect(rs).toBeDefined();
+                  expect(rs.rows).toBeDefined();
+                  expect(rs.rows.length).toBeDefined();
+
+                  var row = rs.rows.item(0);
+                  expect(row).toBeDefined();
+
+                  if (!isWebSql && !isWindows) {
+                    // Android/iOS plugin issue
+                    expect(row.data).toBe(null);
+                    expect(row.data_num).toBe(null);
+                    expect(row.data_real).toBe(null);
+                    expect(row.data_int).toBe(null);
+                    expect(row.data_text).toBe(null);
+                  } else {
+                    expect(row.data).toBe(Infinity);
+                    expect(row.data_num).toBe(Infinity);
+                    expect(row.data_real).toBe(Infinity);
+                    expect(row.data_int).toBe(Infinity);
+                    expect(row.data_text).toBe('Inf');
+                  }
+
+                  // Close (plugin only) & finish:
+                  (isWebSql) ? done() : db.close(done, done);
+                });
+
+              });
+
+            });
+
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'INSERT -Infinity with no/NUMERIC/REAL/INTEGER/TEXT type affinity and check stored data [Android/iOS Plugin BROKEN: stored with null value]', function(done) {
+          if (isWP8) pending('SKIP for WP8'); // SKIP for now
+
+          var db = openDatabase('INSERT-minus-Infinity-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE test_table (data, data_num NUMERIC, data_real REAL, data_int INTEGER, data_text TEXT)', [], function(ignored1, ignored2) {
+
+              tx.executeSql('INSERT INTO test_table VALUES (?,?,?,?,?)', [-Infinity, -Infinity, -Infinity, -Infinity, -Infinity], function(ignored, res) {
+
+                expect(res).toBeDefined();
+                expect(res.rowsAffected).toBe(1);
+
+                tx.executeSql('SELECT * FROM test_table', [], function(tx, rs) {
+                  expect(rs).toBeDefined();
+                  expect(rs.rows).toBeDefined();
+                  expect(rs.rows.length).toBeDefined();
+
+                  var row = rs.rows.item(0);
+                  expect(row).toBeDefined();
+
+                  if (!isWebSql && !isWindows) {
+                    // Android/iOS plugin issue
+                    expect(row.data).toBe(null);
+                    expect(row.data_num).toBe(null);
+                    expect(row.data_real).toBe(null);
+                    expect(row.data_int).toBe(null);
+                    expect(row.data_text).toBe(null);
+                  } else {
+                    expect(row.data).toBe(-Infinity);
+                    expect(row.data_num).toBe(-Infinity);
+                    expect(row.data_real).toBe(-Infinity);
+                    expect(row.data_int).toBe(-Infinity);
+                    expect(row.data_text).toBe('-Inf');
+                  }
+
+                  // Close (plugin only) & finish:
+                  (isWebSql) ? done() : db.close(done, done);
+                });
+
+              });
+
+            });
+
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'INSERT NaN with no/NUMERIC/REAL/INTEGER/TEXT type affinity and check stored data', function(done) {
+
+          var db = openDatabase('INSERT-minus-Infinity-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE test_table (data, data_num NUMERIC, data_real REAL, data_int INTEGER, data_text TEXT)', [], function(ignored1, ignored2) {
+
+              tx.executeSql('INSERT INTO test_table VALUES (?,?,?,?,?)', [NaN, NaN, NaN, NaN, NaN], function(ignored, res) {
+
+                expect(res).toBeDefined();
+                expect(res.rowsAffected).toBe(1);
+
+                tx.executeSql('SELECT * FROM test_table', [], function(tx, rs) {
+                  expect(rs).toBeDefined();
+                  expect(rs.rows).toBeDefined();
+                  expect(rs.rows.length).toBeDefined();
+
+                  var row = rs.rows.item(0);
+                  expect(row).toBeDefined();
+                  expect(row.data).toBe(null);
+                  expect(row.data_num).toBe(null);
+                  expect(row.data_real).toBe(null);
+                  expect(row.data_int).toBe(null);
+                  expect(row.data_text).toBe(null);
+
+                  // Close (plugin only) & finish:
+                  (isWebSql) ? done() : db.close(done, done);
+                });
+
+              });
+
+            });
+
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
 
         // NOTE: emojis and other 4-octet UTF-8 characters apparently not stored
         // properly by Android-sqlite-connector/Windows ref: litehelpers/Cordova-sqlite-storage#564
@@ -194,6 +448,20 @@ var mytests = function() {
 
                   // Close (plugin only) & finish:
                   (isWebSql) ? done() : db.close(done, done);
+
+                  tx.executeSql('SELECT TYPEOF(data_text1) AS t1, TYPEOF(data_text2) AS t2, data_int AS t3, data_real AS t4', null, function(ignored, rs3) {
+                    expect(rs3).toBeDefined();
+                    expect(rs3.rows).toBeDefined();
+                    expect(rs3.rows.length).toBe(1);
+                    expect(rs3.rows.item(0).t1).toBe('text');
+                    expect(rs3.rows.item(0).t2).toBe('text');
+                    expect(rs3.rows.item(0).t2).toBe('integer');
+                    expect(rs3.rows.item(0).t2).toBe('real');
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  });
+
                 });
               });
             });
@@ -466,6 +734,22 @@ var mytests = function() {
                 expect(error.code).toBeDefined();
                 expect(error.message).toBeDefined();
 
+                // PLUGIN BROKEN: reports INCORRECT error code: 0 (SQLite.UNKNOWN_ERR)
+                // WebKit Web SQL reports correct error code: 5 (SQLite.SYNTAX_ERR) in this case.
+                // ref: https://www.w3.org/TR/webdatabase/#dom-sqlexception-code-syntax
+                if (isWebSql)
+                  expect(error.code).toBe(5);
+                else
+                  expect(error.code).toBe(0);
+
+                // WebKit Web SQL vs plugin error message
+                // FUTURE TBD plugin error message subject to change
+                if (isWebSql)
+                  expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
+                else if (isWindows)
+                  expect(error.message).toMatch(/Error 25 when binding argument to SQL query/);
+                else
+                  expect(error.message).toMatch(/index.*out of range/);
 
                 // Close (plugin only) & finish:
                 (isWebSql) ? done() : db.close(done, done);
