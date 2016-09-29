@@ -247,7 +247,9 @@ var mytests = function() {
               expect(error.code).toBeDefined();
               expect(error.message).toBeDefined();
 
-              if (isWindows)
+              if (isWebSql && !isAndroid)
+                expect(true).toBe(true); // SKIP for iOS (WebKit) Web SQL
+              else if (isWindows)
                 expect(error.code).toBe(0);
               else
                 expect(error.code).toBe(6);
@@ -256,7 +258,7 @@ var mytests = function() {
               if (isWebSql && isAndroid)
                 expect(error.message).toMatch(/could not execute statement due to a constr?aint failure.*19 constraint failed/);
               else if (isWebSql)
-                expect(error.message).toMatch(/could not execute statement due to a constr?aint failure.*19 column data is not unique/);
+                expect(error.message).toMatch(/constr?aint fail/);
               else if (isWindows)
                 expect(error.message).toMatch(/SQLite3 step error result code: 1/);
               else if (isAndroid && !isImpl2)
@@ -695,7 +697,9 @@ var mytests = function() {
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
 
-            if (isWindows)
+            if (isWebSql && !isAndroid)
+              expect(true).toBe(true); // SKIP for iOS (WebKit) Web SQL
+            else if (isWindows)
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(6);
@@ -704,7 +708,7 @@ var mytests = function() {
             if (isWebSql && isAndroid)
               expect(error.message).toMatch(/could not execute statement due to a constr?aint failure.*19 constraint failed/);
             else if (isWebSql)
-              expect(error.message).toMatch(/could not execute statement due to a constr?aint failure.*19 column data is not unique/);
+              expect(error.message).toMatch(/constr?aint fail/);
             else if (isWindows)
               expect(error.message).toMatch(/a statement with no error handler failed: SQLite3 step error result code: 1/);
             else if (isAndroid && !isImpl2)

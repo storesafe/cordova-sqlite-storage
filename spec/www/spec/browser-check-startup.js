@@ -11,9 +11,12 @@ var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
 //var isIE = isWindows || isWP8 || isWindowsPhone_8_1;
 var isIE = isWindows || isWP8;
 var isWebKit = !isIE; // TBD [Android or iOS]
+var isMac = /Macintosh/.test(navigator.userAgent);
 
 window.hasBrowser = true;
-window.hasWebKitBrowser = isWebKit;
+// XXX TODO rename to something like window.hasWebKitWebSQL here and
+// in actual test scripts
+window.hasWebKitBrowser = (isWebKit && !isMac);
 
 describe('check startup', function() {
   it('receives deviceready event', function(done) {

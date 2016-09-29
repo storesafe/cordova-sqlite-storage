@@ -2,7 +2,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-sqlite-storage"
-    version="1.4.8-pre4">
+    version="1.4.8-pre5">
 
     <name>Cordova sqlite storage plugin</name>
 
@@ -53,7 +53,7 @@
 
     </platform>
 
-    <!-- ios -->
+    <!-- iOS -->
     <platform name="ios">
         <config-file target="config.xml" parent="/*">
             <feature name="SQLitePlugin">
@@ -61,9 +61,28 @@
             </feature>
         </config-file>
 
-        <!-- Note: the ios src is based off src/ios implicitly -->
+        <!-- Note: the iOS src is based off src/ios implicitly -->
         <header-file src="src/ios/SQLitePlugin.h" />
         <source-file src="src/ios/SQLitePlugin.m" />
+
+        <header-file src="node_modules/cordova-sqlite-storage-dependencies/sqlite3.h" />
+        <source-file src="node_modules/cordova-sqlite-storage-dependencies/sqlite3.c"
+                     compiler-flags="-DSQLITE_TEMP_STORE=2 -DSQLITE_THREADSAFE=2 -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS -DSQLITE_ENABLE_FTS4 -DSQLITE_ENABLE_COLUMN_METADATA -DSQLITE_ENABLE_RTREE -DSQLITE_LOCKING_STYLE=1 -DSQLITE_OMIT_BUILTIN_TEST -DSQLITE_OMIT_LOAD_EXTENSION" />
+
+    </platform>
+
+    <!-- macOS -->
+    <platform name="osx">
+        <config-file target="config.xml" parent="/*">
+            <feature name="SQLitePlugin">
+                <param name="ios-package" value="SQLitePlugin" />
+            </feature>
+        </config-file>
+
+        <!-- Note: the macOS src is based off src/ios implicitly -->
+        <header-file src="src/ios/SQLitePlugin.h" />
+        <source-file src="src/ios/SQLitePlugin.m" />
+        <!-- FUTURE TBD: more common directory name for Apple macOS/iOS versions -->
 
         <header-file src="node_modules/cordova-sqlite-storage-dependencies/sqlite3.h" />
         <source-file src="node_modules/cordova-sqlite-storage-dependencies/sqlite3.c"

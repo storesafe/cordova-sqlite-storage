@@ -361,7 +361,7 @@ var mytests = function() {
 
         it(suiteName + ' handles UNICODE \\u2028 line separator correctly [string test]', function (done) {
           if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
-          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('BROKEN for iOS plugin'); // [BUG #147] (no callback received)
+          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('BROKEN for iOS/macOS plugin'); // [BUG #147] (no callback received)
 
           // NOTE: since the above test shows the UNICODE line separator (\u2028)
           // is seen by the sqlite implementation OK, it is now concluded that
@@ -412,7 +412,7 @@ var mytests = function() {
 
         it(suiteName + ' handles UNICODE \\u2029 paragraph separator correctly [string test]', function (done) {
           if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
-          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('BROKEN for iOS plugin'); // [BUG #147] (no callback received)
+          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('BROKEN for iOS/macOS plugin'); // [BUG #147] (no callback received)
 
           // NOTE: since the above test shows the UNICODE paragraph separator (\u2029)
           // is seen by the sqlite implementation OK, it is now concluded that

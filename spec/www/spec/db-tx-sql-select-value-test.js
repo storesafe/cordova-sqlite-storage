@@ -7,6 +7,7 @@ var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
+var isMac = /Macintosh/.test(navigator.userAgent);
 
 // NOTE: In the core-master branch there is no difference between the default
 // implementation and implementation #2. But the test will also apply
@@ -432,7 +433,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWebSql)
+              if (isWebSql || isMac)
                 expect(rs.rows.item(0).myresult).toBe('real');
               else if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('text');
@@ -497,7 +498,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWebSql)
+              if (isWebSql || isMac)
                 expect(rs.rows.item(0).myresult).toBe('real');
               else if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('text');
@@ -688,7 +689,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWebSql)
+              if (isWebSql || isMac)
                 expect(rs.rows.item(0).myresult).toBe('real');
               else if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('text');
@@ -753,7 +754,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWebSql)
+              if (isWebSql || isMac)
                 expect(rs.rows.item(0).myresult).toBe('real');
               else if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('text');
@@ -821,7 +822,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWebSql)
+              if (isWebSql || isMac)
                 expect(rs.rows.item(0).myresult).toBe('real');
               else if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('text');
@@ -886,7 +887,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWebSql)
+              if (isWebSql || isMac)
                 expect(rs.rows.item(0).myresult).toBe('real');
               else if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('text');
@@ -950,7 +951,7 @@ var mytests = function() {
         it(suiteName + "SELECT ABS(?) with '9e999' (Infinity) parameter argument" +
            ((!isWebSql && isAndroid) ? ' [Android PLUGIN BROKEN: result with missing row]' : ''), function(done) {
           if (isWP8) pending('SKIP for WP8'); // (no callback received)
-          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin due to CRASH');
+          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS/macOS plugin due to CRASH');
 
           var db = openDatabase('SELECT-ABS-Infinite-parameter-results-test.db', '1.0', 'Test', DEFAULT_SIZE);
 
@@ -966,7 +967,7 @@ var mytests = function() {
               else
                 expect(rs.rows.length).toBe(1);
 
-              if (isWebSql || isWindows)
+              if (isWebSql || isWindows || isMac)
                 expect(rs.rows.item(0).myresult).toBe(Infinity);
 
               // Close (plugin only) & finish:
@@ -985,9 +986,9 @@ var mytests = function() {
         it(suiteName + "SELECT -ABS(?) with '9e999' (Infinity) parameter argument" +
            ((!isWebSql && isAndroid) ? ' [Android PLUGIN BROKEN: missing result]' : ''), function(done) {
           if (isWP8) pending('SKIP for WP8'); // (no callback received)
-          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin due to CRASH');
+          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS/macOS plugin due to CRASH');
 
-          var db = openDatabase('SELECT-ABS-Infinite-parameter-results-test.db', '1.0', 'Test', DEFAULT_SIZE);
+          var db = openDatabase('SELECT-ABS-minus-Infinite-parameter-results-test.db', '1.0', 'Test', DEFAULT_SIZE);
 
           db.transaction(function(tx) {
             expect(tx).toBeDefined();
@@ -1001,7 +1002,7 @@ var mytests = function() {
               else
                 expect(rs.rows.length).toBe(1);
 
-              if (isWebSql || isWindows)
+              if (isWebSql || isWindows || isMac)
                 expect(rs.rows.item(0).myresult).toBe(-Infinity);
 
               // Close (plugin only) & finish:
@@ -1086,7 +1087,7 @@ var mytests = function() {
               // Android/iOS plugin issue
               if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('');
-              else if (!isWebSql && !isWindows)
+              else if (!isWebSql && !isWindows && !isMac)
                 expect(rs.rows.item(0).myresult).toBe(null);
               else
                 expect(rs.rows.item(0).myresult).toBe('inf');
@@ -1121,7 +1122,7 @@ var mytests = function() {
               // Android/iOS plugin issue
               if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('');
-              else if (!isWebSql && !isWindows)
+              else if (!isWebSql && !isWindows && !isMac)
                 expect(rs.rows.item(0).myresult).toBe(null);
               else
                 expect(rs.rows.item(0).myresult).toBe('-INF');
@@ -1156,7 +1157,7 @@ var mytests = function() {
               // Android/iOS plugin issue
               if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('text');
-              else if (!isWebSql && !isWindows)
+              else if (!isWebSql && !isWindows && !isMac)
                 expect(rs.rows.item(0).myresult).toBe('null');
               else
                 expect(rs.rows.item(0).myresult).toBe('real');
@@ -1191,7 +1192,7 @@ var mytests = function() {
               // Android/iOS plugin issue
               if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('text');
-              else if (!isWebSql && !isWindows)
+              else if (!isWebSql && !isWindows && !isMac)
                 expect(rs.rows.item(0).myresult).toBe('null');
               else
                 expect(rs.rows.item(0).myresult).toBe('real');
@@ -1209,8 +1210,9 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'SELECT (?) with Infinity parameter argument [Android/iOS Plugin BROKEN: result with null value]', function(done) {
+        it(suiteName + 'SELECT (?) with Infinity parameter argument [Android/iOS Plugin BROKEN: result with null value; CRASH on macOS]', function(done) {
           if (isWP8) pending('SKIP for WP8'); // SKIP for now
+          if (isMac) pending('SKIP for macOS [CRASH]'); // FUTURE TBD
 
           var db = openDatabase('SELECT-Infinite-parameter-results-test.db', '1.0', 'Test', DEFAULT_SIZE);
 
@@ -1243,8 +1245,9 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'SELECT (?) with -Infinity parameter argument [Android/iOS Plugin BROKEN: result with null value]', function(done) {
+        it(suiteName + 'SELECT (?) with -Infinity parameter argument [Android/iOS Plugin BROKEN: result with null value; CRASH on macOS]', function(done) {
           if (isWP8) pending('SKIP for WP8'); // SKIP for now
+          if (isMac) pending('SKIP for macOS [CRASH]'); // FUTURE TBD
 
           var db = openDatabase('SELECT-minus-Infinite-parameter-results-test.db', '1.0', 'Test', DEFAULT_SIZE);
 

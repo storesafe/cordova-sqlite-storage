@@ -740,8 +740,8 @@ var mytests = function() {
         });
 
         test_it(suiteName + ' database.close (immediately after open) calls its success callback', function () {
-          // XXX POSSIBLY BROKEN on iOS due to current background processing implementation
-          if (!(isAndroid || isIE)) pending('POSSIBLY BROKEN on iOS (background processing implementation)');
+          // XXX POSSIBLY BROKEN on iOS/macOS due to current background processing implementation
+          if (!(isAndroid || isIE)) pending('POSSIBLY BROKEN on iOS/macOS (background processing implementation)');
 
           // asynch test coming up
           stop(1);
@@ -954,7 +954,7 @@ var mytests = function() {
         test_it(suiteName + ' close then re-open (2x) allows subsequent queries to run', function () {
           // asynch test coming up
           stop(1);
-        
+
           var dbName = "Database-Close-and-Reopen";
 
           openDatabase({name: dbName, location: 0}, function (db) {
@@ -976,7 +976,7 @@ var mytests = function() {
                     }, function(tx) {
                       // close on transaction success not while executing
                       // or commit will fail
-                      db.close(); 
+                      db.close();
                     });
                   }, function (error) {
                     ok(false, error.message);
@@ -1044,8 +1044,8 @@ var mytests = function() {
         // Needed to support some large-scale applications:
         test_it(suiteName + ' immediate close, then delete then re-open allows subsequent queries to run', function () {
 
-          // XXX POSSIBLY BROKEN on iOS due to current background processing implementation
-          if (!(isAndroid || isIE)) pending('POSSIBLY BROKEN on iOS (background processing implementation)');
+          // XXX POSSIBLY BROKEN on iOS/macOS due to current background processing implementation
+          if (!(isAndroid || isIE)) pending('POSSIBLY BROKEN on iOS/macOS (background processing implementation)');
 
           var dbName = "Immediate-close-delete-Reopen.db";
 
@@ -1189,8 +1189,8 @@ var mytests = function() {
         });
 
         test_it(suiteName + ' repeatedly open and close database faster (5x)', function () {
-          // XXX CURRENTLY BROKEN on iOS due to current background processing implementation
-          if (!(isAndroid || isIE)) pending('CURRENTLY BROKEN on iOS (background processing implementation)');
+          // XXX CURRENTLY BROKEN on iOS/macOS due to current background processing implementation
+          if (!(isAndroid || isIE)) pending('CURRENTLY BROKEN on iOS/macOS (background processing implementation)');
 
           var dbName = "repeatedly-open-and-close-faster-5x.db";
 
@@ -1310,8 +1310,8 @@ var mytests = function() {
 
         // Needed to support some large-scale applications:
         test_it(suiteName + ' repeatedly open and delete database faster (5x)', function () {
-          // XXX CURRENTLY BROKEN on iOS due to current background processing implementation
-          if (!(isAndroid || isIE)) pending('CURRENTLY BROKEN on iOS (background processing implementation)');
+          // XXX CURRENTLY BROKEN on iOS/macOS due to current background processing implementation
+          if (!(isAndroid || isIE)) pending('CURRENTLY BROKEN on iOS/macOS (background processing implementation)');
 
           var dbName = "repeatedly-open-and-delete-faster-5x.db";
 

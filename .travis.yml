@@ -10,7 +10,7 @@ git:
   depth: 2
 
 node_js:
-  - "4.4"
+  - "4.6"
 
 install:
   - echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config

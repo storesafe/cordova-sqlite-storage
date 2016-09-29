@@ -33,8 +33,7 @@ function start(n) {
 var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
-var isIE = isWindows || isWP8;
-var isWebKit = !isIE; // TBD [Android or iOS]
+var isMac = /Macintosh/.test(navigator.userAgent);
 
 // NOTE: In the core-master branch there is no difference between the default
 // implementation and implementation #2. But the test will also apply
@@ -218,6 +217,7 @@ var mytests = function() {
 
         it(suiteName + 'INSERT Infinity with no/NUMERIC/REAL/INTEGER/TEXT type affinity and check stored data [Android/iOS Plugin BROKEN: stored with null value]', function(done) {
           if (isWP8) pending('SKIP for WP8'); // SKIP for now
+          if (isMac) pending('SKIP for macOS [CRASH]'); // FUTURE TBD
 
           var db = openDatabase('INSERT-Infinity-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
 
@@ -272,6 +272,7 @@ var mytests = function() {
 
         it(suiteName + 'INSERT -Infinity with no/NUMERIC/REAL/INTEGER/TEXT type affinity and check stored data [Android/iOS Plugin BROKEN: stored with null value]', function(done) {
           if (isWP8) pending('SKIP for WP8'); // SKIP for now
+          if (isMac) pending('SKIP for macOS [CRASH]'); // FUTURE TBD
 
           var db = openDatabase('INSERT-minus-Infinity-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
 
@@ -491,7 +492,7 @@ var mytests = function() {
 
                   // NOTE: big number apparently stored in field with TEXT affinity with slightly
                   // different conversion in plugin vs. WebKit Web SQL!
-                  if (isWebSql)
+                  if (isWebSql || isMac)
                     expect(row.test_text).toBe("1424174959894.0"); // ([Big] number inserted as string ok)
                   else
                     expect(row.test_text).toBe("1424174959894"); // (Big integer number inserted as string ok)
@@ -1056,7 +1057,7 @@ var mytests = function() {
         test_it(suiteName +
             ' handles UNICODE \\u2028 line separator correctly [in database]', function () {
           if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
-          if (!(isWebSql || isAndroid || isIE)) pending('BROKEN for iOS'); // XXX [BUG #147] (no callback received)
+          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('BROKEN for iOS/macOS plugin'); // [BUG #147] (no callback received)
 
           var dbName = "Unicode-line-separator.db";
           var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
