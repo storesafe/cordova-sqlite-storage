@@ -314,8 +314,9 @@ var mytests = function() {
 
                   if (isWebSql) {
                     // Web SQL STANDARD:
-                    // 1. this is a native object that is NOT affected by the change:
-                    expect(temp1.data).toBe('test');
+                    // 1. this is a native object that is NOT affected by the change (SKIP for Android 5.x/+):
+                    if (!isAndroid || /Android [1-4]/.test(navigator.userAgent))
+                      expect(temp1.data).toBe('test');
                     // 2. object returned by second resultSet.rows.item call not affected:
                     expect(temp2.data).toBe('test');
                   } else {

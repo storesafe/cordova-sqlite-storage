@@ -442,8 +442,10 @@ var mytests = function() {
           db.transaction(function(tx) {
 
             tx.executeSql("SELECT UPPER('Test ¢ é €') AS upper_result", [], function(ignored, rs) {
-              if (isAndroid && isWebSql) expect(rs.rows.item(0).upper_result).toBe('TEST ¢ É €');
-              else expect(rs.rows.item(0).upper_result).toBe('TEST ¢ é €');
+              if (isAndroid && (isWebSql || (isImpl2 && /Android [5-9]/.test(navigator.userAgent))))
+                expect(rs.rows.item(0).upper_result).toBe('TEST ¢ É €');
+              else
+                expect(rs.rows.item(0).upper_result).toBe('TEST ¢ é €');
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
@@ -459,8 +461,10 @@ var mytests = function() {
           db.transaction(function(tx) {
 
             tx.executeSql('SELECT UPPER(?) AS upper_result', ['Test ¢ é €'], function(ignored, rs) {
-              if (isAndroid && isWebSql) expect(rs.rows.item(0).upper_result).toBe('TEST ¢ É €');
-              else expect(rs.rows.item(0).upper_result).toBe('TEST ¢ é €');
+              if (isAndroid && (isWebSql || (isImpl2 && /Android [5-9]/.test(navigator.userAgent))))
+                expect(rs.rows.item(0).upper_result).toBe('TEST ¢ É €');
+              else
+                expect(rs.rows.item(0).upper_result).toBe('TEST ¢ é €');
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);

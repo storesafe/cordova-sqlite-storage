@@ -34,6 +34,7 @@ var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 var isMac = /Macintosh/.test(navigator.userAgent);
+var isWKWebView = !isWindows && !isAndroid && !isWP8 && !isMac && !!window.webkit && !!window.webkit.messageHandlers;
 
 // NOTE: In the core-master branch there is no difference between the default
 // implementation and implementation #2. But the test will also apply
@@ -492,7 +493,7 @@ var mytests = function() {
 
                   // NOTE: big number apparently stored in field with TEXT affinity with slightly
                   // different conversion in plugin vs. WebKit Web SQL!
-                  if (isWebSql || isMac)
+                  if (isWebSql || isMac || isWKWebView)
                     expect(row.test_text).toBe("1424174959894.0"); // ([Big] number inserted as string ok)
                   else
                     expect(row.test_text).toBe("1424174959894"); // (Big integer number inserted as string ok)
