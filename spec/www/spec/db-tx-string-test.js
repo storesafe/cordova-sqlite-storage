@@ -83,6 +83,23 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        it(suiteName + 'Inline US-ASCII String manipulation test with undefined parameter list', function(done) {
+          var db = openDatabase("Inline-US-ASCII-string-test-with-undefined-parameter-list.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", undefined, function(tx, res) {
+              expect(res.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          });
+        }, MYTIMEOUT);
+
         it(suiteName + 'US-ASCII String binding test', function(done) {
           var db = openDatabase("ASCII-string-binding-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
@@ -295,7 +312,7 @@ var mytests = function() {
 
         it(suiteName + "Inline BLOB with emoji string manipulation test: SELECT LOWER(X'41F09F9883') [A\uD83D\uDE03] [\\u1F603 SMILING FACE (MOUTH OPEN)]", function(done) {
           if (isWP8) pending('BROKEN for WP8'); // [CRASH with uncaught exception]
-          if (isAndroid && !isWebSql && !isImpl2) pending('BROKEN for Android (default sqlite-connector version)');
+          if (isAndroid && !isWebSql && !isImpl2) pending('BROKEN for Android (default sqlite-connector version)'); // CRASH on Android 5.x
           if (isWindows) pending('BROKEN for Windows');
 
           var db = openDatabase("Inline-emoji-select-lower-result-test.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -532,6 +549,20 @@ var mytests = function() {
 
       describe(suiteName + 'string test with non-primitive parameter values', function() {
 
+        it(suiteName + 'String test with array parameter value', function(done) {
+          var db = openDatabase("String-test-with-array-parameter-value.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+
+            tx.executeSql('SELECT UPPER(?) AS upper_result', [['Test',null,123.456,789]], function(ignored, rs) {
+              expect(rs.rows.item(0).upper_result).toBe('TEST,,123.456,789');
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          });
+        }, MYTIMEOUT);
+
         it(suiteName + 'String test with new String object', function(done) {
           var db = openDatabase("String-object-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
@@ -580,6 +611,33 @@ var mytests = function() {
 
           db.transaction(function(tx) {
             tx.executeSql(myNewString, [], function(tx_ignored, resultSet) {
+              // EXPECTED RESULT:
+              expect(true).toBe(true);
+              expect(resultSet).toBeDefined();
+              expect(resultSet.rows).toBeDefined();
+              expect(resultSet.rows.length).toBe(1);
+              expect(resultSet.rows.item(0)).toBeDefined();
+              expect(resultSet.rows.item(0).u1).toBeDefined();
+              expect(resultSet.rows.item(0).u1).toBe('ALICE');
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+
+            }, function(tx_ignored, error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              expect(error.message).toBe('--');
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'String test with single element array for SQL', function(done) {
+          var db = openDatabase("String-test-with-single-element-array-for-sql.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql(["SELECT UPPER('Alice') as u1"], [], function(tx_ignored, resultSet) {
               // EXPECTED RESULT:
               expect(true).toBe(true);
               expect(resultSet).toBeDefined();

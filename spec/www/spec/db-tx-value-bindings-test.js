@@ -216,6 +216,66 @@ var mytests = function() {
           });
         });
 
+        it(suiteName + 'INSERT integer value (42) with no/INTEGER/NUMERIC/REAL/TEXT affinity & check stored data [TBD Plugin vs (WebKit) Web SQL]', function(done) {
+          var db = openDatabase("INTEGER-INSERT-value-bindings.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS tt');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (data1, data2 INTEGER, data3 NUMERIC, data4 REAL, data5 TEXT)', null, function(ignored1, ignored2) {
+              tx.executeSql('INSERT INTO tt VALUES (?,?,?,?,?)',
+                  [42, 42, 42, 42, 42], function(ignored, rs1) {
+                expect(rs1).toBeDefined();
+                expect(rs1.rowsAffected).toBe(1);
+                expect(rs1.insertId).toBe(1);
+
+                tx.executeSql('SELECT * FROM tt', [], function(ignored, rs2) {
+                  // CHECK BIG INTEGER number was inserted properly:
+                  expect(rs2).toBeDefined();
+                  expect(rs2.rows).toBeDefined();
+                  expect(rs2.rows.length).toBe(1);
+
+                  var row = rs2.rows.item(0);
+                  expect(row.data1).toBe(42);
+                  expect(row.data2).toBe(42);
+                  expect(row.data3).toBe(42);
+                  expect(row.data4).toBe(42);
+
+                  if (isWebSql || isMac || isWKWebView)
+                    expect(row.data5).toBe('42.0');
+                  else
+                    expect(row.data5).toBe('42');
+
+                  tx.executeSql('SELECT TYPEOF(data1) AS t1, TYPEOF(data2) AS t2, TYPEOF(data3) AS t3, TYPEOF(data4) AS t4, TYPEOF(data5) AS t5 FROM tt', [], function(ignored, rs3) {
+                    expect(rs3).toBeDefined();
+                    expect(rs3.rows).toBeDefined();
+                    expect(rs3.rows.length).toBe(1);
+
+                    var row = rs3.rows.item(0);
+                    if (isWebSql || isMac || isWKWebView)
+                      expect(row.t1).toBe('real');
+                    else
+                      expect(row.t1).toBe('integer');
+                    expect(row.t2).toBe('integer');
+                    expect(row.t3).toBe('integer');
+                    expect(row.t4).toBe('real');
+                    expect(row.t5).toBe('text');
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  });
+
+                });
+              });
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
         it(suiteName + 'INSERT Infinity with no/NUMERIC/REAL/INTEGER/TEXT type affinity and check stored data [Android/iOS Plugin BROKEN: stored with null value]', function(done) {
           if (isWP8) pending('SKIP for WP8'); // SKIP for now
           if (isMac) pending('SKIP for macOS [CRASH]'); // FUTURE TBD
@@ -470,25 +530,30 @@ var mytests = function() {
           });
         });
 
-        it(suiteName + "Big [integer] value bindings", function(done) {
-          var db = openDatabase("Big-int-bindings.db", "1.0", "Demo", DEFAULT_SIZE);
+        it(suiteName + 'BIG INTEGER INSERT value bindings', function(done) {
+          var db = openDatabase("BIG-INTEGER-INSERT-value-bindings.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS tt');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (test_date INTEGER, test_text TEXT)');
-          }, function(err) {
-            expect(false).toBe(true);
-            expect(err.message).toBe('---');
+            // NOTE: DATETIME is same as NUMERIC ref:
+            // https://www.sqlite.org/datatype3.html#affinity_name_examples
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (data1, test_int INTEGER, test_num NUMERIC, test_date DATETIME, test_text TEXT)', null, function(ignored1, ignored2) {
+              tx.executeSql('INSERT INTO tt VALUES (?,?,?,?,?)',
+                  [1424174959894, 1424174959894, 1424174959894, 1424174959894, 1424174959894], function(ignored, rs1) {
+                expect(rs1).toBeDefined();
+                expect(rs1.rowsAffected).toBe(1);
+                expect(rs1.insertId).toBe(1);
 
-          }, function() {
-            db.transaction(function(tx) {
-              tx.executeSql("insert into tt (test_date, test_text) VALUES (?,?)",
-                  [1424174959894, 1424174959894], function(tx, res) {
-                expect(res).toBeDefined();
-                expect(res.rowsAffected).toBe(1);
-                tx.executeSql("select * from tt", [], function(tx, res) {
-                  // (Big integer number inserted properly)
-                  var row = res.rows.item(0);
+                tx.executeSql('SELECT * FROM tt', [], function(ignored, rs2) {
+                  // CHECK BIG INTEGER number was inserted properly:
+                  expect(rs2).toBeDefined();
+                  expect(rs2.rows).toBeDefined();
+                  expect(rs2.rows.length).toBe(1);
+
+                  var row = rs2.rows.item(0);
+                  expect(row.data1).toBe(1424174959894);
+                  expect(row.test_int).toBe(1424174959894);
+                  expect(row.test_num).toBe(1424174959894);
                   expect(row.test_date).toBe(1424174959894);
 
                   // NOTE: big number apparently stored in field with TEXT affinity with slightly
@@ -498,13 +563,36 @@ var mytests = function() {
                   else
                     expect(row.test_text).toBe("1424174959894"); // (Big integer number inserted as string ok)
 
-                  // Close (plugin only) & finish:
-                  (isWebSql) ? done() : db.close(done, done);
+                  tx.executeSql('SELECT TYPEOF(data1) AS t1, TYPEOF(test_int) AS t2, TYPEOF(test_num) AS t3, TYPEOF(test_date) AS t4, TYPEOF(test_text) AS t5 FROM tt', [], function(ignored, rs3) {
+                    expect(rs3).toBeDefined();
+                    expect(rs3.rows).toBeDefined();
+                    expect(rs3.rows.length).toBe(1);
+
+                    var row = rs3.rows.item(0);
+                    if (isWebSql || isMac || isWKWebView)
+                      expect(row.t1).toBe('real');
+                    else
+                      expect(row.t1).toBe('integer');
+                    expect(row.t2).toBe('integer');
+                    expect(row.t3).toBe('integer');
+                    expect(row.t4).toBe('integer');
+                    expect(row.t5).toBe('text');
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  });
+
                 });
               });
             });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
           });
-        });
+        }, MYTIMEOUT);
 
         it(suiteName + "Double precision decimal number insertion", function(done) {
           var db = openDatabase("Double-precision-number-insertion.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -533,6 +621,57 @@ var mytests = function() {
             });
           });
         });
+
+        it(suiteName + 'BIG REAL INSERT value bindings', function(done) {
+          var db = openDatabase("BIG-REAL-INSERT-value-bindings.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS tt');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (data1 REAL, data2 NUMERIC, data3 INTEGER, data4 TEXT)', null, function(ignored1, ignored2) {
+              tx.executeSql('INSERT INTO tt VALUES (?,?,?,?)',
+                  [1234567890123.4, 1234567890123.4, 1234567890123.4, 1234567890123.4], function(tx, rs1) {
+                expect(rs1).toBeDefined();
+                expect(rs1.rowsAffected).toBe(1);
+                expect(rs1.insertId).toBe(1);
+
+                tx.executeSql('SELECT * FROM tt', [], function(tx, rs2) {
+                  // CHECK BIG INTEGER number was inserted properly:
+                  expect(rs2).toBeDefined();
+                  expect(rs2.rows).toBeDefined();
+                  expect(rs2.rows.length).toBe(1);
+
+                  var row = rs2.rows.item(0);
+                  expect(row.data1).toBe(1234567890123.4);
+                  expect(row.data2).toBe(1234567890123.4);
+                  expect(row.data3).toBe(1234567890123.4);
+                  expect(row.data4).toBe('1234567890123.4');
+
+                  tx.executeSql('SELECT TYPEOF(data1) AS t1, TYPEOF(data2) AS t2, TYPEOF(data3) AS t3, TYPEOF(data4) AS t4 FROM tt', [], function(tx, rs3) {
+                    expect(rs3).toBeDefined();
+                    expect(rs3.rows).toBeDefined();
+                    expect(rs3.rows.length).toBe(1);
+
+                    var row = rs3.rows.item(0);
+                    expect(row.t1).toBe('real');
+                    expect(row.t2).toBe('real');
+                    expect(row.t3).toBe('real');
+                    expect(row.t4).toBe('text');
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  });
+
+                });
+              });
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
 
         it(suiteName + "executeSql parameter as array", function(done) {
           var db = openDatabase("array-parameter.db", "1.0", "Demo", DEFAULT_SIZE);

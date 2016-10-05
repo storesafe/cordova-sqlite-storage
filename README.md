@@ -206,6 +206,14 @@ Use the following command to install this plugin from the Cordova CLI:
 cordova plugin add cordova-sqlite-storage --save
 ```
 
+**IMPORTANT NOTICE:** After installing the plugin and adding the iOS platform `cordova prepare` **must** be used for it to work on iOS 10 or with the iOS WKWebView plugin.
+
+and then prepare before building (required to work on iOS 10 or with WKWebView):
+
+```shell
+cordova prepare
+```
+
 Please see the [Installing](#installing) section for more details.
 
 **NOTE:** The new [brodybits / Cordova-sqlite-bootstrap-test](https://github.com/brodybits/Cordova-sqlite-bootstrap-test) project includes the echo test, self test, and string test described below along with some more sample functions.
@@ -334,6 +342,8 @@ As "strongly recommended" by [Web SQL Database API 8.5 SQL injection](https://ww
 - In case of an issue that causes an API function to throw an exception (Android/iOS WebKit) Web SQL includes includes a code member with value of 0 (SQLError.UNKNOWN_ERR) in the exception while the plugin includes no such code member.
 - This plugin supports some non-standard features as documented below.
 - Results of SELECT with BLOB data such as `SELECT LOWER(X'40414243') AS myresult`, `SELECT X'40414243' AS myresult`, or reading data stored by `INSERT INTO MyTable VALUES (X'40414243')` are not consistent on Android in case the built-in Android database is used (using the `androidDatabaseImplementation: 2` setting in `window.sqlitePlugin.openDatabase`) or Windows. (These work with Android/iOS WebKit Web SQL and have been supported by SQLite for a number of years.)
+- Whole number parameter argument values such as `42`, `-101`, or `1234567890123` are handled as INTEGER values by this plugin on Android, iOS (default UIWebView), and Windows while they are handled as REAL values by (WebKit) Web SQL and this plugin on macOS or iOS with WKWebView. This is evident in certain test operations such as `SELECT ? as myresult` or `SELECT TYPEOF(?) as myresult` and storage in a field with TEXT affinity.
+- INTEGER, REAL, +/- `Infinity`, `NaN`, `null`, `undefined` parameter argument values are handled as TEXT string values on Android in case the built-in Android database (`androidDatabaseImplementation: 2` setting) is used. (This is evident in certain test operations such as `SELECT ? as myresult` or `SELECT TYPEOF(?) as myresult` and storage in a field with TEXT affinity.)
 - The results data objects are not immutable as specified/implied by [Web SQL API section 4.5](https://www.w3.org/TR/webdatabase/#database-query-results).
 
 ### Security of deleted data
@@ -346,7 +356,6 @@ See **Security of sensitive data** in the [Security](#security) section above.
 - In case a transaction function throws an exception, the message and code if present are reported by the plugin but *not* by (WebKit) Web SQL.
 - SQL error messages are inconsistent on Windows.
 - There are some other differences in the SQL error messages reported by WebKit Web SQL and this plugin.
-- `SELECT TYPEOF(?) as myresult` with integer SQL parameter argument value such as `0`, `101`, `-101`, or `1234567890123` (BIG INTEGER) returns `integer` in case of this plugin on Android/iOS/Windows or `real` in case of (WebKit) Web SQL and this plugin on macOS. However integer values are stored correctly in columns with no type affinity in case of both (WebKit) Web SQL and this plugin.
 - Operations such as `SELECT ? as myresult` or `SELECT TYPEOF(?) as myresult` seems to treat `null`, `undefined`, INTEGER, REAL, +/- `Infinity`, and `NaN` parameter argument values like TEXT string values on Android in case the built-in Android database (`androidDatabaseImplementation: 2` setting) is used. However the plugin does seem to store and retrieve all such parameter argument values except for +/- `Infinity` values correctly on all platforms including Android with the `androidDatabaseImplementation: 2` setting enabled.
 
 <!-- END Deviations -->
@@ -1038,6 +1047,8 @@ npm install -g cordova # (in case you don't have cordova)
 cordova create MyProjectFolder com.my.project MyProject && cd MyProjectFolder # if you are just starting
 cordova plugin add cordova-sqlite-storage --save
 ```
+
+**WARNING:** After installing the plugin and adding the iOS platform `cordova prepare` **must** be used for it to work on iOS 10 or with the iOS WKWebView plugin.
 
 **Cordova CLI NOTES:**
 
