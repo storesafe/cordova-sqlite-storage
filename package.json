@@ -29,5 +29,11 @@
   "homepage": "https://github.com/litehelpers/Cordova-sqlite-storage",
   "dependencies": {
     "cordova-sqlite-storage-dependencies": "1.0.0"
+  },
+  "scripts": {
+    "start": "node scripts/prepareSpec.js"
+  },
+  "devDependencies": {
+    "shelljs": "^0.7.4"
   }
 }

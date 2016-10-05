@@ -2,6 +2,7 @@
 .metadata/*
 *.swp
 *~
+node_modules
 spec/myplugin
 spec/plugins
 spec/platforms
