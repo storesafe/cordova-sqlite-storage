@@ -1,6 +1,6 @@
 # Changes
 
-### cordova-sqlite-storage 1.4.8-pre5
+### cordova-sqlite-storage 1.4.8-pre6
 
 - Support macOS ("osx" platform)
 - Signal an error in case of SQL with too many parameter argument values on iOS (in addition to Android & Windows)

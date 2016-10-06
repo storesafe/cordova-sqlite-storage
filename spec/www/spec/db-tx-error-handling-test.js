@@ -82,11 +82,9 @@ var mytests = function() {
 
             if (isWP8)
               expect(true).toBe(true); // SKIP for now
-            else if (isWindows)
+            else if (isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
             else if (isWebSql && isAndroid)
-              expect(true).toBe(true); // SKIP for now
-            else if (!isWebSql && isAndroid && isImpl2)
               expect(true).toBe(true); // SKIP for now
             else
               expect(error.code).toBe(5);
@@ -1862,9 +1860,9 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
+            if (isWP8)
               expect(true).toBe(true); // SKIP for now
-            else if (isWindows)
+            else if (isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -1928,9 +1926,9 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
+            if (isWP8)
               expect(true).toBe(true); // SKIP for now
-            else if (isWindows)
+            else if (isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -1994,9 +1992,9 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
+            if (isWP8)
               expect(true).toBe(true); // SKIP for now
-            else if (isWindows)
+            else if (isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -2056,9 +2054,9 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
+            if (isWP8)
               expect(true).toBe(true); // SKIP for now
-            else if (isWindows)
+            else if (isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -2119,9 +2117,9 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
+            if (isWP8)
               expect(true).toBe(true); // SKIP for now
-            else if (isWindows)
+            else if (isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -2245,9 +2243,9 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
+            if (isWP8)
               expect(true).toBe(true); // SKIP for now
-            else if (isWindows)
+            else if (isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -2307,9 +2305,9 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
+            if (isWP8)
               expect(true).toBe(true); // SKIP for now
-            else if (isWindows)
+            else if (isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -2369,9 +2367,9 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
+            if (isWP8)
               expect(true).toBe(true); // SKIP for now
-            else if (isWindows)
+            else if (isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -2430,9 +2428,9 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
+            if (isWP8)
               expect(true).toBe(true); // SKIP for now
-            else if (isWindows)
+            else if (isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -2491,9 +2489,9 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
+            if (isWP8)
               expect(true).toBe(true); // SKIP for now
-            else if (isWindows)
+            else if (isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -2552,9 +2550,9 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
+            if (isWP8)
               expect(true).toBe(true); // SKIP for now
-            else if (isWindows)
+            else if (isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -3275,9 +3273,9 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
+            if (isWP8)
               expect(true).toBe(true); // SKIP for now
-            else if (!isWebSql && !isWindows)
+            else if (!isWebSql && !isWindows && !(isAndroid && isImpl2))
               expect(error.code).toBe(5);
             else
               expect(error.code).toBe(0);
@@ -3327,9 +3325,9 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
+            if (isWP8)
               expect(true).toBe(true); // SKIP for now
-            else if (!isWebSql && !isWindows)
+            else if (!isWebSql && !isWindows && !(isAndroid && isImpl2))
               expect(error.code).toBe(5);
             else
               expect(error.code).toBe(0);

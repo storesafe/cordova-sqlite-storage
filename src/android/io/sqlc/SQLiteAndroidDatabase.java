@@ -51,8 +51,6 @@ class SQLiteAndroidDatabase
     private static final Pattern DELETE_TABLE_NAME = Pattern.compile("^\\s*DELETE\\s+FROM\\s+(\\S+)",
             Pattern.CASE_INSENSITIVE);
 
-    private static final Pattern SYNTAX_ERROR_PATTERN = Pattern.compile("^.*syntax.*error.*");
-
     private static final boolean isPostHoneycomb = android.os.Build.VERSION.SDK_INT >= 11;
 
     File dbFile;
@@ -304,9 +302,6 @@ class SQLiteAndroidDatabase
 
                     batchResults.put(r);
                 } else {
-                    if (SYNTAX_ERROR_PATTERN.matcher(errorMessage).matches())
-                        code = 5; // SQLException.SYNTAX_ERR
-
                     JSONObject r = new JSONObject();
                     r.put("type", "error");
 

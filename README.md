@@ -361,9 +361,6 @@ See **Security of sensitive data** in the [Security](#security) section above.
 - In case a transaction function throws an exception, the message and code if present are reported by the plugin but *not* by (WebKit) Web SQL.
 - SQL error messages are inconsistent on Windows.
 - There are some other differences in the SQL error messages reported by WebKit Web SQL and this plugin.
-<!-- MOVED:
-- Operations such as `SELECT ? as myresult` or `SELECT TYPEOF(?) as myresult` seems to treat `null`, `undefined`, INTEGER, REAL, +/- `Infinity`, and `NaN` parameter argument values like TEXT string values on Android in case the built-in Android database (`androidDatabaseImplementation: 2` setting) is used. However the plugin does seem to store and retrieve all such parameter argument values except for +/- `Infinity` values correctly on all platforms including Android with the `androidDatabaseImplementation: 2` setting enabled.
--->
 
 <!-- END Deviations -->
 

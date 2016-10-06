@@ -101,10 +101,8 @@ var mytests = function() {
               expect(error.code).toBeDefined();
               expect(error.message).toBeDefined();
 
-              if (isWindows)
+              if (isWindows || (isAndroid && isImpl2))
                 expect(error.code).toBe(0);
-              else if (!isWebSql && isAndroid && isImpl2)
-                expect(true).toBe(true); // SKIP for now
               else
                 expect(error.code).toBe(5);
 
@@ -129,10 +127,8 @@ var mytests = function() {
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
 
-            if (isWindows || isWebSql)
+            if (isWindows || isWebSql || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
-            else if (!isWebSql && isAndroid && isImpl2)
-              expect(true).toBe(true); // SKIP for now
             else
               expect(error.code).toBe(5);
 
@@ -175,10 +171,8 @@ var mytests = function() {
               expect(error.code).toBeDefined();
               expect(error.message).toBeDefined();
 
-              if (isWindows)
+              if (isWindows || (isAndroid && isImpl2))
                 expect(error.code).toBe(0);
-              else if (!isWebSql && isAndroid && isImpl2)
-                expect(true).toBe(true); // SKIP for now
               else
                 expect(error.code).toBe(5);
 
@@ -202,10 +196,8 @@ var mytests = function() {
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
 
-            if (isWindows || isWebSql)
+            if (isWindows || isWebSql || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
-            else if (!isWebSql && isAndroid && isImpl2)
-              expect(true).toBe(true); // SKIP for now
             else
               expect(error.code).toBe(5);
 
@@ -604,7 +596,7 @@ var mytests = function() {
               expect(error.code).toBeDefined();
               expect(error.message).toBeDefined();
 
-              if (isWindows || (isAndroid && isImpl2))
+              if (isWindows || (!isWebSql && isAndroid && isImpl2))
                 expect(error.code).toBe(0);
               else
                 expect(error.code).toBe(5);
@@ -665,10 +657,8 @@ var mytests = function() {
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
 
-            if (isWindows)
+            if (isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
-            else if (!isWebSql && isAndroid && isImpl2)
-              expect(true).toBe(true); // SKIP for now
             else
               expect(error.code).toBe(5);
 
