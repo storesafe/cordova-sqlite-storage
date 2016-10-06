@@ -699,6 +699,186 @@ var mytests = function() {
 
       });
 
+      describe(suiteName + 'string test with dynamically changing objects', function() {
+
+        it(suiteName + 'String test with dynamically changing object for SQL', function(done) {
+          // MyDynamicObject "class":
+          function MyDynamicObject() { this.name = 'Alice'; };
+          MyDynamicObject.prototype.toString = function() {return "SELECT UPPER('" + this.name + "') as uppertext";}
+
+          var myObject = new MyDynamicObject();
+
+          // Check myObject:
+          expect(myObject.toString()).toBe("SELECT UPPER('Alice') as uppertext");
+
+          var db = openDatabase("Dynamic-object-for-sql-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            myObject.name = 'Betty';
+            tx.executeSql(myObject, [], function(ignored, rs) {
+              // EXPECTED RESULT:
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0)).toBeDefined();
+              expect(rs.rows.item(0).uppertext).toBe('BETTY');
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+
+            }, function(tx_ignored, error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              expect(error.message).toBe('--');
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+            myObject.name = 'Carol';
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'String test with dynamically changing object parameter arg value', function(done) {
+          // MyDynamicParameterObject "class":
+          function MyDynamicParameterObject() {this.name='Alice';};
+          MyDynamicParameterObject.prototype.toString = function() {return this.name;};
+
+          var myObject = new MyDynamicParameterObject();
+
+          // Check myObject:
+          expect(myObject.toString()).toBe('Alice');
+
+          var db = openDatabase("Dynamic-object-arg-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            myObject.name = 'Betty';
+            tx.executeSql('SELECT UPPER(?) AS uppertext', [myObject], function(ignored, rs) {
+              // EXPECTED RESULT:
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0)).toBeDefined();
+              expect(rs.rows.item(0).uppertext).toBeDefined();
+              expect(rs.rows.item(0).uppertext).toBe('BETTY');
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+            myObject.name = 'Carol';
+          });
+        }, MYTIMEOUT);
+
+      });
+
+      describe(suiteName + 'string test with Array "subclass" for SQL parameter arg values array', function() {
+        ;
+        it(suiteName + 'SELECT UPPER(?) AS upper1, UPPER(?) AS upper2 with "naive" Array subclass (constructor NOT explicitly set) as value arguments array', function(done) {
+          var db = openDatabase('SELECT-multi-upper-on-array-subclass.db');
+          expect(db).toBeDefined();
+
+          // Variation on the "naive approach" described in
+          // http://perfectionkills.com/how-ecmascript-5-still-does-not-allow-to-subclass-an-array/
+          function F() {}
+          F.prototype = Array.prototype;
+          function MyArraySubclass() {}
+          MyArraySubclass.prototype = new F();
+          myObject = new MyArraySubclass();
+          myObject.push('s1', 's2');
+
+          expect(myObject.length).toBe(2);
+          expect(myObject[0]).toBe('s1');
+          expect(myObject[1]).toBe('s2');
+
+          expect(myObject.constructor).toBe(Array);
+
+          db.transaction(function(tx) {
+            tx.executeSql('SELECT UPPER(?) AS upper1, UPPER(?) AS upper2', myObject, function(ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).upper1).toBe('S1');
+              expect(rs.rows.item(0).upper2).toBe('S2');
+              done();
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            done();
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'SELECT UPPER(?) AS upper1, UPPER(?) AS upper2 with "naive" Array subclass (constructor explicitly set to subclasss) as value arguments array [SQL argument values IGNORED by plugin]', function(done) {
+          var db = openDatabase('SELECT-multi-upper-on-array-subclass-explicit-constructor.db');
+          expect(db).toBeDefined();
+
+          // Variation on the "naive approach" described in
+          // http://perfectionkills.com/how-ecmascript-5-still-does-not-allow-to-subclass-an-array/
+          function F() {}
+          F.prototype = Array.prototype;
+          function MyArraySubclass() {}
+          MyArraySubclass.prototype = new F();
+          myObject = new MyArraySubclass();
+          myObject.push('s1', 's2');
+
+          expect(myObject.length).toBe(2);
+          expect(myObject[0]).toBe('s1');
+          expect(myObject[1]).toBe('s2');
+
+          expect(myObject.constructor).toBe(Array);
+          myObject.constructor = MyArraySubclass;
+          expect(myObject.constructor).toBe(MyArraySubclass);
+
+          db.transaction(function(tx) {
+            tx.executeSql('SELECT UPPER(?) AS upper1, UPPER(?) AS upper2', myObject, function(ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              if (isWebSql) {
+                expect(rs.rows.item(0).upper1).toBe('S1');
+                expect(rs.rows.item(0).upper2).toBe('S2');
+              } else {
+                expect(rs.rows.item(0).upper1).toBeNull();
+                expect(rs.rows.item(0).upper2).toBeNull();
+              }
+              done();
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            done();
+          });
+        }, MYTIMEOUT);
+
+        xit(suiteName + 'Blank string test with null/undefined callback functions', function(done) {
+          var db = openDatabase("Inline-US-ASCII-string-test-with-undefined-parameter-list.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql("SELECT ''", null, null);
+            tx.executeSql("SELECT ''", undefined, undefined);
+            tx.executeSql("SELECT ''", null, undefined);
+            tx.executeSql("SELECT ''", undefined, null);
+
+            tx.executeSql("SELECT ''", function(ignored, rs) {
+              expect(rs).toBeDefined();
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            done();
+          });
+        }, MYTIMEOUT);
+
+      });
+
       describe(suiteName + 'BLOB string test(s)', function() {
 
         it(suiteName + "SELECT HEX(X'010203') [BLOB value test]", function(done) {
