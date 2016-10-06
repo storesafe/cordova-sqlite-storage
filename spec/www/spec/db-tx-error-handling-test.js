@@ -62,7 +62,7 @@ var mytests = function() {
             // This insertion has a SQL syntax error which is not handled:
             tx.executeSql('INSERT INTO tt (data) VALUES ', [123]);
 
-            // SECOND SQL - SKIPPED by Web SQL and plugin:
+            // SECOND SQL - SKIPPED by Web SQL and this plugin:
             tx.executeSql('SELECT 1', [], function(tx, res) {
               // NOT EXPECTED:
               expect(false).toBe(true);
@@ -129,7 +129,7 @@ var mytests = function() {
               return true;
             });
 
-            // SECOND SQL - SKIPPED by Web SQL and plugin:
+            // SECOND SQL - SKIPPED by Web SQL and this plugin:
             tx.executeSql('SELECT 1', [], function(ignored1, ignored2) {
               // NOT EXPECTED:
               expect(false).toBe(true);
@@ -333,7 +333,7 @@ var mytests = function() {
               return true;
             });
 
-            // SKIPPED by Web SQL and this plugin:
+            // SECOND SQL - SKIPPED by Web SQL and this plugin:
             tx.executeSql('SELECT 1', [], function(ignored1, ignored2) {
               // NOT EXPECTED:
               expect(false).toBe(true);
@@ -480,8 +480,969 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'empty transaction (no sql statements) and then SELECT transaction', function (done) {
+        it(suiteName + 'db.transaction(null) in try-catch block and then SELECT transaction', function (done) {
+          var db = openDatabase("tx-with-null-argment.db", "1.0", "Demo", DEFAULT_SIZE);
 
+          try {
+            // SYNCHRONOUS ERROR EXPECTED:
+            db.transaction(null);
+
+            // NOT EXPECTED to get here:
+            expect(false).toBe(true);
+          } catch (ex) {
+            // EXPECTED RESULT:
+            expect(ex).toBeDefined();
+
+            // TBD WebKit Web SQL vs plugin according to spec?
+            if (isWebSql)
+              expect(ex.code).not.toBeDefined();
+            else
+              expect(ex.code).toBeDefined();
+            expect(ex.message).toBeDefined();
+
+            if (!isWebSql)
+              expect(ex.code).toBe(0); // (SQLite.UNKNOWN_ERR)
+
+            if (!isWebSql)
+              expect(ex.message).toMatch(/transaction expected a function/);
+            else if (isAndroid)
+              expect(true).toBe(true); // SKIP for now
+            else
+              expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.transaction must be a function/);
+          }
+
+          // VERIFY it is possible to continue:
+          db.transaction(function (tx) {
+            tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).stringlength).toBe(10);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function (error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'db.readTransaction(null) in try-catch block and then SELECT transaction', function (done) {
+          var db = openDatabase("read-tx-with-null-argment.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          try {
+            // SYNCHRONOUS ERROR EXPECTED:
+            db.readTransaction(null);
+
+            // NOT EXPECTED to get here:
+            expect(false).toBe(true);
+          } catch (ex) {
+            // EXPECTED RESULT:
+            expect(ex).toBeDefined();
+
+            // TBD WebKit Web SQL vs plugin according to spec?
+            if (isWebSql)
+              expect(ex.code).not.toBeDefined();
+            else
+              expect(ex.code).toBeDefined();
+            expect(ex.message).toBeDefined();
+
+            if (!isWebSql)
+              expect(ex.code).toBe(0); // (SQLite.UNKNOWN_ERR)
+
+            if (!isWebSql)
+              expect(ex.message).toMatch(/transaction expected a function/);
+            else if (isAndroid)
+              expect(true).toBe(true); // SKIP for now
+            else
+              expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.readTransaction must be a function/);
+          }
+
+          // VERIFY it is possible to continue:
+          db.transaction(function (tx) {
+            tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).stringlength).toBe(10);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function (error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "db.transaction('bogus') in try-catch block and then SELECT transaction", function (done) {
+          var db = openDatabase("tx-with-bogus-string-argment.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          try {
+            // SYNCHRONOUS ERROR EXPECTED:
+            db.transaction('bogus');
+
+            // NOT EXPECTED to get here:
+            expect(false).toBe(true);
+          } catch (ex) {
+            // EXPECTED RESULT:
+            expect(ex).toBeDefined();
+
+            // TBD WebKit Web SQL vs plugin according to spec?
+            if (isWebSql)
+              expect(ex.code).not.toBeDefined();
+            else
+              expect(ex.code).toBeDefined();
+            expect(ex.message).toBeDefined();
+
+            if (!isWebSql)
+              expect(ex.code).toBe(0); // (SQLite.UNKNOWN_ERR)
+
+            if (!isWebSql)
+              expect(ex.message).toMatch(/transaction expected a function/);
+            else if (isAndroid)
+              expect(true).toBe(true); // SKIP for now
+            else
+              expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.transaction must be a function/);
+          }
+
+          // VERIFY it is possible to continue:
+          db.transaction(function (tx) {
+            tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).stringlength).toBe(10);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function (error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "db.readTransaction('bogus') in try-catch block and then SELECT transaction", function (done) {
+          var db = openDatabase("read-tx-with-bogus-string-argment.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          try {
+            // SYNCHRONOUS ERROR EXPECTED:
+            db.readTransaction('bogus');
+
+            // NOT EXPECTED to get here:
+            expect(false).toBe(true);
+          } catch (ex) {
+            // EXPECTED RESULT:
+            expect(ex).toBeDefined();
+
+            // TBD WebKit Web SQL vs plugin according to spec?
+            if (isWebSql)
+              expect(ex.code).not.toBeDefined();
+            else
+              expect(ex.code).toBeDefined();
+            expect(ex.message).toBeDefined();
+
+            if (!isWebSql)
+              expect(ex.code).toBe(0); // (SQLite.UNKNOWN_ERR)
+
+            if (!isWebSql)
+              expect(ex.message).toMatch(/transaction expected a function/);
+            else if (isAndroid)
+              expect(true).toBe(true); // SKIP for now
+            else
+              expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.readTransaction must be a function/);
+          }
+
+          // VERIFY it is possible to continue:
+          db.transaction(function (tx) {
+            tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).stringlength).toBe(10);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function (error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "db.transaction('') in try-catch block and then SELECT transaction", function (done) {
+          var db = openDatabase("tx-with-bogus-empty-string-argment.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          try {
+            // SYNCHRONOUS ERROR EXPECTED:
+            db.transaction('');
+
+            // NOT EXPECTED to get here:
+            expect(false).toBe(true);
+          } catch (ex) {
+            // EXPECTED RESULT:
+            expect(ex).toBeDefined();
+
+            // TBD WebKit Web SQL vs plugin according to spec?
+            if (isWebSql)
+              expect(ex.code).not.toBeDefined();
+            else
+              expect(ex.code).toBeDefined();
+            expect(ex.message).toBeDefined();
+
+            if (!isWebSql)
+              expect(ex.code).toBe(0); // (SQLite.UNKNOWN_ERR)
+
+            if (!isWebSql)
+              expect(ex.message).toMatch(/transaction expected a function/);
+            else if (isAndroid)
+              expect(true).toBe(true); // SKIP for now
+            else
+              expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.transaction must be a function/);
+          }
+
+          // VERIFY it is possible to continue:
+          db.transaction(function (tx) {
+            tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).stringlength).toBe(10);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function (error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "db.readTransaction('') in try-catch block and then SELECT transaction", function (done) {
+          var db = openDatabase("read-tx-with-bogus-empty-string-argment.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          try {
+            // SYNCHRONOUS ERROR EXPECTED:
+            db.readTransaction('');
+
+            // NOT EXPECTED to get here:
+            expect(false).toBe(true);
+          } catch (ex) {
+            // EXPECTED RESULT:
+            expect(ex).toBeDefined();
+
+            // TBD WebKit Web SQL vs plugin according to spec?
+            if (isWebSql)
+              expect(ex.code).not.toBeDefined();
+            else
+              expect(ex.code).toBeDefined();
+            expect(ex.message).toBeDefined();
+
+            if (!isWebSql)
+              expect(ex.code).toBe(0); // (SQLite.UNKNOWN_ERR)
+
+            if (!isWebSql)
+              expect(ex.message).toMatch(/transaction expected a function/);
+            else if (isAndroid)
+              expect(true).toBe(true); // SKIP for now
+            else
+              expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.readTransaction must be a function/);
+          }
+
+          // VERIFY it is possible to continue:
+          db.transaction(function (tx) {
+            tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).stringlength).toBe(10);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function (error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'db.transaction(true) in try-catch block and then SELECT transaction', function (done) {
+          var db = openDatabase("tx-with-true-argment.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          try {
+            // SYNCHRONOUS ERROR EXPECTED:
+            db.transaction(true);
+
+            // NOT EXPECTED to get here:
+            expect(false).toBe(true);
+          } catch (ex) {
+            // EXPECTED RESULT:
+            expect(ex).toBeDefined();
+
+            // TBD WebKit Web SQL vs plugin according to spec?
+            if (isWebSql)
+              expect(ex.code).not.toBeDefined();
+            else
+              expect(ex.code).toBeDefined();
+            expect(ex.message).toBeDefined();
+
+            if (!isWebSql)
+              expect(ex.code).toBe(0); // (SQLite.UNKNOWN_ERR)
+
+            if (!isWebSql)
+              expect(ex.message).toMatch(/transaction expected a function/);
+            else if (isAndroid)
+              expect(true).toBe(true); // SKIP for now
+            else
+              expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.transaction must be a function/);
+          }
+
+          // VERIFY it is possible to continue:
+          db.transaction(function (tx) {
+            tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).stringlength).toBe(10);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function (error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'db.readTransaction(true) in try-catch block and then SELECT transaction', function (done) {
+          var db = openDatabase("read-tx-with-true-argment.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          try {
+            // SYNCHRONOUS ERROR EXPECTED:
+            db.readTransaction(true);
+
+            // NOT EXPECTED to get here:
+            expect(false).toBe(true);
+          } catch (ex) {
+            // EXPECTED RESULT:
+            expect(ex).toBeDefined();
+
+            // TBD WebKit Web SQL vs plugin according to spec?
+            if (isWebSql)
+              expect(ex.code).not.toBeDefined();
+            else
+              expect(ex.code).toBeDefined();
+            expect(ex.message).toBeDefined();
+
+            if (!isWebSql)
+              expect(ex.code).toBe(0); // (SQLite.UNKNOWN_ERR)
+
+            if (!isWebSql)
+              expect(ex.message).toMatch(/transaction expected a function/);
+            else if (isAndroid)
+              expect(true).toBe(true); // SKIP for now
+            else
+              expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.readTransaction must be a function/);
+          }
+
+          // VERIFY it is possible to continue:
+          db.transaction(function (tx) {
+            tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).stringlength).toBe(10);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function (error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'db.transaction(false) in try-catch block and then SELECT transaction', function (done) {
+          var db = openDatabase("tx-with-false-argment.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          try {
+            // SYNCHRONOUS ERROR EXPECTED:
+            db.transaction(false);
+
+            // NOT EXPECTED to get here:
+            expect(false).toBe(true);
+          } catch (ex) {
+            // EXPECTED RESULT:
+            expect(ex).toBeDefined();
+
+            // TBD WebKit Web SQL vs plugin according to spec?
+            if (isWebSql)
+              expect(ex.code).not.toBeDefined();
+            else
+              expect(ex.code).toBeDefined();
+            expect(ex.message).toBeDefined();
+
+            if (!isWebSql)
+              expect(ex.code).toBe(0); // (SQLError.UNKNOWN_ERR)
+
+            if (!isWebSql)
+              expect(ex.message).toMatch(/transaction expected a function/);
+            else if (isAndroid)
+              expect(true).toBe(true); // SKIP for now
+            else
+              expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.transaction must be a function/);
+          }
+
+          // VERIFY it is possible to continue:
+          db.transaction(function (tx) {
+            tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).stringlength).toBe(10);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function (error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'db.readTransaction(false) in try-catch block and then SELECT transaction', function (done) {
+          var db = openDatabase("read-tx-with-false-argment.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          try {
+            // SYNCHRONOUS ERROR EXPECTED:
+            db.readTransaction(false);
+
+            // NOT EXPECTED to get here:
+            expect(false).toBe(true);
+          } catch (ex) {
+            // EXPECTED RESULT:
+            expect(ex).toBeDefined();
+
+            // TBD WebKit Web SQL vs plugin according to spec?
+            if (isWebSql)
+              expect(ex.code).not.toBeDefined();
+            else
+              expect(ex.code).toBeDefined();
+            expect(ex.message).toBeDefined();
+
+            if (!isWebSql)
+              expect(ex.code).toBe(0); // (SQLite.UNKNOWN_ERR)
+
+            if (!isWebSql)
+              expect(ex.message).toMatch(/transaction expected a function/);
+            else if (isAndroid)
+              expect(true).toBe(true); // SKIP for now
+            else
+              expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.readTransaction must be a function/);
+          }
+
+          // VERIFY it is possible to continue:
+          db.transaction(function (tx) {
+            tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).stringlength).toBe(10);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function (error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'db.transaction(undefined) in try-catch block and then SELECT transaction', function (done) {
+          var db = openDatabase("tx-with-undefined-argment.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          try {
+            // SYNCHRONOUS ERROR EXPECTED:
+            db.transaction(undefined);
+
+            // NOT EXPECTED to get here:
+            expect(false).toBe(true);
+          } catch (ex) {
+            // EXPECTED RESULT:
+            expect(ex).toBeDefined();
+
+            // TBD WebKit Web SQL vs plugin according to spec?
+            if (isWebSql)
+              expect(ex.code).not.toBeDefined();
+            else
+              expect(ex.code).toBeDefined();
+            expect(ex.message).toBeDefined();
+
+            if (!isWebSql)
+              expect(ex.code).toBe(0); // (SQLite.UNKNOWN_ERR)
+
+            if (!isWebSql)
+              expect(ex.message).toMatch(/transaction expected a function/);
+            else if (isAndroid)
+              expect(true).toBe(true); // SKIP for now
+            else
+              expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.transaction must be a function/);
+          }
+
+          // VERIFY it is possible to continue:
+          db.transaction(function (tx) {
+            tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).stringlength).toBe(10);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function (error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'db.readTransaction(undefined) in try-catch block and then SELECT transaction', function (done) {
+          var db = openDatabase("read-tx-with-undefined-argment.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          try {
+            // SYNCHRONOUS ERROR EXPECTED:
+            db.readTransaction(undefined);
+
+            // NOT EXPECTED to get here:
+            expect(false).toBe(true);
+          } catch (ex) {
+            // EXPECTED RESULT:
+            expect(ex).toBeDefined();
+
+            // TBD WebKit Web SQL vs plugin according to spec?
+            if (isWebSql)
+              expect(ex.code).not.toBeDefined();
+            else
+              expect(ex.code).toBeDefined();
+            expect(ex.message).toBeDefined();
+
+            if (!isWebSql)
+              expect(ex.code).toBe(0); // (SQLite.UNKNOWN_ERR)
+
+            if (!isWebSql)
+              expect(ex.message).toMatch(/transaction expected a function/);
+            else if (isAndroid)
+              expect(true).toBe(true); // SKIP for now
+            else
+              expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.readTransaction must be a function/);
+          }
+
+          // VERIFY it is possible to continue:
+          db.transaction(function (tx) {
+            tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).stringlength).toBe(10);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function (error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "transaction with 'SELECT 1' and BOGUS string success callback", function (done) {
+          var db = openDatabase("tx-with-bogus-string-success-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          try {
+            // SYNCHRONOUS ERROR EXPECTED:
+            db.transaction(function(tx) {
+              tx.executeSql('SELECT 1');
+            }, null, 'bogus');
+
+            // NOT EXPECTED for (WebKit) Web SQL:
+            if (isWebSql) expect('Call expected to THROW in (WebKit) Web SQL').toBe('--');
+          } catch (ex) {
+            // EXPECTED RESULT for (WebKit) Web SQL:
+            if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('');
+            expect(ex).toBeDefined();
+
+            expect(ex.code).not.toBeDefined();
+            expect(ex.message).toBeDefined();
+
+            if (isAndroid)
+              expect(true).toBe(true); // SKIP for now
+            else
+              expect(ex.message).toMatch(/Argument 3 \('successCallback'\) to Database\.transaction must be a function/);
+          }
+
+          // VERIFY it is possible to continue:
+          db.transaction(function (tx) {
+            tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).stringlength).toBe(10);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function (error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "readTransaction with 'SELECT 1' and BOGUS string success callback", function (done) {
+          if (isWP8) pending('SKIP for WP8'); // SKIP for now
+          if (isWindows) pending('SKIP for Windows due to CRASH');
+
+          var db = openDatabase("read-tx-with-bogus-string-success-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          try {
+            // SYNCHRONOUS ERROR EXPECTED:
+            db.readTransaction(function(tx) {
+              tx.executeSql('SELECT 1');
+            }, null, 'bogus');
+
+            // NOT EXPECTED for (WebKit) Web SQL:
+            if (isWebSql) expect('Call expected to THROW in (WebKit) Web SQL').toBe('--');
+          } catch (ex) {
+            // EXPECTED RESULT for (WebKit) Web SQL:
+            if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('');
+            expect(ex).toBeDefined();
+
+            // TBD WebKit Web SQL vs plugin according to spec?
+            if (isWebSql)
+              expect(ex.code).not.toBeDefined();
+            else
+              expect(ex.code).toBeDefined();
+            expect(ex.message).toBeDefined();
+
+            if (isAndroid)
+              expect(true).toBe(true); // SKIP for now
+            else
+              expect(ex.message).toMatch(/Argument 3 \('successCallback'\) to Database\.readTransaction must be a function/);
+          }
+
+          // VERIFY it is possible to continue:
+          db.transaction(function (tx) {
+            tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).stringlength).toBe(10);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function (error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "transaction with 'SELECT 1' and BOGUS string error callback", function (done) {
+          var db = openDatabase("tx-with-bogus-string-error-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          try {
+            // SYNCHRONOUS ERROR EXPECTED:
+            db.transaction(function(tx) {
+              tx.executeSql('SELECT 1');
+            }, 'bogus');
+
+            // NOT EXPECTED for (WebKit) Web SQL:
+            if (isWebSql) expect('Call expected to THROW in (WebKit) Web SQL').toBe('--');
+          } catch (ex) {
+            // EXPECTED RESULT for (WebKit) Web SQL:
+            if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('');
+            expect(ex).toBeDefined();
+
+            expect(ex.code).not.toBeDefined();
+            expect(ex.message).toBeDefined();
+
+            if (isAndroid)
+              expect(true).toBe(true); // SKIP for now
+            else
+              expect(ex.message).toMatch(/Argument 2 \('errorCallback'\) to Database\.transaction must be a function/);
+          }
+
+          // VERIFY it is possible to continue:
+          db.transaction(function (tx) {
+            tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).stringlength).toBe(10);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function (error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "readTransaction with 'SELECT 1' and BOGUS string error callback", function (done) {
+          var db = openDatabase("read-tx-with-bogus-string-error-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          try {
+            // SYNCHRONOUS ERROR EXPECTED:
+            db.readTransaction(function(tx) {
+              tx.executeSql('SELECT 1');
+            }, 'bogus');
+
+            // NOT EXPECTED for (WebKit) Web SQL:
+            if (isWebSql) expect('Call expected to THROW in (WebKit) Web SQL').toBe('--');
+          } catch (ex) {
+            // EXPECTED RESULT for (WebKit) Web SQL:
+            if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('');
+            expect(ex).toBeDefined();
+
+            expect(ex.code).not.toBeDefined();
+            expect(ex.message).toBeDefined();
+
+            if (isAndroid)
+              expect(true).toBe(true); // SKIP for now
+            else
+              expect(ex.message).toMatch(/Argument 2 \('errorCallback'\) to Database\.readTransaction must be a function/);
+          }
+
+          // VERIFY it is possible to continue:
+          db.transaction(function (tx) {
+            tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).stringlength).toBe(10);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function (error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "transaction with 'SLCT 1' and BOGUS string success callback", function (done) {
+          var db = openDatabase("tx-error-with-bogus-string-success-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          try {
+            // SYNCHRONOUS ERROR EXPECTED:
+            db.transaction(function(tx) {
+              tx.executeSql('SLCT 1');
+            }, null, 'bogus');
+
+            // NOT EXPECTED for (WebKit) Web SQL:
+            if (isWebSql) expect('Call expected to THROW in (WebKit) Web SQL').toBe('--');
+          } catch (ex) {
+            // EXPECTED RESULT for (WebKit) Web SQL:
+            if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('');
+            expect(ex).toBeDefined();
+
+            expect(ex.code).not.toBeDefined();
+            expect(ex.message).toBeDefined();
+
+            if (isAndroid)
+              expect(true).toBe(true); // SKIP for now
+            else
+              expect(ex.message).toMatch(/Argument 3 \('successCallback'\) to Database\.transaction must be a function/);
+          }
+
+          // VERIFY it is possible to continue:
+          db.transaction(function (tx) {
+            tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).stringlength).toBe(10);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function (error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "readTransaction with 'SLCT 1' and BOGUS string success callback", function (done) {
+          var db = openDatabase("read-tx-error-with-bogus-string-success-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          try {
+            // SYNCHRONOUS ERROR EXPECTED:
+            db.readTransaction(function(tx) {
+              tx.executeSql('SLCT 1');
+            }, null, 'bogus');
+
+            // NOT EXPECTED for (WebKit) Web SQL:
+            if (isWebSql) expect('Call expected to THROW in (WebKit) Web SQL').toBe('--');
+          } catch (ex) {
+            // EXPECTED RESULT for (WebKit) Web SQL:
+            if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('');
+            expect(ex).toBeDefined();
+
+            expect(ex.code).not.toBeDefined();
+            expect(ex.message).toBeDefined();
+
+            if (isAndroid)
+              expect(true).toBe(true); // SKIP for now
+            else
+              expect(ex.message).toMatch(/Argument 3 \('successCallback'\) to Database\.readTransaction must be a function/);
+          }
+
+          // VERIFY it is possible to continue:
+          db.transaction(function (tx) {
+            tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).stringlength).toBe(10);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function (error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "transaction with 'SLCT 1' and BOGUS string error callback", function (done) {
+          var db = openDatabase("tx-error-with-bogus-string-error-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          try {
+            // SYNCHRONOUS ERROR EXPECTED:
+            db.transaction(function(tx) {
+              tx.executeSql('SLCT 1');
+            }, 'bogus');
+
+            // NOT EXPECTED for (WebKit) Web SQL:
+            if (isWebSql) expect('Call expected to THROW in (WebKit) Web SQL').toBe('--');
+          } catch (ex) {
+            // EXPECTED RESULT for (WebKit) Web SQL:
+            if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('');
+            expect(ex).toBeDefined();
+
+            expect(ex.code).not.toBeDefined();
+            expect(ex.message).toBeDefined();
+
+            if (isAndroid)
+              expect(true).toBe(true); // SKIP for now
+            else
+              expect(ex.message).toMatch(/Argument 2 \('errorCallback'\) to Database\.transaction must be a function/);
+          }
+
+          // VERIFY it is possible to continue:
+          db.transaction(function (tx) {
+            tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).stringlength).toBe(10);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function (error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "readTransaction with 'SLCT 1' and BOGUS string error callback", function (done) {
+          if (isWP8) pending('SKIP for WP8'); // SKIP for now
+          if (isWindows) pending('SKIP for Windows due to CRASH');
+
+          var db = openDatabase("read-tx-error-with-bogus-string-error-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          try {
+            // SYNCHRONOUS ERROR EXPECTED:
+            db.readTransaction(function(tx) {
+              tx.executeSql('SLCT 1');
+            }, 'bogus');
+
+            // NOT EXPECTED for (WebKit) Web SQL:
+            if (isWebSql) expect('Call expected to THROW in (WebKit) Web SQL').toBe('--');
+          } catch (ex) {
+            // EXPECTED RESULT for (WebKit) Web SQL:
+            if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('');
+            expect(ex).toBeDefined();
+
+            expect(ex.code).not.toBeDefined();
+            expect(ex.message).toBeDefined();
+
+            if (isAndroid)
+              expect(true).toBe(true); // SKIP for now
+            else
+              expect(ex.message).toMatch(/Argument 2 \('errorCallback'\) to Database\.readTransaction must be a function/);
+          }
+
+          // VERIFY it is possible to continue:
+          db.transaction(function (tx) {
+            tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).stringlength).toBe(10);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function (error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'empty transaction (no sql statements) and then SELECT transaction', function (done) {
           var db = openDatabase("empty-tx", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -525,7 +1486,6 @@ var mytests = function() {
 
         // Check fix for litehelpers/Cordova-sqlite-storage#409:
         it(suiteName + 'empty readTransaction (no sql statements) and then SELECT transaction', function (done) {
-
           var db = openDatabase("empty-read-tx", "1.0", "Demo", DEFAULT_SIZE);
 
           db.readTransaction(function(tx) {
@@ -567,7 +1527,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'transaction.executeSql() with no executeSql arguments WITHOUT try-catch block (BOGUS)', function (done) {
-
           var db = openDatabase("tx-with-no-executeSql-argument.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(transaction) {
@@ -626,7 +1585,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + "transaction.executeSql on BOGUS empty SQL string ('')", function (done) {
-
           var db = openDatabase("tx-empty-sql-string.db", "1.0", "Demo", DEFAULT_SIZE);
 
           var check1 = false;
@@ -691,14 +1649,144 @@ var mytests = function() {
 
         }, MYTIMEOUT);
 
-        it(suiteName + "transaction.executeSql on BOGUS ';' SQL statement", function (done) {
+        it(suiteName + "readTransaction.executeSql on BOGUS empty SQL string ('')", function (done) {
+          var db = openDatabase("read-tx-empty-sql-string.db", "1.0", "Demo", DEFAULT_SIZE);
 
+          var check1 = false;
+          db.readTransaction(function(readTransaction) {
+            // NOT expected to throw:
+            readTransaction.executeSql('');
+            check1 = true;
+
+          }, function(error) {
+            // EXPECTED RESULT:
+            expect(check1).toBe(true);
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined()
+            expect(error.message).toBeDefined();
+
+            if (isWP8)
+              expect(true).toBe(true); // SKIP for now
+            else if (!isWebSql)
+              expect(error.code).toBe(0);
+            else
+              expect(error.code).toBe(1);
+
+            if (isWP8)
+              expect(true).toBe(true); // SKIP for now
+            else if (isWindows)
+              expect(error.message).toMatch(/a statement with no error handler failed: SQLite3 step error result code: 21/);
+            else if (!isWebSql)
+              expect(error.message).toMatch(/a statement with no error handler failed:.*not an error/);
+            else
+              expect(error.message).toMatch(/could not execute statement \(0 not an error\)/);
+
+            // VERIFY we can still continue:
+            var gotStringLength = false; // poor man's spy
+            db.transaction(function (tx2) {
+              tx2.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (ignored, res) {
+                expect(res.rows.item(0).stringlength).toBe(10);
+                gotStringLength = true;
+              });
+            }, function (error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+
+            }, function () {
+              // EXPECTED RESULT (transaction finished OK):
+              expect(true).toBe(true);
+              expect(gotStringLength).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function() {
+            // NOT EXPECTED by Web SQL, Android, or iOS:
+            if (isWindows)
+              expect(true).toBe(true);
+            else
+              expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+
+        }, MYTIMEOUT);
+
+        it(suiteName + "transaction.executeSql on BOGUS ';' SQL statement", function (done) {
           var db = openDatabase("tx-semicolon-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
 
           var check1 = false;
           db.transaction(function(transaction) {
             // NOT expected to throw:
             transaction.executeSql(';');
+            check1 = true;
+
+          }, function(error) {
+            // EXPECTED RESULT:
+            expect(check1).toBe(true);
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined()
+            expect(error.message).toBeDefined();
+
+            if (isWP8)
+              expect(true).toBe(true); // SKIP for now
+            else if (!isWebSql)
+              expect(error.code).toBe(0);
+            else
+              expect(error.code).toBe(1);
+
+            if (isWP8)
+              expect(true).toBe(true); // SKIP for now
+            else if (isWindows)
+              expect(error.message).toMatch(/a statement with no error handler failed: SQLite3 step error result code: 21/);
+            else if (!isWebSql)
+              expect(error.message).toMatch(/a statement with no error handler failed:.*not an error/);
+            else
+              expect(error.message).toMatch(/could not execute statement \(0 not an error\)/);
+
+            // VERIFY we can still continue:
+            var gotStringLength = false; // poor man's spy
+            db.transaction(function (tx2) {
+              tx2.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (ignored, res) {
+                expect(res.rows.item(0).stringlength).toBe(10);
+                gotStringLength = true;
+              });
+
+            }, function (error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+
+            }, function () {
+              // EXPECTED RESULT (transaction finished OK):
+              expect(true).toBe(true);
+              expect(gotStringLength).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function() {
+            // NOT EXPECTED by Web SQL, Android, or iOS:
+            if (isWindows)
+              expect(true).toBe(true);
+            else
+              expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+
+        }, MYTIMEOUT);
+
+        it(suiteName + "readTransaction.executeSql on BOGUS ';' SQL statement", function (done) {
+          var db = openDatabase("read-tx-semicolon-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          var check1 = false;
+          db.readTransaction(function(readTransaction) {
+            // NOT expected to throw:
+            readTransaction.executeSql(';');
             check1 = true;
 
           }, function(error) {
@@ -774,12 +1862,76 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWP8)
+            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
               expect(true).toBe(true); // SKIP for now
             else if (isWindows)
               expect(error.code).toBe(0);
-            else if (!isWebSql && isAndroid && isImpl2)
+            else
+              expect(error.code).toBe(5);
+
+            if (isWP8)
               expect(true).toBe(true); // SKIP for now
+            else if (isWindows)
+              expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);
+            else if (!isWebSql)
+              expect(error.message).toMatch(/a statement with no error handler failed:.*near \"\[object Object\]\": syntax error/);
+            else
+              expect(error.message).toMatch(/could not prepare statement \(1 near \"\[object Object\]\": syntax error\)/);
+
+            // VERIFY we can still continue:
+            var gotStringLength = false; // poor man's spy
+            db.transaction(function (tx2) {
+              tx2.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (ignored, res) {
+                expect(res.rows.item(0).stringlength).toBe(10);
+                gotStringLength = true;
+              });
+
+            }, function (error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+
+            }, function () {
+              // EXPECTED RESULT (transaction finished OK):
+              expect(true).toBe(true);
+              expect(gotStringLength).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function() {
+            // NOT EXPECTED by Web SQL, Android, or iOS:
+            if (isWindows)
+              expect(true).toBe(true);
+            else
+              expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+
+        }, MYTIMEOUT);
+
+        it(suiteName + 'readTransaction.executeSql on BOGUS object', function (done) {
+          var db = openDatabase("read-tx-with-object-for-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          var check1 = false;
+          db.readTransaction(function(readTransaction) {
+            // NOT expected to throw:
+            readTransaction.executeSql({key1:'value1', key2:2});
+            check1 = true;
+
+          }, function(error) {
+            // EXPECTED RESULT:
+            expect(check1).toBe(true);
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined()
+            expect(error.message).toBeDefined();
+
+            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
+              expect(true).toBe(true); // SKIP for now
+            else if (isWindows)
+              expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
 
@@ -842,12 +1994,10 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWP8)
+            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
               expect(true).toBe(true); // SKIP for now
             else if (isWindows)
               expect(error.code).toBe(0);
-            else if (!isWebSql && isAndroid && isImpl2)
-              expect(true).toBe(true); // SKIP for now
             else
               expect(error.code).toBe(5);
 
@@ -890,8 +2040,8 @@ var mytests = function() {
 
         }, MYTIMEOUT);
 
-        it(suiteName + 'transaction.executeSql on BOGUS number', function (done) {
-          var db = openDatabase("tx-with-number-for-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
+        it(suiteName + 'transaction.executeSql on BOGUS number 101', function (done) {
+          var db = openDatabase("tx-with-number-101-for-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
 
           var check1 = false;
           db.transaction(function(transaction) {
@@ -906,12 +2056,10 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWP8)
+            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
               expect(true).toBe(true); // SKIP for now
             else if (isWindows)
               expect(error.code).toBe(0);
-            else if (!isWebSql && isAndroid && isImpl2)
-              expect(true).toBe(true); // SKIP for now
             else
               expect(error.code).toBe(5);
 
@@ -955,11 +2103,75 @@ var mytests = function() {
 
         }, MYTIMEOUT);
 
+        it(suiteName + 'transaction.executeSql on BOGUS number 0', function (done) {
+          var db = openDatabase("tx-with-number-101-for-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          var check1 = false;
+          db.transaction(function(transaction) {
+            // NOT expected to throw:
+            transaction.executeSql(0);
+            check1 = true;
+
+          }, function(error) {
+            // EXPECTED RESULT:
+            expect(check1).toBe(true);
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined()
+            expect(error.message).toBeDefined();
+
+            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
+              expect(true).toBe(true); // SKIP for now
+            else if (isWindows)
+              expect(error.code).toBe(0);
+            else
+              expect(error.code).toBe(5);
+
+            if (isWP8)
+              expect(true).toBe(true); // SKIP for now
+            else if (isWindows)
+              expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);
+            else if (!isWebSql)
+              expect(error.message).toMatch(/a statement with no error handler failed:.*near \"0\": syntax error/);
+            else
+              expect(error.message).toMatch(/could not prepare statement \(1 near \"0\": syntax error\)/);
+
+            // VERIFY we can still continue:
+            var gotStringLength = false; // poor man's spy
+            db.transaction(function (tx) {
+              tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (tx, res) {
+                expect(res.rows.item(0).stringlength).toBe(10);
+                gotStringLength = true;
+              });
+
+            }, function (error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+
+            }, function () {
+              // EXPECTED RESULT (transaction finished OK):
+              expect(true).toBe(true);
+              expect(gotStringLength).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function() {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+
+        }, MYTIMEOUT);
+
         it(suiteName + 'transaction.executeSql with null for SQL statement (BOGUS)', function (done) {
           var db = openDatabase("tx-with-null-for-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
 
           var check1 = false;
           db.transaction(function(transaction) {
+            // NOT expected to throw in case of Web SQL:
             transaction.executeSql(null);
 
             if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
@@ -1033,12 +2245,10 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWP8)
+            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
               expect(true).toBe(true); // SKIP for now
             else if (isWindows)
               expect(error.code).toBe(0);
-            else if (!isWebSql && isAndroid && isImpl2)
-              expect(true).toBe(true); // SKIP for now
             else
               expect(error.code).toBe(5);
 
@@ -1097,12 +2307,10 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWP8)
+            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
               expect(true).toBe(true); // SKIP for now
             else if (isWindows)
               expect(error.code).toBe(0);
-            else if (!isWebSql && isAndroid && isImpl2)
-              expect(true).toBe(true); // SKIP for now
             else
               expect(error.code).toBe(5);
 
@@ -1145,11 +2353,256 @@ var mytests = function() {
 
         }, MYTIMEOUT);
 
+        it(suiteName + 'transaction.executeSql with Infinity for SQL statement (BOGUS)', function (done) {
+          var db = openDatabase("tx-with-infinity-for-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          var check1 = false;
+          db.transaction(function(transaction) {
+            // NOT expected to throw:
+            transaction.executeSql(Infinity);
+            check1 = true;
+
+          }, function(error) {
+            // EXPECTED RESULT:
+            expect(check1).toBe(true);
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined()
+            expect(error.message).toBeDefined();
+
+            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
+              expect(true).toBe(true); // SKIP for now
+            else if (isWindows)
+              expect(error.code).toBe(0);
+            else
+              expect(error.code).toBe(5);
+
+            if (isWP8)
+              expect(true).toBe(true); // SKIP for now
+            else if (isWindows)
+              expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);
+            else if (!isWebSql)
+              expect(error.message).toMatch(/a statement with no error handler failed:.*near \"Infinity\": syntax error/);
+            else
+              expect(error.message).toMatch(/could not prepare statement \(1 near \"Infinity\": syntax error\)/);
+
+            // Verify we can still continue:
+            var gotStringLength = false; // poor man's spy
+            db.transaction(function (tx) {
+              tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (tx, res) {
+                expect(res.rows.item(0).stringlength).toBe(10);
+                gotStringLength = true;
+              });
+            }, function (error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+
+            }, function () {
+              // EXPECTED RESULT (transaction finished OK):
+              expect(true).toBe(true);
+              expect(gotStringLength).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function() {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'readTransaction.executeSql with -Infinity for SQL statement (BOGUS)', function (done) {
+          var db = openDatabase("read-tx-with-minus-infinity-for-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          var check1 = false;
+          db.readTransaction(function(readTransaction) {
+            // NOT expected to throw:
+            readTransaction.executeSql(-Infinity);
+            check1 = true;
+
+          }, function(error) {
+            // EXPECTED RESULT:
+            expect(check1).toBe(true);
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined()
+            expect(error.message).toBeDefined();
+
+            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
+              expect(true).toBe(true); // SKIP for now
+            else if (isWindows)
+              expect(error.code).toBe(0);
+            else
+              expect(error.code).toBe(5);
+
+            if (isWP8)
+              expect(true).toBe(true); // SKIP for now
+            else if (isWindows)
+              expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);
+            else if (!isWebSql)
+              expect(error.message).toMatch(/a statement with no error handler failed:.*near \"-\": syntax error/);
+            else
+              expect(error.message).toMatch(/could not prepare statement \(1 near \"-\": syntax error\)/);
+
+            // Verify we can still continue:
+            var gotStringLength = false; // poor man's spy
+            db.transaction(function (tx) {
+              tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (tx, res) {
+                expect(res.rows.item(0).stringlength).toBe(10);
+                gotStringLength = true;
+              });
+            }, function (error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+
+            }, function () {
+              // EXPECTED RESULT (transaction finished OK):
+              expect(true).toBe(true);
+              expect(gotStringLength).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function() {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'transaction.executeSql with NaN for SQL statement (BOGUS)', function (done) {
+          var db = openDatabase("tx-with-NaN-for-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          var check1 = false;
+          db.transaction(function(transaction) {
+            // NOT expected to throw:
+            transaction.executeSql(NaN);
+            check1 = true;
+
+          }, function(error) {
+            // EXPECTED RESULT:
+            expect(check1).toBe(true);
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined()
+            expect(error.message).toBeDefined();
+
+            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
+              expect(true).toBe(true); // SKIP for now
+            else if (isWindows)
+              expect(error.code).toBe(0);
+            else
+              expect(error.code).toBe(5);
+
+            if (isWP8)
+              expect(true).toBe(true); // SKIP for now
+            else if (isWindows)
+              expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);
+            else if (!isWebSql)
+              expect(error.message).toMatch(/a statement with no error handler failed:.*near \"NaN\": syntax error/);
+            else
+              expect(error.message).toMatch(/could not prepare statement \(1 near \"NaN\": syntax error\)/);
+
+            // Verify we can still continue:
+            var gotStringLength = false; // poor man's spy
+            db.transaction(function (tx) {
+              tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (tx, res) {
+                expect(res.rows.item(0).stringlength).toBe(10);
+                gotStringLength = true;
+              });
+            }, function (error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+
+            }, function () {
+              // EXPECTED RESULT (transaction finished OK):
+              expect(true).toBe(true);
+              expect(gotStringLength).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function() {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'readTransaction.executeSql with NaN for SQL statement (BOGUS)', function (done) {
+          var db = openDatabase("read-tx-with-NaN-for-sql-statement.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          var check1 = false;
+          db.readTransaction(function(readTransaction) {
+            // NOT expected to throw:
+            readTransaction.executeSql(NaN);
+            check1 = true;
+
+          }, function(error) {
+            // EXPECTED RESULT:
+            expect(check1).toBe(true);
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined()
+            expect(error.message).toBeDefined();
+
+            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
+              expect(true).toBe(true); // SKIP for now
+            else if (isWindows)
+              expect(error.code).toBe(0);
+            else
+              expect(error.code).toBe(5);
+
+            if (isWP8)
+              expect(true).toBe(true); // SKIP for now
+            else if (isWindows)
+              expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);
+            else if (!isWebSql)
+              expect(error.message).toMatch(/a statement with no error handler failed:.*near \"NaN\": syntax error/);
+            else
+              expect(error.message).toMatch(/could not prepare statement \(1 near \"NaN\": syntax error\)/);
+
+            // Verify we can still continue:
+            var gotStringLength = false; // poor man's spy
+            db.transaction(function (tx) {
+              tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (tx, res) {
+                expect(res.rows.item(0).stringlength).toBe(10);
+                gotStringLength = true;
+              });
+            }, function (error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+
+            }, function () {
+              // EXPECTED RESULT (transaction finished OK):
+              expect(true).toBe(true);
+              expect(gotStringLength).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function() {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
         it(suiteName + 'transaction.executeSql with undefined executeSql argument (BOGUS)', function (done) {
           var db = openDatabase("tx-with-undefined-executeSql-argument.db", "1.0", "Demo", DEFAULT_SIZE);
 
           var check1 = false;
           db.transaction(function(transaction) {
+            // NOT expected to throw in case of Web SQL:
             transaction.executeSql(undefined);
 
             if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
@@ -1204,8 +2657,62 @@ var mytests = function() {
             // Close (plugin only) & finish:
             (isWebSql) ? done() : db.close(done, done);
           });
-
         }, MYTIMEOUT);
+
+        it(suiteName + 'transaction.executeSql blank string test with callback function for parameter argument array [TBD (WebKit) Web SQL vs plugin]', function(done) {
+          //if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin'); // TBD may break other tests on certain iOS versions
+
+          var db = openDatabase("Inline-US-ASCII-string-test-with-callback-function-for-arg-array.db", "1.0", "Demo", DEFAULT_SIZE);
+          expect(db).toBeDefined();
+
+          db.transaction(function(transaction) {
+            expect(transaction).toBeDefined();
+
+            transaction.executeSql("SELECT ''", function(ignored, rs) {
+              expect(false).toBe(true);
+              expect(rs).toBeDefined();
+            });
+          }, function(error) {
+            if (!isWebSql) expect('Plugin behavior changed, please update this test').toBe('--');
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined();
+            expect(error.message).toBeDefined();
+            expect(error.code).toBe(5);
+            expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
+            done();
+          }, function() {
+            if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
+            done();
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'readTransaction.executeSql blank string test with callback function for parameter argument array [TBD (WebKit) Web SQL vs plugin]', function(done) {
+          //if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin'); // TBD may break other tests on certain iOS versions
+
+          var db = openDatabase("Inline-US-ASCII-string-test-with-callback-function-for-arg-array-read-tx.db", "1.0", "Demo", DEFAULT_SIZE);
+          expect(db).toBeDefined();
+
+          db.readTransaction(function(readTransaction) {
+            expect(readTransaction).toBeDefined();
+
+            readTransaction.executeSql("SELECT ''", function(ignored, rs) {
+              expect(false).toBe(true);
+              expect(rs).toBeDefined();
+            });
+          }, function(error) {
+            if (!isWebSql) expect('Plugin behavior changed, please update this test').toBe('--');
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined();
+            expect(error.message).toBeDefined();
+            expect(error.code).toBe(5);
+            expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
+            done();
+          }, function() {
+            if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
+            done();
+          });
+        }, MYTIMEOUT);
+        // */
 
         it(suiteName + 'transaction.executeSql with no SQL statement in a try-catch block (BOGUS)', function (done) {
           var db = openDatabase("tx-with-missing-sql-statement-try-catch.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -1220,11 +2727,9 @@ var mytests = function() {
             } catch (ex) {
               expect(ex).toBeDefined();
               if (!isWebSql)
-                expect(ex.code).not.toBeDefined();
-              else if (isAndroid)
-                expect(true).toBe(true); // SKIP for now
-              else
-                expect(ex.code).toBeDefined();
+                expect(ex.code).not.toBeDefined()
+              else if (!isAndroid)
+                expect(ex.code).toBeDefined()
               expect(ex.message).toBeDefined();
 
               if (isWebSql && !isAndroid)
@@ -1238,8 +2743,6 @@ var mytests = function() {
                 expect(ex.message).toMatch(/Cannot .* 'toString' of undefined/);
               else if (!isWebSql)
                 expect(ex.message).toMatch(/undefined is not an object \(evaluating 'sql\.toString'\)/);
-              else
-                expect(true).toBe(true); // SKIP for now
 
               throw(ex);
             }
@@ -1290,7 +2793,747 @@ var mytests = function() {
             // Close (plugin only) & finish:
             (isWebSql) ? done() : db.close(done, done);
           });
+        }, MYTIMEOUT);
 
+        it(suiteName + 'readTransaction.executeSql with no SQL statement in a try-catch block (BOGUS)', function (done) {
+          var db = openDatabase("read-tx-with-missing-sql-statement-try-catch.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.readTransaction(function(readTransaction) {
+            try {
+              readTransaction.executeSql();
+
+              // NOT expected to get here:
+              expect(false).toBe(true);
+
+            } catch (ex) {
+              expect(ex).toBeDefined();
+              if (!isWebSql)
+                expect(ex.code).not.toBeDefined()
+              else if (!isAndroid)
+                expect(ex.code).toBeDefined()
+              expect(ex.message).toBeDefined();
+
+              if (isWebSql && !isAndroid)
+                expect(ex.code).toBe(12);
+
+              if (isWP8)
+                expect(true).toBe(true); // SKIP for now
+              else if (isWindows)
+                expect(ex.message).toMatch(/Unable to get property 'toString' of undefined or null reference/);
+              else if (!isWebSql && isAndroid)
+                expect(ex.message).toMatch(/Cannot .* 'toString' of undefined/);
+              else if (!isWebSql)
+                expect(ex.message).toMatch(/undefined is not an object \(evaluating 'sql\.toString'\)/);
+
+              throw(ex);
+            }
+
+          }, function(error) {
+            // EXPECTED RESULT:
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined()
+            expect(error.message).toBeDefined();
+
+            expect(error.code).toBe(0);
+
+            if (isWP8)
+              expect(true).toBe(true); // SKIP for now
+            else if (isWindows)
+              expect(error.message).toMatch(/Unable to get property 'toString' of undefined or null reference/);
+            else if (!isWebSql && isAndroid)
+              expect(error.message).toMatch(/Cannot .* 'toString' of undefined/);
+            else if (!isWebSql)
+              expect(error.message).toMatch(/undefined is not an object \(evaluating 'sql\.toString'\)/);
+            else
+              expect(error.message).toMatch(/the SQLTransactionCallback was null or threw an exception/);
+
+            // VERIFY we can still continue:
+            var gotStringLength = false; // poor man's spy
+            db.transaction(function (tx) {
+              tx.executeSql("SELECT LENGTH('tenletters') AS stringlength", [], function (tx, res) {
+                expect(res.rows.item(0).stringlength).toBe(10);
+                gotStringLength = true;
+              });
+            }, function (error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+
+            }, function () {
+              // EXPECTED RESULT (transaction finished OK):
+              expect(true).toBe(true);
+              expect(gotStringLength).toBe(true);
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function() {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'Inline US-ASCII String manipulation test with arguments array="string-value" (BOGUS) in a try-catch block', function(done) {
+          var db = openDatabase("Inline-US-ASCII-string-test-with-arguments-array-equals-string-value.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            try {
+              tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", "string-value", function(ignored, res) {
+                // ACTUAL BEHAVIOR for plugin (Android/iOS/Windows):
+                if (isWebSql) expect('RESULT NOT EXPECTED for Web SQL').toBe('--');
+
+                expect(res.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              }, function(ignored, error) {
+                // NOT EXPECTED:
+                expect(false).toBe(true);
+                expect(error.message).toBe('--');
+                return true;
+              });
+            } catch(ex) {
+              if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
+              expect(ex).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBeDefined()
+              expect(ex.message).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBe(17);
+              throw(ex);
+            }
+
+          }, function(error) {
+            // EXPECTED RESULT for [WebKit] Web SQL:
+            if (!isWebSql) expect('Plugin BEHAVIOR CHANGED, please update this test').toBe('--');
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined();
+            expect(error.message).toBeDefined();
+            expect(error.code).toBe(0);
+            expect(error.message).toMatch(/the SQLTransactionCallback was null or threw an exception/);
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'Inline US-ASCII String manipulation test with arguments array="string-value" (BOGUS) in a try-catch block read tx', function(done) {
+          var db = openDatabase("Inline-US-ASCII-string-test-with-arguments-array-equals-string-value-read-tx.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.readTransaction(function(tx) {
+            try {
+              tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", "string-value", function(ignored, res) {
+                // ACTUAL BEHAVIOR for plugin (Android/iOS/Windows):
+                if (isWebSql) expect('RESULT NOT EXPECTED for Web SQL').toBe('--');
+
+                expect(res.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              }, function(ignored, error) {
+                // NOT EXPECTED:
+                expect(false).toBe(true);
+                expect(error.message).toBe('--');
+                return true;
+              });
+            } catch(ex) {
+              if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
+              expect(ex).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBeDefined()
+              expect(ex.message).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBe(17);
+              throw(ex);
+            }
+
+          }, function(error) {
+            // EXPECTED RESULT for [WebKit] Web SQL:
+            if (!isWebSql) expect('Plugin BEHAVIOR CHANGED, please update this test').toBe('--');
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined();
+            expect(error.message).toBeDefined();
+            expect(error.code).toBe(0);
+            expect(error.message).toMatch(/the SQLTransactionCallback was null or threw an exception/);
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'Inline US-ASCII String manipulation test with arguments array=false (BOGUS) in a try-catch block', function(done) {
+          var db = openDatabase("Inline-US-ASCII-string-test-with-arguments-array-equals-false.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            try {
+              tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", false, function(ignored, res) {
+                // ACTUAL BEHAVIOR for plugin (Android/iOS/Windows):
+                if (isWebSql) expect('RESULT NOT EXPECTED for Web SQL').toBe('--');
+
+                expect(res.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              }, function(ignored, error) {
+                // NOT EXPECTED:
+                expect(false).toBe(true);
+                expect(error.message).toBe('--');
+                return true;
+              });
+            } catch(ex) {
+              if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
+              expect(ex).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBeDefined()
+              expect(ex.message).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBe(17);
+              throw(ex);
+            }
+
+          }, function(error) {
+            // EXPECTED RESULT for [WebKit] Web SQL:
+            if (!isWebSql) expect('Plugin BEHAVIOR CHANGED, please update this test').toBe('--');
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined();
+            expect(error.message).toBeDefined();
+            expect(error.code).toBe(0);
+            expect(error.message).toMatch(/the SQLTransactionCallback was null or threw an exception/);
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'Inline US-ASCII String manipulation test with arguments array=true (BOGUS) in a try-catch block read tx', function(done) {
+          var db = openDatabase("Inline-US-ASCII-string-test-with-arguments-array-equals-true-read-tx.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.readTransaction(function(tx) {
+            try {
+              tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", false, function(ignored, res) {
+                // ACTUAL BEHAVIOR for plugin (Android/iOS/Windows):
+                if (isWebSql) expect('RESULT NOT EXPECTED for Web SQL').toBe('--');
+
+                expect(res.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              }, function(ignored, error) {
+                // NOT EXPECTED:
+                expect(false).toBe(true);
+                expect(error.message).toBe('--');
+                return true;
+              });
+            } catch(ex) {
+              if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
+              expect(ex).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBeDefined()
+              expect(ex.message).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBe(17);
+              throw(ex);
+            }
+
+          }, function(error) {
+            // EXPECTED RESULT for [WebKit] Web SQL:
+            if (!isWebSql) expect('Plugin BEHAVIOR CHANGED, please update this test').toBe('--');
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined();
+            expect(error.message).toBeDefined();
+            expect(error.code).toBe(0);
+            expect(error.message).toMatch(/the SQLTransactionCallback was null or threw an exception/);
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        //* **
+        it(suiteName + 'Inline US-ASCII blank string test with arguments array=function (BOGUS) in a try-catch block [TBD (WebKit) Web SQL vs plugin]', function(done) {
+          //if (!isAndroid && !isWindows && !isWP8) pending('SKIP for iOS'); // TBD may break other tests on certain iOS versions
+
+          var db = openDatabase("Inline-US-ASCII-string-test-with-arguments-array-equals-true.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(transaction) {
+            try {
+              transaction.executeSql("SELECT ''", function(ignored1, ignored2) {
+                // function in place of arguments array - CALL NOT EXPECTED
+                expect(false).toBe(true);
+              }, function(ignored, rs) {
+                // SUCCESS CALLBACK - EXPECTED for plugin ONLY:
+                if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
+                expect(rs).toBeDefined();
+                expect(rs.rows).toBeDefined();
+              }, function(ignored, error) {
+                // ERROR CALLBACK - EXPECTED for (WebKit) Web SQL ONLY:
+                if (!isWebSql) expect('Plugin BEHAVIOR CHANGED, please update this test').toBe('--');
+                expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
+                // DO NOT RECOVER TRANSACTION:
+                return true;
+              });
+            } catch(ex) {
+              // NOT EXPECTED for (WebKit) Web SQL or plugin:
+              expect(false).toBe(true);
+              expect(ex).toBeDefined();
+              expect(ex.code).toBeDefined();
+              expect(ex.message).toBeDefined();
+              throw ex;
+            }
+
+          }, function(error) {
+            // EXPECTED RESULT for (WebKit) Web SQL ONLY:
+            if (!isWebSql) expect('Plugin BEHAVIOR CHANGED, please update this test').toBe('--');
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined();
+            expect(error.message).toBeDefined();
+            expect(error.code).toBe(0);
+            expect(error.message).toMatch(/callback raised an exception.*or.*error callback did not return false/);
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          }, function() {
+            // EXPECTED RESULT for plugin ONLY:
+            if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'Inline US-ASCII blank string test with arguments array=function (BOGUS) in a try-catch block read tx [TBD (WebKit) Web SQL vs plugin]', function(done) {
+          //if (!isAndroid && !isWindows && !isWP8) pending('SKIP for iOS'); // TBD may break other tests on certain iOS versions
+
+          var db = openDatabase("Inline-US-ASCII-string-test-with-arguments-array-equals-true-read-tx.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.readTransaction(function(readTransaction) {
+            try {
+              readTransaction.executeSql("SELECT ''", function(ignored1, ignored2) {
+                // function in place of arguments array - CALL NOT EXPECTED
+                expect(false).toBe(true);
+              }, function(ignored, rs) {
+                // SUCCESS CALLBACK - EXPECTED for plugin ONLY:
+                if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
+                expect(rs).toBeDefined();
+                expect(rs.rows).toBeDefined();
+              }, function(ignored, error) {
+                // ERROR CALLBACK - EXPECTED for (WebKit) Web SQL ONLY:
+                if (!isWebSql) expect('Plugin BEHAVIOR CHANGED, please update this test').toBe('--');
+                expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
+                // DO NOT RECOVER TRANSACTION:
+                return true;
+              });
+            } catch(ex) {
+              // NOT EXPECTED for (WebKit) Web SQL or plugin:
+              expect(false).toBe(true);
+              expect(ex).toBeDefined();
+              expect(ex.code).toBeDefined();
+              expect(ex.message).toBeDefined();
+              throw ex;
+            }
+
+          }, function(error) {
+            // EXPECTED RESULT for (WebKit) Web SQL ONLY:
+            if (!isWebSql) expect('Plugin BEHAVIOR CHANGED, please update this test').toBe('--');
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined();
+            expect(error.message).toBeDefined();
+            expect(error.code).toBe(0);
+            expect(error.message).toMatch(/callback raised an exception.*or.*error callback did not return false/);
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          }, function() {
+            // EXPECTED RESULT for plugin ONLY:
+            if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+        // */
+
+        it(suiteName + "transaction.executeSql('SELECT 1') with string for success callback in a try-catch block (BOGUS)", function (done) {
+          var db = openDatabase("tx-sql-with-string-for-success-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(transaction) {
+            try {
+              transaction.executeSql('SELECT 1', [], 'bogus');
+
+              if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
+            } catch(ex) {
+              if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
+              expect(ex).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBeDefined()
+              expect(ex.message).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBe(17);
+              throw(ex);
+            }
+
+          }, function(error) {
+            // EXPECTED RESULT:
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined()
+            expect(error.message).toBeDefined();
+
+            expect(error.code).toBe(0);
+
+            if (isWP8)
+              expect(true).toBe(true); // SKIP for now
+            else if (isWindows)
+              expect(error.message).toMatch(/Function expected/);
+            else if (!isWebSql)
+              expect(error.message).toMatch(/is not a function/);
+            else
+              expect(error.message).toMatch(/the SQLTransactionCallback was null or threw an exception/);
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+
+          }, function() {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "readTransaction.executeSql('SELECT 1') with string for success callback in a try-catch block (BOGUS)", function (done) {
+          var db = openDatabase("read-tx-sql-with-string-for-success-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.readTransaction(function(readTransaction) {
+            try {
+              readTransaction.executeSql('SELECT 1', [], 'bogus');
+
+              if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
+            } catch(ex) {
+              if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
+              expect(ex).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBeDefined()
+              expect(ex.message).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBe(17);
+              throw(ex);
+            }
+
+          }, function(error) {
+            // EXPECTED RESULT:
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined()
+            expect(error.message).toBeDefined();
+
+            expect(error.code).toBe(0);
+
+            if (isWP8)
+              expect(true).toBe(true); // SKIP for now
+            else if (isWindows)
+              expect(error.message).toMatch(/Function expected/);
+            else if (!isWebSql)
+              expect(error.message).toMatch(/is not a function/);
+            else
+              expect(error.message).toMatch(/the SQLTransactionCallback was null or threw an exception/);
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+
+          }, function() {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "transaction.executeSql('SLCT 1') with string for success callback in a try-catch block (BOGUS)", function (done) {
+          var db = openDatabase("tx-sql-misspelling-with-string-for-success-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(transaction) {
+            try {
+              transaction.executeSql('SLCT 1', [], 'bogus');
+
+              if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
+            } catch(ex) {
+              if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
+              expect(ex).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBeDefined()
+              expect(ex.message).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBe(17);
+              throw(ex);
+            }
+
+          }, function(error) {
+            // EXPECTED RESULT:
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined()
+            expect(error.message).toBeDefined();
+
+            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
+              expect(true).toBe(true); // SKIP for now
+            else if (!isWebSql && !isWindows)
+              expect(error.code).toBe(5);
+            else
+              expect(error.code).toBe(0);
+
+            if (isWP8)
+              expect(true).toBe(true); // SKIP for now
+            else if (isWindows)
+              expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);
+            else if (!isWebSql)
+              expect(error.message).toMatch(/a statement with no error handler failed.*near \"SLCT\": syntax error/);
+            else
+              expect(error.message).toMatch(/the SQLTransactionCallback was null or threw an exception/);
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+
+          }, function() {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "readTransaction.executeSql('SLCT 1') with string for success callback in a try-catch block (BOGUS)", function (done) {
+          var db = openDatabase("read-tx-sql-misspelling-with-string-for-success-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.readTransaction(function(readTransaction) {
+            try {
+              readTransaction.executeSql('SLCT 1', [], 'bogus');
+
+              if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
+            } catch(ex) {
+              if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
+              expect(ex).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBeDefined()
+              expect(ex.message).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBe(17);
+              throw(ex);
+            }
+
+          }, function(error) {
+            // EXPECTED RESULT:
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined()
+            expect(error.message).toBeDefined();
+
+            if (isWP8 || (!isWebSql && isAndroid && isImpl2))
+              expect(true).toBe(true); // SKIP for now
+            else if (!isWebSql && !isWindows)
+              expect(error.code).toBe(5);
+            else
+              expect(error.code).toBe(0);
+
+            if (isWP8)
+              expect(true).toBe(true); // SKIP for now
+            else if (isWindows)
+              expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);
+            else if (!isWebSql)
+              expect(error.message).toMatch(/a statement with no error handler failed.*near \"SLCT\": syntax error/);
+            else
+              expect(error.message).toMatch(/the SQLTransactionCallback was null or threw an exception/);
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+
+          }, function() {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "transaction.executeSql('SELECT 1') with string for error callback in a try-catch block (BOGUS)", function (done) {
+          var db = openDatabase("tx-sql-with-string-for-error-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          var check1 = false;
+          db.transaction(function(transaction) {
+            try {
+              transaction.executeSql('SELECT 1', [], null, 'bogus');
+
+              if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
+              check1 = true;
+            } catch(ex) {
+              if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
+              expect(ex).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBeDefined()
+              expect(ex.message).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBe(17);
+              throw(ex);
+            }
+
+          }, function(error) {
+            // EXPECTED RESULT [(WebKit) Web SQL]:
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined()
+            expect(error.message).toBeDefined();
+
+            expect(error.code).toBe(0);
+
+            if (!isWebSql)
+              expect(error.message).toMatch(/is not a function/);
+            else
+              expect(error.message).toMatch(/the SQLTransactionCallback was null or threw an exception/);
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+
+          }, function() {
+            if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
+            expect(check1).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "readTransaction.executeSql('SELECT 1') with string for error callback in a try-catch block (BOGUS)", function (done) {
+          var db = openDatabase("read-tx-sql-with-string-for-error-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          var check1 = false;
+          db.readTransaction(function(readTransaction) {
+            try {
+              readTransaction.executeSql('SELECT 1', [], null, 'bogus');
+
+              if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
+              check1 = true;
+            } catch(ex) {
+              if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
+              expect(ex).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBeDefined()
+              expect(ex.message).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBe(17);
+              throw(ex);
+            }
+
+          }, function(error) {
+            // EXPECTED RESULT [(WebKit) Web SQL]:
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined()
+            expect(error.message).toBeDefined();
+
+            expect(error.code).toBe(0);
+
+            if (!isWebSql)
+              expect(error.message).toMatch(/is not a function/);
+            else
+              expect(error.message).toMatch(/the SQLTransactionCallback was null or threw an exception/);
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+
+          }, function() {
+            if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
+            expect(check1).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "transaction.executeSql('SLCT 1') with string for error callback in a try-catch block (BOGUS)", function (done) {
+          var db = openDatabase("tx-sql-misspelling-with-string-for-error-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(transaction) {
+            try {
+              transaction.executeSql('SLCT 1', [], null, 'bogus');
+
+              if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
+            } catch(ex) {
+              if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
+              expect(ex).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBeDefined()
+              expect(ex.message).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBe(17);
+              throw(ex);
+            }
+
+          }, function(error) {
+            // EXPECTED RESULT [(WebKit) Web SQL]:
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined()
+            expect(error.message).toBeDefined();
+
+            expect(error.code).toBe(0);
+
+            if (isWP8)
+              expect(true).toBe(true); // SKIP for now
+            else if (isWindows)
+              expect(error.message).toMatch(/Function expected/);
+            else if (!isWebSql)
+              expect(error.message).toMatch(/is not a function/);
+            else
+              expect(error.message).toMatch(/the SQLTransactionCallback was null or threw an exception/);
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+
+          }, function() {
+            if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "readTransaction.executeSql('SLCT 1') with string for error callback in a try-catch block (BOGUS)", function (done) {
+          var db = openDatabase("read-tx-sql-misspelling-with-string-for-error-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.readTransaction(function(readTransaction) {
+            try {
+              readTransaction.executeSql('SLCT 1', [], null, 'bogus');
+
+              if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
+            } catch(ex) {
+              if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
+              expect(ex).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBeDefined()
+              expect(ex.message).toBeDefined();
+              if (!isAndroid)
+                expect(ex.code).toBe(17);
+              throw(ex);
+            }
+
+          }, function(error) {
+            // EXPECTED RESULT [(WebKit) Web SQL]:
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined()
+            expect(error.message).toBeDefined();
+
+            expect(error.code).toBe(0);
+
+            if (isWP8)
+              expect(true).toBe(true); // SKIP for now
+            else if (isWindows)
+              expect(error.message).toMatch(/Function expected/);
+            else if (!isWebSql)
+              expect(error.message).toMatch(/is not a function/);
+            else
+              expect(error.message).toMatch(/the SQLTransactionCallback was null or threw an exception/);
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+
+          }, function() {
+            if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
         }, MYTIMEOUT);
 
         it(suiteName + 'Error recovery for transaction with object for SQL statement', function (done) {
