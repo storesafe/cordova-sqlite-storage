@@ -131,7 +131,7 @@ See the [Sample section](#sample) for a sample with a more detailed explanation.
 - macOS version ("osx" platform) has not been tested in a release build and should be considered pre-alpha.
 - FTS3, FTS4, and R-Tree support is tested working OK in this version (for all target platforms in this version branch Android/iOS/macOS/Windows)
 - Android is supported back to SDK 10 (a.k.a. Gingerbread, Android 2.3.3); support for older versions is available upon request.
-- iOS versions supported: 7.x/8.x/9.x
+- iOS versions supported: 8.x/9.x/10.x (see [deviations section](#deviations) below for differences in case of WKWebView)
 - In case of memory issues please use smaller transactions or use the version (with GPL or commercial license options) at: [litehelpers / Cordova-sqlite-evcore-extbuild-free](https://github.com/litehelpers/Cordova-sqlite-evcore-extbuild-free)
 
 <!-- END Status -->
@@ -159,10 +159,11 @@ See the [Sample section](#sample) for a sample with a more detailed explanation.
 
 - Drop-in replacement for HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/): the only change should be to replace the static `window.openDatabase()` factory call with `window.sqlitePlugin.openDatabase()`, with parameters as documented below. Known deviations are documented in the [deviations section](#deviations) below.
 - Failure-safe nested transactions with batch processing optimizations (according to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/))
-- API is designed to be as flexible as possible but does not allow the application to leave a transaction hanging open.
+- API is designed to be as flexible as possible but does not allow the application to leave any transactions hanging open.
 - As described in [this posting](http://brodyspark.blogspot.com/2012/12/cordovaphonegap-sqlite-plugins-offer.html):
   - Keeps sqlite database in a user data location that is known; can be reconfigured (iOS version); and may be synchronized to iCloud (iOS version).
   - No extra size limit. SQLite limits described at: <http://www.sqlite.org/limits.html>
+- Also tested with multi-page applications
 - This project is self-contained though with sqlite3 dependencies auto-fetched by npm. No dependencies on other plugins such as cordova-plugin-file
 - Windows 8.1/Windows Phone 8.1/Windows 10 version uses a customized version of the performant C++ [doo / SQLite3-WinRT](https://github.com/doo/SQLite3-WinRT) component.
 - [SQLCipher](https://www.zetetic.net/sqlcipher/) support for Android/iOS/Windows is available at: [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter)
@@ -206,12 +207,22 @@ Use the following command to install this plugin from the Cordova CLI:
 cordova plugin add cordova-sqlite-storage --save
 ```
 
-**IMPORTANT NOTICE:** After installing the plugin and adding the iOS platform `cordova prepare` **must** be used for it to work on iOS 10 or with the iOS WKWebView plugin.
+Add any desired platform(s) if not already present, for example:
 
-and then prepare before building (required to work on iOS 10 or with WKWebView):
+```shell
+cordova platform add android
+```
+
+and then prepare before building (**MANDATORY** for iOS, *RECOMMENDED* for other platforms):
 
 ```shell
 cordova prepare
+```
+
+or to prepare for a single platform, Android for example:
+
+```shell
+cordova prepare android
 ```
 
 Please see the [Installing](#installing) section for more details.
@@ -415,7 +426,6 @@ Some more limitations are tracked in the [open Cordova-sqlite-storage documentat
 ## Further testing needed
 
 - Integration with PhoneGap developer app
-- location reloads and changes/multi-page apps
 - Use within [InAppBrowser](http://docs.phonegap.com/en/edge/cordova_inappbrowser_inappbrowser.md.html)
 - Use within an iframe (see [litehelpers/Cordova-sqlite-storage#368 (comment)](https://github.com/litehelpers/Cordova-sqlite-storage/issues/368#issuecomment-154046367))
 - Maximum record size supported
@@ -468,7 +478,6 @@ Documented in: [brodybits / Avoiding-some-Cordova-pitfalls](https://github.com/b
 
 ## Major TODOs
 
-- Support location reloads and changes
 - Integrate with IndexedDBShim and some other libraries such as Sequelize, Squel.js, WebSqlSync, Persistence.js, Knex, etc.
 - Version with proper BLOB support
 - Further cleanup of [support](#support) section
@@ -547,6 +556,8 @@ window.sqlitePlugin.selfTest(successCallback, errorCallback);
 ## General
 
 - Drop-in replacement for HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/): the only change should be to replace the static `window.openDatabase()` factory call with `window.sqlitePlugin.openDatabase()`, with parameters as documented below. Some other known deviations are documented below. Please report if you find any other possible deviations.
+- Single-page application design is recommended.
+- In case of a multi-page application the JavaScript used by each page must use `sqlitePlugin.openDatabase` to open the database access handle object before it can access the data.
 
 **NOTE:** If a sqlite statement in a transaction fails with an error, the error handler *must* return `false` in order to recover the transaction. This is correct according to the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/) standard. This is different from the WebKit implementation of Web SQL in Android and iOS which recovers the transaction if a sql error hander returns a non-`true` value.
 
@@ -1051,19 +1062,27 @@ Other resource(s):
 npm install -g cordova # (in case you don't have cordova)
 cordova create MyProjectFolder com.my.project MyProject && cd MyProjectFolder # if you are just starting
 cordova plugin add cordova-sqlite-storage --save
+cordova platform add <desired platform> # repeat for all desired platform(s)
+cordova prepare # MANDATORY for iOS; RECOMMENDED for other platforms
 ```
 
-**WARNING:** After installing the plugin and adding the iOS platform `cordova prepare` **must** be used for it to work on iOS 10 or with the iOS WKWebView plugin.
+**WARNING:** After installing the plugin and adding the iOS platform `cordova prepare` **must** be used for it to work on iOS (`cordova prepare` is also *recommended* for the other platforms).
 
-**Cordova CLI NOTES:**
+**Additional Cordova CLI NOTES:**
 
 - It is recommended to add *all* plugins including standard plugins such as `cordova-plugin-whitelist` with the `--save` flag to track these in `config.xml`.
-- In general there is no need to keep the Cordova `platforms` subdirectory tree in source code control (such as git). In case *all* plugins are added with the `--save- flag then there is no need to keep the `plugins` subdirectory tree in source code control either.
-- You *may* have to update the platform and plugin version(s) before you can build: `cordova prepare` (or for a specific platform such as iOS: `cordova prepare ios`)
+- In general there is no need to keep the Cordova `platforms` subdirectory tree in source code control (such as git). In case *all* plugins are added with the `--save` flag then there is no need to keep the `plugins` subdirectory tree in source code control either.
 - If you cannot build for a platform after `cordova prepare`, you may have to remove the platform and add it again, such as:
 
 ```shell
 cordova platform rm ios
+cordova platform add ios
+```
+
+or more drastically:
+
+```shell
+rm -rf platforms
 cordova platform add ios
 ```
 

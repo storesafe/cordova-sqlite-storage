@@ -1,7 +1,8 @@
 # Changes
 
-### cordova-sqlite-storage 1.4.8-pre6
+### cordova-sqlite-storage 1.4.8-pre7
 
+- selfTest function add string test and test of effects of location reload/change
 - Support macOS ("osx" platform)
 - Signal an error in case of SQL with too many parameter argument values on iOS (in addition to Android & Windows)
 - _Include proper SQL error code on Android (in certain cases)_

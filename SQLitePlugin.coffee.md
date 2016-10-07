@@ -704,8 +704,59 @@
         SQLiteFactory.deleteDatabase {name: SelfTest.DBNAME, location: 'default'},
           (-> SelfTest.start2(successcb, errorcb)),
           (-> SelfTest.start2(successcb, errorcb))
+        return
 
       start2: (successcb, errorcb) ->
+        SQLiteFactory.openDatabase {name: SelfTest.DBNAME, location: 'default'}, (db) ->
+          check1 = false
+          db.transaction (tx) ->
+            tx.executeSql 'SELECT UPPER("Test") AS upperText', [], (ignored, resutSet) ->
+              if !resutSet.rows
+                return SelfTest.finishWithError errorcb, 'Missing resutSet.rows'
+
+              if !resutSet.rows.length
+                return SelfTest.finishWithError errorcb, 'Missing resutSet.rows.length'
+
+              if resutSet.rows.length isnt 1
+                return SelfTest.finishWithError errorcb,
+                  "Incorrect resutSet.rows.length value: #{resutSet.rows.length} (expected: 1)"
+
+              if !resutSet.rows.item(0).upperText
+                return SelfTest.finishWithError errorcb,
+                  'Missing resutSet.rows.item(0).upperText'
+
+              if resutSet.rows.item(0).upperText isnt 'TEST'
+                return SelfTest.finishWithError errorcb,
+                  "Incorrect resutSet.rows.item(0).upperText value: #{resutSet.rows.item(0).data} (expected: 'TEST')"
+
+              check1 = true
+              return
+
+            , (sql_err) ->
+              SelfTest.finishWithError errorcb, "SQL error: #{sql_err}"
+              return
+
+          , (tx_err) ->
+            SelfTest.finishWithError errorcb, "TRANSACTION error: #{tx_err}"
+            return
+
+          , () ->
+            if !check1
+              return SelfTest.finishWithError errorcb,
+                'Did not get expected upperText result data'
+
+            # DELETE INTERNAL STATE to simulate the effects of location refresh or change:
+            delete db.openDBs[SelfTest.DBNAME]
+            delete txLocks[SelfTest.DBNAME]
+
+            SelfTest.start3 successcb, errorcb
+            return
+
+        , (open_err) ->
+          SelfTest.finishWithError errorcb, "Open database error: #{open_err}"
+        return
+
+      start3: (successcb, errorcb) ->
         SQLiteFactory.openDatabase {name: SelfTest.DBNAME, location: 'default'}, (db) ->
           db.sqlBatch [
             'CREATE TABLE TestTable(id integer primary key autoincrement unique, data);'
@@ -835,11 +886,13 @@
 
         , (open_err) ->
           SelfTest.finishWithError errorcb, "Open database error: #{open_err}"
+        return
 
       finishWithError: (errorcb, message) ->
         SQLiteFactory.deleteDatabase {name: SelfTest.DBNAME, location: 'default'}, ->
           errorcb newSQLError message
         , (err2)-> errorcb newSQLError "Cleanup error: #{err2} for error: #{message}"
+        return
 
 ## Exported API:
 
@@ -868,4 +921,3 @@
 
 #### vim: set filetype=coffee :
 #### vim: set expandtab :
-
