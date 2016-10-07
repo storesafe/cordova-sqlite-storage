@@ -1,6 +1,6 @@
 # Changes
 
-### cordova-sqlite-storage 1.4.8-pre7
+### cordova-sqlite-storage 1.4.8-pre8
 
 - selfTest function add string test and test of effects of location reload/change
 - Support macOS ("osx" platform)
