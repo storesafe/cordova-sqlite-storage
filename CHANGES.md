@@ -1,6 +1,6 @@
 # Changes
 
-## 0.10.2-pre1
+## cordova-sqlite-ext 0.10.2
 
 ### cordova-sqlite-storage 1.4.8
 
@@ -25,7 +25,7 @@
 - Fix Windows 8.1/Windows Phone 8.1 Release Build of SQLite3 by disabling SDL check
 - Some documentation fixes
 
-## 0.10.1
+## cordova-sqlite-ext 0.10.1
 
 ### cordova-sqlite-storage 1.4.5
 
@@ -62,7 +62,7 @@
 - Enforce minimum cordova-windows version (should be OK in Cordova 6.x)
 - Support Windows 10 along with Windows 8.1/Windows Phone 8.1
 
-## 0.10.0
+## cordova-sqlite-ext 0.10.0
 
 - Code to read BLOB data fixed and enabled for iOS version (as well as Android version)
 - Now using cordova-sqlite-ext-deps for SQLite 3.8.10.2 Android/iOS/Windows
@@ -78,7 +78,7 @@
 - Specify minimum Cordova version 6.0.0
 - Lawnchair adapter fix: Changed remove method to work with key array
 
-## 0.9.1
+## cordova-sqlite-ext 0.9.1
 
 - Support Windows 8.1/Windows Phone 8.1 along with Windows 10
 - Fix PCH issue with Debug Win32 UWP (Windows 10) build
@@ -94,24 +94,24 @@
 - iOS database location is now mandatory
 - Split-up of some more spec test scripts
 
-## 0.9.0-prep
+## cordova-sqlite-ext 0.9.0-prep
 
 - Mark upcoming BREAKING CHANGES to openDatabase parameters
 
 NOTICE: `0.8.6` release was published to npm based on the wrong branch and is withdrawn, to be completely superseded by the `0.9.*` release.
 
-## 0.8.4
+## cordova-sqlite-ext 0.8.4
 
 - Introduce Windows 10 UWP build (Windows 8.1 and Windows Phone 8.1 build disabled)
 
-## 0.8.3
+## cordova-sqlite-ext 0.8.3
 
 ### cordova-sqlite-storage 0.8.2
 
 - Workaround fix for empty readTransaction issue (litehelpers/Cordova-sqlite-storage#409)
 - Split spec/www/spec/legacy.js into db-open-close-delete-test.js & tx-extended.js
 
-## 0.8.1
+## cordova-sqlite-ext 0.8.1
 
 - Fix pre-populated database for Windows 8.1(+)/Windows Phone 8.1(+)
 - Separate SQLiteConnectorDatabase class for Android
@@ -124,7 +124,7 @@ NOTICE: `0.8.6` release was published to npm based on the wrong branch and is wi
 - Remove extra runInBackground: step from iOS version
 - Java source of Android version now using io.sqlc package
 
-## 0.8.0
+## cordova-sqlite-ext 0.8.0
 
 - Support REGEXP on Android using PCRE (8.37)
 - Support REGEXP for iOS included
