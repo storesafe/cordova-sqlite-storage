@@ -72,8 +72,15 @@
       return result;
     },
     each: function (callback) {
-      while (this.statement.step() === SQLite3.ResultCode.row) {
+      var resultCode = this.statement.step();
+
+      while (resultCode === SQLite3.ResultCode.row) {
         callback(this._getRow());
+        resultCode = this.statement.step();
+      }
+
+      if (resultCode !== SQLite3.ResultCode.done && resultCode !== SQLite3.ResultCode.ok) {
+        throw new Error("SQLite3 step error result code: " + resultCode);
       }
     },
     map: function (callback) {

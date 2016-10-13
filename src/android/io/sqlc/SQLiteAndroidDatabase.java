@@ -10,6 +10,8 @@ import android.annotation.SuppressLint;
 
 import android.database.Cursor;
 import android.database.CursorWindow;
+
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -19,8 +21,10 @@ import android.util.Base64;
 import android.util.Log;
 
 import java.io.File;
+
 import java.lang.IllegalArgumentException;
 import java.lang.Number;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,6 +50,8 @@ class SQLiteAndroidDatabase
 
     private static final Pattern DELETE_TABLE_NAME = Pattern.compile("^\\s*DELETE\\s+FROM\\s+(\\S+)",
             Pattern.CASE_INSENSITIVE);
+
+    private static final boolean isPostHoneycomb = android.os.Build.VERSION.SDK_INT >= 11;
 
     File dbFile;
 
@@ -118,7 +124,9 @@ class SQLiteAndroidDatabase
             boolean needRowsAffectedCompat = false;
 
             JSONObject queryResult = null;
+
             String errorMessage = "unknown";
+            int code = 0; // SQLException.UNKNOWN_ERR
 
             try {
                 boolean needRawQuery = true;
@@ -126,7 +134,7 @@ class SQLiteAndroidDatabase
                 QueryType queryType = getQueryType(query);
 
                 if (queryType == QueryType.update || queryType == queryType.delete) {
-                    if (android.os.Build.VERSION.SDK_INT >= 11) {
+                    if (isPostHoneycomb) {
                         SQLiteStatement myStatement = mydb.compileStatement(query);
 
                         if (json_params != null) {
@@ -136,9 +144,17 @@ class SQLiteAndroidDatabase
                         int rowsAffected = -1; // (assuming invalid)
 
                         // Use try & catch just in case android.os.Build.VERSION.SDK_INT >= 11 is lying:
+                        // (Catch SQLiteException here to avoid extra retry)
                         try {
                             rowsAffected = myStatement.executeUpdateDelete();
                             // Indicate valid results:
+                            needRawQuery = false;
+                        } catch (SQLiteConstraintException ex) {
+                            // Indicate problem & stop this query:
+                            ex.printStackTrace();
+                            errorMessage = "constraint failure: " + ex.getMessage();
+                            code = 6; // SQLException.CONSTRAINT_ERR
+                            Log.v("executeSqlBatch", "SQLiteStatement.executeUpdateDelete(): Error=" + errorMessage);
                             needRawQuery = false;
                         } catch (SQLiteException ex) {
                             // Indicate problem & stop this query:
@@ -149,6 +165,8 @@ class SQLiteAndroidDatabase
                         } catch (Exception ex) {
                             // Assuming SDK_INT was lying & method not found:
                             // do nothing here & try again with raw query.
+                            ex.printStackTrace();
+                            Log.v("executeSqlBatch", "SQLiteStatement.executeUpdateDelete(): runtime error (fallback to old API): " + errorMessage);
                         }
 
                         // "finally" cleanup myStatement
@@ -187,9 +205,14 @@ class SQLiteAndroidDatabase
                         } else {
                             queryResult.put("rowsAffected", 0);
                         }
+                    } catch (SQLiteConstraintException ex) {
+                        // report constraint violation error result with the error message
+                        ex.printStackTrace();
+                        errorMessage = "constraint failure: " + ex.getMessage();
+                        code = 6; // SQLException.CONSTRAINT_ERR
+                        Log.v("executeSqlBatch", "SQLiteDatabase.executeInsert(): Error=" + errorMessage);
                     } catch (SQLiteException ex) {
-                        // report error result with the error message
-                        // could be constraint violation or some other error
+                        // report some other error result with the error message
                         ex.printStackTrace();
                         errorMessage = ex.getMessage();
                         Log.v("executeSqlBatch", "SQLiteDatabase.executeInsert(): Error=" + errorMessage);
@@ -244,7 +267,21 @@ class SQLiteAndroidDatabase
 
                 // raw query for other statements:
                 if (needRawQuery) {
-                    queryResult = this.executeSqlStatementQuery(mydb, query, json_params);
+                    try {
+                        queryResult = this.executeSqlStatementQuery(mydb, query, json_params);
+
+                    } catch (SQLiteConstraintException ex) {
+                        // report constraint violation error result with the error message
+                        ex.printStackTrace();
+                        errorMessage = "constraint failure: " + ex.getMessage();
+                        code = 6; // SQLException.CONSTRAINT_ERR
+                        Log.v("executeSqlBatch", "Raw query error=" + errorMessage);
+                    } catch (SQLiteException ex) {
+                        // report some other error result with the error message
+                        ex.printStackTrace();
+                        errorMessage = ex.getMessage();
+                        Log.v("executeSqlBatch", "Raw query error=" + errorMessage);
+                    }
 
                     if (needRowsAffectedCompat) {
                         queryResult.put("rowsAffected", rowsAffectedCompat);
@@ -270,6 +307,7 @@ class SQLiteAndroidDatabase
 
                     JSONObject er = new JSONObject();
                     er.put("message", errorMessage);
+                    er.put("code", code);
                     r.put("result", er);
 
                     batchResults.put(r);
@@ -415,7 +453,7 @@ class SQLiteAndroidDatabase
                     for (int i = 0; i < colCount; ++i) {
                         key = cur.getColumnName(i);
 
-                        if (android.os.Build.VERSION.SDK_INT >= 11) {
+                        if (isPostHoneycomb) {
 
                             // Use try & catch just in case android.os.Build.VERSION.SDK_INT >= 11 is lying:
                             try {

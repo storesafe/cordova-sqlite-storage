@@ -1,5 +1,8 @@
 .DS_Store
-.plugin
 .metadata/*
 *.swp
 *~
+node_modules
+spec/myplugin
+spec/plugins
+spec/platforms

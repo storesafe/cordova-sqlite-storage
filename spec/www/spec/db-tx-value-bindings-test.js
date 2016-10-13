@@ -33,8 +33,8 @@ function start(n) {
 var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
-var isIE = isWindows || isWP8;
-var isWebKit = !isIE; // TBD [Android or iOS]
+var isMac = /Macintosh/.test(navigator.userAgent);
+var isWKWebView = !isWindows && !isAndroid && !isWP8 && !isMac && !!window.webkit && !!window.webkit.messageHandlers;
 
 // NOTE: In the core-master branch there is no difference between the default
 // implementation and implementation #2. But the test will also apply
@@ -51,15 +51,15 @@ var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
 
-    describe(scenarioList[i] + ': tx value bindings test(s)', function() {
+    describe(scenarioList[i] + ': tx INSERT value bindings test(s)', function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
       var isWebSql = (i === 1);
-      var isOldImpl = (i === 2);
+      var isImpl2 = (i === 2);
 
       // NOTE: MUST be defined in function scope, NOT outer scope:
       var openDatabase = function(name, ignored1, ignored2, ignored3) {
-        if (isOldImpl) {
+        if (isImpl2) {
           return window.sqlitePlugin.openDatabase({
             // prevent reuse of database from default db implementation:
             name: 'i2-'+name,
@@ -75,9 +75,112 @@ var mytests = function() {
         }
       }
 
-      describe(suiteName + 'transaction column value bindings semantics test(s)', function() {
+      describe(suiteName + 'transaction column value insertion test(s)', function() {
 
-        it(suiteName + "all columns should be included in result set (including 'null' columns)", function(done) {
+        it(suiteName + 'INSERT with null parameter argument value and check stored data', function(done) {
+          var db = openDatabase('INSERT-null-arg-value-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data1, data2)', [], function(ignored1, ignored2) {
+
+              tx.executeSql('INSERT INTO test_table VALUES (?,?)', [null, 'test-string'], function(ignored, rs1) {
+
+                expect(rs1).toBeDefined();
+                expect(rs1.rowsAffected).toBe(1);
+
+                tx.executeSql('SELECT * FROM test_table', [], function(ignored, rs2) {
+                  var row = rs2.rows.item(0);
+
+                  expect(row.data1).toBeNull();
+                  expect(row.data2).toBe('test-string');
+
+                  tx.executeSql('SELECT TYPEOF(data1) AS t1, TYPEOF(data2) AS t2 FROM test_table', null, function(ignored, rs3) {
+                    expect(rs3).toBeDefined();
+                    expect(rs3.rows).toBeDefined();
+                    expect(rs3.rows.length).toBe(1);
+                    expect(rs3.rows.item(0).t1).toBe('null');
+                    expect(rs3.rows.item(0).t2).toBe('text');
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  });
+
+                });
+              });
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'INSERT with undefined parameter argument value (inserted as null) and check stored data [BROKEN for Windows: Unsupported argument type ERROR]', function(done) {
+          if (isWP8) pending('SKIP for WP8'); // SKIP for now
+
+          var db = openDatabase('INSERT-undefined-arg-value-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data1, data2)', [], function(ignored1, ignored2) {
+
+              tx.executeSql('INSERT INTO test_table VALUES (?,?)', [undefined, 'test-string'], function(ignored, rs1) {
+
+                if (isWindows) expect('Windows plugin version FIXED please update this test').toBe('--');
+
+                expect(rs1).toBeDefined();
+                expect(rs1.rowsAffected).toBe(1);
+
+                tx.executeSql('SELECT * FROM test_table', [], function(ignored, rs2) {
+                  var row = rs2.rows.item(0);
+
+                  if (isWebSql && isAndroid)
+                    expect(row.data1).toBe('undefined');
+                  else
+                    expect(row.data1).toBeNull();
+                  expect(row.data2).toBe('test-string');
+
+                  tx.executeSql('SELECT TYPEOF(data1) AS t1, TYPEOF(data2) AS t2 FROM test_table', null, function(ignored, rs3) {
+                    expect(rs3).toBeDefined();
+                    expect(rs3.rows).toBeDefined();
+                    expect(rs3.rows.length).toBe(1);
+                    if (isWebSql && isAndroid)
+                      expect(rs3.rows.item(0).t1).toBe('text');
+                    else
+                      expect(rs3.rows.item(0).t1).toBe('null');
+                    expect(rs3.rows.item(0).t2).toBe('text');
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  });
+
+                });
+              });
+            });
+          }, function(error) {
+            // ERROR in case of Windows:
+            if (isWindows) {
+              expect(error).toBeDefined();
+              expect(error.code).toBeDefined();
+              expect(error.message).toBeDefined();
+              expect(error.code).toBe(0);
+              expect(error.message).toMatch(/a statement with no error handler failed: Unsupported argument type: undefined/);
+              return done();
+            }
+
+            // OTHERWISE
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "all columns should be included in result set including id integer primary key & 'null' columns", function(done) {
 
           var db = openDatabase('all-result-columns-including-null-columns.db', '1.0', 'Demo', DEFAULT_SIZE);
 
@@ -113,9 +216,265 @@ var mytests = function() {
           });
         });
 
-      });
+        it(suiteName + 'INSERT integer value (42) with no/INTEGER/NUMERIC/REAL/TEXT affinity & check stored data [TBD Plugin vs (WebKit) Web SQL]', function(done) {
+          var db = openDatabase("INTEGER-INSERT-value-bindings.db", "1.0", "Demo", DEFAULT_SIZE);
 
-      describe(scenarioList[i] + ': tx column value insertion test(s)', function() {
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS tt');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (data1, data2 INTEGER, data3 NUMERIC, data4 REAL, data5 TEXT)', null, function(ignored1, ignored2) {
+              tx.executeSql('INSERT INTO tt VALUES (?,?,?,?,?)',
+                  [42, 42, 42, 42, 42], function(ignored, rs1) {
+                expect(rs1).toBeDefined();
+                expect(rs1.rowsAffected).toBe(1);
+                expect(rs1.insertId).toBe(1);
+
+                tx.executeSql('SELECT * FROM tt', [], function(ignored, rs2) {
+                  // CHECK BIG INTEGER number was inserted properly:
+                  expect(rs2).toBeDefined();
+                  expect(rs2.rows).toBeDefined();
+                  expect(rs2.rows.length).toBe(1);
+
+                  var row = rs2.rows.item(0);
+                  expect(row.data1).toBe(42);
+                  expect(row.data2).toBe(42);
+                  expect(row.data3).toBe(42);
+                  expect(row.data4).toBe(42);
+
+                  if (isWebSql || isMac || isWKWebView)
+                    expect(row.data5).toBe('42.0');
+                  else
+                    expect(row.data5).toBe('42');
+
+                  tx.executeSql('SELECT TYPEOF(data1) AS t1, TYPEOF(data2) AS t2, TYPEOF(data3) AS t3, TYPEOF(data4) AS t4, TYPEOF(data5) AS t5 FROM tt', [], function(ignored, rs3) {
+                    expect(rs3).toBeDefined();
+                    expect(rs3.rows).toBeDefined();
+                    expect(rs3.rows.length).toBe(1);
+
+                    var row = rs3.rows.item(0);
+                    if (isWebSql || isMac || isWKWebView)
+                      expect(row.t1).toBe('real');
+                    else
+                      expect(row.t1).toBe('integer');
+                    expect(row.t2).toBe('integer');
+                    expect(row.t3).toBe('integer');
+                    expect(row.t4).toBe('real');
+                    expect(row.t5).toBe('text');
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  });
+
+                });
+              });
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'INSERT Infinity with no/NUMERIC/REAL/INTEGER/TEXT type affinity and check stored data [Android/iOS Plugin BROKEN: stored with null value]', function(done) {
+          if (isWP8) pending('SKIP for WP8'); // SKIP for now
+          if (isMac) pending('SKIP for macOS [CRASH]'); // FUTURE TBD
+
+          var db = openDatabase('INSERT-Infinity-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE test_table (data, data_num NUMERIC, data_real REAL, data_int INTEGER, data_text TEXT)', [], function(ignored1, ignored2) {
+
+              tx.executeSql('INSERT INTO test_table VALUES (?,?,?,?,?)', [Infinity, Infinity, Infinity, Infinity, Infinity], function(ignored, res) {
+
+                expect(res).toBeDefined();
+                expect(res.rowsAffected).toBe(1);
+
+                tx.executeSql('SELECT * FROM test_table', [], function(tx, rs) {
+                  expect(rs).toBeDefined();
+                  expect(rs.rows).toBeDefined();
+                  expect(rs.rows.length).toBeDefined();
+
+                  var row = rs.rows.item(0);
+                  expect(row).toBeDefined();
+
+                  if (!isWebSql && !isWindows) {
+                    // Android/iOS plugin issue
+                    expect(row.data).toBe(null);
+                    expect(row.data_num).toBe(null);
+                    expect(row.data_real).toBe(null);
+                    expect(row.data_int).toBe(null);
+                    expect(row.data_text).toBe(null);
+                  } else {
+                    expect(row.data).toBe(Infinity);
+                    expect(row.data_num).toBe(Infinity);
+                    expect(row.data_real).toBe(Infinity);
+                    expect(row.data_int).toBe(Infinity);
+                    expect(row.data_text).toBe('Inf');
+                  }
+
+                  // Close (plugin only) & finish:
+                  (isWebSql) ? done() : db.close(done, done);
+                });
+
+              });
+
+            });
+
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'INSERT -Infinity with no/NUMERIC/REAL/INTEGER/TEXT type affinity and check stored data [Android/iOS Plugin BROKEN: stored with null value]', function(done) {
+          if (isWP8) pending('SKIP for WP8'); // SKIP for now
+          if (isMac) pending('SKIP for macOS [CRASH]'); // FUTURE TBD
+
+          var db = openDatabase('INSERT-minus-Infinity-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE test_table (data, data_num NUMERIC, data_real REAL, data_int INTEGER, data_text TEXT)', [], function(ignored1, ignored2) {
+
+              tx.executeSql('INSERT INTO test_table VALUES (?,?,?,?,?)', [-Infinity, -Infinity, -Infinity, -Infinity, -Infinity], function(ignored, res) {
+
+                expect(res).toBeDefined();
+                expect(res.rowsAffected).toBe(1);
+
+                tx.executeSql('SELECT * FROM test_table', [], function(tx, rs) {
+                  expect(rs).toBeDefined();
+                  expect(rs.rows).toBeDefined();
+                  expect(rs.rows.length).toBeDefined();
+
+                  var row = rs.rows.item(0);
+                  expect(row).toBeDefined();
+
+                  if (!isWebSql && !isWindows) {
+                    // Android/iOS plugin issue
+                    expect(row.data).toBe(null);
+                    expect(row.data_num).toBe(null);
+                    expect(row.data_real).toBe(null);
+                    expect(row.data_int).toBe(null);
+                    expect(row.data_text).toBe(null);
+                  } else {
+                    expect(row.data).toBe(-Infinity);
+                    expect(row.data_num).toBe(-Infinity);
+                    expect(row.data_real).toBe(-Infinity);
+                    expect(row.data_int).toBe(-Infinity);
+                    expect(row.data_text).toBe('-Inf');
+                  }
+
+                  // Close (plugin only) & finish:
+                  (isWebSql) ? done() : db.close(done, done);
+                });
+
+              });
+
+            });
+
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'INSERT NaN with no/NUMERIC/REAL/INTEGER/TEXT type affinity and check stored data', function(done) {
+
+          var db = openDatabase('INSERT-minus-Infinity-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE test_table (data, data_num NUMERIC, data_real REAL, data_int INTEGER, data_text TEXT)', [], function(ignored1, ignored2) {
+
+              tx.executeSql('INSERT INTO test_table VALUES (?,?,?,?,?)', [NaN, NaN, NaN, NaN, NaN], function(ignored, res) {
+
+                expect(res).toBeDefined();
+                expect(res.rowsAffected).toBe(1);
+
+                tx.executeSql('SELECT * FROM test_table', [], function(tx, rs) {
+                  expect(rs).toBeDefined();
+                  expect(rs.rows).toBeDefined();
+                  expect(rs.rows.length).toBeDefined();
+
+                  var row = rs.rows.item(0);
+                  expect(row).toBeDefined();
+                  expect(row.data).toBe(null);
+                  expect(row.data_num).toBe(null);
+                  expect(row.data_real).toBe(null);
+                  expect(row.data_int).toBe(null);
+                  expect(row.data_text).toBe(null);
+
+                  // Close (plugin only) & finish:
+                  (isWebSql) ? done() : db.close(done, done);
+                });
+
+              });
+
+            });
+
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        // NOTE: emojis and other 4-octet UTF-8 characters apparently not stored
+        // properly by Android-sqlite-connector/Windows ref: litehelpers/Cordova-sqlite-storage#564
+        it(suiteName + 'INSERT TEXT string with emoji [\\u1F603 SMILING FACE (MOUTH OPEN)], SELECT the data, and check' +
+           ((!isWebSql && (isWindows || (isAndroid && !isImpl2))) ?
+            ' [BROKEN: SELECT HEX(data) result on Android-sqlite-connector/Windows]' : ''), function(done) {
+          if (isWP8) pending('SKIP for WP8'); // [TBD CRASH with uncaught exception]
+
+          var db = openDatabase('INSERT-emoji-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data)', [], function(ignored1, ignored2) {
+
+              tx.executeSql('INSERT INTO test_table VALUES (?)', ['@\uD83D\uDE03!'], function(tx, res) {
+
+                expect(res).toBeDefined();
+                expect(res.rowsAffected).toBe(1);
+
+                tx.executeSql('SELECT * FROM test_table', [], function(tx, res) {
+                  var row = res.rows.item(0);
+
+                  // Full object check:
+                  expect(row).toEqual({data: '@\uD83D\uDE03!'});
+                  // Check individual members:
+                  expect(row.data).toBe('@\uD83D\uDE03!');
+
+                  tx.executeSql('SELECT HEX(data) AS hexvalue FROM test_table', [], function(tx, res) {
+                    // BROKEN: INCORRECT value Android-sqlite-connector/Windows
+                    if (!isWebSql && !isWindows && !isWP8 && !(isAndroid && !isImpl2))
+                      expect(res.rows.item(0).hexvalue).toBe('40F09F988321');
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  });
+
+                });
+              });
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
 
         it(suiteName + "number values inserted using number bindings", function(done) {
 
@@ -140,6 +499,7 @@ var mytests = function() {
                 tx.executeSql("select * from test_table", [], function(tx, res) {
                   var row = res.rows.item(0);
 
+                  expect(row.id).toBe(1);
                   expect(row.data_text1).toBe("314159"); // (data_text1 should have inserted data as text)
 
                   if (!isWP8) // JSON issue in WP(8) version
@@ -150,49 +510,89 @@ var mytests = function() {
 
                   // Close (plugin only) & finish:
                   (isWebSql) ? done() : db.close(done, done);
+
+                  tx.executeSql('SELECT TYPEOF(data_text1) AS t1, TYPEOF(data_text2) AS t2, data_int AS t3, data_real AS t4', null, function(ignored, rs3) {
+                    expect(rs3).toBeDefined();
+                    expect(rs3.rows).toBeDefined();
+                    expect(rs3.rows.length).toBe(1);
+                    expect(rs3.rows.item(0).t1).toBe('text');
+                    expect(rs3.rows.item(0).t2).toBe('text');
+                    expect(rs3.rows.item(0).t2).toBe('integer');
+                    expect(rs3.rows.item(0).t2).toBe('real');
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  });
+
                 });
               });
             });
           });
         });
 
-        it(suiteName + "Big [integer] value bindings", function(done) {
-          if (isWP8) pending('BROKEN for WP(8)'); // XXX [BUG #195]
+        it(suiteName + 'BIG INTEGER INSERT value bindings', function(done) {
+          var db = openDatabase("BIG-INTEGER-INSERT-value-bindings.db", "1.0", "Demo", DEFAULT_SIZE);
 
-          var db = openDatabase("Big-int-bindings.db", "1.0", "Demo", DEFAULT_SIZE);
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS tt');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (test_date INTEGER, test_text TEXT)');
-          }, function(err) {
-            expect(false).toBe(true);
-            expect(err.message).toBe('---');
+            // NOTE: DATETIME is same as NUMERIC ref:
+            // https://www.sqlite.org/datatype3.html#affinity_name_examples
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (data1, test_int INTEGER, test_num NUMERIC, test_date DATETIME, test_text TEXT)', null, function(ignored1, ignored2) {
+              tx.executeSql('INSERT INTO tt VALUES (?,?,?,?,?)',
+                  [1424174959894, 1424174959894, 1424174959894, 1424174959894, 1424174959894], function(ignored, rs1) {
+                expect(rs1).toBeDefined();
+                expect(rs1.rowsAffected).toBe(1);
+                expect(rs1.insertId).toBe(1);
 
-          }, function() {
-            db.transaction(function(tx) {
-              tx.executeSql("insert into tt (test_date, test_text) VALUES (?,?)",
-                  [1424174959894, 1424174959894], function(tx, res) {
-                expect(res).toBeDefined();
-                expect(res.rowsAffected).toBe(1);
-                tx.executeSql("select * from tt", [], function(tx, res) {
-                  // (Big integer number inserted properly)
-                  var row = res.rows.item(0);
+                tx.executeSql('SELECT * FROM tt', [], function(ignored, rs2) {
+                  // CHECK BIG INTEGER number was inserted properly:
+                  expect(rs2).toBeDefined();
+                  expect(rs2.rows).toBeDefined();
+                  expect(rs2.rows.length).toBe(1);
+
+                  var row = rs2.rows.item(0);
+                  expect(row.data1).toBe(1424174959894);
+                  expect(row.test_int).toBe(1424174959894);
+                  expect(row.test_num).toBe(1424174959894);
                   expect(row.test_date).toBe(1424174959894);
 
-                  // NOTE: storing big integer in TEXT field WORKING OK with WP(8) version.
-                  // It is now suspected that the issue lies with the results handling.
-                  // XXX Brody TODO: storing big number in TEXT field is different for Plugin vs. Web SQL!
-                  if (isWebSql)
+                  // NOTE: big number apparently stored in field with TEXT affinity with slightly
+                  // different conversion in plugin vs. WebKit Web SQL!
+                  if (isWebSql || isMac || isWKWebView)
                     expect(row.test_text).toBe("1424174959894.0"); // ([Big] number inserted as string ok)
                   else
                     expect(row.test_text).toBe("1424174959894"); // (Big integer number inserted as string ok)
 
-                  // Close (plugin only) & finish:
-                  (isWebSql) ? done() : db.close(done, done);
+                  tx.executeSql('SELECT TYPEOF(data1) AS t1, TYPEOF(test_int) AS t2, TYPEOF(test_num) AS t3, TYPEOF(test_date) AS t4, TYPEOF(test_text) AS t5 FROM tt', [], function(ignored, rs3) {
+                    expect(rs3).toBeDefined();
+                    expect(rs3.rows).toBeDefined();
+                    expect(rs3.rows.length).toBe(1);
+
+                    var row = rs3.rows.item(0);
+                    if (isWebSql || isMac || isWKWebView)
+                      expect(row.t1).toBe('real');
+                    else
+                      expect(row.t1).toBe('integer');
+                    expect(row.t2).toBe('integer');
+                    expect(row.t3).toBe('integer');
+                    expect(row.t4).toBe('integer');
+                    expect(row.t5).toBe('text');
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  });
+
                 });
               });
             });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
           });
-        });
+        }, MYTIMEOUT);
 
         it(suiteName + "Double precision decimal number insertion", function(done) {
           var db = openDatabase("Double-precision-number-insertion.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -221,6 +621,57 @@ var mytests = function() {
             });
           });
         });
+
+        it(suiteName + 'BIG REAL INSERT value bindings', function(done) {
+          var db = openDatabase("BIG-REAL-INSERT-value-bindings.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS tt');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (data1 REAL, data2 NUMERIC, data3 INTEGER, data4 TEXT)', null, function(ignored1, ignored2) {
+              tx.executeSql('INSERT INTO tt VALUES (?,?,?,?)',
+                  [1234567890123.4, 1234567890123.4, 1234567890123.4, 1234567890123.4], function(tx, rs1) {
+                expect(rs1).toBeDefined();
+                expect(rs1.rowsAffected).toBe(1);
+                expect(rs1.insertId).toBe(1);
+
+                tx.executeSql('SELECT * FROM tt', [], function(tx, rs2) {
+                  // CHECK BIG INTEGER number was inserted properly:
+                  expect(rs2).toBeDefined();
+                  expect(rs2.rows).toBeDefined();
+                  expect(rs2.rows.length).toBe(1);
+
+                  var row = rs2.rows.item(0);
+                  expect(row.data1).toBe(1234567890123.4);
+                  expect(row.data2).toBe(1234567890123.4);
+                  expect(row.data3).toBe(1234567890123.4);
+                  expect(row.data4).toBe('1234567890123.4');
+
+                  tx.executeSql('SELECT TYPEOF(data1) AS t1, TYPEOF(data2) AS t2, TYPEOF(data3) AS t3, TYPEOF(data4) AS t4 FROM tt', [], function(tx, rs3) {
+                    expect(rs3).toBeDefined();
+                    expect(rs3.rows).toBeDefined();
+                    expect(rs3.rows.length).toBe(1);
+
+                    var row = rs3.rows.item(0);
+                    expect(row.t1).toBe('real');
+                    expect(row.t2).toBe('real');
+                    expect(row.t3).toBe('real');
+                    expect(row.t4).toBe('text');
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  });
+
+                });
+              });
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
 
         it(suiteName + "executeSql parameter as array", function(done) {
           var db = openDatabase("array-parameter.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -270,6 +721,7 @@ var mytests = function() {
 
                 tx.executeSql("select * from test_table", [], function(tx, rs2) {
                   expect(rs2.rows.length).toBe(1);
+                  expect(rs2.rows.item(0).id).toBe(1);
                   expect(rs2.rows.item(0).data1).toBe('true');
                   expect(rs2.rows.item(0).data2).toBe('false');
 
@@ -281,49 +733,128 @@ var mytests = function() {
           });
         });
 
-        it(suiteName + "executeSql with not enough parameters", function(done) {
+        it(suiteName + "INSERT inline BLOB value (X'40414243') and check stored data [XXX SELECT BLOB ISSUE with Windows]", function(done) {
+          var db = openDatabase('INSERT-inline-BLOB-value-and-check-stored-data.db', '1.0', 'Demo', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data)', [], function(ignored1, ignored2) {
+
+              tx.executeSql("INSERT INTO test_table VALUES (X'40414243')", [], function(ignored, rs1) {
+
+                expect(rs1).toBeDefined();
+                expect(rs1.rowsAffected).toBe(1);
+
+                tx.executeSql('SELECT HEX(data) AS hexValue FROM test_table', [], function(ignored, rs2) {
+                  expect(rs2).toBeDefined();
+                  expect(rs2.rows).toBeDefined();
+                  expect(rs2.rows.length).toBeDefined();
+
+                  var row = rs2.rows.item(0);
+                  expect(row).toBeDefined();
+                  expect(row.hexValue).toBe('40414243');
+
+                  //if (isWP8) return done(); // [...]
+
+                  tx.executeSql('SELECT * FROM test_table', [], function(ignored, rs3) {
+                    //if (!isWebSql && isAndroid && isImpl2) expect('Behavior changed please update this test').toBe('--');
+                    expect(rs3).toBeDefined();
+                    expect(rs3.rows).toBeDefined();
+                    expect(rs3.rows.length).toBeDefined();
+
+                    var row = rs3.rows.item(0);
+                    expect(row).toBeDefined();
+                    //expect(row.data).toBe('@ABC');
+                    if (isWebSql || (isAndroid && !isImpl2))
+                      expect(row.data).toBe('@ABC');
+                    else if (isAndroid)
+                      expect(row.data).toBe('QEFCQw==\n'); // XXX TBD WHY??
+                    else
+                      expect(row.data).toBe('QEFCQw==');
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  }, function(ignored, error) {
+                    if (!isWebSql && isWindows /*|| (isAndroid && isImpl2)*/) {
+                      expect(error).toBeDefined();
+                      expect(error.code).toBeDefined();
+                      expect(error.message).toBeDefined();
+
+                      expect(error.code).toBe(0);
+
+                      //if (isWindows)
+                        expect(error.message).toMatch(/Unsupported column type in column 0/);
+                      //else
+                      //  expect(error.message).toMatch(/unknown error.*code 0.*Unable to convert BLOB to string/);
+                    } else {
+                      // NOT EXPECTED:
+                      expect(false).toBe(true);
+                      expect(error.message).toBe('---');
+                    }
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  });
+
+                });
+
+              });
+
+            });
+          });
+        }, MYTIMEOUT);
+
+      });
+
+      describe(suiteName + 'parameter count mismatch tests', function() {
+
+        it(suiteName + 'executeSql with not enough parameters (Plugin DEVIATION: does not reject such SQL statements)', function(done) {
           var db = openDatabase("not-enough-parameters.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
             // CREATE columns with no type affinity
-            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data1, data2)');
-
-          }, function(error) {
-            expect(false).toBe(true);
-            expect(error.message).toBe('---');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
-
-          }, function() {
-            db.transaction(function(tx) {
-              tx.executeSql("INSERT INTO test_table (data1, data2) VALUES (?,?)", ['first'], function(tx, rs1) {
-                // ACTUAL for plugin (Android/iOS/Windows):
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data1, data2)', [], function(ignored1, ignored2) {
+              tx.executeSql("INSERT INTO test_table VALUES (?,?)", ['first'], function(tx, rs1) {
+                // ACTUAL BEHAVIOR for plugin (Android/iOS/Windows):
                 if (isWebSql) expect('RESULT NOT EXPECTED for Web SQL').toBe('--');
                 expect(rs1).toBeDefined();
                 expect(rs1.rowsAffected).toBe(1);
 
-                tx.executeSql("select * from test_table", [], function(tx, rs2) {
+                tx.executeSql('SELECT * FROM test_table', [], function(tx, rs2) {
                   expect(rs2.rows.length).toBe(1);
                   expect(rs2.rows.item(0).data1).toBe('first');
                   expect(rs2.rows.item(0).data2).toBeNull();
+
                   // Close (plugin only) & finish:
                   (isWebSql) ? done() : db.close(done, done);
                 });
 
-              }, function(error) {
+              }, function(ignored, error) {
                 // CORRECT (Web SQL):
-                if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
-                expect(true).toBe(true);
+                if (!isWebSql) expect('Plugin behavior changed, please update this test').toBe('--');
+
+                expect(error).toBeDefined();
+                expect(error.code).toBeDefined();
+                expect(error.message).toBeDefined();
+
+                // WebKit Web SQL reports correct error code (5 - SYNTAX_ERR) in this case.
+                expect(error.code).toBe(5);
+
+                // WebKit Web SQL error message (Android/iOS):
+                expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
+
                 // Close (plugin only) & finish:
                 (isWebSql) ? done() : db.close(done, done);
               });
             });
           });
-        });
+        }, MYTIMEOUT);
 
-        it(suiteName + "executeSql with too many parameters", function(done) {
-          var db = openDatabase("too-many-parameters.db", "1.0", "Demo", DEFAULT_SIZE);
+        it(suiteName + 'executeSql with too many parameters [extra TEXT string]', function(done) {
+          if (isWP8) pending('SKIP for WP8'); // TBD BROKEN on WP8
+
+          var db = openDatabase("too-many-parameters-extra-text-string.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
@@ -338,30 +869,203 @@ var mytests = function() {
 
           }, function() {
             db.transaction(function(tx) {
-              tx.executeSql("INSERT INTO test_table (data1, data2) VALUES (?,?)", ['first', 'second', 'third'], function(tx, rs1) {
-                // ACTUAL for iOS plugin:
-                if (isWebSql) expect('RESULT NOT EXPECTED for Web SQL').toBe('--');
-                expect(rs1).toBeDefined();
-                expect(rs1.rowsAffected).toBe(1);
+              tx.executeSql("INSERT INTO test_table (data1, data2) VALUES (?,?)", ['first', 'second', 'third'], function(ignored1, ignored2) {
+                // NOT EXPECTED:
+                expect(false).toBe(true);
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
 
-                tx.executeSql("select * from test_table", [], function(tx, rs2) {
-                  expect(rs2.rows.length).toBe(1);
-                  expect(rs2.rows.item(0).data1).toBe('first');
-                  expect(rs2.rows.item(0).data2).toBe('second');
-                  // Close (plugin only) & finish:
-                  (isWebSql) ? done() : db.close(done, done);
-                });
+              }, function(ignored, error) {
+                // EXPECTED RESULT:
+                expect(error).toBeDefined();
+                expect(error.code).toBeDefined();
+                expect(error.message).toBeDefined();
 
-              }, function(error) {
-                // CORRECT (Web SQL; Android & Windows plugin):
-                if (!isWebSql && !isAndroid && !isWindows) expect('Plugin behavior changed please update this test').toBe('--');
-                expect(true).toBe(true);
+                // PLUGIN BROKEN: reports INCORRECT error code: 0 (SQLite.UNKNOWN_ERR)
+                // WebKit Web SQL reports correct error code: 5 (SQLite.SYNTAX_ERR) in this case.
+                // ref: https://www.w3.org/TR/webdatabase/#dom-sqlexception-code-syntax
+                if (isWebSql)
+                  expect(error.code).toBe(5);
+                else
+                  expect(error.code).toBe(0);
+
+                // WebKit Web SQL vs plugin error message
+                // FUTURE TBD plugin error message subject to change
+                if (isWebSql)
+                  expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
+                else if (isWindows)
+                  expect(error.message).toMatch(/Error 25 when binding argument to SQL query/);
+                else
+                  expect(error.message).toMatch(/index.*out of range/);
+
                 // Close (plugin only) & finish:
                 (isWebSql) ? done() : db.close(done, done);
               });
             });
           });
-        });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'executeSql with too many parameters [extra REAL value]', function(done) {
+          if (isWP8) pending('SKIP for WP8'); // TBD BROKEN on WP8
+
+          var db = openDatabase("too-many-parameters-extra-real-value.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            // CREATE columns with no type affinity
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data1, data2)');
+
+          }, function(error) {
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+
+          }, function() {
+            db.transaction(function(tx) {
+              tx.executeSql("INSERT INTO test_table (data1, data2) VALUES (?,?)", ['first', 'second', 123.456], function(ignored1, ignored2) {
+                // NOT EXPECTED:
+                expect(false).toBe(true);
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+
+              }, function(ignored, error) {
+                // EXPECTED RESULT:
+                expect(error).toBeDefined();
+                expect(error.code).toBeDefined();
+                expect(error.message).toBeDefined();
+
+                // PLUGIN BROKEN: reports INCORRECT error code: 0 (SQLite.UNKNOWN_ERR)
+                // WebKit Web SQL reports correct error code: 5 (SQLite.SYNTAX_ERR) in this case.
+                // ref: https://www.w3.org/TR/webdatabase/#dom-sqlexception-code-syntax
+                if (isWebSql)
+                  expect(error.code).toBe(5);
+                else
+                  expect(error.code).toBe(0);
+
+                // WebKit Web SQL vs plugin error message
+                // FUTURE TBD plugin error message subject to change
+                if (isWebSql)
+                  expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
+                else if (isWindows)
+                  expect(error.message).toMatch(/Error 25 when binding argument to SQL query/);
+                else
+                  expect(error.message).toMatch(/index.*out of range/);
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+            });
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'executeSql with too many parameters [extra INTEGER value]', function(done) {
+          if (isWP8) pending('SKIP for WP8'); // TBD BROKEN on WP8
+
+          var db = openDatabase("too-many-parameters-extra-integer-value.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            // CREATE columns with no type affinity
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data1, data2)');
+
+          }, function(error) {
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+
+          }, function() {
+            db.transaction(function(tx) {
+              tx.executeSql("INSERT INTO test_table (data1, data2) VALUES (?,?)", ['first', 'second', 789], function(ignored1, ignored2) {
+                // NOT EXPECTED:
+                expect(false).toBe(true);
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+
+              }, function(ignored, error) {
+                // EXPECTED RESULT:
+                expect(error).toBeDefined();
+                expect(error.code).toBeDefined();
+                expect(error.message).toBeDefined();
+
+                // PLUGIN BROKEN: reports INCORRECT error code: 0 (SQLite.UNKNOWN_ERR)
+                // WebKit Web SQL reports correct error code: 5 (SQLite.SYNTAX_ERR) in this case.
+                // ref: https://www.w3.org/TR/webdatabase/#dom-sqlexception-code-syntax
+                if (isWebSql)
+                  expect(error.code).toBe(5);
+                else
+                  expect(error.code).toBe(0);
+
+                // WebKit Web SQL vs plugin error message
+                // FUTURE TBD plugin error message subject to change
+                if (isWebSql)
+                  expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
+                else if (isWindows)
+                  expect(error.message).toMatch(/Error 25 when binding argument to SQL query/);
+                else
+                  expect(error.message).toMatch(/index.*out of range/);
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+            });
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'executeSql with too many parameters [extra NULL value]', function(done) {
+          if (isWP8) pending('SKIP for WP8'); // TBD BROKEN on WP8
+
+          var db = openDatabase("too-many-parameters-extra-null-value.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            // CREATE columns with no type affinity
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data1, data2)');
+
+          }, function(error) {
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+
+          }, function() {
+            db.transaction(function(tx) {
+              tx.executeSql("INSERT INTO test_table (data1, data2) VALUES (?,?)", ['first', 'second', null], function(ignored1, ignored2) {
+                // NOT EXPECTED:
+                expect(false).toBe(true);
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+
+              }, function(ignored, error) {
+                // EXPECTED RESULT:
+                expect(error).toBeDefined();
+                expect(error.code).toBeDefined();
+                expect(error.message).toBeDefined();
+
+                // PLUGIN BROKEN: reports INCORRECT error code: 0 (SQLite.UNKNOWN_ERR)
+                // WebKit Web SQL reports correct error code: 5 (SQLite.SYNTAX_ERR) in this case.
+                // ref: https://www.w3.org/TR/webdatabase/#dom-sqlexception-code-syntax
+                if (isWebSql)
+                  expect(error.code).toBe(5);
+                else
+                  expect(error.code).toBe(0);
+
+                // WebKit Web SQL vs plugin error message
+                // FUTURE TBD plugin error message subject to change
+                if (isWebSql)
+                  expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
+                else if (isWindows)
+                  expect(error.message).toMatch(/Error 25 when binding argument to SQL query/);
+                else
+                  expect(error.message).toMatch(/index.*out of range/);
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+            });
+          });
+        }, MYTIMEOUT);
 
       });
 
@@ -370,9 +1074,9 @@ var mytests = function() {
         // FUTURE TODO: fix these tests to follow the Jasmine style:
 
         test_it(suiteName + ' stores [Unicode] string with \\u0000 correctly', function () {
-          if (isWindows) pending('BROKEN on Windows'); // XXX
           if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
-          if (isAndroid && !isWebSql && !isOldImpl) pending('BROKEN for Android (default sqlite-connector version)'); // XXX
+          if (isWindows) pending('BROKEN on Windows'); // [FUTURE TBD, already documented]
+          if (!isWebSql && isAndroid && !isImpl2) pending('BROKEN for Android (default sqlite-connector version)'); // [FUTURE TBD (documented)]
 
           stop();
 
@@ -471,7 +1175,7 @@ var mytests = function() {
                             JSON.stringify(name) + ' should not be in this until a bug is fixed ' +
                             JSON.stringify(expected));
 
-                        equal(name.length, 0, 'length of field === 0'); 
+                        equal(name.length, 0, 'length of field === 0');
                         start();
                         return;
                     }
@@ -499,7 +1203,7 @@ var mytests = function() {
         test_it(suiteName +
             ' handles UNICODE \\u2028 line separator correctly [in database]', function () {
           if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
-          if (!(isWebSql || isAndroid || isIE)) pending('BROKEN for iOS'); // XXX [BUG #147] (no callback received)
+          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('BROKEN for iOS/macOS plugin'); // [BUG #147] (no callback received)
 
           var dbName = "Unicode-line-separator.db";
           var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);

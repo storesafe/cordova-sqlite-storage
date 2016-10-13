@@ -12,7 +12,7 @@
 
 ## constant(s):
 
-    READ_ONLY_REGEX = /^(\s|;)*(?:drop|delete|insert|update|create)\s/i
+    READ_ONLY_REGEX = /^(\s|;)*(?:alter|create|delete|drop|insert|reindex|replace|update)/i
 
     # per-db state
     DB_STATE_INIT = "INIT"
@@ -433,26 +433,30 @@
 
       tropts = []
       batchExecutes = @executes
+
       # NOTE: If this is zero it will not work. Workaround is applied in the constructor.
       # FUTURE TBD: It would be better to fix the problem here.
       waiting = batchExecutes.length
       @executes = []
+
       # my tx object (this)
       tx = @
 
       handlerFor = (index, didSucceed) ->
         (response) ->
-          try
-            if didSucceed
-              tx.handleStatementSuccess batchExecutes[index].success, response
-            else
-              tx.handleStatementFailure batchExecutes[index].error, newSQLError(response)
-          catch err
-            if !txFailure
+          if !txFailure
+            try
+              if didSucceed
+                tx.handleStatementSuccess batchExecutes[index].success, response
+              else
+                tx.handleStatementFailure batchExecutes[index].error, newSQLError(response)
+            catch err
+              # NOTE: txFailure is expected to be null at this point.
               txFailure = newSQLError(err)
 
           if --waiting == 0
             if txFailure
+              tx.executes = []
               tx.abort txFailure
             else if tx.executes.length > 0
               # new requests have been issued by the callback
@@ -474,6 +478,7 @@
           error: handlerFor(i, false)
 
         tropts.push
+          qid: null # TBD NEEDED to pass @brodybits/Cordova-sql-test-app for some reason
           sql: request.sql
           params: request.params
 
@@ -482,20 +487,17 @@
       mycb = (result) ->
         #console.log "mycb result #{JSON.stringify result}"
 
-        i = 0
-        reslength = result.length
-        while i < reslength
-          r = result[i]
+        for resultIndex in [0 .. result.length-1]
+          r = result[resultIndex]
           type = r.type
+          # NOTE: r.qid can be ignored
           res = r.result
 
-          q = mycbmap[i]
+          q = mycbmap[resultIndex]
 
           if q
             if q[type]
               q[type] res
-
-          ++i
 
         return
 
@@ -702,14 +704,67 @@
         SQLiteFactory.deleteDatabase {name: SelfTest.DBNAME, location: 'default'},
           (-> SelfTest.start2(successcb, errorcb)),
           (-> SelfTest.start2(successcb, errorcb))
+        return
 
       start2: (successcb, errorcb) ->
         SQLiteFactory.openDatabase {name: SelfTest.DBNAME, location: 'default'}, (db) ->
+          check1 = false
+          db.transaction (tx) ->
+            tx.executeSql 'SELECT UPPER("Test") AS upperText', [], (ignored, resutSet) ->
+              if !resutSet.rows
+                return SelfTest.finishWithError errorcb, 'Missing resutSet.rows'
+
+              if !resutSet.rows.length
+                return SelfTest.finishWithError errorcb, 'Missing resutSet.rows.length'
+
+              if resutSet.rows.length isnt 1
+                return SelfTest.finishWithError errorcb,
+                  "Incorrect resutSet.rows.length value: #{resutSet.rows.length} (expected: 1)"
+
+              if !resutSet.rows.item(0).upperText
+                return SelfTest.finishWithError errorcb,
+                  'Missing resutSet.rows.item(0).upperText'
+
+              if resutSet.rows.item(0).upperText isnt 'TEST'
+                return SelfTest.finishWithError errorcb,
+                  "Incorrect resutSet.rows.item(0).upperText value: #{resutSet.rows.item(0).data} (expected: 'TEST')"
+
+              check1 = true
+              return
+
+            , (sql_err) ->
+              SelfTest.finishWithError errorcb, "SQL error: #{sql_err}"
+              return
+
+          , (tx_err) ->
+            SelfTest.finishWithError errorcb, "TRANSACTION error: #{tx_err}"
+            return
+
+          , () ->
+            if !check1
+              return SelfTest.finishWithError errorcb,
+                'Did not get expected upperText result data'
+
+            # DELETE INTERNAL STATE to simulate the effects of location refresh or change:
+            delete db.openDBs[SelfTest.DBNAME]
+            delete txLocks[SelfTest.DBNAME]
+
+            SelfTest.start3 successcb, errorcb
+            return
+
+        , (open_err) ->
+          SelfTest.finishWithError errorcb, "Open database error: #{open_err}"
+        return
+
+      start3: (successcb, errorcb) ->
+        SQLiteFactory.openDatabase {name: SelfTest.DBNAME, location: 'default'}, (db) ->
           db.sqlBatch [
-            'CREATE TABLE TestTable(TestColumn);'
-            [ 'INSERT INTO TestTable (TestColumn) VALUES (?);', ['test-value'] ]
+            'CREATE TABLE TestTable(id integer primary key autoincrement unique, data);'
+            [ 'INSERT INTO TestTable (data) VALUES (?);', ['test-value'] ]
           ], () ->
-            db.executeSql 'SELECT * FROM TestTable', [], (resutSet) ->
+            firstid = -1 # invalid
+
+            db.executeSql 'SELECT id, data FROM TestTable', [], (resutSet) ->
               if !resutSet.rows
                 SelfTest.finishWithError errorcb, 'Missing resutSet.rows'
                 return
@@ -723,48 +778,105 @@
                   "Incorrect resutSet.rows.length value: #{resutSet.rows.length} (expected: 1)"
                 return
 
-              if !resutSet.rows.item(0).TestColumn
+              if resutSet.rows.item(0).id is undefined
                 SelfTest.finishWithError errorcb,
-                  'Missing resutSet.rows.item(0).TestColumn'
+                  'Missing resutSet.rows.item(0).id'
                 return
 
-              if resutSet.rows.item(0).TestColumn isnt 'test-value'
+              firstid = resutSet.rows.item(0).id
+
+              if !resutSet.rows.item(0).data
                 SelfTest.finishWithError errorcb,
-                  "Incorrect resutSet.rows.item(0).TestColumn value: #{resutSet.rows.item(0).TestColumn} (expected: 'test-value')"
+                  'Missing resutSet.rows.item(0).data'
+                return
+
+              if resutSet.rows.item(0).data isnt 'test-value'
+                SelfTest.finishWithError errorcb,
+                  "Incorrect resutSet.rows.item(0).data value: #{resutSet.rows.item(0).data} (expected: 'test-value')"
                 return
 
               db.transaction (tx) ->
-                tx.executeSql 'UPDATE TestTable SET TestColumn = ?', ['new-value']
+                tx.executeSql 'UPDATE TestTable SET data = ?', ['new-value']
               , (tx_err) ->
                 SelfTest.finishWithError errorcb, "UPDATE transaction error: #{tx_err}"
               , () ->
+                readTransactionFinished = false
                 db.readTransaction (tx2) ->
-                  tx2.executeSql 'SELECT * FROM TestTable', [], (ignored, resutSet2) ->
+                  tx2.executeSql 'SELECT id, data FROM TestTable', [], (ignored, resutSet2) ->
                     if !resutSet2.rows
-                      throw newSQLError 'Missing resutSet.rows'
+                      throw newSQLError 'Missing resutSet2.rows'
 
                     if !resutSet2.rows.length
-                      throw newSQLError 'Missing resutSet.rows.length'
+                      throw newSQLError 'Missing resutSet2.rows.length'
 
                     if resutSet2.rows.length isnt 1
-                      throw newSQLError "Incorrect resutSet.rows.length value: #{resutSet.rows.length} (expected: 1)"
+                      throw newSQLError "Incorrect resutSet2.rows.length value: #{resutSet2.rows.length} (expected: 1)"
 
-                    if !resutSet2.rows.item(0).TestColumn
-                      throw newSQLError 'Missing resutSet.rows.item(0).TestColumn'
+                    if !resutSet2.rows.item(0).id
+                      throw newSQLError 'Missing resutSet2.rows.item(0).id'
 
-                    if resutSet2.rows.item(0).TestColumn isnt 'new-value'
-                      throw newSQLError "Incorrect resutSet.rows.item(0).TestColumn value: #{resutSet.rows.item(0).TestColumn} (expected: 'test-value')"
+                    if resutSet2.rows.item(0).id isnt firstid
+                      throw newSQLError "resutSet2.rows.item(0).id value #{resutSet2.rows.item(0).id} does not match previous primary key id value (#{firstid})"
+
+                    if !resutSet2.rows.item(0).data
+                      throw newSQLError 'Missing resutSet2.rows.item(0).data'
+
+                    if resutSet2.rows.item(0).data isnt 'new-value'
+                      throw newSQLError "Incorrect resutSet2.rows.item(0).data value: #{resutSet2.rows.item(0).data} (expected: 'test-value')"
+                    readTransactionFinished = true
 
                 , (tx2_err) ->
                   SelfTest.finishWithError errorcb, "readTransaction error: #{tx2_err}"
                 , () ->
-                  # CLEANUP & FINISH:
-                  db.close () ->
-                    SQLiteFactory.deleteDatabase {name: SelfTest.DBNAME, location: 'default'}, successcb, (cleanup_err)->
-                      SelfTest.finishWithError errorcb, "Cleanup error: #{cleanup_err}"
+                  if !readTransactionFinished
+                    SelfTest.finishWithError errorcb, 'readTransaction did not finish'
+                    return
 
-                  , (close_err) ->
-                    SelfTest.finishWithError errorcb, "close error: #{close_err}"
+                  db.transaction (tx3) ->
+                    tx3.executeSql 'DELETE FROM TestTable'
+                    tx3.executeSql 'INSERT INTO TestTable (data) VALUES(?)', [123]
+                  , (tx3_err) ->
+                    SelfTest.finishWithError errorcb, "DELETE transaction error: #{tx3_err}"
+                  , () ->
+                    secondReadTransactionFinished = false
+                    db.readTransaction (tx4) ->
+                      tx4.executeSql 'SELECT id, data FROM TestTable', [], (ignored, resutSet3) ->
+                        if !resutSet3.rows
+                          throw newSQLError 'Missing resutSet3.rows'
+
+                        if !resutSet3.rows.length
+                          throw newSQLError 'Missing resutSet3.rows.length'
+
+                        if resutSet3.rows.length isnt 1
+                          throw newSQLError "Incorrect resutSet3.rows.length value: #{resutSet3.rows.length} (expected: 1)"
+
+                        if !resutSet3.rows.item(0).id
+                          throw newSQLError 'Missing resutSet3.rows.item(0).id'
+
+                        if resutSet3.rows.item(0).id is firstid
+                          throw newSQLError "resutSet3.rows.item(0).id value #{resutSet3.rows.item(0).id} incorrectly matches previous unique key id value value (#{firstid})"
+
+                        if !resutSet3.rows.item(0).data
+                          throw newSQLError 'Missing resutSet3.rows.item(0).data'
+
+                        if resutSet3.rows.item(0).data isnt 123
+                          throw newSQLError "Incorrect resutSet3.rows.item(0).data value: #{resutSet3.rows.item(0).data} (expected 123)"
+
+                        secondReadTransactionFinished = true
+
+                    , (tx4_err) ->
+                      SelfTest.finishWithError errorcb, "second readTransaction error: #{tx4_err}"
+                    , () ->
+                      if !secondReadTransactionFinished
+                        SelfTest.finishWithError errorcb, 'second readTransaction did not finish'
+                        return
+                      # CLEANUP & FINISH:
+                      db.close () ->
+                        SQLiteFactory.deleteDatabase {name: SelfTest.DBNAME, location: 'default'}, successcb, (cleanup_err)->
+                          SelfTest.finishWithError errorcb, "Cleanup error: #{cleanup_err}"
+
+                      , (close_err) ->
+                        SelfTest.finishWithError errorcb, "close error: #{close_err}"
 
             , (select_err) ->
               SelfTest.finishWithError errorcb, "SELECT error: #{select_err}"
@@ -774,11 +886,13 @@
 
         , (open_err) ->
           SelfTest.finishWithError errorcb, "Open database error: #{open_err}"
+        return
 
       finishWithError: (errorcb, message) ->
         SQLiteFactory.deleteDatabase {name: SelfTest.DBNAME, location: 'default'}, ->
           errorcb newSQLError message
         , (err2)-> errorcb newSQLError "Cleanup error: #{err2} for error: #{message}"
+        return
 
 ## Exported API:
 
@@ -807,4 +921,3 @@
 
 #### vim: set filetype=coffee :
 #### vim: set expandtab :
-

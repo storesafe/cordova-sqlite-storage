@@ -1,5 +1,30 @@
 # Changes
 
+## 0.10.2-pre1
+
+### cordova-sqlite-storage 1.4.8
+
+- selfTest function add string test and test of effects of location reload/change
+- Support macOS ("osx" platform)
+- Signal an error in case of SQL with too many parameter argument values on iOS (in addition to Android & Windows)
+- Include proper SQL error code on Android (in certain cases)
+- Fix reporting of SQL statement execution errors in Windows version
+- Fix Windows version to report errors with a valid error code (0)
+- Some doc fixes
+
+### cordova-sqlite-storage 1.4.7
+
+- Minor JavaScript fixes to pass @brodybits/Cordova-sql-test-app
+
+### cordova-sqlite-storage 1.4.6
+
+- Stop remaining transaction callback in case of an error with no error handler returning false
+- Expand selfTest function to cover CRUD with unique record keys
+- Fix readTransaction to reject ALTER, REINDEX, and REPLACE operations
+- Fix Windows 10 ARM Release Build of SQLite3 by disabling SDL check (ARM Release only)
+- Fix Windows 8.1/Windows Phone 8.1 Release Build of SQLite3 by disabling SDL check
+- Some documentation fixes
+
 ## 0.10.1
 
 ### cordova-sqlite-storage 1.4.5

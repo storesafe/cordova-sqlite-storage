@@ -376,30 +376,71 @@ var mytests = function() {
           });
         });
 
-        test_it(suiteName + "exception from transaction handler causes failure", function() {
-          stop();
+        it(suiteName + 'exception from transaction handler causes failure', function(done) {
           var db = openDatabase("exception-causes-failure.db", "1.0", "Demo", DEFAULT_SIZE);
 
           try {
             db.transaction(function(tx) {
               throw new Error("boom");
-            }, function(err) {
-              expect(err).toBeDefined();
-              expect(err.hasOwnProperty('message')).toBe(true);
+            }, function(error) {
+              expect(error).toBeDefined();
+              expect(error.code).toBeDefined();
+              expect(error.message).toBeDefined();
 
-              if (!isWebSql) expect(err.message).toEqual('boom');
+              expect(error.code).toBe(0);
 
-              start();
+              if (isWebSql)
+                expect(error.message).toMatch(/the SQLTransactionCallback was null or threw an exception/);
+              else
+                expect(error.message).toBe('boom');
+
+              done();
             }, function() {
               // transaction success callback not expected
               expect(false).toBe(true);
-              start();
+              done();
             });
             ok(true, "db.transaction() did not throw an error");
-          } catch(err) {
+          } catch(ex) {
             // exception not expected here
             expect(false).toBe(true);
-            start();
+            done();
+          }
+        });
+
+        it(suiteName + 'exception with code from transaction handler', function(done) {
+          var db = openDatabase("exception-with-code.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          try {
+            db.transaction(function(tx) {
+              var e = new Error("boom");
+              e.code = 3;
+              throw e;
+            }, function(error) {
+              expect(error).toBeDefined();
+              expect(error.code).toBeDefined();
+              expect(error.message).toBeDefined();
+
+              if (isWebSql)
+                expect(error.code).toBe(0);
+              else
+                expect(error.code).toBe(3);
+
+              if (isWebSql)
+                expect(error.message).toMatch(/the SQLTransactionCallback was null or threw an exception/);
+              else
+                expect(error.message).toBe('boom');
+
+              done();
+            }, function() {
+              // transaction success callback not expected
+              expect(false).toBe(true);
+              done();
+            });
+          } catch(ex) {
+            // exception not expected here
+            expect(false).toBe(true);
+            done();
           }
         });
 
@@ -499,11 +540,11 @@ var mytests = function() {
             });
           });
         });
-        
+
         test_it(suiteName + "executeSql fails outside transaction", function() {
           withTestTable(function(db) {
             expect(4);
-            ok(!!db, "db ok");            
+            ok(!!db, "db ok");
             var txg;
             stop(2);
             db.transaction(function(tx) {
@@ -527,7 +568,7 @@ var mytests = function() {
                 ok(!!err.message, "error had valid message");
               }
               start(1);
-            });            
+            });
           });
         });
 
@@ -544,9 +585,12 @@ var mytests = function() {
             tx.executeSql('DROP TABLE IF EXISTS ExtraTestTable4');
             tx.executeSql('DROP TABLE IF EXISTS ExtraTestTable5');
             tx.executeSql('DROP TABLE IF EXISTS ExtraTestTable6');
+            tx.executeSql('DROP TABLE IF EXISTS AlterTestTable');
 
-            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data)');
+            tx.executeSql('CREATE TABLE test_table (data)');
             tx.executeSql('INSERT INTO test_table VALUES (?)', ['first']);
+
+            tx.executeSql('CREATE TABLE AlterTestTable (FirstColumn)');
           }, function () {}, function () {
             db.readTransaction(function (tx) {
               tx.executeSql('SELECT * from test_table', [], function (tx, res) {
@@ -647,6 +691,21 @@ var mytests = function() {
                 function () {
                   db.readTransaction(function (tx) {
                     tx.executeSql('; ; CREATE TABLE ExtraTestTable6 (data)');
+                  }, checkDone, fail);
+                },
+                function () {
+                  db.readTransaction(function (tx) {
+                    tx.executeSql('ALTER TABLE AlterTestTable ADD COLUMN NewColumn');
+                  }, checkDone, fail);
+                },
+                function () {
+                  db.readTransaction(function (tx) {
+                    tx.executeSql('REINDEX');
+                  }, checkDone, fail);
+                },
+                function () {
+                  db.readTransaction(function (tx) {
+                    tx.executeSql('REPLACE INTO test_table VALUES ("another")');
                   }, checkDone, fail);
                 },
               ];

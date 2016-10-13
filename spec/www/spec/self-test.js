@@ -21,7 +21,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-      it('Self-test: open/populate/read/update/delete database',
+      it('Self-test with CRUD operations & cleanup',
         function(done) {
           window.sqlitePlugin.selfTest(function() {
             // ok:
