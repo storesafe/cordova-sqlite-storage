@@ -108,6 +108,20 @@
 
     </platform>
 
+    <!-- browser -->
+    <platform name="browser">
+
+        <config-file target="config.xml" parent="/*">
+            <feature name="SQLitePlugin">
+                <param name="browser-package" value="SQLitePlugin" />
+            </feature>
+        </config-file>
+
+        <js-module src="src/browser/WebSQLProxy.js" name="WebSQLProxy">
+            <runs />
+        </js-module>
+    </platform>
+
 </plugin>
 
 <!-- vim: set expandtab : -->
