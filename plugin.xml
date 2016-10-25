@@ -2,7 +2,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-sqlite-storage"
-    version="2.0.3">
+    version="2.1.0-browser-wip1">
 
     <name>Cordova sqlite storage plugin</name>
 
@@ -16,12 +16,12 @@
     <!-- THANKS to AllJoyn-Cordova / cordova-plugin-alljoyn: -->
     <hook type="before_plugin_install" src="scripts/beforePluginInstall.js" />
 
-    <js-module src="www/SQLitePlugin.js" name="SQLitePlugin">
-        <clobbers target="SQLitePlugin" />
-    </js-module>
-
     <!-- android -->
     <platform name="android">
+        <js-module src="www/SQLitePlugin.js" name="SQLitePlugin">
+            <clobbers target="SQLitePlugin" />
+        </js-module>
+
         <!-- Cordova >= 3.0.0 -->
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="SQLitePlugin">
@@ -45,6 +45,10 @@
 
     <!-- iOS -->
     <platform name="ios">
+        <js-module src="www/SQLitePlugin.js" name="SQLitePlugin">
+            <clobbers target="SQLitePlugin" />
+        </js-module>
+
         <config-file target="config.xml" parent="/*">
             <feature name="SQLitePlugin">
                 <param name="ios-package" value="SQLitePlugin" />
@@ -62,6 +66,10 @@
 
     <!-- macOS -->
     <platform name="osx">
+        <js-module src="www/SQLitePlugin.js" name="SQLitePlugin">
+            <clobbers target="SQLitePlugin" />
+        </js-module>
+
         <config-file target="config.xml" parent="/*">
             <feature name="SQLitePlugin">
                 <param name="ios-package" value="SQLitePlugin" />
@@ -80,6 +88,10 @@
 
     <!-- windows -->
     <platform name="windows">
+        <js-module src="www/SQLitePlugin.js" name="SQLitePlugin">
+            <clobbers target="SQLitePlugin" />
+        </js-module>
+
         <js-module src="src/windows/sqlite-proxy.js" name="SQLiteProxy">
             <runs />
         </js-module>
