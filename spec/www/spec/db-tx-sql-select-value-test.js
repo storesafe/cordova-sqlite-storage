@@ -7,7 +7,8 @@ var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
-var isMac = /Macintosh/.test(navigator.userAgent);
+var isBrowser = !isWindows && !isAndroid && /Chrome/.test(navigator.userAgent);
+var isMac = !isBrowser && /Macintosh/.test(navigator.userAgent);
 var isWKWebView = !isWindows && !isAndroid && !isWP8 && !isMac && !!window.webkit && !!window.webkit.messageHandlers;
 
 // The following openDatabase settings are used for Plugin-implementation-2
@@ -238,7 +239,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if ((isWebSql && isAndroid) || (!isWebSql && isAndroid && isImpl2))
+              if (isBrowser || (isWebSql && isAndroid) || (!isWebSql && isAndroid && isImpl2))
                 expect(rs.rows.item(0).myresult).toBe('text');
               else
                 expect(rs.rows.item(0).myresult).toBe('null');
@@ -261,7 +262,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWebSql && isAndroid)
+              if (isBrowser || (isWebSql && isAndroid))
                 expect(rs.rows.item(0).myresult).toBe('undefined');
               else if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('');
@@ -408,7 +409,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWebSql || isMac || isWKWebView)
+              if (isWebSql || isBrowser || isMac || isWKWebView)
                 expect(rs.rows.item(0).myresult).toBe('real');
               else if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('text');
@@ -473,7 +474,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWebSql || isMac || isWKWebView)
+              if (isWebSql || isBrowser || isMac || isWKWebView)
                 expect(rs.rows.item(0).myresult).toBe('real');
               else if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('text');
@@ -664,7 +665,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWebSql || isMac || isWKWebView)
+              if (isWebSql || isBrowser || isMac || isWKWebView)
                 expect(rs.rows.item(0).myresult).toBe('real');
               else if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('text');
@@ -729,7 +730,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWebSql || isMac || isWKWebView)
+              if (isWebSql || isBrowser || isMac || isWKWebView)
                 expect(rs.rows.item(0).myresult).toBe('real');
               else if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('text');
@@ -923,7 +924,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWebSql || isMac || isWKWebView)
+              if (isWebSql || isBrowser || isMac || isWKWebView)
                 expect(rs.rows.item(0).myresult).toBe('real');
               else if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('text');
@@ -988,7 +989,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWebSql || isMac || isWKWebView)
+              if (isWebSql || isBrowser || isMac || isWKWebView)
                 expect(rs.rows.item(0).myresult).toBe('real');
               else if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('text');
@@ -1186,12 +1187,12 @@ var mytests = function() {
               expect(rs.rows.item(0).myresult).toBeDefined();
 
               // Android/iOS plugin issue
-              if (!isWebSql && isAndroid && isImpl2)
-                expect(rs.rows.item(0).myresult).toBe('');
-              else if (!isWebSql && !isWindows && !isMac)
-                expect(rs.rows.item(0).myresult).toBe(null);
-              else
+              if (isBrowser || isWindows)
                 expect(rs.rows.item(0).myresult).toBe('inf');
+              else if (isWebSql || isMac || isWKWebView)
+                expect(rs.rows.item(0).myresult).toBe('');
+              else
+                expect(rs.rows.item(0).myresult).toBe(null);
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
@@ -1221,7 +1222,10 @@ var mytests = function() {
               expect(rs.rows.item(0).myresult).toBeDefined();
 
               // Android/iOS plugin issue
-              if (!isWebSql && isAndroid && isImpl2)
+              if (isBrowser)
+                expect(rs.rows.item(0).myresult).toBe('-INF');
+              else
+              if (isWebSql || isMac || isWKWebView)
                 expect(rs.rows.item(0).myresult).toBe('');
               else if (!isWebSql && !isWindows && !isMac)
                 expect(rs.rows.item(0).myresult).toBe(null);
@@ -1256,7 +1260,10 @@ var mytests = function() {
               expect(rs.rows.item(0).myresult).toBeDefined();
 
               // Android/iOS plugin issue
-              if (!isWebSql && isAndroid && isImpl2)
+              if (isBrowser)
+                expect(rs.rows.item(0).myresult).toBe('real');
+              else
+              if (isWebSql || isMac || isWKWebView)
                 expect(rs.rows.item(0).myresult).toBe('text');
               else if (!isWebSql && !isWindows && !isMac)
                 expect(rs.rows.item(0).myresult).toBe('null');
@@ -1291,7 +1298,10 @@ var mytests = function() {
               expect(rs.rows.item(0).myresult).toBeDefined();
 
               // Android/iOS plugin issue
-              if (!isWebSql && isAndroid && isImpl2)
+              if (isBrowser)
+                expect(rs.rows.item(0).myresult).toBe('real');
+              else
+              if (isWebSql || isMac || isWKWebView)
                 expect(rs.rows.item(0).myresult).toBe('text');
               else if (!isWebSql && !isWindows && !isMac)
                 expect(rs.rows.item(0).myresult).toBe('null');
@@ -1326,7 +1336,10 @@ var mytests = function() {
               expect(rs.rows.length).toBe(1);
 
               // Android/iOS plugin issue
-              if (!isWebSql && isAndroid && isImpl2)
+              if (isBrowser)
+                expect(rs.rows.item(0).myresult).toBe(Infinity);
+              else
+              if (!isBrowser && (isWebSql || isMac || isWKWebView))
                 expect(rs.rows.item(0).myresult).toBe('');
               else if (!isWebSql && !isWindows)
                 expect(rs.rows.item(0).myresult).toBe(null);
@@ -1361,7 +1374,10 @@ var mytests = function() {
               expect(rs.rows.length).toBe(1);
 
               // Android/iOS plugin issue
-              if (!isWebSql && isAndroid && isImpl2)
+              if (isBrowser)
+                expect(rs.rows.item(0).myresult).toBe(-Infinity);
+              else
+              if (isWebSql || isMac || isWKWebView)
                 expect(rs.rows.item(0).myresult).toBe('');
               else if (!isWebSql && !isWindows)
                 expect(rs.rows.item(0).myresult).toBe(null);
@@ -1840,7 +1856,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (!isWebSql && !isAndroid && !isWindows && !isWP8)
+              if (!isWebSql && !isBrowser && !isAndroid && !isWindows && !isWP8)
                 expect(rs.rows.item(0).myresult).not.toBeDefined(); // not defined iOS/macOS
               else
                 expect(rs.rows.item(0).myresult).toBeDefined();

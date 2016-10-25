@@ -211,7 +211,7 @@ var mytests = function() {
               // ref: https://www.w3.org/TR/webdatabase/#database-query-results
               rs.insertId = 2;
               rs.rowsAffected = 3;
-              if (isWebSql) {
+              if (isWebSql || isBrowser) {
                 expect(rs.insertId).toBe(1);
                 expect(rs.rowsAffected).toBe(1);
               } else {
@@ -240,7 +240,7 @@ var mytests = function() {
                   // rs.rows.length should be immutable
                   // ref: https://www.w3.org/TR/webdatabase/#database-query-results
                   rs.rows.length = 2;
-                  if (isWebSql) {
+                  if (isWebSql || isBrowser) {
                     expect(rs.rows.length).toBe(1);
                   } else {
                     expect(rs.rows.length).toBe(2);
@@ -313,7 +313,13 @@ var mytests = function() {
                   // Object from rows.item is immutable in Android/iOS WebKit Web SQL but NOT in this plugin:
                   temp1.data = 'another';
 
-                  if (isWebSql) {
+                  if (isBrowser) {
+                    // PLUGIN on browser platform:
+                    // 1. DEVIATION - temp1 is just like any other Javascript object:
+                    expect(temp1.data).toBe('another');
+                    // 2. According to Web SQL STANDARD - object returned by second resultSet.rows.item call not affected:
+                    expect(temp2.data).toBe('test');
+                  } else if (isWebSql) {
                     // Web SQL STANDARD:
                     // 1. this is a native object that is NOT affected by the change (SKIP for Android 5.x/+):
                     if (!isAndroid || /Android [1-4]/.test(navigator.userAgent))
@@ -321,7 +327,7 @@ var mytests = function() {
                     // 2. object returned by second resultSet.rows.item call not affected:
                     expect(temp2.data).toBe('test');
                   } else {
-                    // PLUGIN:
+                    // PLUGIN on other platforms:
                     // 1. DEVIATION - temp1 is just like any other Javascript object:
                     expect(temp1.data).toBe('another');
                     // 2. DEVIATION - same object is returned by second resultSet.rows.item IS affected:
@@ -667,12 +673,17 @@ var mytests = function() {
                 // CORRECT RESULT:
                 //expect(resultSet.rows.length).toBe(2);
                 // ACTUAL RESULT for PLUGIN [BROKEN with possible parameter data loss]:
-                expect(resultSet.rows.length).toBe(1);
+                if (isBrowser) {
+                  // NO ROWS STORED ON BROWSER PLATFORM:
+                  expect(resultSet.rows.length).toBe(0);
+                } else (isBrowser) {
+                  expect(resultSet.rows.length).toBe(1);
 
-                // FIRST ROW CORRECT:
-                expect(resultSet.rows.item(0).data).toBe(1);
-                // SECOND ROW MISSING:
-                //expect(resultSet.rows.item(1).data).toBe(2);
+                  // FIRST ROW CORRECT:
+                  expect(resultSet.rows.item(0).data).toBe(1);
+                  // SECOND ROW MISSING:
+                  //expect(resultSet.rows.item(1).data).toBe(2);
+                }
 
                 // Close (plugin only) & finish:
                 (isWebSql) ? done() : db.close(done, done);
@@ -681,7 +692,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'executeSql with SELECT statement list - NOT ALLOWED [PLUGIN BROKEN]', function(done) {
+        it(suiteName + 'executeSql with SELECT statement list - NOT ALLOWED [Android/iOS/macOS/Windows PLUGIN BROKEN]', function(done) {
           // TO FIX ref: https://www.sqlite.org/c3ref/prepare.html
           // When calling sqlite3_prepare_v2 check the OUT pzTail pointer
           // to ensure there is no other statement afterwards.
@@ -694,6 +705,8 @@ var mytests = function() {
               // INCORRECT (PLUGIN BROKEN)
               if (isWebSql)
                 expect('WebKit Web SQL implementation changed (DEVIATION)').toBe('--');
+              else if (isBrowser)
+                expect('Browser platform implementation changed (DEVIATION)').toBe('--');
               else
                 expect(rs).toBeDefined();
 
@@ -708,7 +721,7 @@ var mytests = function() {
                 isWebSql ? done() : db.close(done, done);
               });
             }, function(ignored, error) {
-              if (!isWebSql)
+              if (!isWebSql && !isBrowser)
                 expect('PLUGIN FIXED, please update this test').toBe('--');
 
               expect(error).toBeDefined();
@@ -886,7 +899,7 @@ var mytests = function() {
 
       });
 
-        it(suiteName + 'INSERT OR IGNORE result in case of constraint violation [(WebKit) Web SQL DEVIATION on Android/iOS: reports old insertId value]', function(done) {
+        it(suiteName + 'INSERT OR IGNORE result in case of constraint violation [Android/iOS (WebKit) Web SQL & browser plugin DEVIATION: reports old insertId value]', function(done) {
           var db = openDatabase('INSERT-OR-IGNORE-test.db', '1.0', 'Test', DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -917,8 +930,8 @@ var mytests = function() {
               // NOTE: According to https://www.w3.org/TR/webdatabase/#database-query-results (section 4.5)
               // this access should really raise an INVALID_ACCESS_ERR exception.
               var checkInsertId = rs1.insertId;
-              if (isWebSql)
-                expect(checkInsertId).toBe(2); // Andriod/iOS WebKit Web SQL DEVIATION: OLD insertId value
+              if (isWebSql || isBrowser)
+                expect(checkInsertId).toBe(2); // Andriod/iOS WebKit Web SQL & browser plugin DEVIATION: OLD insertId value
               else
                 expect(checkInsertId).toBe(undefined);
 

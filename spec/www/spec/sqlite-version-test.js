@@ -7,6 +7,7 @@ var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
+var isBrowser = !isWindows && !isAndroid && /Chrome/.test(navigator.userAgent);
 
 // The following openDatabase settings are used for Plugin-implementation-2
 // on Android:
@@ -50,7 +51,7 @@ var mytests = function() {
 
       describe(suiteName + 'basic sqlite version test(s)', function() {
 
-        it(suiteName + 'Check sqlite version (pattern ONLY for WebKit Web SQL & androidDatabaseImplementation: 2)', function(done) {
+        it(suiteName + 'Check sqlite version (pattern ONLY for WebKit Web SQL, browser, & androidDatabaseImplementation: 2)', function(done) {
           var db = openDatabase("check-sqlite-version.db", "1.0", "Demo", DEFAULT_SIZE);
 
           expect(db).toBeDefined();
@@ -65,7 +66,7 @@ var mytests = function() {
               // Check pattern (both Web SQL & plugin)
               expect(rs.rows.item(0).myResult).toMatch(/3\.[0-9]+\.[0-9]+/);
               // Check specific [plugin only]:
-              if (!isWebSql && !(!isWindows && isAndroid && isImpl2))
+              if (!isWebSql && !isBrowser && !(!isWindows && isAndroid && isImpl2))
                 expect(rs.rows.item(0).myResult).toBe('3.15.2');
 
               // Close (plugin only) & finish:
@@ -84,7 +85,8 @@ var mytests = function() {
       describe(suiteName + 'sqlite encoding test(s)', function() {
 
         it(suiteName + 'Check internal database encoding: UTF-16le for Windows, UTF-8 for others (plugin ONLY)', function(done) {
-          if (isWebSql) pending('SKIP: NOT SUPPORTED for (WebKit) Web SQL');
+          if (isWebSql) pending('NOT SUPPORTED by (WebKit) Web SQL');
+          if (isBrowser) pending('NOT SUPPORTED by Browser platform');
 
           var db = openDatabase("Check-sqlite-PRAGMA-encoding.db", "1.0", "Demo", DEFAULT_SIZE);
 

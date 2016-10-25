@@ -16,6 +16,19 @@
     <!-- THANKS to AllJoyn-Cordova / cordova-plugin-alljoyn: -->
     <hook type="before_plugin_install" src="scripts/beforePluginInstall.js" />
 
+    <!-- browser -->
+    <platform name="browser">
+        <js-module src="src/browser/SQLitePlugin.js" name="SQLitePlugin">
+            <clobbers target="SQLitePlugin" />
+        </js-module>
+
+        <config-file target="config.xml" parent="/*">
+            <feature name="SQLitePlugin">
+                <param name="browser-package" value="SQLitePlugin" />
+            </feature>
+        </config-file>
+    </platform>
+
     <!-- android -->
     <platform name="android">
         <js-module src="www/SQLitePlugin.js" name="SQLitePlugin">

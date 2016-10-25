@@ -2,15 +2,16 @@
 
 var MYTIMEOUT = 12000;
 
-var isAndroid = /Android/.test(navigator.userAgent);
 var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows 8.1/Windows Phone 8.1/Windows 10
-var isMac = /Macintosh/.test(navigator.userAgent);
+var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
+var isBrowser = !isWindows && !isAndroid && /Chrome/.test(navigator.userAgent);
+var isMac = !isBrowser && /Macintosh/.test(navigator.userAgent);
 
 window.hasBrowser = true;
-// XXX TODO rename to something like window.hasWebKitWebSQL here and
-// in actual test scripts
-window.hasWebKitBrowser = (!isWindows && !isWP8 && !isMac && (isAndroid || !(window.webkit && window.webkit.messageHandlers)));
+// XXX FUTURE TODO rename to something like window.hasWebKitWebSQL here
+// and in actual test scripts
+window.hasWebKitBrowser = (!isWindows && !isWP8 && !isMac && (isAndroid || isBrowser || !(window.webkit && window.webkit.messageHandlers)));
 
 describe('check startup', function() {
   it('receives deviceready event', function(done) {
