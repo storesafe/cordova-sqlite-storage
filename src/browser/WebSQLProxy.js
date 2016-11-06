@@ -18,6 +18,14 @@ var log = {
     }
 };
 
+function getInsertId(results) {
+    try {
+        return results.insertId;
+    } catch(err) {
+        return null;
+    }
+}
+
 function echoStringValueFn(success, error, args) {
     success = success || function(){};
 
@@ -168,6 +176,7 @@ function executeSqlBatchFn(success, error, args) {
         return function(tx, results) {
             var queryResult = {
                 rowsAffected: results.rowsAffected,
+                insertId: getInsertId(results),
                 rows: []
             };
             for(var i=0; i<results.rows.length; i++) {
@@ -217,6 +226,7 @@ function executeSqlBatchFn(success, error, args) {
                         type: "success",
                         result: {
                             rowsAffected: 0,
+                            insertId: null,
                             rows: []
                         }
                     }
