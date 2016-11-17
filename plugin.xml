@@ -2,7 +2,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-sqlite-storage"
-    version="1.4.8">
+    version="1.4.9-sqlite-winupdate2">
 
     <name>Cordova sqlite storage plugin</name>
 
@@ -103,8 +103,10 @@
 
         <!-- Thanks to AllJoyn-Cordova / cordova-plugin-alljoyn for guidance: -->
         <framework src="src/windows/SQLite3-Win-RT/SQLite3/SQLite3.UWP/SQLite3.UWP.vcxproj" custom="true" type="projectReference" versions="10.*" />
+        <!--
         <framework src="src/windows/SQLite3-Win-RT/SQLite3/SQLite3.Windows/SQLite3.Windows.vcxproj" custom="true" type="projectReference" target="windows" versions="8.1" />
         <framework src="src/windows/SQLite3-Win-RT/SQLite3/SQLite3.WindowsPhone/SQLite3.WindowsPhone.vcxproj" custom="true" type="projectReference" target="phone" versions="8.1" />
+         -->
 
     </platform>
 

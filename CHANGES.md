@@ -1,5 +1,14 @@
 # Changes
 
+### cordova-sqlite-storage 1.4.9-sqlite-winupdate2
+
+- sqlite 3.15.1 with TBD old default page/cache size
+- Windows platform toolset v141 for upcoming VS15
+
+TODOS:
+- fix doc
+- mark correct version
+
 ### cordova-sqlite-storage 1.4.8
 
 - selfTest function add string test and test of effects of location reload/change
