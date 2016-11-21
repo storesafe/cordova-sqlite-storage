@@ -12,7 +12,7 @@ MIT or Apache 2.0
 
 MIT only
 
-## Windows (8.1) version
+## Windows version
 
 MIT or Apache 2.0
 

@@ -1191,12 +1191,15 @@ var mytests = function() {
           });
         });
 
-        // XXX Brody NOTE: same issue is now reproduced in a string test.
-        //           TBD ???: combine with other test
-        // BUG #147 iOS version of plugin BROKEN:
+        // Issue with iOS/macOS/Android
+        // For reference:
+        // - litehelpers/Cordova-sqlite-storage#147
+        // - Apache Cordova CB-9435 (issue with cordova-ios, also affects macOS)
+        // - cordova/cordova-discuss#57 (issue with cordova-android)
         test_it(suiteName +
             ' handles UNICODE \\u2028 line separator correctly [in database]', function () {
           if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
+          if (!isWebSql && isAndroid) pending('BROKEN for Android plugin (cordova-android 6.x'); // see cordova/cordova-discuss#57
           if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('BROKEN for iOS/macOS plugin'); // [BUG #147] (no callback received)
 
           var dbName = "Unicode-line-separator.db";
