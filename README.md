@@ -136,7 +136,7 @@ See the [Sample section](#sample) for a sample with a more detailed explanation.
   - Issue with `undefined` SQL parameter argument value described below
   - It is **not** possible to use this plugin with the default "Any CPU" target. A specific target CPU type **must** be specified when building an app with this plugin.
   - Windows version may crash in certain cases when invalid (bogus) function parameters are given, for example: `db.readTransaction('bogus');`
-  - Hard coded dependency on platform toolset libraries included by Visual Studio 2015 ref: [litehelpers/Cordova-sqlite-storage#580](https://github.com/litehelpers/Cordova-sqlite-storage/issues/580)
+  - Hard coded dependency on platform toolset libraries included by Visual Studio 2017 (RC) ref: [litehelpers/Cordova-sqlite-storage#580](https://github.com/litehelpers/Cordova-sqlite-storage/issues/580)
 - macOS version ("osx" platform) has not been tested in a release build and should be considered pre-alpha.
 - FTS3, FTS4, and R-Tree support is tested working OK in this version (for all target platforms in this version branch Android/iOS/macOS/Windows)
 - Android is supported back to SDK 10 (a.k.a. Gingerbread, Android 2.3.3); support for older versions is available upon request.
@@ -147,6 +147,7 @@ See the [Sample section](#sample) for a sample with a more detailed explanation.
 
 ## Announcements
 
+- This version references Windows platform toolset v141 to support Visual Studio 2017 (RC).
 - macOS ("osx" platform) is now supported
 - The [brodybits / Cordova-sqlite-bootstrap-test](https://github.com/brodybits/Cordova-sqlite-bootstrap-test) project is a CC0 (public domain) starting point to reproduce issues with this plugin and may be used as a quick way to start developing a new app.
 - New [litehelpers / Cordova-sqlite-evcore-extbuild-free](https://github.com/litehelpers/Cordova-sqlite-evcore-extbuild-free) version with Android JSON and SQL statement handling implemented in C, as well as support for PhoneGap Build, Intel XDK, etc., available with GPL or commercial license options. Handles large SQL batches in less than half the time as this version. Also supports arbitrary database location on Android.

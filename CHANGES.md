@@ -1,5 +1,9 @@
 # Changes
 
+### cordova-sqlite-storage 2.0.0-edge01
+
+- Reference Windows platform toolset v141 to support Visual Studio 2017 (RC)
+
 ### cordova-sqlite-storage 1.5.0
 
 - Build with sqlite 3.15.1, with the following settings:
