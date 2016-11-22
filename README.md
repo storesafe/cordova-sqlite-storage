@@ -1,6 +1,6 @@
 # Cordova/PhoneGap sqlite storage adapter
 
-Native interface to sqlite in a Cordova/PhoneGap plugin for Android, iOS, macOS, and Windows, with API similar to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
+Native interface to sqlite in a Cordova/PhoneGap plugin for Android, iOS, macOS, and Windows 10 (UWP), with API similar to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
 
 License for Android and Windows versions: MIT or Apache 2.0
 
@@ -16,9 +16,9 @@ This is the common version which supports the most widely used features and serv
 
 <!-- END About this version -->
 
-## Professional services available
+## Available for hire
 
-The following professional services are available for this project:
+The primary author and maintainer [@brodybits (Christopher J. Brody aka Chris Brody)](https://github.com/brodybits) is available for part-time contract assignments. Services available for this project include:
 
 - Support for Ionic and other Angular derivatives
 - Single issue support
@@ -26,16 +26,18 @@ The following professional services are available for this project:
 - Priority fixes and enhancements
 - Custom feature development
 
-Other professional services available:
+Other services available include:
 
-- Frontend/backend development
+- Front-end/back-end development
 - Mentoring and training services
+
+Fixed cost contract assignments are preferred.
 
 For more information:
 - <http://litehelpers.net/>
 - <sales@litehelpers.net>
 
-<!-- END Professional services available -->
+<!-- END Services available -->
 
 ## A quick tour
 
@@ -109,14 +111,18 @@ See the [Sample section](#sample) for a sample with a more detailed explanation.
 
 - NOT supported by PhoneGap Developer App or PhoneGap Desktop App
 - This version uses a `before_plugin_install` hook to install sqlite3 library dependencies from `cordova-sqlite-storage-dependencies` via npm.
-- A recent version of the Cordova CLI (such as `6.3.1`) is recommended. Cordova versions older than `6.0.0` are missing the `cordova-ios@4.0.0` security fixes.
+- SQLite version `3.15.1` included with the following build settings:
+  - `SQLITE_TEMP_STORE=2`
+  - `SQLITE_THREADSAFE=2`
+  - FTS3, FTS4, and R-Tree enabled
+  - `SQLITE_DEFAULT_PAGE_SIZE=1024` and `SQLITE_DEFAULT_CACHE_SIZE=2000` to avoid "potentially distruptive change(s)" from SQLite 3.12.0 ref: <http://sqlite.org/pgszchng2016.html>
+- A recent version of the Cordova CLI (such as `6.4.0`) is recommended. Cordova versions older than `6.0.0` are missing the `cordova-ios@4.0.0` security fixes.
 - Use of other systems such as Cordova Plugman, PhoneGap CLI, PhoneGap Build, and Intel XDK is no longer supported since they do not honor the `before_plugin_install` hook. The supported solution is to use [litehelpers / Cordova-sqlite-evcore-extbuild-free](https://github.com/litehelpers/Cordova-sqlite-evcore-extbuild-free) (available with GPL or commercial license options) or [litehelpers / Cordova-sqlite-legacy-build-support](https://github.com/litehelpers/Cordova-sqlite-legacy-build-support) (limited testing, limited updates)
 - The iOS database location is now mandatory, as documented below.
-- SQLite version `3.8.10.2` is supported for all supported platforms Android/iOS/macOS/Windows.
 - This version supports the use of two (2) possible Android sqlite database implementations:
   - default: lightweight [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector)
   - optional: built-in Android database classes (usage described below)
-- WP8 support is available in: [litehelpers / Cordova-sqlite-legacy-build-support](https://github.com/litehelpers/Cordova-sqlite-legacy-build-support) (along with Windows 8.1/Windows Phone 8.1/Windows 10)
+- Windows 8.1 and Windows Phone 8.1 are no longer supported by this version. WP8, Windows 8.1, and Windows Phone 8.1 support is available in: [litehelpers / Cordova-sqlite-legacy-build-support](https://github.com/litehelpers/Cordova-sqlite-legacy-build-support)
 - The following features are available in [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext):
   - REGEXP support (Android/iOS)
   - Pre-populated database (Android/iOS/Windows)
@@ -130,6 +136,7 @@ See the [Sample section](#sample) for a sample with a more detailed explanation.
   - Issue with `undefined` SQL parameter argument value described below
   - It is **not** possible to use this plugin with the default "Any CPU" target. A specific target CPU type **must** be specified when building an app with this plugin.
   - Windows version may crash in certain cases when invalid (bogus) function parameters are given, for example: `db.readTransaction('bogus');`
+  - Hard coded dependency on platform toolset libraries included by Visual Studio 2015 ref: [litehelpers/Cordova-sqlite-storage#580](https://github.com/litehelpers/Cordova-sqlite-storage/issues/580)
 - macOS version ("osx" platform) has not been tested in a release build and should be considered pre-alpha.
 - FTS3, FTS4, and R-Tree support is tested working OK in this version (for all target platforms in this version branch Android/iOS/macOS/Windows)
 - Android is supported back to SDK 10 (a.k.a. Gingerbread, Android 2.3.3); support for older versions is available upon request.
@@ -225,7 +232,7 @@ Add any desired platform(s) if not already present, for example:
 cordova platform add android
 ```
 
-and then prepare before building (**MANDATORY** for iOS, *RECOMMENDED* for other platforms):
+**OPTIONAL:** prepare before building
 
 ```shell
 cordova prepare
@@ -1117,15 +1124,14 @@ npm install -g cordova # (in case you don't have cordova)
 cordova create MyProjectFolder com.my.project MyProject && cd MyProjectFolder # if you are just starting
 cordova plugin add cordova-sqlite-storage --save
 cordova platform add <desired platform> # repeat for all desired platform(s)
-cordova prepare # MANDATORY for iOS; RECOMMENDED for other platforms
+cordova prepare # OPTIONAL
 ```
-
-**WARNING:** After installing the plugin and adding the iOS platform `cordova prepare` **must** be used for it to work on iOS (`cordova prepare` is also *recommended* for the other platforms).
 
 **Additional Cordova CLI NOTES:**
 
 - It is recommended to add *all* plugins including standard plugins such as `cordova-plugin-whitelist` with the `--save` flag to track these in `config.xml`.
 - In general there is no need to keep the Cordova `platforms` subdirectory tree in source code control (such as git). In case *all* plugins are added with the `--save` flag then there is no need to keep the `plugins` subdirectory tree in source code control either.
+- In case of problems with building and running it is recommended to try again after `cordova prepare`.
 - If you cannot build for a platform after `cordova prepare`, you may have to remove the platform and add it again, such as:
 
 ```shell
