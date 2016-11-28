@@ -311,7 +311,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + "Inline BLOB with emoji string manipulation test: SELECT LOWER(X'41F09F9883') [A\uD83D\uDE03] [\\u1F603 SMILING FACE (MOUTH OPEN)]", function(done) {
-          if (isWP8) pending('BROKEN for WP8'); // [CRASH with uncaught exception]
+          if (isWP8) pending('BROKEN for WP8');
           if (isAndroid && !isWebSql && !isImpl2) pending('BROKEN for Android (default sqlite-connector version)'); // CRASH on Android 5.x
           if (isWindows) pending('BROKEN for Windows');
 

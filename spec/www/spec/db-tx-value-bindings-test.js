@@ -430,12 +430,10 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         // NOTE: emojis and other 4-octet UTF-8 characters apparently not stored
-        // properly by Android-sqlite-connector/Windows ref: litehelpers/Cordova-sqlite-storage#564
+        // properly by Android-sqlite-connector/Windows/WP8 ref: litehelpers/Cordova-sqlite-storage#564
         it(suiteName + 'INSERT TEXT string with emoji [\\u1F603 SMILING FACE (MOUTH OPEN)], SELECT the data, and check' +
-           ((!isWebSql && (isWindows || (isAndroid && !isImpl2))) ?
-            ' [BROKEN: SELECT HEX(data) result on Android-sqlite-connector/Windows]' : ''), function(done) {
-          if (isWP8) pending('SKIP for WP8'); // [TBD CRASH with uncaught exception]
-
+           ((!isWebSql && (isWindows || isWP8 || (isAndroid && !isImpl2))) ?
+            ' [BROKEN: SELECT HEX(data) result on Android-sqlite-connector/Windows/WP8]' : ''), function(done) {
           var db = openDatabase('INSERT-emoji-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -456,7 +454,7 @@ var mytests = function() {
                   expect(row.data).toBe('@\uD83D\uDE03!');
 
                   tx.executeSql('SELECT HEX(data) AS hexvalue FROM test_table', [], function(tx, res) {
-                    // BROKEN: INCORRECT value Android-sqlite-connector/Windows
+                    // BROKEN: INCORRECT value Android-sqlite-connector/Windows/WP8
                     if (!isWebSql && !isWindows && !isWP8 && !(isAndroid && !isImpl2))
                       expect(res.rows.item(0).hexvalue).toBe('40F09F988321');
 
@@ -733,7 +731,7 @@ var mytests = function() {
           });
         });
 
-        it(suiteName + "INSERT inline BLOB value (X'40414243') and check stored data [SELECT BLOB ISSUE with androidDatabaseImplementation: 2 & Windows/WP8]", function(done) {
+        it(suiteName + "INSERT inline BLOB value (X'40414243') and check stored data [SELECT BLOB value ISSUE with androidDatabaseImplementation: 2 & Windows/WP8]", function(done) {
           var db = openDatabase('INSERT-inline-BLOB-value-and-check-stored-data.db', '1.0', 'Demo', DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -750,11 +748,9 @@ var mytests = function() {
                   expect(rs2.rows).toBeDefined();
                   expect(rs2.rows.length).toBeDefined();
 
-                  var row = rs2.rows.item(0);
-                  expect(row).toBeDefined();
-                  expect(row.hexValue).toBe('40414243');
-
-                  if (isWP8) return done(); // STOP CRASH on WP8
+                  var item = rs2.rows.item(0);
+                  expect(item).toBeDefined();
+                  expect(item.hexValue).toBe('40414243');
 
                   tx.executeSql('SELECT * FROM test_table', [], function(ignored, rs3) {
                     if (!isWebSql && isAndroid && isImpl2) expect('Behavior changed please update this test').toBe('--');
@@ -762,21 +758,101 @@ var mytests = function() {
                     expect(rs3.rows).toBeDefined();
                     expect(rs3.rows.length).toBeDefined();
 
-                    var row = rs3.rows.item(0);
-                    expect(row).toBeDefined();
-                    expect(row.data).toBe('@ABC');
+                    var item = rs3.rows.item(0);
+                    expect(item).toBeDefined();
+                    expect(item.data).toBe('@ABC');
 
                     // Close (plugin only) & finish:
                     (isWebSql) ? done() : db.close(done, done);
                   }, function(ignored, error) {
-                    if (!isWebSql && isWindows || (isAndroid && isImpl2)) {
+                    if (!isWebSql && (isWindows || isWP8 || (isAndroid && isImpl2))) {
                       expect(error).toBeDefined();
                       expect(error.code).toBeDefined();
                       expect(error.message).toBeDefined();
 
                       expect(error.code).toBe(0);
 
-                      if (isWindows)
+                      if (isWP8)
+                        expect(true).toBe(true); // SKIP for now
+                      else if (isWindows)
+                        expect(error.message).toMatch(/Unsupported column type in column 0/);
+                      else
+                        expect(error.message).toMatch(/unknown error.*code 0.*Unable to convert BLOB to string/);
+                    } else {
+                      // NOT EXPECTED:
+                      expect(false).toBe(true);
+                      expect(error.message).toBe('---');
+                    }
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  });
+
+                });
+
+              });
+
+            });
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "INSERT inline BLOB value (X'FFD1FFD2') and check stored data [Plugin BROKEN: missing result column data; SELECT BLOB value ISSUE with Android/Windows/WP8]", function(done) {
+          var db = openDatabase('INSERT-inline-BLOB-value-FFD1FFD2-and-check-stored-data.db', '1.0', 'Demo', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data)', [], function(ignored1, ignored2) {
+
+              tx.executeSql("INSERT INTO test_table VALUES (X'FFD1FFD2')", [], function(ignored, rs1) {
+
+                expect(rs1).toBeDefined();
+                expect(rs1.rowsAffected).toBe(1);
+
+                tx.executeSql('SELECT HEX(data) AS hexValue FROM test_table', [], function(ignored, rs2) {
+                  expect(rs2).toBeDefined();
+                  expect(rs2.rows).toBeDefined();
+                  expect(rs2.rows.length).toBeDefined();
+
+                  var item = rs2.rows.item(0);
+                  expect(item).toBeDefined();
+                  expect(item.hexValue).toBe('FFD1FFD2');
+
+                  // STOP here in case of Android:
+                  if (!isWindows && isAndroid) return done();
+
+                  tx.executeSql('SELECT * FROM test_table', [], function(ignored, rs3) {
+                    if (!isWebSql && isAndroid && isImpl2) expect('Behavior changed please update this test').toBe('--');
+                    expect(rs3).toBeDefined();
+                    expect(rs3.rows).toBeDefined();
+                    expect(rs3.rows.length).toBeDefined();
+
+                    var item = rs3.rows.item(0);
+                    expect(item).toBeDefined();
+
+                    var mydata = item.data;
+
+                    if (!isWebSql) {
+                      // PLUGIN (iOS/macOS):
+                      expect(mydata).not.toBeDefined();
+                      return done();
+                    } else {
+                      expect(mydata).toBeDefined();
+                      expect(mydata.length).toBe(4);
+                    }
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  }, function(ignored, error) {
+                    if (!isWebSql && (isWindows || isWP8 || (isAndroid && isImpl2))) {
+                      expect(error).toBeDefined();
+                      expect(error.code).toBeDefined();
+                      expect(error.message).toBeDefined();
+
+                      expect(error.code).toBe(0);
+
+                      if (isWP8)
+                        expect(true).toBe(true); // SKIP for now
+                      else if (isWindows)
                         expect(error.message).toMatch(/Unsupported column type in column 0/);
                       else
                         expect(error.message).toMatch(/unknown error.*code 0.*Unable to convert BLOB to string/);
@@ -846,8 +922,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'executeSql with too many parameters [extra TEXT string]', function(done) {
-          if (isWP8) pending('SKIP for WP8'); // TBD BROKEN on WP8
-
           var db = openDatabase("too-many-parameters-extra-text-string.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -887,6 +961,8 @@ var mytests = function() {
                 // FUTURE TBD plugin error message subject to change
                 if (isWebSql)
                   expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
+                else if (isWP8)
+                  expect(true).toBe(true); // SKIP for now
                 else if (isWindows)
                   expect(error.message).toMatch(/Error 25 when binding argument to SQL query/);
                 else
@@ -900,8 +976,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'executeSql with too many parameters [extra REAL value]', function(done) {
-          if (isWP8) pending('SKIP for WP8'); // TBD BROKEN on WP8
-
           var db = openDatabase("too-many-parameters-extra-real-value.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -941,6 +1015,8 @@ var mytests = function() {
                 // FUTURE TBD plugin error message subject to change
                 if (isWebSql)
                   expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
+                else if (isWP8)
+                  expect(true).toBe(true); // SKIP for now
                 else if (isWindows)
                   expect(error.message).toMatch(/Error 25 when binding argument to SQL query/);
                 else
@@ -954,8 +1030,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'executeSql with too many parameters [extra INTEGER value]', function(done) {
-          if (isWP8) pending('SKIP for WP8'); // TBD BROKEN on WP8
-
           var db = openDatabase("too-many-parameters-extra-integer-value.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -995,6 +1069,8 @@ var mytests = function() {
                 // FUTURE TBD plugin error message subject to change
                 if (isWebSql)
                   expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
+                else if (isWP8)
+                  expect(true).toBe(true); // SKIP for now
                 else if (isWindows)
                   expect(error.message).toMatch(/Error 25 when binding argument to SQL query/);
                 else
