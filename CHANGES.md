@@ -1,5 +1,9 @@
 # Changes
 
+### cordova-sqlite-storage 1.5.1-pre1
+
+- Add engines rule to package.json to specify plugin version >= 2.0.0 in case of cordova-windows 4.4.2 or newer for Visual Studio 2017 (Preview)
+
 ### cordova-sqlite-storage 1.5.0
 
 - Build with sqlite 3.15.1, with the following settings:
