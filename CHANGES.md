@@ -1,8 +1,12 @@
 # Changes
 
-### cordova-sqlite-storage 2.0.0-edge01
+### cordova-sqlite-storage 2.0.0-edge02
 
 - Reference Windows platform toolset v141 to support Visual Studio 2017 (RC)
+
+### cordova-sqlite-storage 1.5.1
+
+- Add engines rule to package.json to specify plugin version >= 2.0.0 in case of cordova-windows 4.4.2 or newer for Visual Studio 2017 (Preview)
 
 ### cordova-sqlite-storage 1.5.0
 
