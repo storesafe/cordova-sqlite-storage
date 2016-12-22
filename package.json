@@ -1,9 +1,9 @@
 {
-  "name": "cordova-sqlite-storage",
-  "version": "1.5.1",
+  "name": "cordova-sqlite-ext-common",
+  "version": "0.0.1",
   "description": "Native interface to SQLite for PhoneGap/Cordova",
   "cordova": {
-    "id": "cordova-sqlite-storage",
+    "id": "cordova-sqlite-ext-common",
     "platforms": [
       "android",
       "ios",
@@ -11,13 +11,10 @@
     ]
   },
   "engines": {
-    "cordovaDependencies": {
-      "2.0.0": { "cordova-windows": ">4.4.1" }
-    }
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/litehelpers/Cordova-sqlite-storage.git"
+    "url": "https://github.com/brodybits/cordova-sqlite-ext-common.git"
   },
   "keywords": [
     "sqlite",
@@ -29,11 +26,11 @@
   "author": "various",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/litehelpers/Cordova-sqlite-storage/issues"
+    "url": "https://github.com/brodybits/cordova-sqlite-ext-common/issues"
   },
-  "homepage": "https://github.com/litehelpers/Cordova-sqlite-storage",
+  "homepage": "https://github.com/brodybits/cordova-sqlite-ext-common",
   "dependencies": {
-    "cordova-sqlite-storage-dependencies": "1.0.1"
+    "cordova-sqlite-ext-deps": "0.4.0"
   },
   "scripts": {
     "start": "node scripts/prepareSpec.js"

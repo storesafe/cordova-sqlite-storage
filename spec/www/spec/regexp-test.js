@@ -39,12 +39,10 @@ var mytests = function() {
 
       it(suiteName + 'Simple REGEXP test',
         function(done) {
-          // Test for Android Web SQL ONLY
           if (isWP8) pending('NOT IMPLEMENTED for WP8');
           if (isWindows) pending('NOT IMPLEMENTED for Windows');
-          //if (!isWebSql && isAndroid && isImpl2 && /Android [1-4]/.test(navigator.userAgent)) pending('BROKEN for android.database (version 1.x-4.x)');
-          if (!isWebSql && isAndroid) pending('SKIP for android.database'); // TBD (SKIP for Android plugin for now)
-          if (!isAndroid && !isWindows && !isWP8) pending('SKIP for iOS/macOS');
+          if (!isWebSql && isAndroid && isImpl2 && /Android [1-4]/.test(navigator.userAgent)) pending('BROKEN for android.database (version 1.x-4.x)');
+          if (isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin');
 
           var db = openDatabase('simple-regexp-test.db', '1.0', 'test', DEFAULT_SIZE);
 

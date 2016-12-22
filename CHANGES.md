@@ -1,5 +1,20 @@
 # Changes
 
+### cordova-sqlite-ext-common 0.0.1
+
+- REGEXP for Android/iOS/macOS using sqlite3-regexp-cached
+- Build with sqlite 3.15.2, with the following settings:
+  - SQLITE_TEMP_STORE=2
+  - SQLITE_THREADSAFE=2
+  - SQLITE_ENABLE_FTS3
+  - SQLITE_ENABLE_FTS3_PARENTHESIS
+  - SQLITE_ENABLE_FTS4
+  - SQLITE_ENABLE_RTREE
+  - SQLITE_OMIT_BUILTIN_TEST
+  - SQLITE_OMIT_LOAD_EXTENSION
+  - SQLITE_DEFAULT_PAGE_SIZE=1024 and SQLITE_DEFAULT_CACHE_SIZE=2000 to avoid "potentially distruptive change(s)" from SQLite 3.12.0 ref: <http://sqlite.org/pgszchng2016.html>
+  - SQLITE_OS_WINRT for Windows only
+
 ### cordova-sqlite-storage 1.5.1
 
 - Add engines rule to package.json to specify plugin version >= 2.0.0 in case of cordova-windows 4.4.2 or newer for Visual Studio 2017 (Preview)

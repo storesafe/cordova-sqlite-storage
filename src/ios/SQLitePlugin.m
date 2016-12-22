@@ -10,6 +10,8 @@
 
 #import "sqlite3.h"
 
+#import "sqlite3_regexp.h"
+
 // FUTURE TBD (in another version branch):
 //#define READ_BLOB_AS_BASE64
 
@@ -140,6 +142,10 @@
                 pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unable to open DB"];
                 return;
             } else {
+                // TBD IGNORE result:
+                const char * err1;
+                sqlite3_regexp_init(db, &err1);
+
                 // for SQLCipher version:
                 // NSString *dbkey = [options objectForKey:@"key"];
                 // const char *key = NULL;

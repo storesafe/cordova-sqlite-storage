@@ -21,3 +21,19 @@ MIT or Apache 2.0
 by @doo (doo GmbH)
 
 MIT License
+
+### Android-sqlite-connector
+
+Unlicense (public domain)
+
+### Android-sqlite-ext-native-driver
+
+Unlicense (public domain)
+
+### sqlite3-regexp-cached
+
+Based on <http://git.altlinux.org/people/at/packages/?p=sqlite3-pcre.git> by Alexey Tourbin, public domain
+
+### SQLite3
+
+public domain

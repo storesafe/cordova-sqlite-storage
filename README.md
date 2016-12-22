@@ -1,4 +1,4 @@
-# Cordova/PhoneGap sqlite storage adapter
+# Cordova/PhoneGap sqlite ext common
 
 Native interface to sqlite in a Cordova/PhoneGap plugin for Android, iOS, macOS, and Windows 10 (UWP), with API similar to HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
 
@@ -6,17 +6,15 @@ License for Android and Windows versions: MIT or Apache 2.0
 
 License for iOS/macOS version: MIT only
 
-|Android Circle-CI (**full** suite)|iOS Travis-CI (partial suite)|
-|-----------------------|----------------------|
-|[![Circle CI](https://circleci.com/gh/litehelpers/Cordova-sqlite-storage.svg?style=svg)](https://circleci.com/gh/litehelpers/Cordova-sqlite-storage)|[![Build Status](https://travis-ci.org/litehelpers/Cordova-sqlite-storage.svg)](https://travis-ci.org/litehelpers/Cordova-sqlite-storage)|
+TBD NOTE: No Android Circle-CI/iOS Travis-CI for this version branch
 
 ## About this version
 
-This is the common version which supports the most widely used features and serves as the basis for the other versions.
+This is a common version the following extra features: REGEXP
 
 <!-- END About this version -->
 
-## Available for hire
+## Services available
 
 The primary author and maintainer [@brodybits (Christopher J. Brody aka Chris Brody)](https://github.com/brodybits) is available for part-time contract assignments. Services available for this project include:
 
@@ -110,12 +108,19 @@ See the [Sample section](#sample) for a sample with a more detailed explanation.
 ## Status
 
 - NOT supported by PhoneGap Developer App or PhoneGap Desktop App
-- This version uses a `before_plugin_install` hook to install sqlite3 library dependencies from `cordova-sqlite-storage-dependencies` via npm.
-- SQLite version `3.15.1` included with the following build settings:
+- This version uses a `before_plugin_install` hook to install sqlite3 library dependencies from `cordova-sqlite-ext-deps` via npm.
+- This version includes REGEXP for Android (default Android-sqlite-connector database implementation), iOS, and macOS using [brodybits / sqlite3-regexp-cached](https://github.com/brodybits/sqlite3-regexp-cached) (based on <http://git.altlinux.org/people/at/packages/?p=sqlite3-pcre.git> by Alexey Tourbin, public domain)
+- SQLite version `3.15.2` included with the following build settings:
   - `SQLITE_TEMP_STORE=2`
-  - `SQLITE_THREADSAFE=2`
-  - FTS3, FTS4, and R-Tree enabled
+  - `SQLITE_THREADSAFE=1`
+  - `SQLITE_ENABLE_FTS3`
+  - `SQLITE_ENABLE_FTS3_PARENTHESIS`
+  - `SQLITE_ENABLE_FTS4`
+  - `SQLITE_ENABLE_RTREE`
+  - `SQLITE_OMIT_BUILTIN_TEST`
+  - `SQLITE_OMIT_LOAD_EXTENSION`
   - `SQLITE_DEFAULT_PAGE_SIZE=1024` and `SQLITE_DEFAULT_CACHE_SIZE=2000` to avoid "potentially distruptive change(s)" from SQLite 3.12.0 ref: <http://sqlite.org/pgszchng2016.html>
+  - `SQLITE_OS_WINRT` for Windows only
 - A recent version of the Cordova CLI (such as `6.4.0`) is recommended. Cordova versions older than `6.0.0` are missing the `cordova-ios@4.0.0` security fixes.
 - Use of other systems such as Cordova Plugman, PhoneGap CLI, PhoneGap Build, and Intel XDK is no longer supported since they do not honor the `before_plugin_install` hook. The supported solution is to use [litehelpers / Cordova-sqlite-evcore-extbuild-free](https://github.com/litehelpers/Cordova-sqlite-evcore-extbuild-free) (available with GPL or commercial license options) or [litehelpers / Cordova-sqlite-legacy-build-support](https://github.com/litehelpers/Cordova-sqlite-legacy-build-support) (limited testing, limited updates)
 - The iOS database location is now mandatory, as documented below.
@@ -147,6 +152,7 @@ See the [Sample section](#sample) for a sample with a more detailed explanation.
 
 ## Announcements
 
+- This version includes the following extra features: REGEXP (Android/iOS/macOS)
 - [brodybits / sql-promise-helper](https://github.com/brodybits/sql-promise-helper) provides a Promise-based API wrapper.
 - [nolanlawson / pouchdb-adapter-cordova-sqlite](https://github.com/nolanlawson/pouchdb-adapter-cordova-sqlite) supports this plugin along with other implementations such as [nolanlawson / sqlite-plugin-2](https://github.com/nolanlawson/sqlite-plugin-2) and [Microsoft / cordova-plugin-websql](https://github.com/Microsoft/cordova-plugin-websql).
 - macOS ("osx" platform) is now supported
@@ -225,7 +231,7 @@ The Windows platform can present a number of challenges which increase when usin
 Use the following command to install this plugin from the Cordova CLI:
 
 ```shell
-cordova plugin add cordova-sqlite-storage --save
+cordova plugin add https://github.com/brodybits/cordova-sqlite-ext-common --save
 ```
 
 Add any desired platform(s) if not already present, for example:
@@ -444,7 +450,7 @@ Some more known issues are tracked in the [open Cordova-sqlite-storage bugs](htt
 - SQL error messages on Windows version are not consistent with Android/iOS/macOS versions.
 - UNICODE `\u2028` (line separator) and `\u2029` (paragraph separator) characters are currently not supported and known to be broken in iOS, macOS, and Android version due to JSON issues reported in [Cordova bug CB-9435](https://issues.apache.org/jira/browse/CB-9435) and [cordova/cordova-discuss#57](https://github.com/cordova/cordova-discuss/issues/57). There *may* be a similar issue with certain other UNICODE characters in the iOS/macOS version (needs further investigation). This is fixed for iOS in: [litehelpers / Cordova-sqlite-evplus-legacy-free](https://github.com/litehelpers/Cordova-sqlite-evplus-legacy-free) and [litehelpers / Cordova-sqlite-evplus-legacy-attach-detach-free](https://github.com/litehelpers/Cordova-sqlite-evplus-legacy-attach-detach-free) (available with GPL or special commercial license options) as well as [litehelpers / Cordova-sqlite-evplus-legacy-workers-free](https://github.com/litehelpers/Cordova-sqlite-evplus-legacy-workers-free) (available with GPL or premium commercial license options)
 - BLOB type is not supported in this version branch (*reading* of BLOBs is supported by [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) for Android/iOS)
-- UNICODE `\u0000` (same as `\0`) character not working in Android (default Android-sqlite-connector database implentation) or Windows
+- UNICODE `\u0000` (same as `\0`) character not working in Android (default Android-sqlite-connector database _implementation_) or Windows
 - Case-insensitive matching and other string manipulations on Unicode characters, which is provided by optional ICU integration in the sqlite source and working with recent versions of Android, is not supported for any target platforms.
 - iOS/macOS version uses a thread pool but with only one thread working at a time due to "synchronized" database access
 - Large query result can be slow, also due to JSON implementation
@@ -1131,7 +1137,7 @@ Other resource(s):
 ```shell
 npm install -g cordova # (in case you don't have cordova)
 cordova create MyProjectFolder com.my.project MyProject && cd MyProjectFolder # if you are just starting
-cordova plugin add cordova-sqlite-storage --save
+cordova plugin add https://github.com/brodybits/cordova-sqlite-ext-common --save
 cordova platform add <desired platform> # repeat for all desired platform(s)
 cordova prepare # OPTIONAL (MANDATORY cordova-ios older than 4.3.0 (Cordova CLI 6.4.0))
 ```
@@ -1162,8 +1168,7 @@ You can find some more details in a nice writeup (though with old links and pack
 
 ## Plugin installation sources
 
-- `cordova-sqlite-storage` - stable npm package version
-- https://github.com/litehelpers/Cordova-sqlite-storage - latest version
+- https://github.com/brodybits/cordova-sqlite-ext-common - latest version
 
 <!-- END Plugin installation sources -->
 
@@ -1278,7 +1283,7 @@ Please include the following:
 ## Where to ask for help
 
 Once you have followed the directions above, you may request free support in the following location(s):
-- [litehelpers / Cordova-sqlite-storage / issues](https://github.com/litehelpers/Cordova-sqlite-storage/issues)
+- [brodybits / cordova-sqlite-ext-common / issues](https://github.com/brodybits/cordova-sqlite-ext-common/issues)
 - [litehelpers / Cordova-sqlite-help](https://github.com/litehelpers/Cordova-sqlite-help)
 
 Please include the information described above otherwise.
