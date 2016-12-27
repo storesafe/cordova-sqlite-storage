@@ -10,11 +10,13 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);$(MSBuildThisFileDirectory)..\..\..\..\node_modules\cordova-sqlite-ext-deps</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);$(MSBuildThisFileDirectory)..\..\..\..\node_modules\cordova-sqlite-ext-deps;$(MSBuildThisFileDirectory)..\..\..\..\node_modules\cordova-sqlite-ext-deps\sqlite3-base64;$(MSBuildThisFileDirectory)..\..\..\..\node_modules\cordova-sqlite-ext-deps\libb64-encode</AdditionalIncludeDirectories>
       <AdditionalOptions>/DSQLITE_TEMP_STORE=2 /DSQLITE_THREADSAFE=1 /DSQLITE_ENABLE_FTS3 /DSQLITE_ENABLE_FTS3_PARENTHESIS /DSQLITE_ENABLE_FTS4 /DSQLITE_ENABLE_RTREE /DSQLITE_OMIT_BUILTIN_TEST /DSQLITE_OMIT_LOAD_EXTENSION /DSQLITE_DEFAULT_PAGE_SIZE=1024 /DSQLITE_DEFAULT_CACHE_SIZE=2000 /DSQLITE_OS_WINRT %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\node_modules\cordova-sqlite-ext-deps\libb64-encode\cencode.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\node_modules\cordova-sqlite-ext-deps\sqlite3-base64\sqlite3_base64.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\node_modules\cordova-sqlite-ext-deps\sqlite3.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Constants.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Database.h" />
@@ -26,6 +28,12 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)Database.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Statement.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\node_modules\cordova-sqlite-ext-deps\sqlite3.c">
+      <CompileAsWinRT>false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\node_modules\cordova-sqlite-ext-deps\sqlite3-base64\sqlite3_base64.c">
+      <CompileAsWinRT>false</CompileAsWinRT>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\node_modules\cordova-sqlite-ext-deps\libb64-encode\cencode.c">
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)pch.cpp">

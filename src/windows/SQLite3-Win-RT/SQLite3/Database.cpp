@@ -3,6 +3,9 @@
 #include "Database.h"
 #include "Statement.h"
 
+
+#include "sqlite3_base64.h"
+
 namespace SQLite3
 {
   Database::Database(Platform::String^ dbPath)
@@ -17,6 +20,7 @@ namespace SQLite3
       HRESULT hresult = MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, ret);
       throw ref new Platform::COMException(hresult);
     }
+    sqlite3_base64_init(sqlite);
   }
 
   Database::~Database()

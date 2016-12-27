@@ -1,5 +1,9 @@
 # Changes
 
+### cordova-sqlite-ext-common 0.1.0
+
+- BASE64 support
+
 ### cordova-sqlite-ext-common 0.0.1
 
 - REGEXP for Android/iOS/macOS using sqlite3-regexp-cached

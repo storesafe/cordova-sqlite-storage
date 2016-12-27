@@ -34,6 +34,14 @@ Unlicense (public domain)
 
 Based on <http://git.altlinux.org/people/at/packages/?p=sqlite3-pcre.git> by Alexey Tourbin, public domain
 
+### sqlite3-base64
+
+Unlicense (public domain)
+
+### libb64-encode
+
+Based on <http://libb64.sourceforge.net/> by Chris Venter, public domain)
+
 ### SQLite3
 
 public domain
