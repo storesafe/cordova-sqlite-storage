@@ -2,7 +2,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-sqlite-ext"
-    version="0.10.3-p3">
+    version="0.10.3-p4">
 
     <name>Cordova sqlite storage plugin with extras</name>
 
@@ -12,15 +12,6 @@
 
     <description>Native interface to SQLite for PhoneGap/Cordova. Allows you to use more storage and provides more flexibility than the standard Web SQL database (window.openDatabase).</description>
     <author>Litehelpers/Various</author>
-
-    <!-- No longer enforced in this version (branch):
-    <engines>
-        <engine name="cordova" version=">=6.0.0" />
-        <engine name="cordova-android" version=">=5.0.0" />
-        <engine name="cordova-ios" version=">=4.0.0" />
-        <engine name="cordova-windows" version=">=4.0.0" />
-    </engines>
-     -->
 
     <!-- THANKS to AllJoyn-Cordova / cordova-plugin-alljoyn: -->
     <hook type="before_plugin_install" src="scripts/beforePluginInstall.js" />
@@ -50,7 +41,6 @@
         <source-file src="node_modules/cordova-sqlite-ext-deps/libs/armeabi-v7a/libsqlc-native-driver.so" target-dir="libs/armeabi-v7a"/>
         <source-file src="node_modules/cordova-sqlite-ext-deps/libs/x86/libsqlc-native-driver.so" target-dir="libs/x86"/>
         <source-file src="node_modules/cordova-sqlite-ext-deps/libs/x86_64/libsqlc-native-driver.so" target-dir="libs/x86_64"/>
-
     </platform>
 
     <!-- iOS -->
@@ -65,10 +55,18 @@
         <header-file src="src/ios/SQLitePlugin.h" />
         <source-file src="src/ios/SQLitePlugin.m" />
 
+        <header-file src="node_modules/cordova-sqlite-ext-deps/sqlite3-regexp-cached/sqlite3_regexp.h" />
+        <source-file src="node_modules/cordova-sqlite-ext-deps/sqlite3-regexp-cached/sqlite3_regexp.c" />
+
+        <header-file src="node_modules/cordova-sqlite-ext-deps/sqlite3-base64/sqlite3_base64.h" />
+        <source-file src="node_modules/cordova-sqlite-ext-deps/sqlite3-base64/sqlite3_base64.c" />
+
+        <header-file src="node_modules/cordova-sqlite-ext-deps/libb64-encode/cencode.h" />
+        <source-file src="node_modules/cordova-sqlite-ext-deps/libb64-encode/cencode.c" />
+
         <header-file src="node_modules/cordova-sqlite-ext-deps/sqlite3.h" />
         <source-file src="node_modules/cordova-sqlite-ext-deps/sqlite3.c"
-                     compiler-flags="-DSQLITE_TEMP_STORE=2 -DSQLITE_THREADSAFE=2 -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS -DSQLITE_ENABLE_FTS4 -DSQLITE_ENABLE_COLUMN_METADATA -DSQLITE_ENABLE_RTREE -DSQLITE_LOCKING_STYLE=1 -DSQLITE_OMIT_BUILTIN_TEST -DSQLITE_OMIT_LOAD_EXTENSION" />
-
+                     compiler-flags="-DSQLITE_TEMP_STORE=2 -DSQLITE_THREADSAFE=1 -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS -DSQLITE_ENABLE_FTS4 -DSQLITE_ENABLE_RTREE  -DSQLITE_OMIT_BUILTIN_TEST -DSQLITE_OMIT_LOAD_EXTENSION -DSQLITE_DEFAULT_PAGE_SIZE=1024 -DSQLITE_DEFAULT_CACHE_SIZE=2000" />
     </platform>
 
     <!-- macOS -->
@@ -84,10 +82,18 @@
         <source-file src="src/ios/SQLitePlugin.m" />
         <!-- FUTURE TBD: more common directory name for Apple macOS/iOS versions -->
 
+        <header-file src="node_modules/cordova-sqlite-ext-deps/sqlite3-regexp-cached/sqlite3_regexp.h" />
+        <source-file src="node_modules/cordova-sqlite-ext-deps/sqlite3-regexp-cached/sqlite3_regexp.c" />
+
+        <header-file src="node_modules/cordova-sqlite-ext-deps/sqlite3-base64/sqlite3_base64.h" />
+        <source-file src="node_modules/cordova-sqlite-ext-deps/sqlite3-base64/sqlite3_base64.c" />
+
+        <header-file src="node_modules/cordova-sqlite-ext-deps/libb64-encode/cencode.h" />
+        <source-file src="node_modules/cordova-sqlite-ext-deps/libb64-encode/cencode.c" />
+
         <header-file src="node_modules/cordova-sqlite-ext-deps/sqlite3.h" />
         <source-file src="node_modules/cordova-sqlite-ext-deps/sqlite3.c"
-                     compiler-flags="-DSQLITE_TEMP_STORE=2 -DSQLITE_THREADSAFE=2 -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS -DSQLITE_ENABLE_FTS4 -DSQLITE_ENABLE_COLUMN_METADATA -DSQLITE_ENABLE_RTREE -DSQLITE_LOCKING_STYLE=1 -DSQLITE_OMIT_BUILTIN_TEST -DSQLITE_OMIT_LOAD_EXTENSION" />
-
+                     compiler-flags="-DSQLITE_TEMP_STORE=2 -DSQLITE_THREADSAFE=1 -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS -DSQLITE_ENABLE_FTS4 -DSQLITE_ENABLE_RTREE  -DSQLITE_OMIT_BUILTIN_TEST -DSQLITE_OMIT_LOAD_EXTENSION -DSQLITE_DEFAULT_PAGE_SIZE=1024 -DSQLITE_DEFAULT_CACHE_SIZE=2000" />
     </platform>
 
     <!-- windows -->
@@ -103,9 +109,10 @@
 
         <!-- Thanks to AllJoyn-Cordova / cordova-plugin-alljoyn for guidance: -->
         <framework src="src/windows/SQLite3-Win-RT/SQLite3/SQLite3.UWP/SQLite3.UWP.vcxproj" custom="true" type="projectReference" versions="10.*" />
+        <!-- Windows 8.1 / Windows Phone 8.1 not tested, not supported in this version branch:
         <framework src="src/windows/SQLite3-Win-RT/SQLite3/SQLite3.Windows/SQLite3.Windows.vcxproj" custom="true" type="projectReference" target="windows" versions="8.1" />
         <framework src="src/windows/SQLite3-Win-RT/SQLite3/SQLite3.WindowsPhone/SQLite3.WindowsPhone.vcxproj" custom="true" type="projectReference" target="phone" versions="8.1" />
-
+         -->
     </platform>
 
 </plugin>

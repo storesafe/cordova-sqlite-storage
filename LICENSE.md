@@ -12,7 +12,7 @@ MIT or Apache 2.0
 
 MIT only
 
-## Windows (8.1) version
+## Windows version
 
 MIT or Apache 2.0
 
@@ -21,3 +21,27 @@ MIT or Apache 2.0
 by @doo (doo GmbH)
 
 MIT License
+
+### Android-sqlite-connector
+
+Unlicense (public domain)
+
+### Android-sqlite-ext-native-driver
+
+Unlicense (public domain)
+
+### sqlite3-regexp-cached
+
+Based on <http://git.altlinux.org/people/at/packages/?p=sqlite3-pcre.git> by Alexey Tourbin, public domain
+
+### sqlite3-base64
+
+Unlicense (public domain)
+
+### libb64-encode
+
+Based on <http://libb64.sourceforge.net/> by Chris Venter, public domain)
+
+### SQLite3
+
+public domain

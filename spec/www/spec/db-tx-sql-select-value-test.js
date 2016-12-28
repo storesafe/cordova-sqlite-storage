@@ -1665,7 +1665,7 @@ var mytests = function() {
           //if (!isWebSql && isAndroid && isImpl2) pending('SKIP: BROKEN for androidDatabaseImplementation: 2');
           if (isWindows) pending('SKIP: BROKEN for Windows');
 
-          var db = openDatabase("Inline-BLOB-SELECT-result-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase("Inline-BLOB-SELECT-result-40414243-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
 
@@ -1684,6 +1684,67 @@ var mytests = function() {
                 expect(row.myresult).toBe('QEFCQw==\n'); // XXX TBD WHY??
               else
                 expect(row.myresult).toBe('QEFCQw==');
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            }, function(ignored, error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              expect(error.message).toBe('---');
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+
+          }, function(error) {
+            if (!isWebSql && isAndroid && isImpl2) {
+              expect(error).toBeDefined();
+              expect(error.code).toBeDefined();
+              expect(error.message).toBeDefined();
+
+              // TBD wrong error code
+              expect(error.code).toBe(0);
+              expect(error.message).toMatch(/error callback did not return false: unknown error.*code 0.*Unable to convert BLOB to string/);
+            } else {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              expect(error.message).toBe('---');
+            }
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "SELECT X'FFD1FFD2' [Plugin BROKEN/TBD (SUBJECT TO CHANGE): ...]", function(done) {
+          if (isWP8) pending('SKIP for WP8'); // [BROKEN]
+          //if (!isWebSql && isAndroid && !isImpl2) pending('SKIP for default Android implemetation [POSSIBLE CRASH]');
+          //if (!isWebSql && isAndroid && isImpl2) pending('SKIP: BROKEN for androidDatabaseImplementation: 2');
+          if (isWindows) pending('SKIP: BROKEN for Windows');
+
+          var db = openDatabase("Inline-BLOB-SELECT-result-FFD1FFD2-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+
+            tx.executeSql("SELECT X'FFD1FFD2' AS myresult", [], function(ignored, rs) {
+              //if (!isWebSql && isAndroid && isImpl2) expect('Behavior changed please update this test').toBe('--');
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              var item = rs.rows.item(0);
+              expect(item).toBeDefined();
+
+              var myresult = item.myresult;
+
+              if (!isWebSql) {
+                // PLUGIN (...) TBD SUBJECT TO CHANGE:
+                //expect(myresult).not.toBeDefined();
+                expect(myresult).toBeDefined();
+                return done();
+              } else {
+                expect(myresult).toBeDefined();
+                expect(myresult.length).toBe(4);
+              }
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);

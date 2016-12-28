@@ -316,7 +316,7 @@
   };
 
   SQLitePluginTransaction.prototype.start = function() {
-    var err, error1;
+    var err;
     try {
       this.fn(this);
       this.run();
@@ -404,7 +404,7 @@
     tx = this;
     handlerFor = function(index, didSucceed) {
       return function(response) {
-        var err, error1;
+        var err;
         if (!txFailure) {
           try {
             if (didSucceed) {
