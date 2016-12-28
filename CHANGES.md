@@ -1,6 +1,6 @@
 # Changes
 
-## cordova-sqlite-ext 0.10.3-p2
+## cordova-sqlite-ext 0.10.3-p3
 
 TBD
 

@@ -114,7 +114,7 @@ See the [Sample section](#sample) for a sample with a more detailed explanation.
 - The iOS database location is now mandatory, as documented below.
 - This version contains the following extra features:
   - Pre-populated database support for all platforms Android/iOS/Windows;
-  - REGEXP support for Android (using PCRE 8.37) as well as iOS (using the built-in BSD regex library functions);
+  - REGEXP support for Android (using PCRE 8.37) ~~as well as iOS (using the built-in BSD regex library functions)~~;
   - BLOB data reading (from pre-populated database) for Android/iOS, with the following caveat for the Android version: the database must be opened with the `androidDatabaseImplementation: 2` option to use the built-in android.database implementation.
 - SQLite version `3.8.10.2` is supported for all supported platforms Android/iOS/macOS/Windows.
 - This version supports the use of two (2) possible Android sqlite database implementations:
@@ -122,7 +122,7 @@ See the [Sample section](#sample) for a sample with a more detailed explanation.
   - optional: built-in Android database classes (usage described below)
 - WP8 support is available in: [litehelpers / Cordova-sqlite-legacy-build-support](https://github.com/litehelpers/Cordova-sqlite-legacy-build-support) (along with Windows 8.1/Windows Phone 8.1/Windows 10)
 - The following features are available in [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext):
-  - REGEXP support (Android/iOS)
+  - REGEXP support (Android~~/iOS~~)
   - Pre-populated database (Android/iOS/Windows)
 - Amazon Fire-OS is dropped due to lack of support by Cordova. Android version should be used to deploy to Fire-OS 5.0(+) devices. For reference: [cordova/cordova-discuss#32 (comment)](https://github.com/cordova/cordova-discuss/issues/32#issuecomment-167021676)
 - Windows version (using a customized version of the performant C++ [doo / SQLite3-WinRT](https://github.com/doo/SQLite3-WinRT) component) has the following known limitations:
@@ -154,7 +154,7 @@ See the [Sample section](#sample) for a sample with a more detailed explanation.
 - Support for *reading* BLOB values from pre-populated databases tested for Android (using built-in android.database implementation as described above) and iOS.
 - Ionic starter template with pre-populated SQLite database at: [jdnichollsc / Ionic-Starter-Template](https://github.com/jdnichollsc/Ionic-Starter-Template)
 - More explicit `openDatabase` and `deleteDatabase` `iosDatabaseLocation` option
-- This version supports REGEXP on Android (using PCRE 8.37) as well as iOS (using BSD regex library functions).
+- This version supports REGEXP on Android (using PCRE 8.37) ~~as well as iOS (using BSD regex library functions)~~.
 - Added simple sql batch query function
 - Published [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy) for maintenance of WP8 version, working with the other supported platforms Android/iOS/Windows
 - All iOS operations are now using background processing (reported to resolve intermittent problems with cordova-ios@4.0.1)
@@ -423,7 +423,7 @@ Some more known issues are tracked in the [open Cordova-sqlite-storage bugs](htt
 - This version will not work within a web worker (not properly supported by the Cordova framework). Use within a web worker is supported for Android and iOS in: [litehelpers / Cordova-sqlite-evplus-legacy-workers-free](https://github.com/litehelpers/Cordova-sqlite-evplus-legacy-workers-free) (available with GPL or premium commercial license options)
 - In-memory database `db=window.sqlitePlugin.openDatabase({name: ':memory:', ...})` is currently not supported.
 - The Android version cannot work with more than 100 open db files (due to the threading model used).
-- REGEXP is currently not supported for Windows.
+- REGEXP is currently not supported for Windows _or iOS/macOS_.
 - SQL error messages on Windows version are not consistent with Android/iOS/macOS versions.
 - UNICODE `\u2028` (line separator) and `\u2029` (paragraph separator) characters are currently not supported and known to be broken in iOS/macOS version due to [Cordova bug CB-9435](https://issues.apache.org/jira/browse/CB-9435). There *may* be a similar issue with certain other UNICODE characters in the iOS/macOS version (needs further investigation). This is fixed in: [litehelpers / Cordova-sqlite-evplus-legacy-free](https://github.com/litehelpers/Cordova-sqlite-evplus-legacy-free) (available with GPL or special commercial license options)
 - BLOB type is not supported in this version branch (*reading* of BLOBs is supported by [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) for Android/iOS)

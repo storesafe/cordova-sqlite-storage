@@ -10,9 +10,6 @@
 
 #import "sqlite3.h"
 
-// REGEXP:
-#include <regex.h>
-
 // XXX FUTURE TBD OBSOLETE:
 #define READ_BLOB_AS_BASE64
 
@@ -25,36 +22,6 @@
 #else
 #   define DLog(...)
 #endif
-
-static void
-sqlite_regexp(sqlite3_context * context, int argc, sqlite3_value ** values) {
-    if ( argc < 2 ) {
-        sqlite3_result_error(context, "SQL function regexp() called with missing arguments.", -1);
-        return;
-    }
-
-    char * reg = (char *)sqlite3_value_text(values[0]);
-    char * text = (char *)sqlite3_value_text(values[1]);
-
-    if ( argc != 2 || reg == 0 || text == 0) {
-        sqlite3_result_error(context, "SQL function regexp() called with invalid arguments.", -1);
-        return;
-    }
-
-    int ret;
-    regex_t regex;
-
-    ret = regcomp(&regex, reg, REG_EXTENDED | REG_NOSUB);
-    if ( ret != 0 ) {
-        sqlite3_result_error(context, "error compiling regular expression", -1);
-        return;
-    }
-
-    ret = regexec(&regex, text , 0, NULL, 0);
-    regfree(&regex);
-
-    sqlite3_result_int(context, (ret != REG_NOMATCH));
-}
 
 
 @implementation SQLitePlugin
@@ -181,8 +148,6 @@ sqlite_regexp(sqlite3_context * context, int argc, sqlite3_value ** values) {
                 pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Unable to open DB"];
                 return;
             } else {
-                sqlite3_create_function(db, "REGEXP", 2, SQLITE_ANY, NULL, &sqlite_regexp, NULL, NULL);
-
                 // for SQLCipher version:
                 // NSString *dbkey = [options objectForKey:@"key"];
                 // const char *key = NULL;
