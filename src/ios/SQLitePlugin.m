@@ -13,6 +13,7 @@
 // REGEXP:
 #include <regex.h>
 
+// XXX FUTURE TBD OBSOLETE:
 #define READ_BLOB_AS_BASE64
 
 // FUTURE TBD (XXX TBD subjet to change):
@@ -214,7 +215,9 @@ sqlite_regexp(sqlite3_context * context, int argc, sqlite3_value ** values) {
 }
 
 -(void) createFromResource: (NSString *)dbfile withDbname:(NSString *)dbname {
+    // IMPLEMENTATION based on various sources:
     NSString * bundleRoot = [[NSBundle mainBundle] resourcePath];
+
     NSString * www = [bundleRoot stringByAppendingPathComponent:@"www"];
     NSString * prepopulatedDb = [www stringByAppendingPathComponent: dbfile];
     // NSLog(@"Look for pre-populated DB at: %@", prepopulatedDb);
@@ -444,7 +447,7 @@ sqlite_regexp(sqlite3_context * context, int argc, sqlite3_value ** values) {
                             columnValue = [NSNumber numberWithDouble: sqlite3_column_double(statement, i)];
                             break;
                         case SQLITE_BLOB:
-#ifdef READ_BLOB_AS_BASE64
+#ifdef READ_BLOB_AS_BASE64 // XXX FUTURE TBD OBSOLETE
                             columnValue = [SQLitePlugin getBlobAsBase64String: sqlite3_column_blob(statement, i)
                                                         withLength: sqlite3_column_bytes(statement, i)];
 #ifdef INCLUDE_SQL_BLOB_BINDING // TBD subjet to change:
@@ -622,6 +625,7 @@ sqlite_regexp(sqlite3_context * context, int argc, sqlite3_value ** values) {
     }
 }
 
+// XXX FUTURE TBD OBSOLETE:
 #ifdef READ_BLOB_AS_BASE64
 +(NSString*)getBlobAsBase64String:(const char*)blob_chars
                        withLength:(int)blob_length

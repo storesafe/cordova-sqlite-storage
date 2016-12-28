@@ -501,6 +501,7 @@ class SQLiteAndroidDatabase
             case Cursor.FIELD_TYPE_FLOAT:
                 row.put(key, cur.getDouble(i));
                 break;
+            // XXX FUTURE TBD OBSOLETE:
             // ** KEEP Read BLOB as Base-64 ENABLED in this version branch:
             case Cursor.FIELD_TYPE_BLOB:
                 row.put(key, new String(Base64.encode(cur.getBlob(i), Base64.DEFAULT)));
@@ -526,6 +527,7 @@ class SQLiteAndroidDatabase
             row.put(key, cursor.getLong(i));
         } else if (cursorWindow.isFloat(pos, i)) {
             row.put(key, cursor.getDouble(i));
+        // XXX FUTURE TBD OBSOLETE:
         // ** KEEP Read BLOB as Base-64 ENABLED in this version branch:
         } else if (cursorWindow.isBlob(pos, i)) {
             row.put(key, new String(Base64.encode(cursor.getBlob(i), Base64.DEFAULT)));
