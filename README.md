@@ -118,7 +118,7 @@ See the [Sample section](#sample) for a sample with a more detailed explanation.
   - Pre-populated database support for all platforms Android/iOS/Windows;
   - BASE64 integrated from [brodybits / sqlite3-base64](https://github.com/brodybits/sqlite3-base64), using [brodybits / libb64-encode](https://github.com/brodybits/libb64-encode) (based on <http://libb64.sourceforge.net/> by Chris Venter, public domain)
   - REGEXP for Android (default Android-sqlite-connector database implementation), iOS, and macOS using [brodybits / sqlite3-regexp-cached](https://github.com/brodybits/sqlite3-regexp-cached) (based on <http://git.altlinux.org/people/at/packages/?p=sqlite3-pcre.git> by Alexey Tourbin, public domain)
-  - BLOB data reading (from pre-populated database) for Android/iOS, with the following caveat for the Android version: the database must be opened with the `androidDatabaseImplementation: 2` option to use the built-in android.database implementation.
+  - *DEPRECATED and WILL BE REMOVED:* BLOB data reading (from pre-populated database) for Android/iOS, with the following caveat for the Android version: the database must be opened with the `androidDatabaseImplementation: 2` option to use the built-in android.database implementation. RECOMMENDED SOLUTION: use SELECT BASE64(column) to SELECT BLOB data as described below.
 - SQLite version `3.15.2` included with the following build settings:
   - `SQLITE_TEMP_STORE=2`
   - `SQLITE_THREADSAFE=1`
@@ -979,6 +979,8 @@ db.readTransaction(function(tx) {
   });
 });
 ```
+
+NOTICE: This is *not* supported in case a database is opened with the `androidDatabaseImplementation: 2` option.
 
 ## Background processing
 
