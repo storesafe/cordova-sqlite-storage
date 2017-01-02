@@ -506,6 +506,197 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        it(suiteName + 'sqlBatch() with no arguments (BOGUS)', function(done) {
+          var db = openDatabase('sql-batch-with-no-arguments.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          try {
+            db.sqlBatch();
+            // SHOULD NOT GET HERE:
+            expect(false).toBe(true);
+          } catch(e) {
+            // EXPECTED:
+            expect(e).toBeDefined();
+            expect(e.message).toMatch(/sqlBatch expects an array/);
+            db.close(done, done);
+          };
+        }, MYTIMEOUT);
+
+        it(suiteName + 'sqlBatch with [] for sql batch item (BOGUS)', function(done) {
+          var db = openDatabase('sql-batch-with-empty-array-for-batch-item.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          try {
+            db.sqlBatch(['SELECT 1', []], function() {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              db.close(done, done);
+            }, function(error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              db.close(done, done);
+            });
+            // SHOULD NOT GET HERE:
+            expect(false).toBe(true);
+          } catch(e) {
+            expect(e).toBeDefined();
+            expect(e.message).toMatch(/sqlBatch array element of zero .*0.* length/);
+            db.close(done, done);
+          };
+        }, MYTIMEOUT);
+
+        it(suiteName + 'sqlBatch with true for SQL statements (BOGUS)', function(done) {
+          var db = openDatabase('sql-batch-with-true-for-sql-statements.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          try {
+            db.sqlBatch(true, function() {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              db.close(done, done);
+            }, function(error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              db.close(done, done);
+            });
+            // SHOULD NOT GET HERE:
+            expect(false).toBe(true);
+          } catch(e) {
+            expect(e).toBeDefined();
+            expect(e.message).toMatch(/sqlBatch expects an array/);
+            db.close(done, done);
+          };
+        }, MYTIMEOUT);
+
+        it(suiteName + 'batch sql with batch item with false for arguments array (BOGUS)', function(done) {
+          var db = openDatabase('batch-sql-with-false-for-args-array.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          var check1 = false;
+          try {
+            db.sqlBatch([
+              'SELECT 1',
+              [ 'SELECT 1', false ],
+            ], function() {
+              // TBD EXPECTED RESULT:
+              check1 = true;
+            }, function(error) {
+              // TBD NOT EXPECTED:
+              expect(false).toBe(true);
+              expect(error.message).toBe('--');
+            });
+          } catch(e) {
+            expect('Plugin behavior changed please update this test').toBe('--');
+            db.close(done, done);
+          };
+
+          db.sqlBatch([
+            'SELECT 1',
+          ], function() {
+            // EXPECTED RESULT:
+            expect(check1).toBe(true);
+            db.close(done, done);
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'batch sql with batch item with "string-value" for arguments array (BOGUS)', function(done) {
+          var db = openDatabase('batch-sql-with-false-for-args-array.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          var check1 = false;
+          try {
+            db.sqlBatch([
+              'SELECT 1',
+              [ 'SELECT 1', 'string-value' ],
+            ], function() {
+              // TBD EXPECTED RESULT:
+              check1 = true;
+            }, function(error) {
+              // TBD NOT EXPECTED:
+              expect(false).toBe(true);
+              expect(error.message).toBe('--');
+            });
+          } catch(e) {
+            expect('Plugin behavior changed please update this test').toBe('--');
+            db.close(done, done);
+          };
+
+          db.sqlBatch([
+            'SELECT 1',
+          ], function() {
+            // EXPECTED RESULT:
+            expect(check1).toBe(true);
+            db.close(done, done);
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'sqlBatch with single SELECT statement, false for error callback (BOGUS)', function(done) {
+          var db = openDatabase('sql-batch-with-select-false-for-error-cb.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          try {
+            db.sqlBatch(['SELECT 1'], function() {
+              // EXPECTED:
+              expect(true).toBe(true);
+              db.close(done, done);
+            }, false);
+          } catch(e) {
+            expect('Plugin behavior changed please update this test').toBe('--');
+            db.close(done, done);
+          };
+        }, MYTIMEOUT);
+
+        it(suiteName + 'sqlBatch with single SELECT statement, string-value for error callback (BOGUS)', function(done) {
+          var db = openDatabase('sql-batch-with-select-string-value-for-error-cb.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          try {
+            db.sqlBatch(['SELECT 1'], function() {
+              // EXPECTED:
+              expect(true).toBe(true);
+              db.close(done, done);
+            }, 'stirng-value');
+          } catch(e) {
+            expect('Plugin behavior changed please update this test').toBe('--');
+            db.close(done, done);
+          };
+        }, MYTIMEOUT);
+
+        it(suiteName + 'sqlBatch with error, false for success callback (BOGUS)', function(done) {
+          var db = openDatabase('sql-batch-with-select-false-for-success-cb.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          try {
+            db.sqlBatch(['SLCT 1'], false, function(e) {
+              // EXPECTED:
+              expect(e).toBeDefined();
+              // TBD ...
+              db.close(done, done);
+            }, true);
+          } catch(e) {
+            expect('Plugin behavior changed please update this test').toBe('--');
+            db.close(done, done);
+          };
+        }, MYTIMEOUT);
+
+        it(suiteName + 'sqlBatch with error, string-value for success callback (BOGUS)', function(done) {
+          var db = openDatabase('sql-batch-with-select-string-value-for-success-cb.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          try {
+            db.sqlBatch(['SLCT 1'], 'string-value', function(e) {
+              // EXPECTED:
+              expect(e).toBeDefined();
+              // TBD ...
+              db.close(done, done);
+            }, true);
+          } catch(e) {
+            expect('Plugin behavior changed please update this test').toBe('--');
+            db.close(done, done);
+          };
+        }, MYTIMEOUT);
+
       });
 
     });
