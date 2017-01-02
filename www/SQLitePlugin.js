@@ -840,7 +840,7 @@
       error = function(e) {
         return errorcb(e);
       };
-      return cordova.exec(okcb, errorcb, "SQLitePlugin", "echoStringValue", [
+      return cordova.exec(ok, error, "SQLitePlugin", "echoStringValue", [
         {
           value: 'test-string'
         }

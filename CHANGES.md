@@ -1,8 +1,8 @@
 # Changes
 
-### cordova-sqlite-storage 1.5.2-pre1
+### cordova-sqlite-storage 1.5.2-pre2
 
-TBD
+- Fix echoTest callback handling
 
 ### cordova-sqlite-storage 1.5.1
 

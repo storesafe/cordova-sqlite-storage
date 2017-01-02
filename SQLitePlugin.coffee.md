@@ -910,7 +910,7 @@
         error = (e) ->
           errorcb e
 
-        cordova.exec okcb, errorcb, "SQLitePlugin", "echoStringValue", [{value:'test-string'}]
+        cordova.exec ok, error, "SQLitePlugin", "echoStringValue", [{value:'test-string'}]
 
       selfTest: SelfTest.start
 
