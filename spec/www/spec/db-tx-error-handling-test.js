@@ -1123,9 +1123,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + "readTransaction with 'SELECT 1' and BOGUS string success callback [tx in a try-catch block]", function (done) {
-          if (isWP8) pending('SKIP for WP8'); // SKIP for now
-          if (isWindows) pending('SKIP for Windows due to CRASH');
-
           var db = openDatabase("read-tx-with-bogus-string-success-cb.db", "1.0", "Demo", DEFAULT_SIZE);
 
           try {
@@ -1394,9 +1391,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + "readTransaction with 'SLCT 1' and BOGUS string error callback [tx in a try-catch block]", function (done) {
-          if (isWP8) pending('SKIP for WP8'); // SKIP for now
-          if (isWindows) pending('SKIP for Windows due to CRASH');
-
           var db = openDatabase("read-tx-error-with-bogus-string-error-cb.db", "1.0", "Demo", DEFAULT_SIZE);
 
           try {

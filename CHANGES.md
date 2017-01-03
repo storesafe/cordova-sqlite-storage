@@ -1,7 +1,8 @@
 # Changes
 
-### cordova-sqlite-storage 1.5.2-pre2
+### cordova-sqlite-storage 1.5.2-pre3
 
+- Check transaction callback functions to avoid crash on Windows
 - Fix echoTest callback handling
 
 ### cordova-sqlite-storage 1.5.1

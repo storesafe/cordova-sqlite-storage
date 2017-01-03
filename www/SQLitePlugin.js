@@ -477,15 +477,15 @@
     succeeded = function(tx) {
       txLocks[tx.db.dbname].inProgress = false;
       tx.db.startNextTransaction();
-      if (tx.error) {
+      if (tx.error && typeof tx.error === 'function') {
         tx.error(txFailure);
       }
     };
     failed = function(tx, err) {
       txLocks[tx.db.dbname].inProgress = false;
       tx.db.startNextTransaction();
-      if (tx.error) {
-        tx.error(newSQLError("error while trying to roll back: " + err.message, err.code));
+      if (tx.error && typeof tx.error === 'function') {
+        tx.error(newSQLError('error while trying to roll back: ' + err.message, err.code));
       }
     };
     this.finalized = true;
@@ -506,15 +506,15 @@
     succeeded = function(tx) {
       txLocks[tx.db.dbname].inProgress = false;
       tx.db.startNextTransaction();
-      if (tx.success) {
+      if (tx.success && typeof tx.success === 'function') {
         tx.success();
       }
     };
     failed = function(tx, err) {
       txLocks[tx.db.dbname].inProgress = false;
       tx.db.startNextTransaction();
-      if (tx.error) {
-        tx.error(newSQLError("error while trying to commit: " + err.message, err.code));
+      if (tx.error && typeof tx.error === 'function') {
+        tx.error(newSQLError('error while trying to commit: ' + err.message, err.code));
       }
     };
     this.finalized = true;
