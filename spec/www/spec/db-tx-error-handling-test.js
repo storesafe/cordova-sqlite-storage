@@ -1078,7 +1078,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "transaction with 'SELECT 1' and BOGUS string success callback", function (done) {
+        it(suiteName + "transaction with 'SELECT 1' and BOGUS string success callback [tx in a try-catch block]", function (done) {
           var db = openDatabase("tx-with-bogus-string-success-cb.db", "1.0", "Demo", DEFAULT_SIZE);
 
           try {
@@ -1122,10 +1122,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "readTransaction with 'SELECT 1' and BOGUS string success callback", function (done) {
-          if (isWP8) pending('SKIP for WP8'); // SKIP for now
-          if (isWindows) pending('SKIP for Windows due to CRASH');
-
+        it(suiteName + "readTransaction with 'SELECT 1' and BOGUS string success callback [tx in a try-catch block]", function (done) {
           var db = openDatabase("read-tx-with-bogus-string-success-cb.db", "1.0", "Demo", DEFAULT_SIZE);
 
           try {
@@ -1173,7 +1170,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "transaction with 'SELECT 1' and BOGUS string error callback", function (done) {
+        it(suiteName + "transaction with 'SELECT 1' and BOGUS string error callback [tx in a try-catch block]", function (done) {
           var db = openDatabase("tx-with-bogus-string-error-cb.db", "1.0", "Demo", DEFAULT_SIZE);
 
           try {
@@ -1217,7 +1214,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "readTransaction with 'SELECT 1' and BOGUS string error callback", function (done) {
+        it(suiteName + "readTransaction with 'SELECT 1' and BOGUS string error callback [tx in a try-catch block]", function (done) {
           var db = openDatabase("read-tx-with-bogus-string-error-cb.db", "1.0", "Demo", DEFAULT_SIZE);
 
           try {
@@ -1261,7 +1258,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "transaction with 'SLCT 1' and BOGUS string success callback", function (done) {
+        it(suiteName + "transaction with 'SLCT 1' and BOGUS string success callback [tx in a try-catch block]", function (done) {
           var db = openDatabase("tx-error-with-bogus-string-success-cb.db", "1.0", "Demo", DEFAULT_SIZE);
 
           try {
@@ -1305,7 +1302,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "readTransaction with 'SLCT 1' and BOGUS string success callback", function (done) {
+        it(suiteName + "readTransaction with 'SLCT 1' and BOGUS string success callback [tx in a try-catch block]", function (done) {
           var db = openDatabase("read-tx-error-with-bogus-string-success-cb.db", "1.0", "Demo", DEFAULT_SIZE);
 
           try {
@@ -1349,7 +1346,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "transaction with 'SLCT 1' and BOGUS string error callback", function (done) {
+        it(suiteName + "transaction with 'SLCT 1' and BOGUS string error callback [tx in a try-catch block]", function (done) {
           var db = openDatabase("tx-error-with-bogus-string-error-cb.db", "1.0", "Demo", DEFAULT_SIZE);
 
           try {
@@ -1393,10 +1390,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "readTransaction with 'SLCT 1' and BOGUS string error callback", function (done) {
-          if (isWP8) pending('SKIP for WP8'); // SKIP for now
-          if (isWindows) pending('SKIP for Windows due to CRASH');
-
+        it(suiteName + "readTransaction with 'SLCT 1' and BOGUS string error callback [tx in a try-catch block]", function (done) {
           var db = openDatabase("read-tx-error-with-bogus-string-error-cb.db", "1.0", "Demo", DEFAULT_SIZE);
 
           try {
@@ -2657,61 +2651,6 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'transaction.executeSql blank string test with callback function for parameter argument array [TBD (WebKit) Web SQL vs plugin]', function(done) {
-          //if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin'); // TBD may break other tests on certain iOS versions
-
-          var db = openDatabase("Inline-US-ASCII-string-test-with-callback-function-for-arg-array.db", "1.0", "Demo", DEFAULT_SIZE);
-          expect(db).toBeDefined();
-
-          db.transaction(function(transaction) {
-            expect(transaction).toBeDefined();
-
-            transaction.executeSql("SELECT ''", function(ignored, rs) {
-              expect(false).toBe(true);
-              expect(rs).toBeDefined();
-            });
-          }, function(error) {
-            if (!isWebSql) expect('Plugin behavior changed, please update this test').toBe('--');
-            expect(error).toBeDefined();
-            expect(error.code).toBeDefined();
-            expect(error.message).toBeDefined();
-            expect(error.code).toBe(5);
-            expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
-            done();
-          }, function() {
-            if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
-            done();
-          });
-        }, MYTIMEOUT);
-
-        it(suiteName + 'readTransaction.executeSql blank string test with callback function for parameter argument array [TBD (WebKit) Web SQL vs plugin]', function(done) {
-          //if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS plugin'); // TBD may break other tests on certain iOS versions
-
-          var db = openDatabase("Inline-US-ASCII-string-test-with-callback-function-for-arg-array-read-tx.db", "1.0", "Demo", DEFAULT_SIZE);
-          expect(db).toBeDefined();
-
-          db.readTransaction(function(readTransaction) {
-            expect(readTransaction).toBeDefined();
-
-            readTransaction.executeSql("SELECT ''", function(ignored, rs) {
-              expect(false).toBe(true);
-              expect(rs).toBeDefined();
-            });
-          }, function(error) {
-            if (!isWebSql) expect('Plugin behavior changed, please update this test').toBe('--');
-            expect(error).toBeDefined();
-            expect(error.code).toBeDefined();
-            expect(error.message).toBeDefined();
-            expect(error.code).toBe(5);
-            expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
-            done();
-          }, function() {
-            if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
-            done();
-          });
-        }, MYTIMEOUT);
-        // */
-
         it(suiteName + 'transaction.executeSql with no SQL statement in a try-catch block (BOGUS)', function (done) {
           var db = openDatabase("tx-with-missing-sql-statement-try-catch.db", "1.0", "Demo", DEFAULT_SIZE);
 
@@ -3006,8 +2945,8 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'Inline US-ASCII String manipulation test with arguments array=true (BOGUS) in a try-catch block read tx', function(done) {
-          var db = openDatabase("Inline-US-ASCII-string-test-with-arguments-array-equals-true-read-tx.db", "1.0", "Demo", DEFAULT_SIZE);
+        it(suiteName + 'Inline US-ASCII String manipulation test with arguments array=false (BOGUS) in a try-catch block read tx', function(done) {
+          var db = openDatabase("Inline-US-ASCII-string-test-with-arguments-array-equals-false-read-tx.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.readTransaction(function(tx) {
             try {
@@ -3050,11 +2989,8 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        //* **
         it(suiteName + 'Inline US-ASCII blank string test with arguments array=function (BOGUS) in a try-catch block [TBD (WebKit) Web SQL vs plugin]', function(done) {
-          //if (!isAndroid && !isWindows && !isWP8) pending('SKIP for iOS'); // TBD may break other tests on certain iOS versions
-
-          var db = openDatabase("Inline-US-ASCII-string-test-with-arguments-array-equals-true.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase("Inline-US-ASCII-string-test-with-arguments-array-equals-function.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(transaction) {
             try {
@@ -3103,9 +3039,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'Inline US-ASCII blank string test with arguments array=function (BOGUS) in a try-catch block read tx [TBD (WebKit) Web SQL vs plugin]', function(done) {
-          //if (!isAndroid && !isWindows && !isWP8) pending('SKIP for iOS'); // TBD may break other tests on certain iOS versions
-
-          var db = openDatabase("Inline-US-ASCII-string-test-with-arguments-array-equals-true-read-tx.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase("Inline-US-ASCII-string-test-with-arguments-array-equals-function-read-tx.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.readTransaction(function(readTransaction) {
             try {
@@ -3152,7 +3086,104 @@ var mytests = function() {
             (isWebSql) ? done() : db.close(done, done);
           });
         }, MYTIMEOUT);
-        // */
+
+        it(suiteName + 'SELECT ? test with arguments array=function (BOGUS) in a try-catch block [TBD (WebKit) Web SQL vs plugin]', function(done) {
+          var db = openDatabase("SELECT-parameter-with-arguments-array-equals-function.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(transaction) {
+            try {
+              transaction.executeSql("SELECT ?", function(ignored1, ignored2) {
+                // function in place of arguments array - CALL NOT EXPECTED
+                expect(false).toBe(true);
+              }, function(ignored, rs) {
+                // SUCCESS CALLBACK - EXPECTED for plugin ONLY:
+                if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
+                expect(rs).toBeDefined();
+                expect(rs.rows).toBeDefined();
+              }, function(ignored, error) {
+                // ERROR CALLBACK - EXPECTED for (WebKit) Web SQL ONLY:
+                if (!isWebSql) expect('Plugin BEHAVIOR CHANGED, please update this test').toBe('--');
+                expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
+                // DO NOT RECOVER TRANSACTION:
+                return true;
+              });
+            } catch(ex) {
+              // NOT EXPECTED for (WebKit) Web SQL or plugin:
+              expect(false).toBe(true);
+              expect(ex).toBeDefined();
+              expect(ex.code).toBeDefined();
+              expect(ex.message).toBeDefined();
+              throw ex;
+            }
+
+          }, function(error) {
+            // EXPECTED RESULT for (WebKit) Web SQL ONLY:
+            if (!isWebSql) expect('Plugin BEHAVIOR CHANGED, please update this test').toBe('--');
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined();
+            expect(error.message).toBeDefined();
+            expect(error.code).toBe(0);
+            expect(error.message).toMatch(/callback raised an exception.*or.*error callback did not return false/);
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          }, function() {
+            // EXPECTED RESULT for plugin ONLY:
+            if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'SELECT ? test with arguments array=function (BOGUS) in a try-catch block read tx [TBD (WebKit) Web SQL vs plugin]', function(done) {
+          var db = openDatabase("SELECT-parameter-with-arguments-array-equals-function-read-tx.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.readTransaction(function(transaction) {
+            try {
+              transaction.executeSql("SELECT ?", function(ignored1, ignored2) {
+                // function in place of arguments array - CALL NOT EXPECTED
+                expect(false).toBe(true);
+              }, function(ignored, rs) {
+                // SUCCESS CALLBACK - EXPECTED for plugin ONLY:
+                if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
+                expect(rs).toBeDefined();
+                expect(rs.rows).toBeDefined();
+              }, function(ignored, error) {
+                // ERROR CALLBACK - EXPECTED for (WebKit) Web SQL ONLY:
+                if (!isWebSql) expect('Plugin BEHAVIOR CHANGED, please update this test').toBe('--');
+                expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
+                // DO NOT RECOVER TRANSACTION:
+                return true;
+              });
+            } catch(ex) {
+              // NOT EXPECTED for (WebKit) Web SQL or plugin:
+              expect(false).toBe(true);
+              expect(ex).toBeDefined();
+              expect(ex.code).toBeDefined();
+              expect(ex.message).toBeDefined();
+              throw ex;
+            }
+
+          }, function(error) {
+            // EXPECTED RESULT for (WebKit) Web SQL ONLY:
+            if (!isWebSql) expect('Plugin BEHAVIOR CHANGED, please update this test').toBe('--');
+            expect(error).toBeDefined();
+            expect(error.code).toBeDefined();
+            expect(error.message).toBeDefined();
+            expect(error.code).toBe(0);
+            expect(error.message).toMatch(/callback raised an exception.*or.*error callback did not return false/);
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          }, function() {
+            // EXPECTED RESULT for plugin ONLY:
+            if (isWebSql) expect('WebKit Web SQL behavior changed').toBe('--');
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
 
         it(suiteName + "transaction.executeSql('SELECT 1') with string for success callback in a try-catch block (BOGUS)", function (done) {
           var db = openDatabase("tx-sql-with-string-for-success-cb.db", "1.0", "Demo", DEFAULT_SIZE);

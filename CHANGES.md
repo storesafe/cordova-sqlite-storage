@@ -1,5 +1,15 @@
 # Changes
 
+## cordova-sqlite-ext 0.10.4-pre1
+
+### cordova-sqlite-storage 1.5.2
+
+- Check transaction callback functions to avoid crash on Windows
+- Fix echoTest callback handling
+- Fix openDatabase/deleteDatabase exception messages
+- Move Lawnchair adapter to a separate project
+- Doc updates
+
 ## cordova-sqlite-ext 0.10.3
 
 ### cordova-sqlite-ext-common 0.1.0
@@ -11,7 +21,7 @@
 - REGEXP for Android/iOS/macOS using sqlite3-regexp-cached
 - Build with sqlite 3.15.2, with the following settings:
   - SQLITE_TEMP_STORE=2
-  - SQLITE_THREADSAFE=2
+  - SQLITE_THREADSAFE=1
   - SQLITE_ENABLE_FTS3
   - SQLITE_ENABLE_FTS3_PARENTHESIS
   - SQLITE_ENABLE_FTS4
