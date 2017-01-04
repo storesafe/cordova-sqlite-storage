@@ -21,3 +21,7 @@ MIT or Apache 2.0
 by @doo (doo GmbH)
 
 MIT License
+
+## SQLite3
+
+Public domain

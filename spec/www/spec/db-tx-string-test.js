@@ -858,8 +858,8 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        xit(suiteName + 'Blank string test with null/undefined callback functions', function(done) {
-          var db = openDatabase("Inline-US-ASCII-string-test-with-undefined-parameter-list.db", "1.0", "Demo", DEFAULT_SIZE);
+        it(suiteName + 'Blank transaction string test with null/undefined callback functions', function(done) {
+          var db = openDatabase("Blank-tx-string-test-with-undefined-parameter-list.db", "1.0", "Demo", DEFAULT_SIZE);
 
           expect(db).toBeDefined();
 
@@ -871,7 +871,17 @@ var mytests = function() {
             tx.executeSql("SELECT ''", null, undefined);
             tx.executeSql("SELECT ''", undefined, null);
 
-            tx.executeSql("SELECT ''", function(ignored, rs) {
+            tx.executeSql("SELECT ''", null, null, null);
+            tx.executeSql("SELECT ''", null, undefined, undefined);
+            tx.executeSql("SELECT ''", null, null, undefined);
+            tx.executeSql("SELECT ''", null, undefined, null);
+
+            tx.executeSql("SELECT ''", undefined, null, null);
+            tx.executeSql("SELECT ''", undefined, undefined, undefined);
+            tx.executeSql("SELECT ''", undefined, null, undefined);
+            tx.executeSql("SELECT ''", undefined, undefined, null);
+
+            tx.executeSql("SELECT ''", null, function(ignored, rs) {
               expect(rs).toBeDefined();
 
               // Close (plugin only) & finish:
@@ -881,6 +891,145 @@ var mytests = function() {
             // NOT EXPECTED:
             expect(false).toBe(true);
             expect(error.message).toBe('--');
+            done();
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'Blank readTransaction string test with null/undefined callback functions', function(done) {
+          var db = openDatabase("Blank-readtx-string-test-with-undefined-parameter-list.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          expect(db).toBeDefined();
+
+          db.readTransaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql("SELECT ''", null, null);
+            tx.executeSql("SELECT ''", undefined, undefined);
+            tx.executeSql("SELECT ''", null, undefined);
+            tx.executeSql("SELECT ''", undefined, null);
+
+            tx.executeSql("SELECT ''", null, null, null);
+            tx.executeSql("SELECT ''", null, undefined, undefined);
+            tx.executeSql("SELECT ''", null, null, undefined);
+            tx.executeSql("SELECT ''", null, undefined, null);
+
+            tx.executeSql("SELECT ''", undefined, null, null);
+            tx.executeSql("SELECT ''", undefined, undefined, undefined);
+            tx.executeSql("SELECT ''", undefined, null, undefined);
+            tx.executeSql("SELECT ''", undefined, undefined, null);
+
+            tx.executeSql("SELECT ''", null, function(ignored, rs) {
+              expect(rs).toBeDefined();
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            done();
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'String binding test with extra transaction executeSql arguments', function(done) {
+          var db = openDatabase("String-binding-test-extra-execute-args.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('SELECT UPPER(?) AS uppertext', ['Some US-ASCII text'], function success(ignored, rs) {
+              expect(rs.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            }, function error(ignored, error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              expect(error.message).toBe('--');
+              done();
+            }, function extra(ignored1, ignored2) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              expect('Unexpected callback').toBe('--');
+              done();
+            });
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'String binding test with extra readTransaction executeSql arguments', function(done) {
+          var db = openDatabase("String-binding-test-extra-readtx-execute-args.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          db.readTransaction(function(tx) {
+            tx.executeSql('SELECT UPPER(?) AS uppertext', ['Some US-ASCII text'], function success(ignored, rs) {
+              expect(rs.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            }, function error(ignored, error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              expect(error.message).toBe('--');
+              done();
+            }, function extra(ignored1, ignored2) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              expect('Unexpected callback').toBe('--');
+              done();
+            });
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'String manipulation test with extra transaction callbacks', function(done) {
+          var db = openDatabase("String-test-with-extra-tx-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          var check1 = false;
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", null, function(ignored, rs) {
+              check1 = true;
+              expect(rs.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
+            });
+          }, function error(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            done();
+          }, function success() {
+            expect(check1).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          }, function extra(ignored) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect('Unexpected callback').toBe('--');
+            done();
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'String manipulation test with extra readTransaction callbacks', function(done) {
+          var db = openDatabase("String-test-with-extra-readtx-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          var check1 = false;
+          db.readTransaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", null, function(ignored, rs) {
+              check1 = true;
+              expect(rs.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
+            });
+          }, function error(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            done();
+          }, function success() {
+            expect(check1).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          }, function extra(ignored) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect('Unexpected callback').toBe('--');
             done();
           });
         }, MYTIMEOUT);

@@ -1,5 +1,26 @@
 # Changes
 
+## cordova-sqlite-storage 2.0.1
+
+### cordova-sqlite-storage 1.5.2
+
+- Build with sqlite 3.15.2 with the following settings in this version branch:
+  - SQLITE_TEMP_STORE=2
+  - SQLITE_THREADSAFE=1
+  - SQLITE_ENABLE_FTS3
+  - SQLITE_ENABLE_FTS3_PARENTHESIS
+  - SQLITE_ENABLE_FTS4
+  - SQLITE_ENABLE_RTREE
+  - SQLITE_OMIT_BUILTIN_TEST
+  - SQLITE_OMIT_LOAD_EXTENSION
+  - SQLITE_DEFAULT_PAGE_SIZE=1024 and SQLITE_DEFAULT_CACHE_SIZE=2000 to avoid "potentially distruptive change(s)" from SQLite 3.12.0 ref: <http://sqlite.org/pgszchng2016.html>
+  - SQLITE_OS_WINRT for Windows only
+- Check transaction callback functions to avoid crash on Windows
+- Fix echoTest callback handling
+- Fix openDatabase/deleteDatabase exception messages
+- Move Lawnchair adapter to a separate project
+- Doc updates
+
 ### cordova-sqlite-storage 2.0.0
 
 - Reference Windows platform toolset v141 to support Visual Studio 2017 (RC)
