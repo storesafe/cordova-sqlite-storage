@@ -620,10 +620,10 @@
           throw newSQLError 'Database name value is missing in openDatabase call'
 
         if !openargs.iosDatabaseLocation and !openargs.location and openargs.location isnt 0
-          throw newSQLError 'Database location or iosDatabaseLocation value is now mandatory in openDatabase call'
+          throw newSQLError 'Database location or iosDatabaseLocation setting is now mandatory in openDatabase call.'
 
         if !!openargs.location and !!openargs.iosDatabaseLocation
-          throw newSQLError 'AMBIGUOUS: both location or iosDatabaseLocation values are present in openDatabase call'
+          throw newSQLError 'AMBIGUOUS: both location and iosDatabaseLocation settings are present in openDatabase call. Please use either setting, not both.'
 
         dblocation =
           if !!openargs.location and openargs.location is 'default'
@@ -677,10 +677,10 @@
           #args.dblocation = dblocation || dblocations[0]
 
         if !first.iosDatabaseLocation and !first.location and first.location isnt 0
-          throw newSQLError 'Database location or iosDatabaseLocation value is now mandatory in deleteDatabase call'
+          throw newSQLError 'Database location or iosDatabaseLocation setting is now mandatory in deleteDatabase call.'
 
         if !!first.location and !!first.iosDatabaseLocation
-          throw newSQLError 'AMBIGUOUS: both location or iosDatabaseLocation values are present in deleteDatabase call'
+          throw newSQLError 'AMBIGUOUS: both location and iosDatabaseLocation settings are present in deleteDatabase call. Please use either setting value, not both.'
 
         dblocation =
           if !!first.location and first.location is 'default'

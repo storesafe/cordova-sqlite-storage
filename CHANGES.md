@@ -1,6 +1,6 @@
 # Changes
 
-### cordova-sqlite-storage 1.5.2-pre4
+### cordova-sqlite-storage 1.5.2-pre5
 
 - Build with sqlite 3.15.2 with the following settings in this version branch:
   - SQLITE_TEMP_STORE=2
@@ -15,6 +15,7 @@
   - SQLITE_OS_WINRT for Windows only
 - Check transaction callback functions to avoid crash on Windows
 - Fix echoTest callback handling
+- Fix openDatabase/deleteDatabase exception messages
 
 ### cordova-sqlite-storage 1.5.1
 
