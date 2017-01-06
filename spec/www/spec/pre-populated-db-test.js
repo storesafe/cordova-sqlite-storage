@@ -18,7 +18,7 @@ var mytests = function() {
     describe(pluginScenarioList[i] + ': pre-populated test(s)', function() {
       var scenarioName = pluginScenarioList[i];
       var suiteName = scenarioName + ': ';
-      var isOldDatabaseImpl = (i === 1);
+      var isImpl2 = (i === 1);
 
       it(suiteName + 'preliminary cleanup',
         function(done) {
@@ -32,7 +32,7 @@ var mytests = function() {
             name: 'pre.db',
             location: 0,
             createFromLocation: 1,
-            androidDatabaseImplementation: isOldDatabaseImpl ? 2 : 0
+            androidDatabaseImplementation: isImpl2 ? 2 : 0
           });
 
           expect(dbc1).toBeDefined()
@@ -63,7 +63,7 @@ var mytests = function() {
                 name: 'pre.db',
                 location: 0,
                 createFromLocation: 1,
-                androidDatabaseImplementation: isOldDatabaseImpl ? 2 : 0
+                androidDatabaseImplementation: isImpl2 ? 2 : 0
               });
 
               var check2 = false;
@@ -97,8 +97,7 @@ var mytests = function() {
 
       it(suiteName + 'Pre-populated BLOB database test',
         function(done) {
-          if (isAndroid && !isOldDatabaseImpl) pending('BROKEN for default Android-sqlite-connector version'); // XXX
-          if (isWindows) pending('NOT IMPLEMENTED for Windows');
+          if (isAndroid && isImpl2) pending('BROKEN for androidDatabaseImplementation: 2');
 
           // Pre-populated database with the following dump:
           // PRAGMA foreign_keys=OFF;
@@ -111,7 +110,7 @@ var mytests = function() {
             name: 'blob-pre.db',
             location: 0,
             createFromLocation: 1,
-            androidDatabaseImplementation: isOldDatabaseImpl ? 2 : 0
+            androidDatabaseImplementation: isImpl2 ? 2 : 0
           });
 
           expect(dbc1).toBeDefined();
@@ -122,14 +121,8 @@ var mytests = function() {
 
             expect(tx).toBeDefined();
 
-            tx.executeSql('SELECT * from tt', [], function(tx, res) {
-              // XXX TBD: Why does android.database.sqlite add the extra '\n' character???
-              //expect(res.rows.item(0).blobcol).toEqual('AQID');
-
-              if (isAndroid)
-                expect(res.rows.item(0).blobcol).toEqual('AQID\n');
-              else
-                expect(res.rows.item(0).blobcol).toEqual('AQID');
+            tx.executeSql('SELECT BASE64(blobcol) AS myvalue FROM tt', [], function(tx, res) {
+              expect(res.rows.item(0).myvalue).toEqual('AQID');
 
               check1 = true;
 
@@ -149,7 +142,7 @@ var mytests = function() {
                 name: 'blob-pre.db',
                 location: 0,
                 createFromLocation: 1,
-                androidDatabaseImplementation: isOldDatabaseImpl ? 2 : 0
+                androidDatabaseImplementation: isImpl2 ? 2 : 0
               });
 
               var check2 = false;
