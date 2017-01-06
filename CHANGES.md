@@ -1,6 +1,6 @@
 # Changes
 
-## cordova-sqlite-ext 0.10.4-pre1
+## cordova-sqlite-ext 0.10.4
 
 ### cordova-sqlite-storage 1.5.2
 
