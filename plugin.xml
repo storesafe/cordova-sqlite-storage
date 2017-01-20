@@ -81,12 +81,12 @@
     <!-- windows -->
     <platform name="windows">
         <js-module src="src/windows/sqlite-proxy.js" name="SQLiteProxy">
-            <merges target="" />
+            <runs />
         </js-module>
 
         <!-- SQLite3 JS module from SQLite3-WinRT/SQLite3JS: -->
         <js-module src="src/windows/SQLite3-Win-RT/SQLite3JS/js/SQLite3.js" name="SQLite3">
-            <merges target="" />
+            <runs />
         </js-module>
 
         <!-- Thanks to AllJoyn-Cordova / cordova-plugin-alljoyn for guidance: -->
