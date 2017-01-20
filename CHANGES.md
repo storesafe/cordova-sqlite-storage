@@ -1,7 +1,8 @@
 # Changes
 
-### cordova-sqlite-storage 1.5.3-pre2
+### cordova-sqlite-storage 1.5.3-pre3
 
+- Fix merges to prevent possible conflicts with other plugins (Windows)
 - Fix handling of undefined SQL argument values (Windows)
 - Signal error in case of a failure opening the database file (iOS/macOS)
 
