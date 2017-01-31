@@ -24,8 +24,8 @@ This is the common version which supports the most widely used features and serv
 
 The primary author and maintainer [@brodybits (Christopher J. Brody aka Chris Brody)](https://github.com/brodybits) is available for part-time contract assignments. Services available for this project include:
 
-- Support for Ionic and other Angular derivatives
-- Single issue support
+- Priority issue support
+- Help with application code such as debugging, optimization, etc.
 - Warranty and support retainers
 - Priority fixes and enhancements
 - Custom feature development
@@ -532,6 +532,7 @@ Some more limitations are tracked in the [open Cordova-sqlite-storage documentat
 
 - Angular/ngCordova/Ionic controller/factory/service callbacks may be triggered before the 'deviceready' event is fired
 - As discussed in [litehelpers/Cordova-sqlite-storage#355](https://github.com/litehelpers/Cordova-sqlite-storage/issues/355), it may be necessary to install ionic-plugin-keyboard
+- Navigation items such as root page can be tricky on Ionic 2 ref: [litehelpers/Cordova-sqlite-storage#613](https://github.com/litehelpers/Cordova-sqlite-storage/issues/613)
 
 ### Windows platform pitfalls
 
@@ -1151,6 +1152,8 @@ Documentation at: <http://ngcordova.com/docs/plugins/sqlite/>
 
 Other resource (apparently for Ionic 1): <https://www.packtpub.com/books/content/how-use-sqlite-ionic-store-data>
 
+**NOTE:** Some Ionic and other Angular pitfalls are described above.
+
 <!-- END Use with Ionic/ngCordova/Angular -->
 
 # Installing
@@ -1237,7 +1240,7 @@ Assuming your app has a recent template as used by the Cordova create script, ad
 
 ## Free support policy
 
-Free support is provided on a best-effort basis and is only available in public forums. Please follow the steps below to be sure you have done your best before requesting help. Use with Ionic and other Angular derivatives is no longer covered by free support.
+Free support is provided on a best-effort basis and is only available in public forums. Please follow the steps below to be sure you have done your best before requesting help.
 
 ## Professional support
 
@@ -1288,11 +1291,7 @@ In case of a problem with a pre-populated database, please post your entire proj
 
 ## What is NOT supported for free
 
-- Use with Ionic and other Angular derivatives is no longer covered by free support.
-
-## Support for issues with Angular/"ngCordova"/Ionic
-
-Professional support is available for use with Ionic and other forms of ngCordova/Angular. For more information please contact: <sales@litehelpers.net>
+- Debugging, optimization, and other help with application code.
 
 ## What information is needed for help
 
