@@ -179,9 +179,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'Single-column batch sql test values: INSERT null/undefined values and check stored data [BROKEN on Windows]', function(done) {
-          if (isWP8) pending('SKIP for WP8'); // SKIP for now
-
+        it(suiteName + 'Single-column batch sql test values: INSERT null/undefined values and check stored data', function(done) {
           var db = openDatabase('Single-column-batch-sql-test-null-undefined-values.db', '1.0', 'Test', DEFAULT_SIZE);
           expect(db).toBeDefined();
 
@@ -191,7 +189,6 @@ var mytests = function() {
             [ 'INSERT INTO MyTable VALUES (?)', [null] ],
             [ 'INSERT INTO MyTable VALUES (?)', [undefined] ],
           ], function() {
-            if (isWindows) expect('Windows plugin version FIXED please update this test').toBe('--');
             db.executeSql('SELECT data AS d1, TYPEOF(data) AS t1, ABS(data) AS a1, UPPER(data) as u1 FROM MyTable', [], function (rs) {
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(2);
@@ -206,17 +203,6 @@ var mytests = function() {
               db.close(done, done);
             });
           }, function(error) {
-            // ERROR EXPECTED in case of Windows:
-            if (isWindows) {
-              expect(error).toBeDefined();
-              expect(error.code).toBeDefined();
-              expect(error.message).toBeDefined();
-              expect(error.code).toBe(0);
-              expect(error.message).toMatch(/a statement with no error handler failed: Unsupported argument type: undefined/);
-              return done();
-            }
-
-            // OTHERWISE
             // NOT EXPECTED:
             expect(false).toBe(true);
             expect(error.message).toBe('--');

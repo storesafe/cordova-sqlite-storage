@@ -202,7 +202,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'SELECT ? with [null] parameter argument [returns text in case of androidDatabaseImplementation: 2; BROKEN for Windows]', function(done) {
+        it(suiteName + 'SELECT ? with [null] parameter argument [returns text in case of androidDatabaseImplementation: 2]', function(done) {
           var db = openDatabase('SELECT-with-null-argument.db');
           expect(db).toBeDefined();
 
@@ -224,15 +224,12 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'SELECT TYPEOF(?) with [undefined] parameter argument [returns text in case of Android (WebKit) Web SQL or androidDatabaseImplementation: 2; BROKEN for Windows]', function(done) {
-          if (isWP8) pending('SKIP for WP8'); // SKIP for now
-
+        it(suiteName + 'SELECT TYPEOF(?) with [undefined] parameter argument [returns text in case of Android (WebKit) Web SQL or androidDatabaseImplementation: 2]', function(done) {
           var db = openDatabase('SELECT-TYPEOF-with-undefined-argument.db');
           expect(db).toBeDefined();
 
           db.transaction(function(tx) {
             tx.executeSql('SELECT TYPEOF(?) as myresult', [undefined], function(ignored, rs) {
-              if (isWindows) expect('Windows plugin version FIXED please update this test').toBe('--');
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
@@ -243,17 +240,6 @@ var mytests = function() {
               done();
             });
           }, function(error) {
-            // ERROR in case of Windows:
-            if (isWindows) {
-              expect(error).toBeDefined();
-              expect(error.code).toBeDefined();
-              expect(error.message).toBeDefined();
-              expect(error.code).toBe(0);
-              expect(error.message).toMatch(/a statement with no error handler failed: Unsupported argument type: undefined/);
-              return done();
-            }
-
-            // OTHERWISE
             // NOT EXPECTED:
             expect(false).toBe(true);
             expect(error.message).toBe('--');
@@ -262,14 +248,11 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'SELECT ? with [undefined] parameter argument [returns text in case of androidDatabaseImplementation: 2]', function(done) {
-          if (isWP8) pending('SKIP for WP8'); // SKIP for now
-
           var db = openDatabase('SELECT-with-undefined-argument.db');
           expect(db).toBeDefined();
 
           db.transaction(function(tx) {
             tx.executeSql('SELECT ? as myresult', [undefined], function(ignored, rs) {
-              if (isWindows) expect('Windows plugin version FIXED please update this test').toBe('--');
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
@@ -282,17 +265,6 @@ var mytests = function() {
               done();
             });
           }, function(error) {
-            // ERROR in case of Windows:
-            if (isWindows) {
-              expect(error).toBeDefined();
-              expect(error.code).toBeDefined();
-              expect(error.message).toBeDefined();
-              expect(error.code).toBe(0);
-              expect(error.message).toMatch(/a statement with no error handler failed: Unsupported argument type: undefined/);
-              return done();
-            }
-
-            // OTHERWISE
             // NOT EXPECTED:
             expect(false).toBe(true);
             expect(error.message).toBe('--');

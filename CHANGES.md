@@ -1,5 +1,9 @@
 # Changes
 
+### cordova-sqlite-storage 1.5.3-pre1
+
+- Fix handling of undefined SQL argument values (Windows)
+
 ### cordova-sqlite-storage 1.5.2
 
 - Build with sqlite 3.15.2 with the following settings in this version branch:

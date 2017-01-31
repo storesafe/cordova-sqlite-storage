@@ -118,9 +118,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'INSERT with undefined parameter argument value (inserted as null) and check stored data [BROKEN for Windows: Unsupported argument type ERROR]', function(done) {
-          if (isWP8) pending('SKIP for WP8'); // SKIP for now
-
+        it(suiteName + 'INSERT with undefined parameter argument value (inserted as null) and check stored data [returns text in case of Android (WebKit) Web SQL]', function(done) {
           var db = openDatabase('INSERT-undefined-arg-value-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -128,9 +126,6 @@ var mytests = function() {
             tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data1, data2)', [], function(ignored1, ignored2) {
 
               tx.executeSql('INSERT INTO test_table VALUES (?,?)', [undefined, 'test-string'], function(ignored, rs1) {
-
-                if (isWindows) expect('Windows plugin version FIXED please update this test').toBe('--');
-
                 expect(rs1).toBeDefined();
                 expect(rs1.rowsAffected).toBe(1);
 
@@ -161,17 +156,6 @@ var mytests = function() {
               });
             });
           }, function(error) {
-            // ERROR in case of Windows:
-            if (isWindows) {
-              expect(error).toBeDefined();
-              expect(error.code).toBeDefined();
-              expect(error.message).toBeDefined();
-              expect(error.code).toBe(0);
-              expect(error.message).toMatch(/a statement with no error handler failed: Unsupported argument type: undefined/);
-              return done();
-            }
-
-            // OTHERWISE
             // NOT EXPECTED:
             expect(false).toBe(true);
             expect(error.message).toBe('---');
