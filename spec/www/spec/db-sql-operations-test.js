@@ -385,14 +385,11 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'db.executeSql check SELECT TYPEOF(?) with [undefined] for parameter argument array [BROKEN on Windows]', function(done) {
-          if (isWP8) pending('SKIP for WP8'); // SKIP for now
-
+        it(suiteName + 'db.executeSql check SELECT TYPEOF(?) with [undefined] for parameter argument array', function(done) {
           var db = openDatabase("DB-sql-SELECT-TYPEOF-undefined.db", "1.0", "Demo", DEFAULT_SIZE);
           expect(db).toBeDefined();
 
           db.executeSql('SELECT TYPEOF(?) AS myresult', [undefined], function(rs) {
-            if (isWindows) expect('Windows plugin version FIXED please update this test').toBe('--');
             expect(rs).toBeDefined();
             expect(rs.rows).toBeDefined();
             expect(rs.rows.length).toBe(1);
@@ -402,17 +399,6 @@ var mytests = function() {
               expect(rs.rows.item(0).myresult).toBe('null');
             db.close(done, done);
           }, function(error) {
-            // ERROR in case of Windows:
-            if (isWindows) {
-              expect(error).toBeDefined();
-              expect(error.code).toBeDefined();
-              expect(error.message).toBeDefined();
-              expect(error.code).toBe(0);
-              expect(error.message).toMatch(/Unsupported argument type: undefined/);
-              return done();
-            }
-
-            // OTHERWISE
             // NOT EXPECTED:
             expect(false).toBe(true);
             expect(error.message).toBe('--');
@@ -631,9 +617,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'db.executeSql store null/undefined values and check [store undefined value BROKEN on Windows]', function(done) {
-          if (isWP8) pending('SKIP for WP8'); // SKIP for now
-
+        it(suiteName + 'db.executeSql store null/undefined values and check', function(done) {
           var db = openDatabase("DB-sql-store-null-undefined-values-and-check.db", "1.0", "Demo", DEFAULT_SIZE);
           expect(db).toBeDefined();
 
@@ -645,15 +629,11 @@ var mytests = function() {
 
           db.executeSql('SELECT data AS d1, TYPEOF(data) AS t1, ABS(data) AS a1, UPPER(data) as u1 FROM MyTable', [], function (rs) {
             expect(rs.rows).toBeDefined();
-            if (isWindows) // [FUTURE TBD]
-              expect(rs.rows.length).toBe(1);
-            else
-              expect(rs.rows.length).toBe(2);
+            expect(rs.rows.length).toBe(2);
             expect(rs.rows.item(0).d1).toBe(null);
             expect(rs.rows.item(0).t1).toBe('null');
             expect(rs.rows.item(0).a1).toBe(null);
             expect(rs.rows.item(0).u1).toBe(null);
-            if (isWindows) return done(); // [FUTURE TBD]
             expect(rs.rows.item(1).d1).toBe(null);
             expect(rs.rows.item(1).t1).toBe('null');
             expect(rs.rows.item(1).a1).toBe(null);
