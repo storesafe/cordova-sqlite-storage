@@ -1,6 +1,6 @@
 # Changes
 
-## cordova-sqlite-storage 2.0.2-pre2
+## cordova-sqlite-storage 2.0.2
 
 - Fix Windows target platform version
 
