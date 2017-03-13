@@ -8,11 +8,15 @@ package io.sqlc;
 
 import android.annotation.SuppressLint;
 
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import java.io.File;
 import java.lang.IllegalArgumentException;
 import java.lang.Number;
+import java.net.URI;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -91,6 +95,7 @@ public class SQLitePlugin extends CordovaPlugin {
                 dbname = o.getString("name");
                 // open database and start reading its queue
                 this.startDatabase(dbname, o, cbc);
+                Log.e("Open",dbname);
                 break;
 
             case close:
@@ -199,9 +204,9 @@ public class SQLitePlugin extends CordovaPlugin {
         try {
             // ASSUMPTION: no db (connection/handle) is already stored in the map
             // [should be true according to the code in DBRunner.run()]
-
-            //File dbfile = this.cordova.getActivity().getDatabasePath(dbname);
-            File dbfile = new File(dbname);
+            Uri uri = Uri.parse(dbname);
+            File dbfile = this.cordova.getActivity().getDatabasePath(uri.getPath());
+//            File dbfile = new File(dbname);
             if (!dbfile.exists()) {
                 dbfile.getParentFile().mkdirs();
             }
@@ -290,8 +295,9 @@ public class SQLitePlugin extends CordovaPlugin {
      * @return true if successful or false if an exception was encountered
      */
     private boolean deleteDatabaseNow(String dbname) {
-        //File dbfile = this.cordova.getActivity().getDatabasePath(dbname);
-        File dbfile = new File(dbname);
+      Uri uri = Uri.parse(dbname);
+        File dbfile = this.cordova.getActivity().getDatabasePath(uri.getPath());
+//        File dbfile = new File(dbname);
         try {
             return cordova.getActivity().deleteDatabase(dbfile.getAbsolutePath());
         } catch (Exception e) {
@@ -368,7 +374,7 @@ public class SQLitePlugin extends CordovaPlugin {
                             Log.e(SQLitePlugin.class.getSimpleName(), "couldn't delete database", e);
                             dbq.cbc.error("couldn't delete database: " + e);
                         }
-                    }                    
+                    }
                 } catch (Exception e) {
                     Log.e(SQLitePlugin.class.getSimpleName(), "couldn't close database", e);
                     if (dbq.cbc != null) {
