@@ -23,7 +23,7 @@
 -import org.json.JSONArray;
 -import org.json.JSONException;
 -import org.json.JSONObject;
--
+-import android.net.Uri;
 -import java.io.FileOutputStream;
 -import java.io.InputStream;
 -import java.io.OutputStream;
@@ -199,8 +199,8 @@
 -        try {
 -            // ASSUMPTION: no db (connection/handle) is already stored in the map
 -            // [should be true according to the code in DBRunner.run()]
--
--            File dbfile = this.cordova.getActivity().getDatabasePath(dbname);
+-            Uri uri = Uri.parse(dbname);
+-            File dbfile = this.cordova.getActivity().getDatabasePath(uri.getPath());
 -
 -            if (!dbfile.exists()) {
 -                dbfile.getParentFile().mkdirs();
@@ -290,7 +290,8 @@
 -     * @return true if successful or false if an exception was encountered
 -     */
 -    private boolean deleteDatabaseNow(String dbname) {
--        File dbfile = this.cordova.getActivity().getDatabasePath(dbname);
+         Uri uri = Uri.parse(dbname);
+-        File dbfile = this.cordova.getActivity().getDatabasePath(uri.getPath());
 -
 -        try {
 -            return cordova.getActivity().deleteDatabase(dbfile.getAbsolutePath());
