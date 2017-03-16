@@ -1,5 +1,9 @@
 # Changes
 
+### cordova-sqlite-storage 1.5.4-pre1
+
+- SQLite 3.15.2 build fixes
+
 ### cordova-sqlite-storage 1.5.3
 
 - Fix merges to prevent possible conflicts with other plugins (Windows)
