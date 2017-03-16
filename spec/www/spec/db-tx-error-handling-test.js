@@ -1565,11 +1565,8 @@ var mytests = function() {
             });
 
           }, function() {
-            // NOT EXPECTED by Web SQL, Android, or iOS:
-            if (isWindows)
-              expect(true).toBe(true);
-            else
-              expect(false).toBe(true);
+            // NOT EXPECTED:
+            expect(false).toBe(true);
             // Close (plugin only) & finish:
             (isWebSql) ? done() : db.close(done, done);
           });
@@ -1630,11 +1627,8 @@ var mytests = function() {
             });
 
           }, function() {
-            // NOT EXPECTED by Web SQL, Android, or iOS:
-            if (isWindows)
-              expect(true).toBe(true);
-            else
-              expect(false).toBe(true);
+            // NOT EXPECTED:
+            expect(false).toBe(true);
             // Close (plugin only) & finish:
             (isWebSql) ? done() : db.close(done, done);
           });
@@ -1695,11 +1689,8 @@ var mytests = function() {
             });
 
           }, function() {
-            // NOT EXPECTED by Web SQL, Android, or iOS:
-            if (isWindows)
-              expect(true).toBe(true);
-            else
-              expect(false).toBe(true);
+            // NOT EXPECTED:
+            expect(false).toBe(true);
             // Close (plugin only) & finish:
             (isWebSql) ? done() : db.close(done, done);
           });
@@ -1761,11 +1752,8 @@ var mytests = function() {
             });
 
           }, function() {
-            // NOT EXPECTED by Web SQL, Android, or iOS:
-            if (isWindows)
-              expect(true).toBe(true);
-            else
-              expect(false).toBe(true);
+            // NOT EXPECTED:
+            expect(false).toBe(true);
             // Close (plugin only) & finish:
             (isWebSql) ? done() : db.close(done, done);
           });
@@ -1827,11 +1815,8 @@ var mytests = function() {
             });
 
           }, function() {
-            // NOT EXPECTED by Web SQL, Android, or iOS:
-            if (isWindows)
-              expect(true).toBe(true);
-            else
-              expect(false).toBe(true);
+            // NOT EXPECTED:
+            expect(false).toBe(true);
             // Close (plugin only) & finish:
             (isWebSql) ? done() : db.close(done, done);
           });

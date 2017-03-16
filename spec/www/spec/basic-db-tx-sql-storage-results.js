@@ -772,6 +772,8 @@ var mytests = function() {
       describe(suiteName + 'STANDARD multi-row INSERT tests', function() {
 
         it(suiteName + 'INSERT multiple rows from with SELECT; check results & check stored data [rowsAffected INCORRECT with androidDatabaseImplementation: 2 (built-in android.database) setting]', function(done) {
+          // NOTE: This test also verifies litehelpers/Cordova-sqlite-storage#63
+          // (insertId randomly "returns undefined" after an INSERT) is fixed.
           var db = openDatabase('INSERT-with-SELECT-test.db', '1.0', 'Test', DEFAULT_SIZE);
 
           db.transaction(function(tx) {
