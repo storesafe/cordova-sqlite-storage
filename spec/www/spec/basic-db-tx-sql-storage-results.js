@@ -7,6 +7,7 @@ var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
+var isMac = /Macintosh/.test(navigator.userAgent);
 
 // NOTE: In the core-master branch there is no difference between the default
 // implementation and implementation #2. But the test will also apply
@@ -886,6 +887,64 @@ var mytests = function() {
         }, MYTIMEOUT);
 
       });
+
+        it(suiteName + 'INSERT OR IGNORE result in case of constraint violation [iOS/macOS PLUGIN & Andriod/iOS WebKit Web SQL BROKEN: reports old insertId value]', function(done) {
+          var db = openDatabase('INSERT-OR-IGNORE-test.db', '1.0', 'Test', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS tt;');
+
+            tx.executeSql('CREATE TABLE tt (data1 NUMERIC UNIQUE, data2 TEXT);');
+
+            tx.executeSql('INSERT OR IGNORE INTO tt VALUES (?,?)', [101,'Alice'], function(ignored, rs) {
+              // CORRECT RESULT EXPECTED:
+              expect(rs).toBeDefined();
+              expect(rs.insertId).toBe(1);
+              expect(rs.rowsAffected).toBe(1);
+            });
+
+            var check1 = false;
+            tx.executeSql('INSERT OR IGNORE INTO tt VALUES (?,?)', [102,'Betty'], function(ignored, rs) {
+              // CORRECT RESULT EXPECTED:
+              expect(rs).toBeDefined();
+              expect(rs.insertId).toBe(2);
+              expect(rs.rowsAffected).toBe(1);
+              check1 = true;
+            });
+
+            tx.executeSql('INSERT OR IGNORE INTO tt VALUES (?,?)', [102,'Carol'], function(ignored, rs1) {
+              expect(check1).toBe(true);
+              expect(rs1).toBeDefined();
+
+              // NOTE: According to https://www.w3.org/TR/webdatabase/#database-query-results (section 4.5)
+              // this access should really raise an INVALID_ACCESS_ERR exception.
+              var checkInsertId = rs1.insertId;
+              if (isWebSql || isMac || (!isWindows && !isAndroid))
+                expect(checkInsertId).toBe(2); // BROKEN: OLD insertId value iOS/macOS plugin & Andriod/iOS WebKit Web SQL
+              else
+                expect(checkInsertId).toBe(undefined);
+
+              expect(rs1.rowsAffected).toBe(0);
+
+              tx.executeSql('SELECT COUNT(*) AS MyCount FROM tt', [], function(ignored, rs2) {
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+                expect(rs2.rows.item(0).MyCount).toBe(2);
+
+                // Close (plugin only - always the case in this test) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+            });
+          }, function(e) {
+            // ERROR RESULT (NOT EXPECTED):
+            expect(false).toBe(true);
+            expect(e).toBeDefined();
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
 
       describe(suiteName + 'ALTER TABLE tests', function() {
 

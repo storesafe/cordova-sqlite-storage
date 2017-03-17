@@ -422,6 +422,7 @@ As "strongly recommended" by [Web SQL Database API 8.5 SQL injection](https://ww
 - In certain cases such as `transaction.executeSql()` with no arguments (Android/iOS WebKit) Web SQL includes includes a code member with value of 0 (SQLError.UNKNOWN_ERR) in the exception while the plugin includes no such code member.
 - If the SQL arguments are passed in an `Array` subclass object where the `constructor` does not point to `Array` then the SQL arguments are ignored by the plugin.
 - The results data objects are not immutable as specified/implied by [Web SQL API section 4.5](https://www.w3.org/TR/webdatabase/#database-query-results).
+- In case of ignored INSERT OR IGNORE statement this plugin reports an old INSERT row id value on iOS/macOS. (WebKit Web SQL also reports an old INSERT row id value in case of an ignored INSERT OR IGNORE statement on Android and iOS.)
 
 ### Security of deleted data
 
