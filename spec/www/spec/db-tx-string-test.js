@@ -8,9 +8,10 @@ var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 
-// NOTE: In the common storage-master branch there is no difference between the
-// default implementation and implementation #2. But the test will also apply
-// the androidLockWorkaround: 1 option in the case of implementation #2.
+// The following openDatabase settings are used for Plugin-implementation-2
+// on Android:
+// - androidDatabaseImplementation: 2
+// - androidLockWorkaround: 1
 var scenarioList = [
   isAndroid ? 'Plugin-implementation-default' : 'Plugin',
   'HTML5',
@@ -29,15 +30,19 @@ var mytests = function() {
       var isWebSql = (i === 1);
       var isImpl2 = (i === 2);
 
-      // NOTE: MUST be defined in proper describe function scope, NOT outer scope:
-      var openDatabase = function(name, ignored1, ignored2, ignored3) {
+      // NOTE 1: MUST be defined in proper describe function scope, NOT outer scope.
+      // NOTE 2: Using same database name in this script to avoid issue with
+      //         "Too many open files" on iOS with WKWebView engine plugin.
+      //         (FUTURE TBD NEEDS INVESTIGATION)
+      var openDatabase = function(name_ignored, ignored1, ignored2, ignored3) {
+        var name = 'string-test.db';
         if (isImpl2) {
           return window.sqlitePlugin.openDatabase({
             // prevent reuse of database from default db implementation:
             name: 'i2-'+name,
             androidDatabaseImplementation: 2,
             androidLockWorkaround: 1,
-            iosDatabaseLocation: 'Documents'
+            location: 'default'
           });
         }
         if (isWebSql) {
@@ -57,12 +62,21 @@ var mytests = function() {
           db.transaction(function(tx) {
             expect(tx).toBeDefined();
 
-            tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", [], function(tx, res) {
-              expect(res.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
+            tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", [], function(tx_ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
           });
         }, MYTIMEOUT);
 
@@ -74,12 +88,21 @@ var mytests = function() {
           db.transaction(function(tx) {
             expect(tx).toBeDefined();
 
-            tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", null, function(tx, res) {
-              expect(res.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
+            tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", null, function(tx_ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
           });
         }, MYTIMEOUT);
 
@@ -91,12 +114,21 @@ var mytests = function() {
           db.transaction(function(tx) {
             expect(tx).toBeDefined();
 
-            tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", undefined, function(tx, res) {
-              expect(res.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
+            tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", undefined, function(tx_ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
           });
         }, MYTIMEOUT);
 
@@ -104,12 +136,21 @@ var mytests = function() {
           var db = openDatabase("ASCII-string-binding-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
-            tx.executeSql('SELECT UPPER(?) AS uppertext', ['Some US-ASCII text'], function(tx, res) {
-              expect(res.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
+            tx.executeSql('SELECT UPPER(?) AS uppertext', ['Some US-ASCII text'], function(tx_ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
           });
         }, MYTIMEOUT);
 
@@ -119,12 +160,21 @@ var mytests = function() {
           db.transaction(function(tx) {
             expect(tx).toBeDefined();
 
-            tx.executeSql(new String("SELECT UPPER('Some US-ASCII text') AS uppertext"), [], function(tx, res) {
-              expect(res.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
+            tx.executeSql(new String("SELECT UPPER('Some US-ASCII text') AS uppertext"), [], function(tx_ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
           });
         }, MYTIMEOUT);
 
@@ -486,6 +536,9 @@ var mytests = function() {
           db.transaction(function(tx) {
 
             tx.executeSql('SELECT UPPER(?) AS upper_result', ['Test ¢ é €'], function(ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
               if (isAndroid && (isWebSql || (isImpl2 && /Android [5-9]/.test(navigator.userAgent))))
                 expect(rs.rows.item(0).upper_result).toBe('TEST ¢ É €');
               else
@@ -494,6 +547,12 @@ var mytests = function() {
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
           });
         }, MYTIMEOUT);
 
@@ -516,26 +575,44 @@ var mytests = function() {
 
           db.transaction(function(tx) {
 
-            tx.executeSql('SELECT UPPER(?) AS upper_result', ['"String" test'], function(ignored, rs) {
-              expect(rs.rows.item(0).upper_result).toBe('"STRING" TEST');
+            tx.executeSql('SELECT UPPER(?) AS upper_result', ['"String" test'], function(tx_ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+              expect(rs1.rows.item(0).upper_result).toBe('"STRING" TEST');
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'Backslash string test', function(done) {
-          var db = openDatabase("Backslash-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
+        it(suiteName + 'INLINE Backslash string test', function(done) {
+          var db = openDatabase("INLINE-Backslash-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
 
             tx.executeSql("SELECT UPPER('Test \\') AS upper_result", [], function(ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
               expect(rs.rows.item(0).upper_result).toBe('TEST \\');
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
           });
         }, MYTIMEOUT);
 
@@ -544,12 +621,22 @@ var mytests = function() {
 
           db.transaction(function(tx) {
 
-            tx.executeSql('SELECT UPPER(?) AS upper_result', ['Test \\'], function(ignored, rs) {
-              expect(rs.rows.item(0).upper_result).toBe('TEST \\');
+            tx.executeSql('SELECT UPPER(?) AS upper_result', ['Test \\'], function(tx_ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+              expect(rs1.rows.item(0).upper_result).toBe('TEST \\');
+
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
           });
         }, MYTIMEOUT);
 
@@ -563,11 +650,20 @@ var mytests = function() {
           db.transaction(function(tx) {
 
             tx.executeSql('SELECT UPPER(?) AS upper_result', [['Test',null,123.456,789]], function(ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
               expect(rs.rows.item(0).upper_result).toBe('TEST,,123.456,789');
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
           });
         }, MYTIMEOUT);
 
@@ -577,11 +673,20 @@ var mytests = function() {
           db.transaction(function(tx) {
 
             tx.executeSql('SELECT UPPER(?) AS upper_result', [new String('Test value')], function(ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
               expect(rs.rows.item(0).upper_result).toBe('TEST VALUE');
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
           });
         }, MYTIMEOUT);
 
@@ -601,11 +706,20 @@ var mytests = function() {
           db.transaction(function(tx) {
 
             tx.executeSql('SELECT UPPER(?) AS upper_result', [myObject], function(ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
               expect(rs.rows.item(0).upper_result).toBe('TOSTRING RESULT');
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
           });
         }, MYTIMEOUT);
       });
@@ -772,13 +886,19 @@ var mytests = function() {
               (isWebSql) ? done() : db.close(done, done);
             });
             myObject.name = 'Carol';
+
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
           });
         }, MYTIMEOUT);
 
       });
 
       describe(suiteName + 'string test with Array "subclass" for SQL parameter arg values array', function() {
-        ;
         it(suiteName + 'SELECT UPPER(?) AS upper1, UPPER(?) AS upper2 with "naive" Array subclass (constructor NOT explicitly set) as value arguments array', function(done) {
           var db = openDatabase('SELECT-multi-upper-on-array-subclass.db');
           expect(db).toBeDefined();
@@ -800,6 +920,7 @@ var mytests = function() {
 
           db.transaction(function(tx) {
             tx.executeSql('SELECT UPPER(?) AS upper1, UPPER(?) AS upper2', myObject, function(ignored, rs) {
+              // EXPECTED RESULT:
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
@@ -838,6 +959,7 @@ var mytests = function() {
 
           db.transaction(function(tx) {
             tx.executeSql('SELECT UPPER(?) AS upper1, UPPER(?) AS upper2', myObject, function(ignored, rs) {
+              // EXPECTED RESULT:
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
@@ -937,6 +1059,9 @@ var mytests = function() {
 
           db.transaction(function(tx) {
             tx.executeSql('SELECT UPPER(?) AS uppertext', ['Some US-ASCII text'], function success(ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
               expect(rs.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
 
               // Close (plugin only) & finish:
@@ -960,6 +1085,9 @@ var mytests = function() {
 
           db.readTransaction(function(tx) {
             tx.executeSql('SELECT UPPER(?) AS uppertext', ['Some US-ASCII text'], function success(ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
               expect(rs.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
 
               // Close (plugin only) & finish:
@@ -987,6 +1115,9 @@ var mytests = function() {
 
             tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", null, function(ignored, rs) {
               check1 = true;
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
               expect(rs.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
             });
           }, function error(error) {
@@ -1015,6 +1146,9 @@ var mytests = function() {
 
             tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", null, function(ignored, rs) {
               check1 = true;
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
               expect(rs.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
             });
           }, function error(error) {
@@ -1052,6 +1186,13 @@ var mytests = function() {
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             });
+
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
           });
         }, MYTIMEOUT);
 
