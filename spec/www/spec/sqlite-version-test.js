@@ -81,6 +81,36 @@ var mytests = function() {
 
       });
 
+      describe(suiteName + 'sqlite encoding test(s)', function() {
+
+        it(suiteName + 'Check internal database encoding: UTF-16le for Windows, UTF-8 for others (plugin ONLY)', function(done) {
+          if (isWebSql) pending('SKIP: NOT SUPPORTED for (WebKit) Web SQL');
+
+          var db = openDatabase("Check-sqlite-PRAGMA-encoding.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          expect(db).toBeDefined();
+
+          db.executeSql('PRAGMA encoding', [], function(rs) {
+            expect(rs).toBeDefined();
+            expect(rs.rows).toBeDefined();
+            expect(rs.rows.length).toBe(1);
+            if (isWindows)
+              expect(rs.rows.item(0).encoding).toBe('UTF-16le');
+            else
+              expect(rs.rows.item(0).encoding).toBe('UTF-8');
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            done();
+          });
+        }, MYTIMEOUT);
+
+      });
+
     });
 
   }
