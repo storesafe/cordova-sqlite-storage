@@ -719,6 +719,13 @@ window.sqlitePlugin.openDatabase({name: 'my.db', location: 'default'}, function(
 
 If any sql statements or transactions are attempted on a database object before the openDatabase result is known, they will be queued and will be aborted in case the database cannot be opened.
 
+**DATABASE NAME NOTES:**
+
+- Database file names with slash (`/`) character(s) are not supported and not expected to work.
+- Database file names with ASCII control characters such as tab, vertical tab, carriage return, line feed, form feed, and backspace are not supported and do not work on Windows.
+- Some other ASCII characters not supported and not working on Windows: `*` `<` `>` `?` `\` `"` `|`
+- Database file names with emojis and other 4-octet UTF-8 characters are NOT RECOMMENDED.
+
 **OTHER NOTES:**
 - The database file name should include the extension, if desired.
 - It is possible to open multiple database access handle objects for the same database.

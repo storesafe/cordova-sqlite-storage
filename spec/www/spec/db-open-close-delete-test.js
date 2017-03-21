@@ -48,6 +48,442 @@ var pluginScenarioCount = isAndroid ? 2 : 1;
 
 var mytests = function() {
 
+  describe('Plugin - open database file name test(s)', function() {
+
+    for (var i=0; i<pluginScenarioCount; ++i) {
+
+      describe(pluginScenarioList[i] + ': basic open database file name test(s)', function() {
+        var scenarioName = pluginScenarioList[i];
+        var suiteName = scenarioName + ': ';
+        var isImpl2 = (i === 1);
+
+        // NOTE: MUST be defined in function scope, NOT outer scope:
+        var openDatabase = function(first, second, third, fourth, fifth, sixth) {
+          var dbname, okcb, errorcb;
+
+          if (first.constructor === String ) {
+            dbname = first;
+            okcb = fifth;
+            errorcb = sixth;
+          } else {
+            dbname = first.name;
+            okcb = second;
+            errorcb = third;
+          }
+
+          if (!isImpl2) {
+            return window.sqlitePlugin.openDatabase({name: dbname, location: 'default'}, okcb, errorcb);
+          }
+
+          var dbopts = {
+            name: 'i2-'+dbname,
+            androidDatabaseImplementation: 2,
+            androidLockWorkaround: 1,
+            location: 1
+          };
+
+          return window.sqlitePlugin.openDatabase(dbopts, okcb, errorcb);
+        }
+
+        it(suiteName + 'Open database with normal US-ASCII characters (no slash) & check database file name', function(done) {
+          var dbName = "Test!123-456$789.db";
+
+          try {
+            openDatabase({name: dbName, location: 'default'}, function(db) {
+              // EXPECTED RESULT:
+              expect(db).toBeDefined();
+              db.executeSql('PRAGMA database_list', [], function(rs) {
+                // EXPECTED RESULT:
+                expect(rs).toBeDefined();
+                expect(rs.rows).toBeDefined();
+                expect(rs.rows.length).toBe(1);
+                expect(rs.rows.item(0).name).toBe('main');
+                expect(rs.rows.item(0).file).toBeDefined();
+                expect(rs.rows.item(0).file.indexOf(dbName)).not.toBe(-1);
+
+                // Close & finish:
+                db.close(done, done);
+              }, function(error) {
+                // NOT EXPECTED:
+                expect(false).toBe(true);
+                expect(error.message).toBe('--');
+                done();
+              });
+            }, function(error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              expect(error.message).toBe('--');
+              done();
+            });
+          } catch (e) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(e.message).toBe('--');
+            done();
+          }
+        }, MYTIMEOUT);
+
+        it(suiteName + 'Open database with EXTRA US-ASCII characters WITHOUT SLASH & check database file name - WORKING on Android/iOS/macOS/Windows', function(done) {
+          var dbName = "Test @#$%^&(), '1' [] {} _-+=:;.db";
+
+          try {
+            openDatabase({name: dbName, location: 'default'}, function(db) {
+              // EXPECTED RESULT:
+              expect(db).toBeDefined();
+              db.executeSql('PRAGMA database_list', [], function(rs) {
+                // EXPECTED RESULT:
+                expect(rs).toBeDefined();
+                expect(rs.rows).toBeDefined();
+                expect(rs.rows.length).toBe(1);
+                expect(rs.rows.item(0).name).toBe('main');
+                expect(rs.rows.item(0).file).toBeDefined();
+                expect(rs.rows.item(0).file.indexOf(dbName)).not.toBe(-1);
+
+                // Close & finish:
+                db.close(done, done);
+              }, function(error) {
+                // NOT EXPECTED:
+                expect(false).toBe(true);
+                expect(error.message).toBe('--');
+                done();
+              });
+            }, function(error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              expect(error.message).toBe('--');
+              done();
+            });
+          } catch (e) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(e.message).toBe('--');
+            done();
+          }
+        }, MYTIMEOUT);
+
+        it(suiteName + 'Open database WITH SLASH (/) REPORTS ERROR (all supported platforms Android/iOS/macOS/Windows)', function(done) {
+          var dbName = "first/second.db";
+
+          try {
+            openDatabase({name: dbName, location: 'default'}, function(db) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+
+              // Close (plugin) & finish:
+              db.close(done, done);
+            }, function(error) {
+              // EXPECTED RESULT:
+              expect(error).toBeDefined();
+              expect(error.message).toBeDefined();
+              expect(error.message).toMatch(/Could not open database/);
+              done();
+            });
+          } catch (e) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(e.message).toBe('--');
+            done();
+          }
+        }, MYTIMEOUT);
+
+        it(suiteName + 'Open database with EXTRA, UNSUPPORTED US-ASCII characters WITHOUT SLASH [BROKEN on Windows, OK on Android/iOS/macOS]', function(done) {
+          var dbName = "Test @#$%^&*(),<>'1' \"2\" [] {} _-+=:; \\ ||?.db";
+
+          try {
+            openDatabase({name: dbName, location: 'default'}, function(db) {
+              // EXPECTED RESULT on Android/iOS/macOS:
+              if (isWindows) expect('UNEXPECTED SUCCESS on Windows PLEASE UPDATE TEST');
+              expect(db).toBeDefined();
+              db.executeSql('PRAGMA database_list', [], function(rs) {
+                // EXPECTED RESULT:
+                expect(rs).toBeDefined();
+                expect(rs.rows).toBeDefined();
+                expect(rs.rows.length).toBe(1);
+                expect(rs.rows.item(0).name).toBe('main');
+                expect(rs.rows.item(0).file).toBeDefined();
+                expect(rs.rows.item(0).file.indexOf(dbName)).not.toBe(-1);
+
+                // Close & finish:
+                db.close(done, done);
+              }, function(error) {
+                // NOT EXPECTED:
+                expect(false).toBe(true);
+                expect(error.message).toBe('--');
+                done();
+              });
+            }, function(error) {
+              // EXPECTED RESULT on Windows ONLY:
+              if (isWindows) {
+                expect(true).toBe(true);
+              } else {
+                expect(false).toBe(true);
+                expect(error.message).toBe('--');
+              }
+              done();
+            });
+          } catch (e) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(e.message).toBe('--');
+            done();
+          }
+        }, MYTIMEOUT);
+
+        it(suiteName + 'Open database with u2028 & check database file name - Windows ONLY [Cordova BROKEN Android/iOS/macOS]', function(done) {
+          if (!isWindows) pending('SKIP for Android/macOS/iOS due to Cordova BUG');
+
+          var dbName = 'first\u2028second.db';
+
+          try {
+            openDatabase({name: dbName, location: 'default'}, function(db) {
+              // EXPECTED RESULT:
+              expect(db).toBeDefined();
+              db.executeSql('PRAGMA database_list', [], function(rs) {
+                // EXPECTED RESULT:
+                expect(rs).toBeDefined();
+                expect(rs.rows).toBeDefined();
+                expect(rs.rows.length).toBe(1);
+                expect(rs.rows.item(0).name).toBe('main');
+                expect(rs.rows.item(0).file).toBeDefined();
+                expect(rs.rows.item(0).file.indexOf(dbName)).not.toBe(-1);
+
+                // Close & finish:
+                db.close(done, done);
+              }, function(error) {
+                // NOT EXPECTED:
+                expect(false).toBe(true);
+                expect(error.message).toBe('--');
+                done();
+              });
+            }, function(error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              expect(error.message).toBe('--');
+              done();
+            });
+          } catch (e) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(e.message).toBe('--');
+            done();
+          }
+        }, MYTIMEOUT);
+
+        it(suiteName + 'Open database with u2029 & check database file name - Windows ONLY [BROKEN: Cordova BUG Android/iOS/macOS]', function(done) {
+          if (!isWindows) pending('SKIP for Android/macOS/iOS due to Cordova BUG');
+
+          var dbName = 'first\u2029second.db';
+
+          try {
+            openDatabase({name: dbName, location: 'default'}, function(db) {
+              // EXPECTED RESULT:
+              expect(db).toBeDefined();
+              db.executeSql('PRAGMA database_list', [], function(rs) {
+                // EXPECTED RESULT:
+                expect(rs).toBeDefined();
+                expect(rs.rows).toBeDefined();
+                expect(rs.rows.length).toBe(1);
+                expect(rs.rows.item(0).name).toBe('main');
+                expect(rs.rows.item(0).file).toBeDefined();
+                expect(rs.rows.item(0).file.indexOf(dbName)).not.toBe(-1);
+
+                // Close & finish:
+                db.close(done, done);
+              }, function(error) {
+                // NOT EXPECTED:
+                expect(false).toBe(true);
+                expect(error.message).toBe('--');
+                done();
+              });
+            }, function(error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              expect(error.message).toBe('--');
+              done();
+            });
+          } catch (e) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(e.message).toBe('--');
+            done();
+          }
+        }, MYTIMEOUT);
+
+        // TBD emoji (UTF-8 4 octets) [NOT RECOMMENDED]:
+        it(suiteName + 'Open database with emoji \uD83D\uDE03 (UTF-8 4 octets) & check database file name [NOT RECOMMENDED]', function(done) {
+          var dbName = 'a\uD83D\uDE03';
+
+          try {
+            openDatabase({name: dbName, location: 'default'}, function(db) {
+              // EXPECTED RESULT:
+              expect(db).toBeDefined();
+              db.executeSql('PRAGMA database_list', [], function(rs) {
+                // EXPECTED RESULT:
+                expect(rs).toBeDefined();
+                expect(rs.rows).toBeDefined();
+                expect(rs.rows.length).toBe(1);
+                expect(rs.rows.item(0).name).toBe('main');
+                expect(rs.rows.item(0).file).toBeDefined();
+                expect(rs.rows.item(0).file.indexOf(dbName)).not.toBe(-1);
+
+                // Close & finish:
+                db.close(done, done);
+              }, function(error) {
+                // NOT EXPECTED:
+                expect(false).toBe(true);
+                expect(error.message).toBe('--');
+                done();
+              });
+            }, function(error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              expect(error.message).toBe('--');
+              done();
+            });
+          } catch (e) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(e.message).toBe('--');
+            done();
+          }
+        }, MYTIMEOUT);
+
+        // WORKING on ALL PLATFORMS:
+        var additionalDatabaseNameScenarios = [
+          // MORE SUPPORTED US-ASCII characters
+          {label: '@', dbName: 'first@second.db'},
+          {label: '#', dbName: 'first#second.db'},
+          {label: '%', dbName: 'first%second.db'},
+          {label: '^', dbName: 'first^second.db'},
+          {label: '&', dbName: 'first&second.db'},
+          {label: '()', dbName: 'first () second.db'},
+          {label: '{}', dbName: 'first {} second.db'},
+          {label: '[]', dbName: 'first [] second.db'},
+          {label: '_', dbName: 'first_second.db'},
+          {label: '-', dbName: 'first-second.db'},
+          {label: '+', dbName: 'first+second.db'},
+          {label: '=', dbName: 'first=second.db'},
+          {label: ',', dbName: 'first , second.db'},
+          {label: ':', dbName: 'first:second.db'},
+          {label: ';', dbName: 'first;second.db'},
+          {label: "'1'", dbName: "'1'.db"},
+          // UTF-8 multiple octets:
+          {label: 'é (UTF-8 2 octets)', dbName: 'aé.db'},
+          {label: '€ (UTF-8 3 octets)', dbName: 'a€.db'},
+        ];
+
+        additionalDatabaseNameScenarios.forEach(function(mytest) {
+          it(suiteName + 'Open database & check database file name with ' + mytest.label, function(done) {
+            var dbName = mytest.dbName;
+
+            try {
+              openDatabase({name: dbName, location: 'default'}, function(db) {
+                // EXPECTED RESULT:
+                expect(db).toBeDefined();
+                db.executeSql('PRAGMA database_list', [], function(rs) {
+                  // EXPECTED RESULT:
+                  expect(rs).toBeDefined();
+                  expect(rs.rows).toBeDefined();
+                  expect(rs.rows.length).toBe(1);
+                  expect(rs.rows.item(0).name).toBe('main');
+                  expect(rs.rows.item(0).file).toBeDefined();
+                  expect(rs.rows.item(0).file.indexOf(dbName)).not.toBe(-1);
+
+                  // Close & finish:
+                  db.close(done, done);
+                }, function(error) {
+                  // NOT EXPECTED:
+                  expect(false).toBe(true);
+                  expect(error.message).toBe('--');
+                  done();
+                });
+              }, function(error) {
+                // NOT EXPECTED:
+                expect(false).toBe(true);
+                expect(error.message).toBe('--');
+                done();
+              });
+            } catch (e) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              expect(e.message).toBe('--');
+              done();
+            }
+          }, MYTIMEOUT);
+        });
+
+
+        var unsupportedDatabaseNameScenariosWithFailureOnWindows = [
+          {label: 'tab', dbName: 'first\tsecond'},
+          {label: 'CR', dbName: 'a\rb'},
+          {label: 'LF', dbName: 'a\nb'},
+          {label: 'CRLF', dbName: 'a\r\nb'},
+          {label: 'vertical tab', dbName: 'a\v1'},
+          {label: 'form feed', dbName: 'a\f1'},
+          {label: 'backspace', dbName: 'a\b1'},
+          {label: '*', dbName: 'first * second.db'},
+          {label: '<', dbName: 'first < second.db'},
+          {label: '>', dbName: 'first > second.db'},
+          {label: '\\', dbName: 'first\\second.db'},
+          {label: '?', dbName: 'a?.db'},
+          {label: '"2".db', dbName: '"2".db'},
+          {label: '||', dbName: 'first||second.db'},
+        ];
+
+        unsupportedDatabaseNameScenariosWithFailureOnWindows.forEach(function(mytest) {
+          it(suiteName + 'Open database & check database file name with ' + mytest.label + ' [NOT SUPPORTED, NOT WORKING on Windows]', function(done) {
+            var dbName = mytest.dbName;
+
+            try {
+              openDatabase({name: dbName, location: 'default'}, function(db) {
+                // EXPECTED RESULT (Android/iOS/macOS):
+                if (isWindows) expect('UNEXPECTED SUCCESS on Windows PLEASE UPDATE THIS TEST').toBe('--');
+                expect(db).toBeDefined();
+
+                db.executeSql('PRAGMA database_list', [], function(rs) {
+                  // EXPECTED RESULT:
+                  expect(rs).toBeDefined();
+                  expect(rs.rows).toBeDefined();
+                  expect(rs.rows.length).toBe(1);
+                  expect(rs.rows.item(0).name).toBe('main');
+                  expect(rs.rows.item(0).file).toBeDefined();
+                  expect(rs.rows.item(0).file.indexOf(dbName)).not.toBe(-1);
+
+                  // Close & finish:
+                  db.close(done, done);
+                }, function(error) {
+                  // NOT EXPECTED:
+                  expect(false).toBe(true);
+                  expect(error.message).toBe('--');
+                  done();
+                });
+
+              }, function(error) {
+                // NOT EXPECTED on Android/iOS/macOS:
+                if (isWindows) {
+                  expect(error).toBeDefined();
+                  expect(error.message).toBeDefined();
+                } else {
+                  expect(false).toBe(true);
+                  expect(error.message).toBe('--');
+                }
+                done();
+              });
+
+            } catch (e) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              expect(e.message).toBe('--');
+              done();
+            }
+          }, MYTIMEOUT);
+        });
+
+      });
+    }
+
+  });
+
   describe('Plugin - BASIC sqlitePlugin.openDatabase parameter check test(s)', function() {
 
     var suiteName = 'plugin: ';
@@ -572,11 +1008,11 @@ var mytests = function() {
       describe(pluginScenarioList[i] + ': basic sqlitePlugin.deleteDatabase test(s)', function() {
         var scenarioName = pluginScenarioList[i];
         var suiteName = scenarioName + ': ';
-        var isOldAndroidImpl = (i === 1);
+        var isImpl2 = (i === 1);
 
         // NOTE: MUST be defined in function scope, NOT outer scope:
         var openDatabase = function(first, second, third, fourth, fifth, sixth) {
-          //if (!isOldAndroidImpl) {
+          //if (!isImpl2) {
           //  return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
           //}
 
@@ -592,7 +1028,7 @@ var mytests = function() {
             errorcb = third;
           }
 
-          if (!isOldAndroidImpl) {
+          if (!isImpl2) {
             return window.sqlitePlugin.openDatabase({name: dbname, location: 0}, okcb, errorcb);
           }
 
@@ -607,7 +1043,7 @@ var mytests = function() {
         }
 
         var deleteDatabase = function(first, second, third) {
-          if (!isOldAndroidImpl) {
+          if (!isImpl2) {
             window.sqlitePlugin.deleteDatabase({name: first, location: 0}, second, third);
           } else {
             window.sqlitePlugin.deleteDatabase({name: 'i2-'+first, location: 0}, second, third);
@@ -691,11 +1127,11 @@ var mytests = function() {
       describe(pluginScenarioList[i] + ': basic plugin open-close test(s)', function() {
         var scenarioName = pluginScenarioList[i];
         var suiteName = scenarioName + ': ';
-        var isOldAndroidImpl = (i === 1);
+        var isImpl2 = (i === 1);
 
         // NOTE: MUST be defined in function scope, NOT outer scope:
         var openDatabase = function(first, second, third, fourth, fifth, sixth) {
-          //if (!isOldAndroidImpl) {
+          //if (!isImpl2) {
           //  return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
           //}
 
@@ -711,7 +1147,7 @@ var mytests = function() {
             errorcb = third;
           }
 
-          if (!isOldAndroidImpl) {
+          if (!isImpl2) {
             return window.sqlitePlugin.openDatabase({name: dbname, location: 0}, okcb, errorcb);
           }
 
