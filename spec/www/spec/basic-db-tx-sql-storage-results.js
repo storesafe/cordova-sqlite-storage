@@ -480,9 +480,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'tx sql starting with extra semicolon results test', function(done) {
-          // [BUG #458] BROKEN for androidDatabaseImplementation: 2 (built-in android.database) setting
           if (isWP8) pending('BROKEN for WP8');
-          if (isAndroid && isImpl2) pending('BROKEN for androidDatabaseImplementation: 2 (built-in android.database) setting');
 
           var db = openDatabase('tx-sql-starting-with-extra-semicolon-results-test.db', '1.0', 'Test', DEFAULT_SIZE);
 

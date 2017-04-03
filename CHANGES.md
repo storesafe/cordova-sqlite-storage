@@ -1,7 +1,8 @@
 # Changes
 
-### cordova-sqlite-storage 1.5.4-pre2
+### cordova-sqlite-storage 1.5.4-pre3
 
+- Fix FIRST_WORD check for android.sqlite.database implementation
 - SQLite 3.15.2 build fixes
 
 ### cordova-sqlite-storage 1.5.3

@@ -38,7 +38,7 @@ import org.json.JSONObject;
  */
 class SQLiteAndroidDatabase
 {
-    private static final Pattern FIRST_WORD = Pattern.compile("^\\s*(\\S+)",
+    private static final Pattern FIRST_WORD = Pattern.compile("^[\\s;]*([^\\s;]+)",
             Pattern.CASE_INSENSITIVE);
 
     private static final Pattern WHERE_CLAUSE = Pattern.compile("\\s+WHERE\\s+(.+)$",
@@ -130,7 +130,9 @@ class SQLiteAndroidDatabase
             try {
                 boolean needRawQuery = true;
 
+                //Log.v("executeSqlBatch", "get query type");
                 QueryType queryType = getQueryType(query);
+                //Log.v("executeSqlBatch", "query type: " + queryType);
 
                 if (queryType == QueryType.update || queryType == queryType.delete) {
                     if (isPostHoneycomb) {
@@ -528,14 +530,26 @@ class SQLiteAndroidDatabase
 
     static QueryType getQueryType(String query) {
         Matcher matcher = FIRST_WORD.matcher(query);
+
+        // FIND & return query type, or throw:
         if (matcher.find()) {
             try {
-                return QueryType.valueOf(matcher.group(1).toLowerCase());
+                String first = matcher.group(1);
+
+                // explictly reject if blank
+                // (needed for SQLCipher version)
+                if (first.length() == 0) throw new RuntimeException("query not found");
+
+                return QueryType.valueOf(first.toLowerCase());
             } catch (IllegalArgumentException ignore) {
-                // unknown verb
+                // unknown verb (NOT blank)
+                return QueryType.other;
             }
+        } else {
+            // explictly reject if blank
+            // (needed for SQLCipher version)
+            throw new RuntimeException("query not found");
         }
-        return QueryType.other;
     }
 
     static enum QueryType {
