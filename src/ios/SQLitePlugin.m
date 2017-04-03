@@ -408,7 +408,7 @@
                 diffRowsAffected = nowRowsAffected - previousRowsAffected;
                 rowsAffected = [NSNumber numberWithInt:diffRowsAffected];
                 nowInsertId = sqlite3_last_insert_rowid(db);
-                if (nowRowsAffected > 0 && nowInsertId != 0) {
+                if (diffRowsAffected > 0 && nowInsertId != 0) {
                     hasInsertId = YES;
                     insertId = [NSNumber numberWithLongLong:sqlite3_last_insert_rowid(db)];
                 }

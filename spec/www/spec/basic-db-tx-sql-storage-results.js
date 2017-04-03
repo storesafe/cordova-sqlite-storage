@@ -886,7 +886,7 @@ var mytests = function() {
 
       });
 
-        it(suiteName + 'INSERT OR IGNORE result in case of constraint violation [iOS/macOS PLUGIN & Andriod/iOS WebKit Web SQL BROKEN: reports old insertId value]', function(done) {
+        it(suiteName + 'INSERT OR IGNORE result in case of constraint violation [(WebKit) Web SQL DEVIATION on Android/iOS: reports old insertId value]', function(done) {
           var db = openDatabase('INSERT-OR-IGNORE-test.db', '1.0', 'Test', DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -917,8 +917,8 @@ var mytests = function() {
               // NOTE: According to https://www.w3.org/TR/webdatabase/#database-query-results (section 4.5)
               // this access should really raise an INVALID_ACCESS_ERR exception.
               var checkInsertId = rs1.insertId;
-              if (isWebSql || isMac || (!isWindows && !isAndroid))
-                expect(checkInsertId).toBe(2); // BROKEN: OLD insertId value iOS/macOS plugin & Andriod/iOS WebKit Web SQL
+              if (isWebSql)
+                expect(checkInsertId).toBe(2); // Andriod/iOS WebKit Web SQL DEVIATION: OLD insertId value
               else
                 expect(checkInsertId).toBe(undefined);
 

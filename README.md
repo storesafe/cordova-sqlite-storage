@@ -423,7 +423,6 @@ As "strongly recommended" by [Web SQL Database API 8.5 SQL injection](https://ww
 - In certain cases such as `transaction.executeSql()` with no arguments (Android/iOS WebKit) Web SQL includes includes a code member with value of 0 (SQLError.UNKNOWN_ERR) in the exception while the plugin includes no such code member.
 - If the SQL arguments are passed in an `Array` subclass object where the `constructor` does not point to `Array` then the SQL arguments are ignored by the plugin.
 - The results data objects are not immutable as specified/implied by [Web SQL API section 4.5](https://www.w3.org/TR/webdatabase/#database-query-results).
-- In case of ignored INSERT OR IGNORE statement this plugin reports an old INSERT row id value on iOS/macOS. (WebKit Web SQL also reports an old INSERT row id value in case of an ignored INSERT OR IGNORE statement on Android and iOS.)
 
 ### Security of deleted data
 
@@ -431,6 +430,7 @@ See **Security of sensitive data** in the [Security](#security) section above.
 
 ### Other differences with WebKit Web SQL implementations
 
+- In case of ignored INSERT OR IGNORE statement WebKit Web SQL (Android/iOS) reports insertId with an old INSERT row id value while the plugin reports insertId: undefined.
 - In case of a SQL error handler that does not recover the transaction, WebKit Web SQL (Android/iOS) would incorrectly report error code 0 while the plugin would report the same error code as in the SQL error handler. (In case of an error with no SQL error handler then Android/iOS WebKit Web SQL would report the same error code that would have been reported in the SQL error hander.)
 - In case a transaction function throws an exception, the message and code if present are reported by the plugin but *not* by (WebKit) Web SQL.
 - SQL error messages are inconsistent on Windows.
