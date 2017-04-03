@@ -1,6 +1,6 @@
 # Changes
 
-### cordova-sqlite-storage 1.5.4-pre1
+### cordova-sqlite-storage 1.5.4-pre2
 
 - SQLite 3.15.2 build fixes
 

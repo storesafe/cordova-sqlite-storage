@@ -17,7 +17,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteStatement;
 
-import android.util.Base64;
 import android.util.Log;
 
 import java.io.File;
@@ -501,13 +500,8 @@ class SQLiteAndroidDatabase
             case Cursor.FIELD_TYPE_FLOAT:
                 row.put(key, cur.getDouble(i));
                 break;
-            /* ** Read BLOB as Base-64 DISABLED in this branch:
-            case Cursor.FIELD_TYPE_BLOB:
-                row.put(key, new String(Base64.encode(cur.getBlob(i), Base64.DEFAULT)));
-                break;
-            // ** Read BLOB as Base-64 DISABLED to HERE. */
             case Cursor.FIELD_TYPE_STRING:
-            default: /* (not expected) */
+            default: /* (BLOB) */
                 row.put(key, cur.getString(i));
                 break;
         }
@@ -526,11 +520,8 @@ class SQLiteAndroidDatabase
             row.put(key, cursor.getLong(i));
         } else if (cursorWindow.isFloat(pos, i)) {
             row.put(key, cursor.getDouble(i));
-        /* ** Read BLOB as Base-64 DISABLED in this branch:
-        } else if (cursorWindow.isBlob(pos, i)) {
-            row.put(key, new String(Base64.encode(cursor.getBlob(i), Base64.DEFAULT)));
-        // ** Read BLOB as Base-64 DISABLED to HERE. */
-        } else { // string
+        } else {
+            // STRING or BLOB:
             row.put(key, cursor.getString(i));
         }
     }
