@@ -1,10 +1,11 @@
 # Changes
 
-### cordova-sqlite-storage 1.5.4-pre4
+### cordova-sqlite-storage 1.5.4
 
 - Fix iOS/macOS version to report undefined insertId in case INSERT OR IGNORE is ignored
 - Fix FIRST_WORD check for android.sqlite.database implementation
 - SQLite 3.15.2 build fixes
+- Doc updates
 
 ### cordova-sqlite-storage 1.5.3
 
