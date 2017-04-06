@@ -143,7 +143,7 @@ See the [Sample section](#sample) for a sample with a more detailed explanation.
   - Issue with emojis and other 4-octet UTF-8 characters (apparently not stored correctly) ref: [litehelpers/Cordova-sqlite-storage#564](https://github.com/litehelpers/Cordova-sqlite-storage/issues/564)
   - Not possible to read BLOB column values
   - It is **not** possible to use this plugin with the default "Any CPU" target. A specific target CPU type **must** be specified when building an app with this plugin.
-  - This version branch with dependency on platform toolset libraries included by Visual Studio 2015 ref: [litehelpers/Cordova-sqlite-storage#580](https://github.com/litehelpers/Cordova-sqlite-storage/issues/580)
+  - This version branch with dependency on platform toolset libraries included by Visual Studio 2017 ~~(RC)~~ ref: [litehelpers/Cordova-sqlite-storage#580](https://github.com/litehelpers/Cordova-sqlite-storage/issues/580)
   - Windows version uses `UTF-16le` internal database encoding while the other platform versions use `UTF-8` internal encoding. (`UTF-8` internal encoding is preferred ref: [litehelpers/Cordova-sqlite-storage#652](https://github.com/litehelpers/Cordova-sqlite-storage/issues/652))
 - macOS version ("osx" platform) has not been tested in a release build and should be considered pre-alpha.
 - FTS3, FTS4, and R-Tree support is tested working OK in this version (for all target platforms in this version branch Android/iOS/macOS/Windows)
@@ -155,6 +155,7 @@ See the [Sample section](#sample) for a sample with a more detailed explanation.
 
 ## Announcements
 
+- This version references Windows platform toolset v141 to support Visual Studio 2017 ~~(RC)~~.
 - [brodybits / cordova-sqlite-storage-starter-app](https://github.com/brodybits/cordova-sqlite-storage-starter-app) project is a CC0 (public domain) starting point and may also be used to reproduce issues with this plugin. In addition [brodybits / cordova-sqlite-test-app](https://github.com/brodybits/cordova-sqlite-test-app) may be used to reproduce issues with other versions of this plugin.
 - The Lawnchair adapter is now moved to [litehelpers / cordova-sqlite-lawnchair-adapter](https://github.com/litehelpers/cordova-sqlite-lawnchair-adapter).
 - [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) now supports SELECT BLOB data in Base64 format on all platforms in addition to REGEXP (Android/iOS/macOS) and pre-populated database (all platforms).
@@ -236,7 +237,7 @@ Use the following command to install this plugin from the Cordova CLI:
 cordova plugin add cordova-sqlite-storage --save
 ```
 
-**NOTICE:** In case of using Cordova CLI with Visual Studio 2015 the following command is required (ref: [litehelpers/Cordova-sqlite-storage#599](https://github.com/litehelpers/Cordova-sqlite-storage/issues/599)):
+**NOTICE _(TBD GOING AWAY)_:** In case of using Cordova CLI with Visual Studio 2015 the following command is required (ref: [litehelpers/Cordova-sqlite-storage#599](https://github.com/litehelpers/Cordova-sqlite-storage/issues/599)):
 
 ```shell
 cordova plugin add cordova-sqlite-storage@latest --save
@@ -537,7 +538,7 @@ Some more limitations are tracked in the [open Cordova-sqlite-storage documentat
 - This plugin does **not** work with the default "Any CPU" target. A specific, valid CPU target platform **must** be specified.
 - It is **not** allowed to change the app ID in the Windows platform project. As described in the **Windows platform usage** of the [Installing](#installing) section a Windows-specific app ID may be declared using the `windows-identity-name` attribute or "WindowsStoreIdentityName" setting.
 - A problem locating `SQLite3.md` generally means that there was a problem building the C++ library.
-- When using Cordova CLI with Visual Studio 2015 the following command must be used to avoid a build error (ref: [litehelpers/Cordova-sqlite-storage#599](https://github.com/litehelpers/Cordova-sqlite-storage/issues/599)): `cordova plugin add cordova-sqlite-storage@latest --save`
+- _TBD GOING AWAY:_ When using Cordova CLI with Visual Studio 2015 the following command must be used to avoid a build error (ref: [litehelpers/Cordova-sqlite-storage#599](https://github.com/litehelpers/Cordova-sqlite-storage/issues/599)): `cordova plugin add cordova-sqlite-storage@latest --save`
 
 ### General Cordova pitfalls
 
@@ -1173,7 +1174,7 @@ cordova platform add <desired platform> # repeat for all desired platform(s)
 cordova prepare # OPTIONAL (MANDATORY cordova-ios older than 4.3.0 (Cordova CLI 6.4.0))
 ```
 
-**NOTICE:** In case of using Cordova CLI with Visual Studio 2015 the following command is required (ref: [litehelpers/Cordova-sqlite-storage#599](https://github.com/litehelpers/Cordova-sqlite-storage/issues/599)):
+**NOTICE _(TBD GOING AWAY)_:** In case of using Cordova CLI with Visual Studio 2015 the following command is required (ref: [litehelpers/Cordova-sqlite-storage#599](https://github.com/litehelpers/Cordova-sqlite-storage/issues/599)):
 
 ```shell
 cordova plugin add cordova-sqlite-storage@latest --save
