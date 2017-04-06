@@ -1,6 +1,8 @@
 # Changes
 
-## cordova-sqlite-storage 2.0.3-pre1
+## cordova-sqlite-storage 2.0.3-pre2
+
+- Drop engines rule from package.json
 
 ### cordova-sqlite-storage 1.5.4
 
