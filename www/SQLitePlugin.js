@@ -174,7 +174,7 @@
       console.log('OPEN database: ' + this.dbname);
       opensuccesscb = (function(_this) {
         return function() {
-          var txLock;
+          var readycb, tropts;
           console.log('OPEN database: ' + _this.dbname + ' - OK');
           if (!_this.openDBs[_this.dbname]) {
             console.log('database was closed during open operation');
@@ -185,10 +185,26 @@
           if (!!success) {
             success(_this);
           }
-          txLock = txLocks[_this.dbname];
-          if (!!txLock && txLock.queue.length > 0 && !txLock.inProgress) {
-            _this.startNextTransaction();
-          }
+          readycb = function(ignored1, ignored2) {
+            var txLock;
+            txLock = txLocks[_this.dbname];
+            if (!!txLock && txLock.queue.length > 0 && !txLock.inProgress) {
+              _this.startNextTransaction();
+            }
+          };
+          tropts = [];
+          tropts.push({
+            sql: 'ROLLBACK',
+            params: []
+          });
+          cordova.exec(readycb, null, 'SQLitePlugin', 'backgroundExecuteSqlBatch', [
+            {
+              dbargs: {
+                dbname: _this.dbname
+              },
+              executes: tropts
+            }
+          ]);
         };
       })(this);
       openerrorcb = (function(_this) {
@@ -724,11 +740,33 @@
         name: SelfTest.DBNAME,
         location: 'default'
       }, function(db) {
+        var check3;
+        check3 = false;
         return db.transaction(function(tx) {
           return tx.executeSql('SELECT 1 AS myResult', [], function(ignored, resutSet) {
-            return SelfTest.finishWithError(errorcb, 'asdf');
+            if (!resutSet.rows) {
+              return SelfTest.finishWithError(errorcb, 'Missing resutSet.rows');
+            }
+            if (!resutSet.rows.length) {
+              return SelfTest.finishWithError(errorcb, 'Missing resutSet.rows.length');
+            }
+            if (resutSet.rows.length !== 1) {
+              return SelfTest.finishWithError(errorcb, "Incorrect resutSet.rows.length value: " + resutSet.rows.length + " (expected: 1)");
+            }
+            if (!resutSet.rows.item(0).myResult) {
+              return SelfTest.finishWithError(errorcb, 'Missing resutSet.rows.item(0).myResult');
+            }
+            if (resutSet.rows.item(0).myResult !== 1) {
+              return SelfTest.finishWithError(errorcb, "Incorrect resutSet.rows.item(0).myResult value: " + (resutSet.rows.item(0).myResult) + " (expected: 1)");
+            }
+            check3 = true;
           });
         }, function(txError) {
+          SelfTest.finishWithError(errorcb, "TRANSACTION error: " + tx_err);
+        }, function() {
+          if (!check3) {
+            return SelfTest.finishWithError(errorcb, 'Did not get expected myResult result data');
+          }
           SelfTest.start5(successcb, errorcb);
         });
       }, function(open_err) {
