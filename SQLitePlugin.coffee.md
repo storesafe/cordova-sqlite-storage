@@ -27,6 +27,7 @@
     # applications that repeatedly open and close the database.
     # [BUG #210] TODO: better to abort and clean up the pending transaction state.
     # XXX TBD this will be renamed and include some more per-db state.
+    # NOTE: In case txLocks is renamed or replaced the selfTest has to be adapted as well.
     txLocks = {}
 
 ## utility functions:
@@ -116,6 +117,7 @@
     # Keep track of state of open db connections
     # XXX TBD this will be moved and renamed or
     # combined with txLocks.
+    # NOTE: In case txLocks is renamed or replaced the selfTest has to be adapted as well.
     SQLitePlugin::openDBs = {}
 
     SQLitePlugin::addTransaction = (t) ->
@@ -690,11 +692,127 @@
 
       start: (successcb, errorcb) ->
         SQLiteFactory.deleteDatabase {name: SelfTest.DBNAME, location: 'default'},
-          (-> SelfTest.start2(successcb, errorcb)),
-          (-> SelfTest.start2(successcb, errorcb))
+          (-> SelfTest.step1(successcb, errorcb)),
+          (-> SelfTest.step1(successcb, errorcb))
+        return
 
-      start2: (successcb, errorcb) ->
+      step1: (successcb, errorcb) ->
         SQLiteFactory.openDatabase {name: SelfTest.DBNAME, location: 'default'}, (db) ->
+          check1 = false
+          db.transaction (tx) ->
+            tx.executeSql 'SELECT UPPER("Test") AS upperText', [], (ignored, resutSet) ->
+              if !resutSet.rows
+                return SelfTest.finishWithError errorcb, 'Missing resutSet.rows'
+
+              if !resutSet.rows.length
+                return SelfTest.finishWithError errorcb, 'Missing resutSet.rows.length'
+
+              if resutSet.rows.length isnt 1
+                return SelfTest.finishWithError errorcb,
+                  "Incorrect resutSet.rows.length value: #{resutSet.rows.length} (expected: 1)"
+
+              if !resutSet.rows.item(0).upperText
+                return SelfTest.finishWithError errorcb,
+                  'Missing resutSet.rows.item(0).upperText'
+
+              if resutSet.rows.item(0).upperText isnt 'TEST'
+                return SelfTest.finishWithError errorcb,
+                  "Incorrect resutSet.rows.item(0).upperText value: #{resutSet.rows.item(0).upperText} (expected: 'TEST')"
+
+              check1 = true
+              return
+
+            , (ignored, tx_sql_err) ->
+              return SelfTest.finishWithError errorcb, "TX SQL error: #{tx_sql_err}"
+
+            return
+
+          , (tx_err) ->
+            return SelfTest.finishWithError errorcb, "TRANSACTION error: #{tx_err}"
+
+          , () ->
+            # tx success:
+            if !check1
+              return SelfTest.finishWithError errorcb,
+                'Did not get expected upperText result data'
+
+            # SIMULATE SCENARIO IN BUG litehelpers/Cordova-sqlite-storage#666:
+            db.executeSql 'BEGIN', null, (ignored) -> nextTick -> # (nextTick needed for Windows)
+              # DELETE INTERNAL STATE to simulate the effects of location refresh or change:
+              delete db.openDBs[SelfTest.DBNAME]
+              delete txLocks[SelfTest.DBNAME]
+              nextTick ->
+                # VERIFY INTERNAL STATE IS DELETED:
+                db.transaction (tx2) ->
+                  tx2.executeSql 'SELECT 1'
+                  return
+                , (tx_err) ->
+                  # EXPECTED RESULT:
+                  if !tx_err
+                    return SelfTest.finishWithError errorcb, 'Missing error object'
+                  SelfTest.step2 successcb, errorcb
+                  return
+                , () ->
+                  # NOT EXPECTED:
+                  return SelfTest.finishWithError errorcb, 'Missing error object'
+                return
+              return
+
+            return
+          return
+
+        , (open_err) ->
+          SelfTest.finishWithError errorcb, "Open database error: #{open_err}"
+        return
+
+      step2: (successcb, errorcb) ->
+        SQLiteFactory.openDatabase {name: SelfTest.DBNAME, location: 'default'}, (db) ->
+          # TX FAILURE EXPECTED DUE TO BUG litehelpers/Cordova-sqlite-storage#666:
+          db.transaction (tx) ->
+            tx.executeSql 'SELECT ? AS myResult', [null], (ignored, resutSet) ->
+              # Extra sql success callback ignored:
+              return
+            return
+
+          , (txError) ->
+            # EXPECTED RESULT DUE TO BUG litehelpers/Cordova-sqlite-storage#666:
+            if !txError
+              return SelfTest.finishWithError errorcb, 'Missing txError object'
+            # second try should work:
+            db.transaction (tx2) ->
+              tx2.executeSql 'SELECT ? AS myResult', [null], (ignored, resutSet) ->
+                if !resutSet.rows
+                  return SelfTest.finishWithError errorcb, 'Missing resutSet.rows'
+                if !resutSet.rows.length
+                  return SelfTest.finishWithError errorcb, 'Missing resutSet.rows.length'
+                if resutSet.rows.length isnt 1
+                  return SelfTest.finishWithError errorcb,
+                SelfTest.step3 successcb, errorcb
+                return
+              return
+            , (tx2_err) ->
+              return SelfTest.finishWithError errorcb, "UNEXPECTED TRANSACTION ERROR: #{tx2_err}"
+            return
+
+          , () ->
+            # TX SUCCESS POSSIBLE FOR Android (android.database) ONLY
+            # NOTE: Windows 10 (UWP) mobile platform also shows "Android" in navigator.userAgent,
+            # filtered out here.
+            # FUTURE TBD android.database implementation should be fixed to report error in this case.
+            if /Android/.test(navigator.userAgent) and not /Windows /.test(navigator.userAgent)
+              return SelfTest.step3 successcb, errorcb
+            # OTHERWISE:
+            # TX SUCCESS NOT EXPECTED DUE TO BUG litehelpers/Cordova-sqlite-storage#666:
+            return SelfTest.finishWithError errorcb, 'UNEXPECTED SUCCESS ref: litehelpers/Cordova-sqlite-storage#666'
+          return
+
+        , (open_err) ->
+          SelfTest.finishWithError errorcb, "Open database error: #{open_err}"
+        return
+
+      step3: (successcb, errorcb) ->
+        SQLiteFactory.openDatabase {name: SelfTest.DBNAME, location: 'default'}, (db) ->
+          # FUTURE TBD TEST CRUD OPERATIONS (already fixed in a newer version branch)
           db.sqlBatch [
             'CREATE TABLE TestTable(TestColumn);'
             [ 'INSERT INTO TestTable (TestColumn) VALUES (?);', ['test-value'] ]
@@ -751,9 +869,19 @@
                   # CLEANUP & FINISH:
                   db.close () ->
                     SQLiteFactory.deleteDatabase {name: SelfTest.DBNAME, location: 'default'}, successcb, (cleanup_err)->
+                      # TBD IGNORE THIS ERROR on Windows (and WP8):
+                      if /Windows /.test(navigator.userAgent) or /IEMobile/.test(navigator.userAgent)
+                        console.log "IGNORE CLEANUP (DELETE) ERROR: #{JSON.stringify cleanup_err} (Windows/WP8)"
+                        successcb()
+                        return
                       SelfTest.finishWithError errorcb, "Cleanup error: #{cleanup_err}"
 
                   , (close_err) ->
+                    # TBD IGNORE THIS ERROR on Windows (and WP8):
+                    if /Windows /.test(navigator.userAgent) or /IEMobile/.test(navigator.userAgent)
+                      console.log "IGNORE close ERROR: #{JSON.stringify close_err} (Windows/WP8)"
+                      SQLiteFactory.deleteDatabase {name: SelfTest.DBNAME, location: 'default'}, successcb, successcb
+                      return
                     SelfTest.finishWithError errorcb, "close error: #{close_err}"
 
             , (select_err) ->
@@ -764,11 +892,16 @@
 
         , (open_err) ->
           SelfTest.finishWithError errorcb, "Open database error: #{open_err}"
+        return
 
       finishWithError: (errorcb, message) ->
+        console.log "selfTest ERROR with message: #{message}"
         SQLiteFactory.deleteDatabase {name: SelfTest.DBNAME, location: 'default'}, ->
           errorcb newSQLError message
+          # FUTURE TODO: return
+        # FUTURE TODO log err2
         , (err2)-> errorcb newSQLError "Cleanup error: #{err2} for error: #{message}"
+        return
 
 ## Exported API:
 

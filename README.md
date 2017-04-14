@@ -91,6 +91,7 @@ Use the `location` or `iosDatabaseLocation` option in `sqlitePlugin.openDatabase
 - As described in [this posting](http://brodyspark.blogspot.com/2012/12/cordovaphonegap-sqlite-plugins-offer.html):
   - Keeps sqlite database in a user data location that is known; can be reconfigured (iOS/macOS platform version); and may be synchronized to iCloud (iOS platform version).
   - No 5MB maximum, more information at: http://www.sqlite.org/limits.html
+- Also tested for multi-page applications with window location changes
 - This project is self-contained: no dependencies on other plugins such as cordova-plugin-file
 - Windows 10 UWP platform version available in [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) and Windows 8.1/Windows Phone 8.1/Windows 10 platform version available in [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy) use the performant C++ [doo / SQLite3-WinRT](https://github.com/doo/SQLite3-WinRT) component.
 - [SQLCipher](https://www.zetetic.net/sqlcipher/) support for Android/iOS/macOS/Windows is available in: [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter)
@@ -116,6 +117,7 @@ Use the `location` or `iosDatabaseLocation` option in `sqlitePlugin.openDatabase
 
 ## Known issues
 
+- Transaction problem after page change WITH POSSIBLE DATA LOSS ref: [litehelpers/Cordova-sqlite-storage#666](https://github.com/litehelpers/Cordova-sqlite-storage/issues/666)
 - iOS/macOS platform version does not support certain rapidly repeated open-and-close or open-and-delete test scenarios due to how the implementation handles background processing
 - As described below, auto-vacuum is NOT enabled by default.
 - It is possible to request a SQL statement list such as "SELECT 1; SELECT 2" within a single SQL statement string, however the plugin will only execute the first statement and silently ignore the others ref: [litehelpers/Cordova-sqlite-storage#551](https://github.com/litehelpers/Cordova-sqlite-storage/issues/551)
@@ -172,7 +174,6 @@ Issues fixed in some newer version branches:
 ## Further testing needed
 
 - Integration with PhoneGap developer app
-- Multi-page apps
 - Use within [InAppBrowser](http://docs.phonegap.com/en/edge/cordova_inappbrowser_inappbrowser.md.html)
 - Use within an iframe (see [litehelpers/Cordova-sqlite-storage#368 (comment)](https://github.com/litehelpers/Cordova-sqlite-storage/issues/368#issuecomment-154046367))
 - Actual behavior when using SAVEPOINT(s)
