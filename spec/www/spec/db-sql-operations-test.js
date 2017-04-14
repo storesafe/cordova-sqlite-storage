@@ -939,6 +939,7 @@ var mytests = function() {
           db.executeSql("select upper('second') as uppertext", [], okcb);
         }, MYTIMEOUT);
 
+
       });
     }
 
@@ -1616,6 +1617,64 @@ var mytests = function() {
             db.close(done, done);
           });
         });
+
+        it(suiteName + 'transaction after db.executeSql("BEGIN")', function(done) {
+          // SIMILAR BEHAVIOR TO litehelpers/Cordova-sqlite-storage#666:
+          var db = openDatabase("DB-sql-tx-after-begin.db", "1.0", "Demo", DEFAULT_SIZE);
+          expect(db).toBeDefined();
+
+          var check1 = false;
+          var check2 = false;
+
+          db.executeSql('BEGIN', null, function(rsIgnored) {
+            expect(check1).toBe(false);
+            expect(check2).toBe(false);
+            check1 = true;
+          });
+
+          db.executeSql('SELECT 1', null, function(rsIgnored) {
+            expect(check1).toBe(true);
+            expect(check2).toBe(false);
+            check2 = true;
+          });
+
+          // NOTE: This transaction should fail with ROLLBACK,
+          // then next transaction should be able to succeed.
+          db.transaction(function(tx1) {
+            expect(check1).toBe(true);
+            expect(check2).toBe(true);
+            tx1.executeSql('SELECT 1', null, function(txIgnored, rs) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+            });
+          }, function(err) {
+            // EXPECTED RESULT:
+            expect(err).toBeDefined();
+            expect(err.message).toBeDefined();
+            expect(err.message).toMatch(/unable to begin transaction: cannot start a transaction within a transaction/);
+            //expect(err.message).toMatch(/--/);
+
+            db.transaction(function(tx2) {
+              tx2.executeSql('SELECT 1', null, function(txIgnored, rs) {
+                expect(rs).toBeDefined();
+                expect(rs.rows).toBeDefined();
+                expect(rs.rows.length).toBe(1);
+                //expect(rs.rows.length).toBe('--');
+                db.close(done, done);
+              });
+            }, function(err) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              expect(err.message).toMatch(/--/);
+              db.close(done, done);
+            });
+
+          }, function() {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            db.close(done, done);
+          });
+        }, MYTIMEOUT);
 
       });
     }
