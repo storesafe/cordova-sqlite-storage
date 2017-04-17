@@ -32,13 +32,7 @@ function start(n) {
 
 var isAndroid = /Android/.test(navigator.userAgent);
 var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
-//var isWindows = /Windows NT/.test(navigator.userAgent); // Windows [NT] (8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
-//var isWindowsPC = /Windows NT/.test(navigator.userAgent); // Windows [NT] (8.1)
-//var isWindowsPhone_8_1 = /Windows Phone 8.1/.test(navigator.userAgent); // Windows Phone 8.1
-//var isIE = isWindows || isWP8 || isWindowsPhone_8_1;
-var isIE = isWindows || isWP8;
-var isWebKit = !isIE; // TBD [Android or iOS]
 
 // NOTE: In the core-master branch there is no difference between the default
 // implementation and implementation #2. But the test will also apply
@@ -57,7 +51,7 @@ var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
 
-    describe(scenarioList[i] + ': misc legacy tx test(s)', function() {
+    describe(scenarioList[i] + ': misc general tx test(s)', function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
       var isWebSql = (i === 1);
@@ -98,13 +92,14 @@ var mytests = function() {
               start();
               throw new Error('abort tx');
             }, function(tx, error) {
-              ok(!!error, "valid error object");
+              expect(error).toBeDefined();
+              expect(error.code).toBeDefined();
+              expect(error.message).toBeDefined();
 
-              // XXX ONLY WORKING for iOS version of plugin:
-              if (isWebSql || !(isAndroid || isWindows || isWP8))
-                ok(!!error['code'], "valid error.code exists");
+              // err.hasOwnProperty('message') apparently NOT WORKING on WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+              if (!isWebSql || isWindows || (isAndroid && (/Android [1-4]/.test(navigator.userAgent))))
+                expect(error.hasOwnProperty('message')).toBe(true);
 
-              ok(error.hasOwnProperty('message'), "error.message exists");
               // XXX ONLY WORKING for iOS version of plugin:
               if (isWebSql || !(isAndroid || isWindows || isWP8))
                 strictEqual(error.code, 5, "error.code === SQLException.SYNTAX_ERR (5)");
@@ -115,15 +110,17 @@ var mytests = function() {
               return true;
             });
           }, function (error) {
-            ok(!!error, "valid error object");
-            ok(error.hasOwnProperty('message'), "error.message exists");
+            expect(error).toBeDefined();
+            expect(error.message).toBeDefined();
+            // err.hasOwnProperty('message') apparently NOT WORKING on WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+            if (!isWebSql || isWindows || (isAndroid && (/Android [1-4]/.test(navigator.userAgent))))
+              expect(error.hasOwnProperty('message')).toBe(true);
             start();
           });
         });
 
         test_it(suiteName + "constraint violation", function() {
           if (isWindows) pending('BROKEN for Windows'); // XXX TODO
-          //if (isWindowsPhone_8_1) pending('BROKEN for Windows Phone 8.1'); // XXX TODO
 
           var db = openDatabase("Constraint-violation-test.db", "1.0", "Demo", DEFAULT_SIZE);
           ok(!!db, "db object");
@@ -144,13 +141,13 @@ var mytests = function() {
               start();
               throw new Error('abort tx');
             }, function(tx, error) {
-              ok(!!error, "valid error object");
+              expect(error).toBeDefined();
+              expect(error.code).toBeDefined();
+              expect(error.message).toBeDefined();
 
-              // XXX ONLY WORKING for iOS version of plugin:
-              if (isWebSql || !(isAndroid || isWindows || isWP8))
-                ok(!!error['code'], "valid error.code exists");
+              // err.hasOwnProperty('message') apparently NOT WORKING on WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+              //ok(error.hasOwnProperty('message'), "error.message exists");
 
-              ok(error.hasOwnProperty('message'), "error.message exists");
               //strictEqual(error.code, 6, "error.code === SQLException.CONSTRAINT_ERR (6)");
               //equal(error.message, "Request failed: insert into test_table (data) VALUES (?),123", "error.message");
               start();
@@ -159,8 +156,10 @@ var mytests = function() {
               return true;
             });
           }, function(error) {
-            ok(!!error, "valid error object");
-            ok(error.hasOwnProperty('message'), "error.message exists");
+            expect(error).toBeDefined();
+            expect(error.message).toBeDefined();
+            // err.hasOwnProperty('message') apparently NOT WORKING on WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+            //ok(error.hasOwnProperty('message'), "error.message exists");
             start();
           });
         });

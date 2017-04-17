@@ -229,7 +229,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'create virtual table using R-Tree', function(done) {
-          if (isWebSql) pending('BROKEN (NOT IMPLEMENTED) for Web SQL');
+          if (isWebSql) pending('SKIP for (Android/iOS WebKit) Web SQL');
           if (isWP8) pending('NOT IMPLEMENTED for WP(8)'); // NOT IMPLEMENTED in CSharp-SQLite
           if (isAndroid) pending('NOT IMPLEMENTED for all versions of Android'); // NOT IMPLEMENTED for all versions of Android database (failed in Circle CI)
 
@@ -261,7 +261,8 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'DELETE LIMIT', function(done) {
+        // NOT supported by SQLite amalgamation ...
+        xit(suiteName + 'DELETE LIMIT', function(done) {
           if (isWP8) pending('NOT IMPLEMENTED for WP(8)');
           if (isWindows) pending('NOT IMPLEMENTED for Windows');
           if (isAndroid && !isWebSql) pending('SKIP for Android plugin'); // FUTURE TBD test with newer versions (android.database)

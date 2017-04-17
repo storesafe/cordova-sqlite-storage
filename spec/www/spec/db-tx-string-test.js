@@ -200,10 +200,13 @@ var mytests = function() {
           });
         });
 
-        // NOTE: the next two tests show that for iOS:
-        // - UNICODE \u2028 line separator from Javascript to Objective-C is working ok
-        // - UNICODE \u2028 line separator from Objective-C to Javascript is BROKEN
-        // ref: litehelpers/Cordova-sqlite-storage#147
+        // NOTE: the next 2 tests show that for iOS/macOS/Android:
+        // - UNICODE \u2028 line separator from JavaScript to native (Objective-C/Java) is working OK
+        // - UNICODE \u2028 line separator from native (Objective-C/Java) to JavaScript is BROKEN
+        // For reference:
+        // - litehelpers/Cordova-sqlite-storage#147
+        // - Apache Cordova CB-9435 (issue with cordova-ios, also affects macOS)
+        // - cordova/cordova-discuss#57 (issue with cordova-android)
         it(suiteName + "UNICODE \\u2028 line separator string length", function(done) {
           if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] Certain UNICODE characters not working with WP(8)
 
@@ -225,9 +228,9 @@ var mytests = function() {
         });
 
         it(suiteName + ' handles UNICODE \\u2028 line separator correctly [string test]', function (done) {
-
           if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
-          if (!(isWebSql || isAndroid || isIE)) pending('BROKEN for iOS'); // XXX [BUG #147] (no callback received)
+          if (!isWebSql && !isWindows && isAndroid) pending('SKIP for Android plugin (cordova-android 6.x BUG: cordova/cordova-discuss#57)');
+          if (!isWebSql && !isWindows && !isAndroid && !isWP8) pending('SKIP for iOS/macOS plugin (Cordova BUG: CB-9435)');
 
           // NOTE: since the above test shows the UNICODE line separator (\u2028)
           // is seen by the sqlite implementation OK, it is now concluded that
@@ -248,11 +251,14 @@ var mytests = function() {
           });
         });
 
-        // NOTE: the next two tests repeat the above for UNICODE \u2029 paragraph separator
-        // for iOS:
-        // - UNICODE \u2029 line separator from Javascript to Objective-C is working ok
-        // - UNICODE \u2029 line separator from Objective-C to Javascript is BROKEN
-        // ref: litehelpers/Cordova-sqlite-storage#147
+        // NOTE: the next 2 tests repeat the above for UNICODE \u2029 paragraph separator
+        // on iOS/macOS/Android:
+        // - UNICODE \u2029 paragraph separator from JavaScript to native (Objective-C/Java) is working OK
+        // - UNICODE \u2029 paragraph separator from native (Objective-C/Java) to JavaScript is BROKEN
+        // For reference:
+        // - litehelpers/Cordova-sqlite-storage#147
+        // - Apache Cordova CB-9435 (issue with cordova-ios, also affects macOS)
+        // - cordova/cordova-discuss#57 (issue with cordova-android)
         it(suiteName + "UNICODE \\u2029 line separator string length", function(done) {
           if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] Certain UNICODE characters not working with WP(8)
 
@@ -275,9 +281,9 @@ var mytests = function() {
         });
 
         it(suiteName + ' handles UNICODE \\u2029 line separator correctly [string test]', function (done) {
-
           if (isWP8) pending('BROKEN for WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
-          if (!(isWebSql || isAndroid || isIE)) pending('BROKEN for iOS'); // XXX [BUG #147] (no callback received)
+          if (!isWebSql && !isWindows && isAndroid) pending('SKIP for Android plugin (cordova-android 6.x BUG: cordova/cordova-discuss#57)');
+          if (!isWebSql && !isWindows && !isAndroid && !isWP8) pending('SKIP for iOS/macOS plugin (Cordova BUG: CB-9435)');
 
           // NOTE: since the above test shows the UNICODE paragraph separator (\u2029)
           // is seen by the sqlite implementation OK, it is now concluded that

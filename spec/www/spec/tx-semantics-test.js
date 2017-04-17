@@ -385,7 +385,10 @@ var mytests = function() {
               throw new Error("boom");
             }, function(err) {
               expect(err).toBeDefined();
-              expect(err.hasOwnProperty('message')).toBe(true);
+              expect(err.message).toBeDefined();
+              // err.hasOwnProperty('message') apparently NOT WORKING on WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+              if (!isWebSql || isWindows || (isAndroid && (/Android [1-4]/.test(navigator.userAgent))))
+                expect(err.hasOwnProperty('message')).toBe(true);
 
               if (!isWebSql) expect(err.message).toEqual('boom');
 
@@ -669,7 +672,7 @@ var mytests = function() {
                     tx.executeSql(';; CREATE TABLE ExtraTestTable4 (data)');
                   }, function(e) {
                     // CORRECT
-                    if (!isWebSql) expect('Plugin FIXED, please update this test').toBe('--');
+                    //if (!isWebSql) expect('Plugin FIXED, please update this test').toBe('--');
                     checkDone();
                   }, function() {
                     // BUG #460: IGNORED for Plugin ONLY:

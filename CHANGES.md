@@ -1,5 +1,10 @@
 # Changes
 
+###### cordova-sqlite-legacy-express-core 1.0.0-pre1
+
+- Drop engine constraints in package.json & plugin.xml (in this version branch)
+- Support macOS platform with builtin libsqlite3.dylib framework in this version branch
+
 ## 1.2.2
 
 - Self-test function to verify ability to open/populate/read/delete a test database

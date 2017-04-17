@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    id="cordova-sqlite-storage"
-    version="1.2.2">
+    id="cordova-sqlite-legacy-express-core"
+    version="1.0.0-pre1">
 
-    <name>Cordova sqlite storage plugin (core version)</name>
+    <name>Cordova sqlite storage plugin - legacy express core version</name>
 
     <license>MIT</license>
 
@@ -12,12 +12,6 @@
 
     <description>Native interface to SQLite for PhoneGap/Cordova. Allows you to use more storage and provides more flexibility than the standard Web SQL database (window.openDatabase).</description>
     <author>Litehelpers/Various</author>
-
-    <engines>
-        <engine name="cordova" version=">=6.0.0" />
-        <engine name="cordova-android" version=">=5.0.0" />
-        <engine name="cordova-ios" version=">=4.0.0" />
-    </engines>
 
     <js-module src="www/SQLitePlugin.js" name="SQLitePlugin">
         <clobbers target="SQLitePlugin" />
@@ -34,7 +28,6 @@
 
         <source-file src="src/android/io/sqlc/SQLitePlugin.java" target-dir="src/io/sqlc"/>
         <source-file src="src/android/io/sqlc/SQLiteAndroidDatabase.java" target-dir="src/io/sqlc"/>
-
     </platform>
 
     <!-- ios -->
@@ -49,7 +42,20 @@
         <header-file src="src/ios/SQLitePlugin.h" />
         <source-file src="src/ios/SQLitePlugin.m" />
         <framework src="libsqlite3.dylib" />
+    </platform>
 
+    <!-- macOS (osx) -->
+    <platform name="osx">
+        <config-file target="config.xml" parent="/*">
+            <feature name="SQLitePlugin">
+                <param name="ios-package" value="SQLitePlugin" />
+            </feature>
+        </config-file>
+
+        <!-- Note: the macOS (osx) src is based off src/ios implicitly -->
+        <header-file src="src/ios/SQLitePlugin.h" />
+        <source-file src="src/ios/SQLitePlugin.m" />
+        <framework src="libsqlite3.dylib" />
     </platform>
 
 </plugin>
