@@ -162,7 +162,7 @@
   };
 
   SQLitePlugin.prototype.open = function(success, error) {
-    var openerrorcb, opensuccesscb;
+    var myfn, openerrorcb, opensuccesscb;
     if (this.dbname in this.openDBs) {
       console.log('database already open: ' + this.dbname);
       nextTick((function(_this) {
@@ -201,6 +201,12 @@
         };
       })(this);
       this.openDBs[this.dbname] = DB_STATE_INIT;
+      if (!txLocks[this.dbname]) {
+        myfn = function(tx) {
+          tx.addStatement('ROLLBACK');
+        };
+        this.addTransaction(new SQLitePluginTransaction(this, myfn, null, null, false, false));
+      }
       cordova.exec(opensuccesscb, openerrorcb, "SQLitePlugin", "open", [this.openargs]);
     }
   };
@@ -678,32 +684,20 @@
         location: 'default'
       }, function(db) {
         db.transaction(function(tx) {
-          tx.executeSql('SELECT ? AS myResult', [null], function(ignored, resutSet) {});
-        }, function(txError) {
-          if (!txError) {
-            return SelfTest.finishWithError(errorcb, 'Missing txError object');
-          }
-          db.transaction(function(tx2) {
-            tx2.executeSql('SELECT ? AS myResult', [null], function(ignored, resutSet) {
-              if (!resutSet.rows) {
-                return SelfTest.finishWithError(errorcb, 'Missing resutSet.rows');
-              }
-              if (!resutSet.rows.length) {
-                return SelfTest.finishWithError(errorcb, 'Missing resutSet.rows.length');
-              }
-              if (resutSet.rows.length !== 1) {
-                return SelfTest.finishWithError(errorcb);
-              }
-              SelfTest.step3(successcb, errorcb);
-            });
-          }, function(tx2_err) {
-            return SelfTest.finishWithError(errorcb, "UNEXPECTED TRANSACTION ERROR: " + tx2_err);
+          tx.executeSql('SELECT ? AS myResult', [null], function(ignored, resutSet) {
+            if (!resutSet.rows) {
+              return SelfTest.finishWithError(errorcb, 'Missing resutSet.rows');
+            }
+            if (!resutSet.rows.length) {
+              return SelfTest.finishWithError(errorcb, 'Missing resutSet.rows.length');
+            }
+            if (resutSet.rows.length !== 1) {
+              return SelfTest.finishWithError(errorcb, "Incorrect resutSet.rows.length value: " + resutSet.rows.length + " (expected: 1)");
+            }
+            SelfTest.step3(successcb, errorcb);
           });
-        }, function() {
-          if (/Android/.test(navigator.userAgent) && !/Windows /.test(navigator.userAgent)) {
-            return SelfTest.step3(successcb, errorcb);
-          }
-          return SelfTest.finishWithError(errorcb, 'UNEXPECTED SUCCESS ref: litehelpers/Cordova-sqlite-storage#666');
+        }, function(txError) {
+          return SelfTest.finishWithError(errorcb, "UNEXPECTED TRANSACTION ERROR: " + txError);
         });
       }, function(open_err) {
         return SelfTest.finishWithError(errorcb, "Open database error: " + open_err);
