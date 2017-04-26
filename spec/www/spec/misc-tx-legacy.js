@@ -34,9 +34,10 @@ var isAndroid = /Android/.test(navigator.userAgent);
 var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
 
-// NOTE: In the core-master branch there is no difference between the default
-// implementation and implementation #2. But the test will also apply
-// the androidLockWorkaround: 1 option in the case of implementation #2.
+// NOTE: While in certain version branches there is no difference between
+// the default Android implementation and implementation #2,
+// this test script will also apply the androidLockWorkaround: 1 option
+// in case of implementation #2.
 var scenarioList = [
   isAndroid ? 'Plugin-implementation-default' : 'Plugin',
   'HTML5',
@@ -45,7 +46,8 @@ var scenarioList = [
 
 var scenarioCount = (!!window.hasWebKitBrowser) ? (isAndroid ? 3 : 2) : 1;
 
-// XXX FUTURE TBD split this script further:
+// FUTURE TBD (already done in newer version branches):
+// Split this script further
 
 var mytests = function() {
 
@@ -55,23 +57,25 @@ var mytests = function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
       var isWebSql = (i === 1);
-      var isOldImpl = (i === 2);
+      var isImpl2 = (i === 2);
 
       // NOTE: MUST be defined in function scope, NOT outer scope:
       var openDatabase = function(name, ignored1, ignored2, ignored3) {
-        if (isOldImpl) {
+        if (isImpl2) {
           return window.sqlitePlugin.openDatabase({
             // prevent reuse of database from default db implementation:
             name: 'i2-'+name,
+            // explicit database location:
+            location: 'default',
             androidDatabaseImplementation: 2,
-            androidLockWorkaround: 1,
-            location: 1
+            androidLockWorkaround: 1
           });
         }
         if (isWebSql) {
-          return window.openDatabase(name, "1.0", "Demo", DEFAULT_SIZE);
+          return window.openDatabase(name, '1.0', 'Test', DEFAULT_SIZE);
         } else {
-          return window.sqlitePlugin.openDatabase({name: name, location: 0});
+          // explicit database location:
+          return window.sqlitePlugin.openDatabase({name: name, location: 'default'});
         }
       }
 
@@ -228,11 +232,11 @@ var mytests = function() {
       describe(scenarioList[i] + ': db.executeSql test(s)', function() {
         var scenarioName = scenarioList[i];
         var suiteName = scenarioName + ': ';
-        var isOldAndroidImpl = (i === 1);
+        var isImpl2 = (i === 1);
 
         // NOTE: MUST be defined in function scope, NOT outer scope:
         var openDatabase = function(first, second, third, fourth, fifth, sixth) {
-          //if (!isOldAndroidImpl) {
+          //if (!isImpl2) {
           //  return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
           //}
 
@@ -248,15 +252,17 @@ var mytests = function() {
             errorcb = third;
           }
 
-          if (!isOldAndroidImpl) {
-            return window.sqlitePlugin.openDatabase({name: dbname, location: 0}, okcb, errorcb);
+          if (!isImpl2) {
+            // explicit database location:
+            return window.sqlitePlugin.openDatabase({name: dbname, location: 2}, okcb, errorcb);
           }
 
           var dbopts = {
             name: 'i2-'+dbname,
+            // explicit database location:
+            location: 'default',
             androidDatabaseImplementation: 2,
-            androidLockWorkaround: 1,
-            location: 1
+            androidLockWorkaround: 1
           };
 
           return window.sqlitePlugin.openDatabase(dbopts, okcb, errorcb);
@@ -351,11 +357,11 @@ var mytests = function() {
       describe(scenarioList[i] + ': db.executeSql test(s)', function() {
         var scenarioName = scenarioList[i];
         var suiteName = scenarioName + ': ';
-        var isOldAndroidImpl = (i === 1);
+        var isImpl2 = (i === 1);
 
         // NOTE: MUST be defined in function scope, NOT outer scope:
         var openDatabase = function(first, second, third, fourth, fifth, sixth) {
-          //if (!isOldAndroidImpl) {
+          //if (!isImpl2) {
           //  return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
           //}
 
@@ -371,15 +377,17 @@ var mytests = function() {
             errorcb = third;
           }
 
-          if (!isOldAndroidImpl) {
-            return window.sqlitePlugin.openDatabase({name: dbname, location: 0}, okcb, errorcb);
+          if (!isImpl2) {
+            // explicit database location:
+            return window.sqlitePlugin.openDatabase({name: dbname, location: 2}, okcb, errorcb);
           }
 
           var dbopts = {
             name: 'i2-'+dbname,
+            // explicit database location:
+            location: 'default',
             androidDatabaseImplementation: 2,
-            androidLockWorkaround: 1,
-            location: 1
+            androidLockWorkaround: 1
           };
 
           return window.sqlitePlugin.openDatabase(dbopts, okcb, errorcb);
