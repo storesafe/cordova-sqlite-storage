@@ -46,7 +46,7 @@ Use the `location` or `iosDatabaseLocation` option in `sqlitePlugin.openDatabase
 ## Status
 
 - A recent version of the Cordova CLI (such as `6.5.0`) is recommended. Cordova versions older than `6.0.0` are missing the `cordova-ios@4.0.0` security fixes. In addition it is *required* to use `cordova prepare` in case of cordova-ios older than `4.3.0` (Cordova CLI `6.4.0`).
-- iOS database location is now mandatory, as documented below.
+- The iOS database location is now mandatory, as documented below.
 - Android platform version in this version branch is now using the built-in Android SQLite database classes. Integration with the lightweight [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) is available in the default [litehelpers / Cordova-sqlite-storage](https://github.com/litehelpers/Cordova-sqlite-storage) version branch as well as other versions such as [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) and [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy).
 - iOS/macOS platform version in this version branch uses builtin `libsqlite3.dylib` framework library. Other versions such as the default [litehelpers / Cordova-sqlite-storage](https://github.com/litehelpers/Cordova-sqlite-storage) version branch, [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext), and [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy) include a build of a recent sqlite3 amalgamation.
 - Windows 10 UWP version using the performant [doo / SQLite3-WinRT](https://github.com/doo/SQLite3-WinRT) component is available in the default [litehelpers / Cordova-sqlite-storage](https://github.com/litehelpers/Cordova-sqlite-storage) version branch as well as other versions such as [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext).
@@ -116,6 +116,32 @@ Use the `location` or `iosDatabaseLocation` option in `sqlitePlugin.openDatabase
 
 <!-- END Some apps using this plugin -->
 
+## Security
+
+### Security of sensitive data
+
+According to [Web SQL Database API 7.2 Sensitivity of data](https://www.w3.org/TR/webdatabase/#sensitivity-of-data):
+>User agents should treat persistently stored data as potentially sensitive; it's quite possible for e-mails, calendar appointments, health records, or other confidential documents to be stored in this mechanism.
+>
+>To this end, user agents should ensure that when deleting data, it is promptly deleted from the underlying storage.
+
+Unfortunately this plugin will not actually overwrite the deleted content unless the [secure_delete PRAGMA](https://www.sqlite.org/pragma.html#pragma_secure_delete) is used.
+
+### SQL injection
+
+As "strongly recommended" by [Web SQL Database API 8.5 SQL injection](https://www.w3.org/TR/webdatabase/#sql-injection):
+>Authors are strongly recommended to make use of the `?` placeholder feature of the `executeSql()` method, and to never construct SQL statements on the fly.
+
+<!-- END Security -->
+
+# Avoiding data loss
+
+- Double-check that the application code follows the documented API for SQL statements, parameter values, success callbacks, and error callbacks.
+- For standard Web SQL transactions include a transaction error callback with the proper logic that indicates to the user if data cannot be stored for any reason. In case of individual SQL error handlers be sure to indicate to the user if there is any issue with storing data.
+- For single statement and batch transactions include an error callback with logic that indicates to the user if data cannot be stored for any reason.
+
+<!-- Avoiding data loss -->
+
 ## Known issues
 
 - iOS/macOS platform version does not support certain rapidly repeated open-and-close or open-and-delete test scenarios due to how the implementation handles background processing
@@ -176,36 +202,59 @@ Issues fixed in some newer version branches:
 - Integration with PhoneGap developer app
 - Use within [InAppBrowser](http://docs.phonegap.com/en/edge/cordova_inappbrowser_inappbrowser.md.html)
 - Use within an iframe (see [litehelpers/Cordova-sqlite-storage#368 (comment)](https://github.com/litehelpers/Cordova-sqlite-storage/issues/368#issuecomment-154046367))
+- Date/time handling
+- Maximum record size supported
 - Actual behavior when using SAVEPOINT(s)
 - R-Tree is not fully tested with Android
 - UNICODE characters not fully tested
 - Use with TRIGGER(s), JOIN and ORDER BY RANDOM
 - UPDATE/DELETE with LIMIT or ORDER BY (newer Android/iOS versions)
-- WITH clause (not supported by older sqlite3 versions)
 - Integration with JXCore for Cordova (must be built without sqlite(3) built-in)
 - Delete an open database inside a statement or transaction callback.
+- WITH clause (not supported by some older sqlite3 versions)
+- Handling of invalid transaction and transaction.executeSql arguments
+- Use of database locations on macOS
+- Extremely large and small INTEGER and REAL values ref: [litehelpers/Cordova-sqlite-storage#627](https://github.com/litehelpers/Cordova-sqlite-storage/issues/627))
+- More emojis and other 4-octet UTF-8 characters
+- `?NNN`/`:AAA`/`@AAAA`/`$AAAA` parameter placeholders ref: <https://www.sqlite.org/lang_expr.html#varparam>, <https://www.sqlite.org/c3ref/bind_blob.html>)
+- Single-statement and SQL batch transaction calls with invalid arguments (TBD behavior subject to change)
+
+<!-- END Further testing needed -->
 
 ## Some tips and tricks
 
 - If you run into problems and your code follows the asynchronous HTML5/[Web SQL](http://www.w3.org/TR/webdatabase/) transaction API, you can try opening a test database using `window.openDatabase` and see if you get the same problems.
 - In case your database schema may change, it is recommended to keep a table with one row and one column to keep track of your own schema version number. It is possible to add it later. The recommended schema update procedure is described below.
 
-## Common pitfall(s)
+<!-- END Some tips and tricks -->
 
+## Pitfalls
+
+### Some common pitfall(s)
+
+- If a database is opened using the standard `window.openDatabase` call it will not have any of the benefits of this plugin and features such as the `sqlBatch` call would not be available.
 - It is NOT allowed to execute sql statements on a transaction that has already finished, as described below. This is consistent with the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
 - The plugin class name starts with "SQL" in capital letters, but in Javascript the `sqlitePlugin` object name starts with "sql" in small letters.
 - Attempting to open a database before receiving the 'deviceready' event callback.
 - Inserting STRING into ID field
 - Auto-vacuum is NOT enabled by default. It is recommended to periodically VACUUM the database.
+- Transactions on a database are run sequentially. A large transaction could block smaller transactions requested afterwards.
 
-## Weird pitfall(s)
+### Some weird pitfall(s)
 
 - intent whitelist: blocked intent such as external URL intent *may* cause this and perhaps certain Cordova plugin(s) to misbehave (see [litehelpers/Cordova-sqlite-storage#396](https://github.com/litehelpers/Cordova-sqlite-storage/issues/396))
 
-## Angular/ngCordova/Ionic-related pitfalls
+### Angular/ngCordova/Ionic-related pitfalls
 
 - Angular/ngCordova/Ionic controller/factory/service callbacks may be triggered before the 'deviceready' event is fired
 - As discussed in [litehelpers/Cordova-sqlite-storage#355](https://github.com/litehelpers/Cordova-sqlite-storage/issues/355), it may be necessary to install ionic-plugin-keyboard
+- Navigation items such as root page can be tricky on Ionic 2 ref: [litehelpers/Cordova-sqlite-storage#613](https://github.com/litehelpers/Cordova-sqlite-storage/issues/613)
+
+### General Cordova pitfalls
+
+Documented in: [brodybits / Avoiding-some-Cordova-pitfalls](https://github.com/brodybits/Avoiding-some-Cordova-pitfalls)
+
+<!-- END pitfalls -->
 
 ## Major TODOs
 
@@ -281,7 +330,9 @@ window.sqlitePlugin.selfTest(successCallback, errorCallback);
 
 ## General
 
-The idea is to emulate the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/) as closely as possible. The only major change is to use `window.sqlitePlugin.openDatabase()` (or `sqlitePlugin.openDatabase()`) *with parameters as documented below* instead of `window.openDatabase()`. If you see any other major change please report it, it is probably a bug.
+- Drop-in replacement for HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/): the only change should be to replace the static `window.openDatabase()` factory call with `window.sqlitePlugin.openDatabase()`, with parameters as documented below. (Some known deviations are documented in newer version branches.)
+- Single-page application design is recommended.
+- In case of a multi-page application the JavaScript used by each page must use `sqlitePlugin.openDatabase` to open the database access handle object before it can access the data.
 
 **NOTE:** If a sqlite statement in a transaction fails with an error, the error handler *must* return `false` in order to recover the transaction. This is correct according to the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/) standard. This is different from the WebKit implementation of Web SQL in Android and iOS which recovers the transaction if a sql error hander returns a non-`true` value.
 
@@ -730,9 +781,27 @@ The transactional nature of the API makes it relatively straightforward to manag
 
 ## Use with Ionic/ngCordova/Angular
 
-It is recommended to follow the tutorial at: https://blog.nraboy.com/2014/11/use-sqlite-instead-local-storage-ionic-framework/
+### Ionic 2
 
-Documentation at: http://ngcordova.com/docs/plugins/sqlite/
+Tutorials with Ionic 2:
+- <https://www.thepolyglotdeveloper.com/2016/08/using-sqlstorage-instead-sqlite-ionic-2-app/> (title is somewhat misleading, "SQL storage" *does* use this sqlite plugin)
+- <https://www.thepolyglotdeveloper.com/2015/12/use-sqlite-in-ionic-2-instead-of-local-storage/> (older tutorial)
+
+Sample for Ionic 2 wanted ref: [litehelpers/Cordova-sqlite-storage#585](https://github.com/litehelpers/Cordova-sqlite-storage/issues/585)
+
+### Ionic 1
+
+Tutorial with Ionic 1: <https://blog.nraboy.com/2014/11/use-sqlite-instead-local-storage-ionic-framework/>
+
+A sample for Ionic 1 is provided at: [litehelpers / Ionic-sqlite-database-example](https://github.com/litehelpers/Ionic-sqlite-database-example)
+
+Documentation at: <http://ngcordova.com/docs/plugins/sqlite/>
+
+Other resource (apparently for Ionic 1): <https://www.packtpub.com/books/content/how-use-sqlite-ionic-store-data>
+
+**NOTE:** Some Ionic and other Angular pitfalls are described above.
+
+<!-- END Use with Ionic/ngCordova/Angular -->
 
 # Installing
 
