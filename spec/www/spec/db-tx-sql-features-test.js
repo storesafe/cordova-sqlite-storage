@@ -7,6 +7,7 @@ var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
+var isBrowser = !isWindows && !isAndroid && /Chrome/.test(navigator.userAgent);
 
 // NOTE: In the common storage-master branch there is no difference between the
 // default implementation and implementation #2. But the test will also apply
@@ -126,6 +127,7 @@ var mytests = function() {
         it(suiteName + 'create virtual table using FTS4', function(done) {
           if (isWP8) pending('NOT IMPLEMENTED for WP(8)'); // NOT IMPLEMENTED in CSharp-SQLite
           if (isWebSql) pending('SKIP for Web SQL');
+          if (isBrowser) pending('SKIP for browser platform');
 
           var db = openDatabase('virtual-table-using-fts4.db', '1.0', 'Test', DEFAULT_SIZE);
 
@@ -274,6 +276,7 @@ var mytests = function() {
         it(suiteName + 'create virtual table using R-Tree', function(done) {
           if (isWebSql) pending('SKIP for Web SQL');
           if (isWP8) pending('NOT IMPLEMENTED for WP(8)'); // NOT IMPLEMENTED in CSharp-SQLite
+          if (isBrowser) pending('SKIP for browser platform');
           if (isAndroid && isImpl2) pending('NOT IMPLEMENTED for all versions of android.database'); // NOT IMPLEMENTED for all versions of Android database (failed in Circle CI)
 
           var db = openDatabase('virtual-table-using-r-tree.db', '1.0', 'Test', DEFAULT_SIZE);

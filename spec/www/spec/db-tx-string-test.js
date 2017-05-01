@@ -7,6 +7,7 @@ var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
+var isBrowser = !isWindows && !isAndroid && /Chrome/.test(navigator.userAgent);
 
 // The following openDatabase settings are used for Plugin-implementation-2
 // on Android:
@@ -79,6 +80,7 @@ var mytests = function() {
             (isWebSql) ? done() : db.close(done, done);
           });
         }, MYTIMEOUT);
+        // return;
 
         it(suiteName + 'Inline US-ASCII String manipulation test with null parameter list', function(done) {
           var db = openDatabase("Inline-US-ASCII-string-test-with-null-parameter-list.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -558,6 +560,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
       });
+      // return;
 
       describe(suiteName + 'UTF-8 multiple octet character string binding/manipulation tests [default sqlite encoding: UTF-16le on Windows, UTF-8 encoding on others]', function() {
 
@@ -596,7 +599,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isAndroid && (isWebSql || (isImpl2 && /Android [5-9]/.test(navigator.userAgent))))
+              if (isBrowser || (isAndroid && (isWebSql || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
                 expect(rs.rows.item(0).myresult).toBe('AÉ');
               else
                 expect(rs.rows.item(0).myresult).toBe('Aé');
@@ -996,7 +999,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isAndroid && (isWebSql || (isImpl2 && /Android [5-9]/.test(navigator.userAgent))))
+              if (isBrowser || (isAndroid && (isWebSql || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
                 expect(rs.rows.item(0).upper_result).toBe('TEST ¢ É €');
               else
                 expect(rs.rows.item(0).upper_result).toBe('TEST ¢ é €');
@@ -1024,7 +1027,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isAndroid && (isWebSql || (isImpl2 && /Android [5-9]/.test(navigator.userAgent))))
+              if (isBrowser || (isAndroid && (isWebSql || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
                 expect(rs.rows.item(0).upper_result).toBe('TEST ¢ É €');
               else
                 expect(rs.rows.item(0).upper_result).toBe('TEST ¢ é €');
@@ -1459,10 +1462,11 @@ var mytests = function() {
           db.transaction(function(tx) {
             tx.executeSql('SELECT UPPER(?) AS upper1, UPPER(?) AS upper2', myObject, function(ignored, rs) {
               // EXPECTED RESULT:
+              if (!isWebSql && isBrowser) expect('Browser plugin FIXED PLEASE UPDATE').toBe('--');
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWebSql) {
+              if (isWebSql || isBrowser) {
                 expect(rs.rows.item(0).upper1).toBe('S1');
                 expect(rs.rows.item(0).upper2).toBe('S2');
               } else {
@@ -1472,9 +1476,13 @@ var mytests = function() {
               done();
             });
           }, function(error) {
-            // NOT EXPECTED:
-            expect(false).toBe(true);
-            expect(error.message).toBe('--');
+            // EXPECTED for browser platform ONLY:
+            if (!isWebSql && isBrowser) {
+              expect(error).toBeDefined();
+            } else {
+              expect(false).toBe(true);
+              expect(error.message).toBe('--');
+            }
             done();
           });
         }, MYTIMEOUT);

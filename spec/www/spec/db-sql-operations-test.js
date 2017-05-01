@@ -32,8 +32,9 @@ function start(n) {
 var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
-var isMac = /Macintosh/.test(navigator.userAgent);
-var isWKWebView = !isWindows && !isAndroid && !isWP8 && !isMac && !!window.webkit && !!window.webkit.messageHandlers;
+var isBrowser = !isWindows && !isAndroid && /Chrome/.test(navigator.userAgent);
+var isMac = !isBrowser && /Macintosh/.test(navigator.userAgent);
+var isWKWebView = !isWindows && !isAndroid && !isWP8 && !isMac && !isBrowser && !!window.webkit && !!window.webkit.messageHandlers;
 
 // NOTE: In the common storage-master branch there is no difference between the
 // default implementation and implementation #2. But the test will also apply
@@ -156,7 +157,7 @@ var mytests = function() {
             expect(rs).toBeDefined();
             expect(rs.rows).toBeDefined();
             expect(rs.rows.length).toBe(1);
-            if (isMac || isWKWebView)
+            if (isBrowser || isMac || isWKWebView)
               expect(rs.rows.item(0).myresult).toBe('real');
             else if (isAndroid && isImpl2)
               expect(rs.rows.item(0).myresult).toBe('text');
@@ -200,7 +201,7 @@ var mytests = function() {
             expect(rs).toBeDefined();
             expect(rs.rows).toBeDefined();
             expect(rs.rows.length).toBe(1);
-            if (isMac || isWKWebView)
+            if (isBrowser || isMac || isWKWebView)
               expect(rs.rows.item(0).myresult).toBe('real');
             else if (isAndroid && isImpl2)
               expect(rs.rows.item(0).myresult).toBe('text');
@@ -328,7 +329,7 @@ var mytests = function() {
             expect(rs).toBeDefined();
             expect(rs.rows).toBeDefined();
             expect(rs.rows.length).toBe(1);
-            if (isMac || isWKWebView)
+            if (isBrowser || isMac || isWKWebView)
               expect(rs.rows.item(0).myresult).toBe('real');
             else if (isAndroid && isImpl2)
               expect(rs.rows.item(0).myresult).toBe('text');
@@ -393,7 +394,7 @@ var mytests = function() {
             expect(rs).toBeDefined();
             expect(rs.rows).toBeDefined();
             expect(rs.rows.length).toBe(1);
-            if (isAndroid && isImpl2)
+            if (isBrowser || (isAndroid && isImpl2))
               expect(rs.rows.item(0).myresult).toBe('text');
             else
               expect(rs.rows.item(0).myresult).toBe('null');
@@ -416,9 +417,9 @@ var mytests = function() {
             expect(rs).toBeDefined();
             expect(rs.rows).toBeDefined();
             expect(rs.rows.length).toBe(1);
-            if (isAndroid && isImpl2)
+            if (isMac || isWKWebView)
               expect(rs.rows.item(0).myresult).toBe('text');
-            else if (!isWindows && !isMac)
+            else if (!isBrowser && !isWindows && !isMac)
               expect(rs.rows.item(0).myresult).toBe('null');
             else
               expect(rs.rows.item(0).myresult).toBe('real');
@@ -442,7 +443,7 @@ var mytests = function() {
             expect(rs).toBeDefined();
             expect(rs.rows).toBeDefined();
             expect(rs.rows.length).toBe(1);
-            if (isWindows)
+            if (isBrowser || isWindows)
               expect(rs.rows.item(0).myresult).toBe(Infinity);
             else if (isAndroid && isImpl2)
               expect(rs.rows.item(0).myresult).toBe('');
@@ -469,7 +470,7 @@ var mytests = function() {
             expect(rs.rows.length).toBe(1);
             if (isAndroid && isImpl2)
               expect(rs.rows.item(0).myresult).toBe('text');
-            else if (!isWindows && !isMac)
+            else if (!isBrowser && !isWindows && !isMac)
               expect(rs.rows.item(0).myresult).toBe('null');
             else
               expect(rs.rows.item(0).myresult).toBe('real');
@@ -493,7 +494,7 @@ var mytests = function() {
             expect(rs).toBeDefined();
             expect(rs.rows).toBeDefined();
             expect(rs.rows.length).toBe(1);
-            if (isWindows)
+            if (isBrowser || isWindows)
               expect(rs.rows.item(0).myresult).toBe(-Infinity);
             else if (isAndroid && isImpl2)
               expect(rs.rows.item(0).myresult).toBe('');
@@ -548,22 +549,22 @@ var mytests = function() {
             expect(rs.rows).toBeDefined();
             expect(rs.rows.length).toBe(9);
             expect(rs.rows.item(0).d1).toBe(101);
-            if (isMac || isWKWebView)
+            if (isBrowser || isMac || isWKWebView)
               expect(rs.rows.item(0).t1).toBe('real');
             else
               expect(rs.rows.item(0).t1).toBe('integer');
             expect(rs.rows.item(0).a1).toBe(101);
-            if (isMac || isWKWebView)
+            if (isBrowser || isMac || isWKWebView)
               expect(rs.rows.item(0).u1).toBe('101.0');
             else
               expect(rs.rows.item(0).u1).toBe('101');
             expect(rs.rows.item(1).d1).toBe(-101);
-            if (isMac || isWKWebView)
+            if (isBrowser || isMac || isWKWebView)
               expect(rs.rows.item(1).t1).toBe('real');
             else
               expect(rs.rows.item(1).t1).toBe('integer');
             expect(rs.rows.item(1).a1).toBe(101);
-            if (isMac || isWKWebView)
+            if (isBrowser || isMac || isWKWebView)
               expect(rs.rows.item(1).u1).toBe('-101.0');
             else
               expect(rs.rows.item(1).u1).toBe('-101');
@@ -576,22 +577,22 @@ var mytests = function() {
             expect(rs.rows.item(3).a1).toBe(123.456);
             expect(rs.rows.item(3).u1).toBe('-123.456');
             expect(rs.rows.item(4).d1).toBe(1234567890123);
-            if (isMac || isWKWebView)
+            if (isBrowser || isMac || isWKWebView)
               expect(rs.rows.item(4).t1).toBe('real');
             else
               expect(rs.rows.item(4).t1).toBe('integer');
             expect(rs.rows.item(4).a1).toBe(1234567890123);
-            if (isMac || isWKWebView)
+            if (isBrowser || isMac || isWKWebView)
               expect(rs.rows.item(4).u1).toBe('1234567890123.0');
             else
               expect(rs.rows.item(4).u1).toBe('1234567890123');
             expect(rs.rows.item(5).d1).toBe(-1234567890123);
-            if (isMac || isWKWebView)
+            if (isBrowser || isMac || isWKWebView)
               expect(rs.rows.item(5).t1).toBe('real');
             else
               expect(rs.rows.item(5).t1).toBe('integer');
             expect(rs.rows.item(5).a1).toBe(1234567890123);
-            if (isMac || isWKWebView)
+            if (isBrowser || isMac || isWKWebView)
               expect(rs.rows.item(5).u1).toBe('-1234567890123.0');
             else
               expect(rs.rows.item(5).u1).toBe('-1234567890123');
@@ -604,12 +605,12 @@ var mytests = function() {
             expect(rs.rows.item(7).a1).toBe(1234567890123.4);
             expect(rs.rows.item(7).u1).toBe('-1234567890123.4');
             expect(rs.rows.item(8).d1).toBe(0);
-            if (isMac || isWKWebView)
+            if (isBrowser || isMac || isWKWebView)
               expect(rs.rows.item(8).t1).toBe('real');
             else
               expect(rs.rows.item(8).t1).toBe('integer');
             expect(rs.rows.item(8).a1).toBe(0);
-            if (isMac || isWKWebView)
+            if (isBrowser || isMac || isWKWebView)
               expect(rs.rows.item(8).u1).toBe('0.0');
             else
               expect(rs.rows.item(8).u1).toBe('0');
@@ -634,10 +635,22 @@ var mytests = function() {
             expect(rs.rows.item(0).t1).toBe('null');
             expect(rs.rows.item(0).a1).toBe(null);
             expect(rs.rows.item(0).u1).toBe(null);
-            expect(rs.rows.item(1).d1).toBe(null);
-            expect(rs.rows.item(1).t1).toBe('null');
-            expect(rs.rows.item(1).a1).toBe(null);
-            expect(rs.rows.item(1).u1).toBe(null);
+            if (isBrowser)
+              expect(rs.rows.item(1).d1).toBe('undefined');
+            else
+              expect(rs.rows.item(1).d1).toBe(null);
+            if (isBrowser)
+              expect(rs.rows.item(1).t1).toBe('text');
+            else
+              expect(rs.rows.item(1).t1).toBe('null');
+            if (isBrowser)
+              expect(rs.rows.item(1).a1).toBe(0);
+            else
+              expect(rs.rows.item(1).a1).toBe(null);
+            if (isBrowser)
+              expect(rs.rows.item(1).u1).toBe('UNDEFINED');
+            else
+              expect(rs.rows.item(1).u1).toBe(null);
             db.close(done, done);
           });
         }, MYTIMEOUT);
@@ -657,7 +670,7 @@ var mytests = function() {
           db.executeSql('SELECT data AS d1, TYPEOF(data) AS t1, ABS(data) AS a1, UPPER(data) as u1 FROM MyTable', [], function (rs) {
             expect(rs.rows).toBeDefined();
             expect(rs.rows.length).toBe(3);
-            if (isWindows) {
+            if (isBrowser || isWindows) {
               expect(rs.rows.item(0).d1).toBe(Infinity);
               expect(rs.rows.item(0).t1).toBe('real');
               expect(rs.rows.item(0).a1).toBe(Infinity);
@@ -761,6 +774,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'SELECT UPPER(?) AS upper1, UPPER(?) AS upper2 with "naive" Array subclass (constructor explicitly set to subclasss) as value arguments array', function(done) {
+          if (isBrowser) pending('SKIP for browser platform'); // XXX TBD
+
           var db = openDatabase('DB-SQL-SELECT-multi-upper-on-array-subclass-explicit-constructor.db');
           expect(db).toBeDefined();
 
@@ -786,13 +801,22 @@ var mytests = function() {
             expect(rs).toBeDefined();
             expect(rs.rows).toBeDefined();
             expect(rs.rows.length).toBe(1);
-            expect(rs.rows.item(0).upper1).toBeNull();
-            expect(rs.rows.item(0).upper2).toBeNull();
+            if (isBrowser) {
+              expect(rs.rows.item(0).upper1).toBe('S1');
+              expect(rs.rows.item(0).upper2).toBe('S2');
+            } else {
+              expect(rs.rows.item(0).upper1).toBeNull();
+              expect(rs.rows.item(0).upper2).toBeNull();
+            }
             db.close(done, done);
           }, function(error) {
-            // NOT EXPECTED:
-            expect(false).toBe(true);
-            expect(error.message).toBe('--');
+            // EXPECTED for browser platform ONLY:
+            if (!isWebSql && isBrowser) {
+              expect(error).toBeDefined();
+            } else {
+              expect(false).toBe(true);
+              expect(error.message).toBe('--');
+            }
             db.close(done, done);
           });
         }, MYTIMEOUT);
@@ -1034,7 +1058,8 @@ var mytests = function() {
             expect(false).toBe(null);
             db.close(done, done);
           }, function(error) {
-            expect('Behavior changed please update this test').toBe('--');
+            if (!isBrowser)
+              expect('Behavior changed please update this test').toBe('--');
             expect(error).toBeDefined();
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
@@ -1051,6 +1076,8 @@ var mytests = function() {
               expect(true).toBe(true); // SKIP for now
             else if (isWindows)
               expect(error.message).toMatch(/Error preparing an SQLite statement/);
+            else if (isBrowser)
+              expect(true).toBe(true); // SKIP for now
             else
               expect(error.message).toMatch(/near \"SLCT\": syntax error/);
           });
@@ -1077,7 +1104,8 @@ var mytests = function() {
             expect(false).toBe(null);
             db.close(done, done);
           }, function(error) {
-            expect('Behavior changed please update this test').toBe('--');
+            if (!isBrowser)
+              expect('Behavior changed please update this test').toBe('--');
             expect(error).toBeDefined();
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
@@ -1094,6 +1122,8 @@ var mytests = function() {
               expect(true).toBe(true); // SKIP for now
             else if (isWindows)
               expect(error.message).toMatch(/Error preparing an SQLite statement/);
+            else if (isBrowser)
+              expect(true).toBe(true); // TBD SKIP for now
             else
               expect(error.message).toMatch(/near \"SLCT\": syntax error/);
           });
@@ -1670,7 +1700,7 @@ var mytests = function() {
           return window.sqlitePlugin.openDatabase(dbopts, okcb, errorcb);
         }
 
-        test_it(suiteName + "PRAGMAs & multiple database transactions mixed together", function() {
+        xtest_it(suiteName + "PRAGMAs & multiple database transactions mixed together", function() {
           var db = openDatabase("DB1", "1.0", "Demo", DEFAULT_SIZE);
 
           var db2 = openDatabase("DB2", "1.0", "Demo", DEFAULT_SIZE);

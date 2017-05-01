@@ -32,6 +32,7 @@ function start(n) {
 
 var isWindows = /Windows /.test(navigator.userAgent); // Windows 8.1/Windows Phone 8.1/Windows 10
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
+var isBrowser = !isWindows && !isAndroid && /Chrome/.test(navigator.userAgent);
 
 // NOTE: In the core-master branch there is no difference between the default
 // implementation and implementation #2. But the test will also apply
@@ -360,7 +361,9 @@ var mytests = function() {
                 });
               });
             }, function(error) {
-              if (!isWebSql) equal(error.message, "deliberately aborting transaction");
+              // XXX TBD match on browser platform
+              //if (!isWebSql) equal(error.message, "deliberately aborting transaction");
+              if (!isWebSql && !isBrowser) equal(error.message, "deliberately aborting transaction");
               db.transaction(function(tx) {
                 tx.executeSql("select count(*) as cnt from test_table", [], function(tx, res) {
                   equal(res.rows.item(0).cnt, 0, "final count shows we rolled back");
@@ -389,7 +392,9 @@ var mytests = function() {
 
               expect(error.code).toBe(0);
 
-              if (isWebSql)
+              //if (isWebSql)
+              // XXX TBD:
+              if (isWebSql || isBrowser)
                 expect(error.message).toMatch(/the SQLTransactionCallback was null or threw an exception/);
               else
                 expect(error.message).toBe('boom');
@@ -421,12 +426,16 @@ var mytests = function() {
               expect(error.code).toBeDefined();
               expect(error.message).toBeDefined();
 
-              if (isWebSql)
+              // XXX TBD:
+              //if (isWebSql)
+              if (isWebSql || isBrowser)
                 expect(error.code).toBe(0);
               else
                 expect(error.code).toBe(3);
 
-              if (isWebSql)
+              // XXX TBD:
+              //if (isWebSql)
+              if (isWebSql || isBrowser)
                 expect(error.message).toMatch(/the SQLTransactionCallback was null or threw an exception/);
               else
                 expect(error.message).toBe('boom');

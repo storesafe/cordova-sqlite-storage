@@ -1,5 +1,9 @@
 # Changes
 
+## cordova-sqlite-storage 2.1.0-browser-wip1
+
+- Support browser platform
+
 ## cordova-sqlite-storage 2.0.3
 
 - Drop engines rule from package.json
