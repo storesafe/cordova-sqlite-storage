@@ -14,7 +14,6 @@ var scenarioList = [ isAndroid ? 'Plugin-implementation-default' : 'Plugin', 'HT
 
 var scenarioCount = (!!window.hasWebKitBrowser) ? (isAndroid ? 3 : 2) : 1;
 
-// simple tests:
 var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
@@ -28,23 +27,26 @@ var mytests = function() {
       // NOTE: MUST be defined in function scope, NOT outer scope:
       var openDatabase = function(name, ignored1, ignored2, ignored3) {
         if (isImpl2) {
-          return window.sqlitePlugin.openDatabase({name: name, location: 1, androidDatabaseImplementation: 2});
+          // explicit database location:
+          return window.sqlitePlugin.openDatabase({name: name, location: 'default', androidDatabaseImplementation: 2});
         }
         if (isWebSql) {
           return window.openDatabase(name, "1.0", "Demo", DEFAULT_SIZE);
         } else {
-          return window.sqlitePlugin.openDatabase({name: name, location: 0});
+          // explicit database location:
+          return window.sqlitePlugin.openDatabase({name: name, location: 'default'});
         }
       }
 
       it(suiteName + 'Simple REGEXP test',
         function(done) {
-          // Test for Android Web SQL ONLY
+          // TBD Test for Android Web SQL ONLY in this version branch:
           if (isWP8) pending('NOT IMPLEMENTED for WP8');
           if (isWindows) pending('NOT IMPLEMENTED for Windows');
-          //if (!isWebSql && isAndroid && isImpl2 && /Android [1-4]/.test(navigator.userAgent)) pending('BROKEN for android.database (version 1.x-4.x)');
-          if (!isWebSql && isAndroid) pending('SKIP for android.database'); // TBD (SKIP for Android plugin for now)
-          if (!isAndroid && !isWindows && !isWP8) pending('SKIP for iOS/macOS');
+          if (!isWebSql && !isWindows && isAndroid) pending('SKIP for Android plugin'); // TBD SKIP for Android plugin (for now)
+          if (isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS (WebKit) Web SQL');
+          // TBD REMOVE from version branches such as cordova-sqlite-ext:
+          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('NOT IMPLEMENTED for iOS/macOS plugin');
 
           var db = openDatabase('simple-regexp-test.db', '1.0', 'test', DEFAULT_SIZE);
 
