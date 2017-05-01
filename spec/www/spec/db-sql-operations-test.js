@@ -34,7 +34,7 @@ var isWindows = /Windows /.test(navigator.userAgent); // Windows
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 var isBrowser = !isWindows && !isAndroid && /Chrome/.test(navigator.userAgent);
 var isMac = !isBrowser && /Macintosh/.test(navigator.userAgent);
-var isWKWebView = !isWindows && !isAndroid && !isWP8 && !isMac && !!window.webkit && !!window.webkit.messageHandlers;
+var isWKWebView = !isWindows && !isAndroid && !isWP8 && !isMac && !isBrowser && !!window.webkit && !!window.webkit.messageHandlers;
 
 // NOTE: In the common storage-master branch there is no difference between the
 // default implementation and implementation #2. But the test will also apply
@@ -774,6 +774,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'SELECT UPPER(?) AS upper1, UPPER(?) AS upper2 with "naive" Array subclass (constructor explicitly set to subclasss) as value arguments array', function(done) {
+          if (isBrowser) pending('SKIP for browser platform'); // XXX TBD
+
           var db = openDatabase('DB-SQL-SELECT-multi-upper-on-array-subclass-explicit-constructor.db');
           expect(db).toBeDefined();
 
@@ -808,9 +810,13 @@ var mytests = function() {
             }
             db.close(done, done);
           }, function(error) {
-            // NOT EXPECTED:
-            expect(false).toBe(true);
-            expect(error.message).toBe('--');
+            // EXPECTED for browser platform ONLY:
+            if (!isWebSql && isBrowser) {
+              expect(error).toBeDefined();
+            } else {
+              expect(false).toBe(true);
+              expect(error.message).toBe('--');
+            }
             db.close(done, done);
           });
         }, MYTIMEOUT);
@@ -1370,10 +1376,7 @@ var mytests = function() {
             }, function(error) {
               // EXPECTED RESULT
               expect(error).toBeDefined();
-              if (isBrowser)
-                expect(error.code).not.toBeDefined();
-              else
-                expect(error.code).toBeDefined();
+              expect(error.code).toBeDefined();
               expect(error.message).toBeDefined();
               db.close(done, done);
             });
@@ -1395,10 +1398,7 @@ var mytests = function() {
             }, function(error) {
               // EXPECTED RESULT
               expect(error).toBeDefined();
-              if (isBrowser)
-                expect(error.code).not.toBeDefined();
-              else
-                expect(error.code).toBeDefined();
+              expect(error.code).toBeDefined();
               expect(error.message).toBeDefined();
               db.close(done, done);
             });

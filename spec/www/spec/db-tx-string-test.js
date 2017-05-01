@@ -8,7 +8,6 @@ var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 var isBrowser = !isWindows && !isAndroid && /Chrome/.test(navigator.userAgent);
-//var isMac = !isBrowser && /Macintosh/.test(navigator.userAgent);
 
 // The following openDatabase settings are used for Plugin-implementation-2
 // on Android:
@@ -81,6 +80,7 @@ var mytests = function() {
             (isWebSql) ? done() : db.close(done, done);
           });
         }, MYTIMEOUT);
+        // return;
 
         it(suiteName + 'Inline US-ASCII String manipulation test with null parameter list', function(done) {
           var db = openDatabase("Inline-US-ASCII-string-test-with-null-parameter-list.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -560,6 +560,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
       });
+      // return;
 
       describe(suiteName + 'UTF-8 multiple octet character string binding/manipulation tests [default sqlite encoding: UTF-16le on Windows, UTF-8 encoding on others]', function() {
 
@@ -1461,6 +1462,7 @@ var mytests = function() {
           db.transaction(function(tx) {
             tx.executeSql('SELECT UPPER(?) AS upper1, UPPER(?) AS upper2', myObject, function(ignored, rs) {
               // EXPECTED RESULT:
+              if (!isWebSql && isBrowser) expect('Browser plugin FIXED PLEASE UPDATE').toBe('--');
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
@@ -1474,9 +1476,13 @@ var mytests = function() {
               done();
             });
           }, function(error) {
-            // NOT EXPECTED:
-            expect(false).toBe(true);
-            expect(error.message).toBe('--');
+            // EXPECTED for browser platform ONLY:
+            if (!isWebSql && isBrowser) {
+              expect(error).toBeDefined();
+            } else {
+              expect(false).toBe(true);
+              expect(error.message).toBe('--');
+            }
             done();
           });
         }, MYTIMEOUT);

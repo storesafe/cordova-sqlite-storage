@@ -9,7 +9,7 @@ var isWindows = /Windows /.test(navigator.userAgent); // Windows
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 var isBrowser = !isWindows && !isAndroid && /Chrome/.test(navigator.userAgent);
 var isMac = !isBrowser && /Macintosh/.test(navigator.userAgent);
-var isWKWebView = !isWindows && !isAndroid && !isWP8 && !isMac && !!window.webkit && !!window.webkit.messageHandlers;
+var isWKWebView = !isWindows && !isAndroid && !isWP8 && !isMac && !isBrowser && !!window.webkit && !!window.webkit.messageHandlers;
 
 // The following openDatabase settings are used for Plugin-implementation-2
 // on Android:
