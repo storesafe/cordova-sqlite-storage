@@ -841,6 +841,74 @@
 
       step3: (successcb, errorcb) ->
         SQLiteFactory.openDatabase {name: SelfTest.DBNAME, location: 'default'}, (db) ->
+          check2 = false
+          db.transaction (tx) ->
+            tx.executeSql 'SELECT 1 AS myResult', [], (ignored, resutSet) ->
+              if !resutSet.rows
+                return SelfTest.finishWithError errorcb, 'Missing resutSet.rows'
+
+              if !resutSet.rows.length
+                return SelfTest.finishWithError errorcb, 'Missing resutSet.rows.length'
+
+              if resutSet.rows.length isnt 1
+                return SelfTest.finishWithError errorcb,
+                  "Incorrect resutSet.rows.length value: #{resutSet.rows.length} (expected: 1)"
+
+              if !resutSet.rows.item(0).myResult
+                return SelfTest.finishWithError errorcb,
+                  'Missing resutSet.rows.item(0).myResult'
+
+              if resutSet.rows.item(0).myResult isnt 1
+                return SelfTest.finishWithError errorcb,
+                  "Incorrect resutSet.rows.item(0).myResult value: #{resutSet.rows.item(0).myResult} (expected: 1)"
+
+              check2 = true
+              return
+
+            , (sql_err) ->
+              SelfTest.finishWithError errorcb, "SQL error: #{sql_err}"
+              return
+
+          , (tx_err) ->
+            SelfTest.finishWithError errorcb, "TRANSACTION error: #{tx_err}"
+            return
+
+          , () ->
+            if !check2
+              return SelfTest.finishWithError errorcb,
+                'Did not get expected myResult result data'
+
+            # SIMULATE SCENARIO IN BUG litehelpers/Cordova-sqlite-storage#666:
+            db.executeSql 'BEGIN', null, (resutSet) ->
+              # DELETE INTERNAL STATE to simulate the effects of location refresh or change:
+              delete db.openDBs[SelfTest.DBNAME]
+              delete txLocks[SelfTest.DBNAME]
+
+              SelfTest.start4 successcb, errorcb
+              return
+
+        , (open_err) ->
+          SelfTest.finishWithError errorcb, "Open database error: #{open_err}"
+        return
+
+      start4: (successcb, errorcb) ->
+        SQLiteFactory.openDatabase {name: SelfTest.DBNAME, location: 'default'}, (db) ->
+          db.transaction (tx) ->
+            tx.executeSql 'SELECT 1 AS myResult', [], (ignored, resutSet) ->
+              # NOT EXPECTED DUE TO BUG litehelpers/Cordova-sqlite-storage#666:
+              return SelfTest.finishWithError errorcb, 'asdf'
+
+          , (txError) ->
+            # FUTURE TODO: FIX
+            SelfTest.start5 successcb, errorcb
+            return
+
+        , (open_err) ->
+          SelfTest.finishWithError errorcb, "Open database error: #{open_err}"
+        return
+
+      start5: (successcb, errorcb) ->
+        SQLiteFactory.openDatabase {name: SelfTest.DBNAME, location: 'default'}, (db) ->
           db.sqlBatch [
             'CREATE TABLE TestTable(id integer primary key autoincrement unique, data);'
             [ 'INSERT INTO TestTable (data) VALUES (?);', ['test-value'] ]

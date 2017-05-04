@@ -726,6 +726,66 @@
         name: SelfTest.DBNAME,
         location: 'default'
       }, function(db) {
+        var check2;
+        check2 = false;
+        return db.transaction(function(tx) {
+          return tx.executeSql('SELECT 1 AS myResult', [], function(ignored, resutSet) {
+            if (!resutSet.rows) {
+              return SelfTest.finishWithError(errorcb, 'Missing resutSet.rows');
+            }
+            if (!resutSet.rows.length) {
+              return SelfTest.finishWithError(errorcb, 'Missing resutSet.rows.length');
+            }
+            if (resutSet.rows.length !== 1) {
+              return SelfTest.finishWithError(errorcb, "Incorrect resutSet.rows.length value: " + resutSet.rows.length + " (expected: 1)");
+            }
+            if (!resutSet.rows.item(0).myResult) {
+              return SelfTest.finishWithError(errorcb, 'Missing resutSet.rows.item(0).myResult');
+            }
+            if (resutSet.rows.item(0).myResult !== 1) {
+              return SelfTest.finishWithError(errorcb, "Incorrect resutSet.rows.item(0).myResult value: " + (resutSet.rows.item(0).myResult) + " (expected: 1)");
+            }
+            check2 = true;
+          }, function(sql_err) {
+            SelfTest.finishWithError(errorcb, "SQL error: " + sql_err);
+          });
+        }, function(tx_err) {
+          SelfTest.finishWithError(errorcb, "TRANSACTION error: " + tx_err);
+        }, function() {
+          if (!check2) {
+            return SelfTest.finishWithError(errorcb, 'Did not get expected myResult result data');
+          }
+          return db.executeSql('BEGIN', null, function(resutSet) {
+            delete db.openDBs[SelfTest.DBNAME];
+            delete txLocks[SelfTest.DBNAME];
+            SelfTest.start4(successcb, errorcb);
+          });
+        });
+      }, function(open_err) {
+        return SelfTest.finishWithError(errorcb, "Open database error: " + open_err);
+      });
+    },
+    start4: function(successcb, errorcb) {
+      SQLiteFactory.openDatabase({
+        name: SelfTest.DBNAME,
+        location: 'default'
+      }, function(db) {
+        return db.transaction(function(tx) {
+          return tx.executeSql('SELECT 1 AS myResult', [], function(ignored, resutSet) {
+            return SelfTest.finishWithError(errorcb, 'asdf');
+          });
+        }, function(txError) {
+          SelfTest.start5(successcb, errorcb);
+        });
+      }, function(open_err) {
+        return SelfTest.finishWithError(errorcb, "Open database error: " + open_err);
+      });
+    },
+    start5: function(successcb, errorcb) {
+      SQLiteFactory.openDatabase({
+        name: SelfTest.DBNAME,
+        location: 'default'
+      }, function(db) {
         return db.sqlBatch(['CREATE TABLE TestTable(id integer primary key autoincrement unique, data);', ['INSERT INTO TestTable (data) VALUES (?);', ['test-value']]], function() {
           var firstid;
           firstid = -1;
