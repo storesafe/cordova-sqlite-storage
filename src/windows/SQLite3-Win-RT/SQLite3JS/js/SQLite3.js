@@ -46,6 +46,7 @@
             resultCode = this.statement.bindText(index, arg);
             break;
           case 'null':
+          case 'undefined':
             resultCode = this.statement.bindNull(index);
             break;
           default:
