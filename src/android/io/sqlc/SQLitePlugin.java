@@ -13,6 +13,8 @@ import android.util.Log;
 import java.io.File;
 import java.lang.IllegalArgumentException;
 import java.lang.Number;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -153,19 +155,21 @@ public class SQLitePlugin extends CordovaPlugin {
      */
     @Override
     public void onDestroy() {
-        while (!dbrmap.isEmpty()) {
-            String dbname = dbrmap.keySet().iterator().next();
+        Iterator<Map.Entry<String, DBRunner>> iterator = dbrmap.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, DBRunner> entry = iterator.next();
+
+            String dbname = entry.getKey();
+            DBRunner r = entry.getValue();
 
             this.closeDatabaseNow(dbname);
-
-            DBRunner r = dbrmap.get(dbname);
             try {
                 // stop the db runner thread:
                 r.q.put(new DBQuery());
             } catch(Exception e) {
                 Log.e(SQLitePlugin.class.getSimpleName(), "couldn't stop db thread", e);
             }
-            dbrmap.remove(dbname);
+            iterator.remove();
         }
     }
 
