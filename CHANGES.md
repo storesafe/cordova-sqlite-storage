@@ -1,5 +1,15 @@
 # Changes
 
+## cordova-sqlite-ext 0.10.5
+
+- Part of openDatabase in nextTick as a hack to solve problem with workaround solution to litehelpers/Cordova-sqlite-storage#666 & pre-populated database on Windows
+- Completely remove engine constraints from package.json in this version branch
+
+###### cordova-sqlite-legacy-express-core 1.0.0
+
+- Workaround solution to BUG litehelpers/Cordova-sqlite-storage#666 (hanging transaction in case of location reload/change)
+- selfTest simulate scenario & test solution to BUG litehelpers/Cordova-sqlite-storage#666 (also includes string test and test of effects of location reload/change in this version branch, along with another internal check)
+
 ## cordova-sqlite-ext 0.10.4
 
 ### cordova-sqlite-storage 1.5.2
