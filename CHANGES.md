@@ -1,5 +1,9 @@
 # Changes
 
+## cordova-sqlite-storage 2.2.0-pre1
+
+- Fix SQLiteAndroidDatabase implementation for Turkish and other foreign locales
+
 ## cordova-sqlite-storage 2.1.5
 
 ##### cordova-sqlite-legacy-core 1.0.7
