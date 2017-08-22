@@ -540,7 +540,7 @@ class SQLiteAndroidDatabase
                 // (needed for SQLCipher version)
                 if (first.length() == 0) throw new RuntimeException("query not found");
 
-                return QueryType.valueOf(first.toLowerCase());
+                return QueryType.valueOf(first.toLowerCase(Locale.ENGLISH));
             } catch (IllegalArgumentException ignore) {
                 // unknown verb (NOT blank)
                 return QueryType.other;
