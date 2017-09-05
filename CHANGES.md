@@ -1,5 +1,9 @@
 # Changes
 
+###### cordova-sqlite-legacy-express-core 1.0.2
+
+- Use PSPDFThreadSafeMutableDictionary for iOS/macOS to avoid threading issue ref: litehelpers/Cordova-sqlite-storage#716
+
 ###### cordova-sqlite-legacy-express-core 1.0.1
 
 - Fix bug 666 workaround to trigger ROLLBACK in the next event tick (needed to support version with pre-populated database on Windows)

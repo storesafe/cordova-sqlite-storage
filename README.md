@@ -66,6 +66,7 @@ Use the `location` or `iosDatabaseLocation` option in `sqlitePlugin.openDatabase
 
 ## Announcements
 
+- Fixed iOS/macOS platform version to use [PSPDFThreadSafeMutableDictionary.m](https://gist.github.com/steipete/5928916) to avoid threading issue ref: [litehelpers/Cordova-sqlite-storage#716](https://github.com/litehelpers/Cordova-sqlite-storage/issues/716)
 - Resolved transaction problem after window.location (page) change with possible data loss ref: [litehelpers/Cordova-sqlite-storage#666](https://github.com/litehelpers/Cordova-sqlite-storage/issues/666)
 - [brodybits / cordova-sqlite-test-app](https://github.com/brodybits/cordova-sqlite-test-app) project is a CC0 (public domain) starting point (NOTE that this plugin must be added) and may also be used to reproduce issues with this plugin.
 - The Lawnchair adapter is now moved to [litehelpers / cordova-sqlite-lawnchair-adapter](https://github.com/litehelpers/cordova-sqlite-lawnchair-adapter).

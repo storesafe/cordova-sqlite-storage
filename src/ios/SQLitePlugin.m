@@ -10,6 +10,8 @@
 
 #import "sqlite3.h"
 
+#import "PSPDFThreadSafeMutableDictionary.h"
+
 // FUTURE TBD (in another version branch):
 //#define READ_BLOB_AS_BASE64
 
@@ -27,7 +29,7 @@
     NSLog(@"Initializing SQLitePlugin");
 
     {
-        openDBs = [NSMutableDictionary dictionaryWithCapacity:0];
+        openDBs = [PSPDFThreadSafeMutableDictionary dictionaryWithCapacity:0];
         appDBPaths = [NSMutableDictionary dictionaryWithCapacity:0];
 #if !__has_feature(objc_arc)
         [openDBs retain];
