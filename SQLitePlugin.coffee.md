@@ -213,12 +213,14 @@
           success @
           return
 
+        # (done)
+
       else
         console.log 'OPEN database: ' + @dbname
 
         opensuccesscb = =>
           # NOTE: the db state is NOT stored (in @openDBs) if the db was closed or deleted.
-          # console.log 'OPEN database: ' + @dbname + ' succeeded'
+          console.log 'OPEN database: ' + @dbname + ' ok'
 
           #if !@openDBs[@dbname] then call open error cb, and abort pending tx if any
           if !@openDBs[@dbname]
@@ -248,19 +250,21 @@
         # store initial DB state:
         @openDBs[@dbname] = DB_STATE_INIT
 
-        # As a WORKAROUND SOLUTION to BUG litehelpers/Cordova-sqlite-storage#666:
+        # As a WORKAROUND SOLUTION to BUG litehelpers/Cordova-sqlite-storage#666
+        # (in the next event tick):
         # If the database was never opened on the JavaScript side
         # start an extra ROLLBACK statement to abort any pending transaction
         # (does not matter whether it succeeds or fails here).
         # FUTURE TBD a better solution would be to send a special signal or parameter
         # if the database was never opened on the JavaScript side.
-        if not txLocks[@dbname]
-          myfn = (tx) ->
-            tx.addStatement 'ROLLBACK'
-            return
-          @addTransaction new SQLitePluginTransaction @, myfn, null, null, false, false
+        nextTick =>
+          if not txLocks[@dbname]
+            myfn = (tx) ->
+              tx.addStatement 'ROLLBACK'
+              return
+            @addTransaction new SQLitePluginTransaction @, myfn, null, null, false, false
 
-        cordova.exec opensuccesscb, openerrorcb, "SQLitePlugin", "open", [ @openargs ]
+          cordova.exec opensuccesscb, openerrorcb, "SQLitePlugin", "open", [ @openargs ]
 
       return
 
@@ -942,4 +946,3 @@
 
 #### vim: set filetype=coffee :
 #### vim: set expandtab :
-

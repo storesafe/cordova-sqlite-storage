@@ -577,8 +577,10 @@ var mytests = function() {
         // XXX SEE BELOW: repeat scenario but wait for open callback before close/delete/reopen
         // Needed to support some large-scale applications:
         test_it(suiteName + ' immediate close, then delete then re-open allows subsequent queries to run', function () {
-          // TBD POSSIBLY BROKEN on iOS/macOS due to current background processing implementation:
-          if (!isAndroid && !isWindows && !isWP8) pending('POSSIBLY BROKEN on iOS/macOS (background processing implementation)');
+          // TBD POSSIBLY BROKEN on iOS/macOS ...
+          // if (!isAndroid && !isWindows && !isWP8) pending(...);
+          // TBD CURRENTLY BROKEN DUE TO BUG 666 WORKAROUND HACK
+          pending('CURRENTLY BROKEN DUE TO BUG 666 WORKAROUND HACK');
 
           var dbName = "Immediate-close-delete-Reopen.db";
           var dbargs = {name: dbName, location: 'default'};
@@ -846,8 +848,10 @@ var mytests = function() {
 
         // Needed to support some large-scale applications:
         test_it(suiteName + ' repeatedly open and delete database faster (5x)', function () {
-          // TBD CURRENTLY BROKEN on iOS/macOS due to current background processing implementation:
-          if (!isAndroid && !isWindows && !isWP8) pending('CURRENTLY BROKEN on iOS/macOS (background processing implementation)');
+          // TBD POSSIBLY BROKEN on iOS/macOS ...
+          // if (!isAndroid && !isWindows && !isWP8) pending(...);
+          // TBD CURRENTLY BROKEN DUE TO BUG 666 WORKAROUND HACK
+          pending('CURRENTLY BROKEN DUE TO BUG 666 WORKAROUND HACK');
 
           var dbName = 'repeatedly-open-and-delete-faster-5x.db';
           var dbargs = {name: dbName, location: 'default'};

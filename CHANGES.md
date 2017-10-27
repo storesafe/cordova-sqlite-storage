@@ -1,5 +1,9 @@
 # Changes
 
+###### cordova-sqlite-legacy-express-core 1.0.1
+
+- Fix bug 666 workaround to trigger ROLLBACK in the next event tick (needed to support version with pre-populated database on Windows)
+
 ###### cordova-sqlite-legacy-express-core 1.0.0
 
 - Workaround solution to BUG litehelpers/Cordova-sqlite-storage#666 (hanging transaction in case of location reload/change)
