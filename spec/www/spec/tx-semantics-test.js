@@ -33,9 +33,10 @@ function start(n) {
 var isWindows = /Windows /.test(navigator.userAgent); // Windows 8.1/Windows Phone 8.1/Windows 10
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 
-// NOTE: In the core-master branch there is no difference between the default
-// implementation and implementation #2. But the test will also apply
-// the androidLockWorkaround: 1 option in the case of implementation #2.
+// NOTE: While in certain version branches there is no difference between
+// the default Android implementation and implementation #2,
+// this test script will also apply the androidLockWorkaround: 1 option
+// in case of implementation #2.
 var scenarioList = [
   isAndroid ? 'Plugin-implementation-default' : 'Plugin',
   'HTML5',
@@ -52,29 +53,31 @@ var mytests = function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
       var isWebSql = (i === 1);
-      var isOldImpl = (i === 2);
+      var isImpl2 = (i === 2);
 
       // NOTE: MUST be defined in function scope, NOT outer scope:
       var openDatabase = function(name, ignored1, ignored2, ignored3) {
-        if (isOldImpl) {
+        if (isImpl2) {
           return window.sqlitePlugin.openDatabase({
             // prevent reuse of database from default db implementation:
             name: 'i2-'+name,
+            // explicit database location:
+            location: 'default',
             androidDatabaseImplementation: 2,
-            androidLockWorkaround: 1,
-            location: 1
+            androidLockWorkaround: 1
           });
         }
         if (isWebSql) {
-          return window.openDatabase(name, "1.0", "Demo", DEFAULT_SIZE);
+          return window.openDatabase(name, '1.0', 'Test', DEFAULT_SIZE);
         } else {
-          return window.sqlitePlugin.openDatabase({name: name, location: 0});
+          // explicit database location:
+          return window.sqlitePlugin.openDatabase({name: name, location: 'default'});
         }
       }
 
         it(suiteName + 'Simple tx sql order test', function(done) {
           // This test shows that executeSql statements run in intermediate callback
-          // are executed _after_ executeSql statements that were queued before
+          // are executed AFTER executeSql statements that were queued before
 
           var db = openDatabase('Simple-tx-order-test.db', '1.0', 'Test', DEFAULT_SIZE);
 
@@ -385,7 +388,10 @@ var mytests = function() {
               throw new Error("boom");
             }, function(err) {
               expect(err).toBeDefined();
-              expect(err.hasOwnProperty('message')).toBe(true);
+              expect(err.message).toBeDefined();
+              // err.hasOwnProperty('message') apparently NOT WORKING on WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+              if (!isWebSql || isWindows || (isAndroid && (/Android [1-4]/.test(navigator.userAgent))))
+                expect(err.hasOwnProperty('message')).toBe(true);
 
               if (!isWebSql) expect(err.message).toEqual('boom');
 
@@ -669,7 +675,7 @@ var mytests = function() {
                     tx.executeSql(';; CREATE TABLE ExtraTestTable4 (data)');
                   }, function(e) {
                     // CORRECT
-                    if (!isWebSql) expect('Plugin FIXED, please update this test').toBe('--');
+                    //if (!isWebSql) expect('Plugin FIXED, please update this test').toBe('--');
                     checkDone();
                   }, function() {
                     // BUG #460: IGNORED for Plugin ONLY:

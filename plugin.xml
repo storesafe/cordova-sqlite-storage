@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    id="cordova-sqlite-storage"
-    version="1.4.0">
+    id="cordova-sqlite-legacy-core"
+    version="1.0.0">
 
-    <name>Cordova sqlite storage plugin</name>
+    <name>Cordova sqlite storage plugin - legacy core version branch</name>
 
     <license>MIT</license>
 
@@ -12,13 +12,6 @@
 
     <description>Native interface to SQLite for PhoneGap/Cordova. Allows you to use more storage and provides more flexibility than the standard Web SQL database (window.openDatabase).</description>
     <author>Litehelpers/Various</author>
-
-    <engines>
-        <engine name="cordova" version=">=6.0.0" />
-        <engine name="cordova-android" version=">=5.0.0" />
-        <engine name="cordova-ios" version=">=4.0.0" />
-        <engine name="cordova-windows" version=">=4.0.0" />
-    </engines>
 
     <!-- THANKS to AllJoyn-Cordova / cordova-plugin-alljoyn: -->
     <hook type="before_plugin_install" src="scripts/beforePluginInstall.js" />
@@ -48,7 +41,6 @@
         <source-file src="node_modules/cordova-sqlite-storage-dependencies/libs/armeabi-v7a/libsqlc-native-driver.so" target-dir="libs/armeabi-v7a"/>
         <source-file src="node_modules/cordova-sqlite-storage-dependencies/libs/x86/libsqlc-native-driver.so" target-dir="libs/x86"/>
         <source-file src="node_modules/cordova-sqlite-storage-dependencies/libs/x86_64/libsqlc-native-driver.so" target-dir="libs/x86_64"/>
-
     </platform>
 
     <!-- ios -->
@@ -63,10 +55,30 @@
         <header-file src="src/ios/SQLitePlugin.h" />
         <source-file src="src/ios/SQLitePlugin.m" />
 
+        <header-file src="src/ios/PSPDFThreadSafeMutableDictionary.h" />
+        <source-file src="src/ios/PSPDFThreadSafeMutableDictionary.m" />
+
         <header-file src="node_modules/cordova-sqlite-storage-dependencies/sqlite3.h" />
         <source-file src="node_modules/cordova-sqlite-storage-dependencies/sqlite3.c"
                      compiler-flags="-DSQLITE_TEMP_STORE=2 -DSQLITE_THREADSAFE=2 -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS -DSQLITE_ENABLE_FTS4 -DSQLITE_ENABLE_COLUMN_METADATA -DSQLITE_ENABLE_RTREE -DSQLITE_LOCKING_STYLE=1 -DSQLITE_OMIT_BUILTIN_TEST -DSQLITE_OMIT_LOAD_EXTENSION" />
+    </platform>
 
+    <!-- macOS (osx) -->
+    <platform name="osx">
+        <config-file target="config.xml" parent="/*">
+            <feature name="SQLitePlugin">
+                <param name="ios-package" value="SQLitePlugin" />
+            </feature>
+        </config-file>
+
+        <!-- Note: the macOS (osx) src is based off src/ios implicitly -->
+        <header-file src="src/ios/SQLitePlugin.h" />
+        <source-file src="src/ios/SQLitePlugin.m" />
+
+        <header-file src="src/ios/PSPDFThreadSafeMutableDictionary.h" />
+        <source-file src="src/ios/PSPDFThreadSafeMutableDictionary.m" />
+
+        <framework src="libsqlite3.dylib" />
     </platform>
 
     <!-- windows -->
@@ -84,7 +96,6 @@
         <framework src="src/windows/SQLite3-Win-RT/SQLite3/SQLite3.UWP/SQLite3.UWP.vcxproj" custom="true" type="projectReference" versions="10.*" />
         <framework src="src/windows/SQLite3-Win-RT/SQLite3/SQLite3.Windows/SQLite3.Windows.vcxproj" custom="true" type="projectReference" target="windows" versions="8.1" />
         <framework src="src/windows/SQLite3-Win-RT/SQLite3/SQLite3.WindowsPhone/SQLite3.WindowsPhone.vcxproj" custom="true" type="projectReference" target="phone" versions="8.1" />
-
     </platform>
 
 </plugin>

@@ -1,9 +1,9 @@
 {
-  "name": "cordova-sqlite-storage",
-  "version": "1.4.0",
-  "description": "Native interface to SQLite for PhoneGap/Cordova",
+  "name": "cordova-sqlite-legacy-core",
+  "version": "1.0.0",
+  "description": "Native interface to SQLite for PhoneGap/Cordova (legacy core version branch)",
   "cordova": {
-    "id": "cordova-sqlite-storage",
+    "id": "cordova-sqlite-legacy-core",
     "platforms": [
       "android",
       "ios",
@@ -20,12 +20,6 @@
     "cordova-android",
     "cordova-ios",
     "cordova-windows"
-  ],
-  "engines": [
-    {
-      "name": "cordova",
-      "version": ">=6.0.0"
-    }
   ],
   "author": "various",
   "license": "MIT",

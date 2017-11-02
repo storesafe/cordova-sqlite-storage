@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016: Christopher J. Brody (aka Chris Brody)
+ * Copyright (c) 2012-2017: Christopher J. Brody (aka Chris Brody)
  * Copyright (C) 2011 Davide Bertola
  *
  * This library is available under the terms of the MIT License (2008).
@@ -9,6 +9,8 @@
 #import "SQLitePlugin.h"
 
 #import "sqlite3.h"
+
+#import "PSPDFThreadSafeMutableDictionary.h"
 
 // FUTURE TBD (in another version branch):
 //#define READ_BLOB_AS_BASE64
@@ -27,7 +29,7 @@
     NSLog(@"Initializing SQLitePlugin");
 
     {
-        openDBs = [NSMutableDictionary dictionaryWithCapacity:0];
+        openDBs = [PSPDFThreadSafeMutableDictionary dictionaryWithCapacity:0];
         appDBPaths = [NSMutableDictionary dictionaryWithCapacity:0];
 #if !__has_feature(objc_arc)
         [openDBs retain];

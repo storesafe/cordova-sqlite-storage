@@ -8,9 +8,10 @@ var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 
-// NOTE: In the core-master branch there is no difference between the default
-// implementation and implementation #2. But the test will also apply
-// the androidLockWorkaround: 1 option in the case of implementation #2.
+// NOTE: While in certain version branches there is no difference between
+// the default Android implementation and implementation #2,
+// this test script will also apply the androidLockWorkaround: 1 option
+// in case of implementation #2.
 var scenarioList = [
   isAndroid ? 'Plugin-implementation-default' : 'Plugin',
   'HTML5',
@@ -27,23 +28,25 @@ var mytests = function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
       var isWebSql = (i === 1);
-      var isOldImpl = (i === 2);
+      var isImpl2 = (i === 2);
 
       // NOTE: MUST be defined in function scope, NOT outer scope:
       var openDatabase = function(name, ignored1, ignored2, ignored3) {
-        if (isOldImpl) {
+        if (isImpl2) {
           return window.sqlitePlugin.openDatabase({
             // prevent reuse of database from default db implementation:
             name: 'i2-'+name,
+            // explicit database location:
+            location: 'default',
             androidDatabaseImplementation: 2,
-            androidLockWorkaround: 1,
-            location: 1
+            androidLockWorkaround: 1
           });
         }
         if (isWebSql) {
           return window.openDatabase(name, '1.0', 'Test', DEFAULT_SIZE);
         } else {
-          return window.sqlitePlugin.openDatabase({name: name, location: 0});
+          // explicit database location:
+          return window.sqlitePlugin.openDatabase({name: name, location: 'default'});
         }
       }
 
@@ -328,8 +331,9 @@ var mytests = function() {
 
                   if (isWebSql) {
                     // Web SQL STANDARD:
-                    // 1. this is a native object that is NOT affected by the change:
-                    expect(temp1.data).toBe('test');
+                    // 1. this is a native object that is NOT affected by the change (SKIP for Android 5.x/+):
+                    if (!isAndroid || /Android [1-4]/.test(navigator.userAgent))
+                      expect(temp1.data).toBe('test');
                     // 2. object returned by second resultSet.rows.item call not affected:
                     expect(temp2.data).toBe('test');
                   } else {
@@ -494,7 +498,7 @@ var mytests = function() {
 
           // XXX [BUG #458] BROKEN for android.database
           // NOTE: This is NOT broken when using Android-sqlite-connector
-          if (isAndroid && !isWebSql) pending('SKIP for Android version of plugin');
+          if (!isWindows && isAndroid && !isWebSql && isImpl2) pending('SKIP for android.database implementation');
 
           var db = openDatabase('tx-sql-starting-with-extra-semicolon-results-test.db', '1.0', 'Test', DEFAULT_SIZE);
 

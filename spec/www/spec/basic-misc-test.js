@@ -8,9 +8,10 @@ var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 
-// NOTE: In the core-master branch there is no difference between the default
-// implementation and implementation #2. But the test will also apply
-// the androidLockWorkaround: 1 option in the case of implementation #2.
+// NOTE: While in certain version branches there is no difference between
+// the default Android implementation and implementation #2,
+// this test script will also apply the androidLockWorkaround: 1 option
+// in case of implementation #2.
 var scenarioList = [
   isAndroid ? 'Plugin-implementation-default' : 'Plugin',
   'HTML5',
@@ -19,7 +20,8 @@ var scenarioList = [
 
 var scenarioCount = (!!window.hasWebKitBrowser) ? (isAndroid ? 3 : 2) : 1;
 
-// XXX FUTURE TBD: split this into db feature & tx error handling test scripts
+// FUTURE TBD (already done in newer version branches):
+// Split this into db feature & tx error handling test scripts
 
 var mytests = function() {
 
@@ -29,23 +31,25 @@ var mytests = function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
       var isWebSql = (i === 1);
-      var isOldImpl = (i === 2);
+      var isImpl2 = (i === 2);
 
       // NOTE: MUST be defined in function scope, NOT outer scope:
       var openDatabase = function(name, ignored1, ignored2, ignored3) {
-        if (isOldImpl) {
+        if (isImpl2) {
           return window.sqlitePlugin.openDatabase({
             // prevent reuse of database from default db implementation:
             name: 'i2-'+name,
+            // explicit database location:
+            location: 'default',
             androidDatabaseImplementation: 2,
-            androidLockWorkaround: 1,
-            location: 1
+            androidLockWorkaround: 1
           });
         }
         if (isWebSql) {
           return window.openDatabase(name, '1.0', 'Test', DEFAULT_SIZE);
         } else {
-          return window.sqlitePlugin.openDatabase({name: name, location: 0});
+          // explicit database location:
+          return window.sqlitePlugin.openDatabase({name: name, location: 'default'});
         }
       }
 
@@ -58,7 +62,7 @@ var mytests = function() {
         it(suiteName + 'db readTransaction with a WITH clause', function(done) {
           if (isWP8) pending('NOT IMPLEMENTED for WP(8)');
           if (isWebSql) pending('SKIP for Web SQL'); // NOT WORKING on all versions (Android/iOS)
-          if (isAndroid && isOldImpl) pending('SKIP for android.database implementation'); // NOT WORKING on all versions
+          if (isAndroid && isImpl2) pending('SKIP for android.database implementation'); // NOT SUPPORTED on all android.database versions
 
           var db = openDatabase('tx-with-a-with-clause-test.db', '1.0', 'Test', DEFAULT_SIZE);
 
@@ -228,9 +232,9 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'create virtual table using R-Tree', function(done) {
-          if (isWebSql) pending('BROKEN (NOT IMPLEMENTED) for Web SQL');
+          if (isWebSql) pending('SKIP for (Android/iOS WebKit) Web SQL');
           if (isWP8) pending('NOT IMPLEMENTED for WP(8)'); // NOT IMPLEMENTED in CSharp-SQLite
-          if (isAndroid && isOldImpl) pending('NOT IMPLEMENTED for all versions of android.database'); // NOT IMPLEMENTED for all versions of Android database (failed in Circle CI)
+          if (isAndroid && isImpl2) pending('NOT IMPLEMENTED for all versions of android.database'); // NOT IMPLEMENTED for all versions of Android database (failed in Circle CI)
 
           var db = openDatabase('virtual-table-using-r-tree.db', '1.0', 'Test', DEFAULT_SIZE);
 
@@ -260,7 +264,8 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'DELETE LIMIT', function(done) {
+        // NOT supported by SQLite amalgamation ...
+        xit(suiteName + 'DELETE LIMIT', function(done) {
           if (isWP8) pending('NOT IMPLEMENTED for WP(8)');
           if (isWindows) pending('NOT IMPLEMENTED for Windows');
           if (isAndroid && !isWebSql) pending('SKIP for Android plugin'); // FUTURE TBD test with newer versions (android.database)
@@ -305,23 +310,25 @@ var mytests = function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
       var isWebSql = (i === 1);
-      var isOldImpl = (i === 2);
+      var isImpl2 = (i === 2);
 
       // NOTE: MUST be defined in function scope, NOT outer scope:
       var openDatabase = function(name, ignored1, ignored2, ignored3) {
-        if (isOldImpl) {
+        if (isImpl2) {
           return window.sqlitePlugin.openDatabase({
             // prevent reuse of database from default db implementation:
             name: 'i2-'+name,
+            // explicit database location:
+            location: 'default',
             androidDatabaseImplementation: 2,
-            androidLockWorkaround: 1,
-            location: 1
+            androidLockWorkaround: 1
           });
         }
         if (isWebSql) {
           return window.openDatabase(name, '1.0', 'Test', DEFAULT_SIZE);
         } else {
-          return window.sqlitePlugin.openDatabase({name: name, location: 0});
+          // explicit database location:
+          return window.sqlitePlugin.openDatabase({name: name, location: 'default'});
         }
       }
 
