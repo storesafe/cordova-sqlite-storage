@@ -1,6 +1,8 @@
 # Changes
 
-##### cordova-sqlite-legacy-core 1.0.0
+##### cordova-sqlite-legacy-core 1.0.1-pre1
+
+- Windows 10 (UWP) build with /SAFESEH flag on Win32 (x86) target
 
 ###### cordova-sqlite-legacy-express-core 1.0.2
 
