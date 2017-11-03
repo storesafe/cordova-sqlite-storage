@@ -1,7 +1,8 @@
 # Changes
 
-##### cordova-sqlite-legacy-core 1.0.1-pre1
+##### cordova-sqlite-legacy-core 1.0.1
 
+- SQLite 3.15.2 build with SQLITE_THREADSAFE=2 on iOS/macOS (SQLITE_THREADSAFE=1 on Android/Windows) and other flag fixes in this version branch to avoid possible malformed database due to multithreaded access ref: litehelpers/Cordova-sqlite-storage#703
 - Windows 10 (UWP) build with /SAFESEH flag on Win32 (x86) target
 
 ###### cordova-sqlite-legacy-express-core 1.0.2
