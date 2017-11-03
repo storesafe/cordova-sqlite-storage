@@ -1,5 +1,9 @@
 # Changes
 
+## cordova-sqlite-storage 2.1.0
+
+- Visual Studio 2017 updates for Windows UWP build
+
 ## cordova-sqlite-storage 2.0.4
 
 ###### cordova-sqlite-legacy-express-core 1.0.0
