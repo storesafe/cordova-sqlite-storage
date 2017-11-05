@@ -135,7 +135,7 @@
 
       else
         if @dbname of @openDBs
-          console.log 'new transaction is waiting for open operation'
+          console.log 'new transaction is queued, waiting for open operation to finish'
         else
           # XXX SHOULD NOT GET HERE.
           # FUTURE TBD TODO: in this exceptional case abort and discard the transaction.

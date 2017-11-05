@@ -40,11 +40,11 @@ var mytests = function() {
 
       it(suiteName + 'Simple REGEXP test',
         function(done) {
-          if (isWP8) pending('NOT IMPLEMENTED for WP8');
-          if (isWindows) pending('NOT IMPLEMENTED for Windows');
+          if (isWP8) pending('NOT IMPLEMENTED for WP8 (plugin)');
+          if (isWindows) pending('NOT IMPLEMENTED for Windows (plugin)');
           if (!isWebSql && !isWindows && isAndroid) pending('SKIP for Android plugin'); // TBD SKIP for Android plugin (for now)
           if (isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS (WebKit) Web SQL');
-          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('NOT IMPLEMENTED for iOS/macOS');
+          if (!isWebSql && !isAndroid && !isWindows && !isWP8) pending('NOT IMPLEMENTED for iOS/macOS plugin');
 
           var db = openDatabase('simple-regexp-test.db', '1.0', 'test', DEFAULT_SIZE);
 
