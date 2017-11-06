@@ -40,8 +40,8 @@ var mytests = function() {
 
       it(suiteName + 'Simple REGEXP test',
         function(done) {
-          if (isWP8) pending('NOT IMPLEMENTED for WP8');
-          if (isWindows) pending('NOT IMPLEMENTED for Windows');
+          if (isWP8) pending('NOT IMPLEMENTED for WP8 (plugin)');
+          if (isWindows) pending('NOT IMPLEMENTED for Windows (plugin)');
           if (!isWebSql && !isWindows && isAndroid && isImpl2 && /Android [1-4]/.test(navigator.userAgent)) pending('BROKEN for android.database (version 1.x-4.x)');
           if (isWebSql && !isAndroid && !isWindows && !isWP8) pending('SKIP for iOS (WebKit) Web SQL');
 
