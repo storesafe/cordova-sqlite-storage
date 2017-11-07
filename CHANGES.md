@@ -1,5 +1,9 @@
 # Changes
 
+##### cordova-sqlite-legacy-core 1.0.3
+
+- Suppress warnings when building sqlite3.c & PSPDFThreadSafeMutableDictionary.m on iOS/macOS
+
 ##### cordova-sqlite-legacy-core 1.0.2
 
 - Fix log in case of transaction waiting for open to finish; doc fixes
