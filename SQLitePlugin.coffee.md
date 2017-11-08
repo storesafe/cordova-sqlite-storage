@@ -135,7 +135,7 @@
 
       else
         if @dbname of @openDBs
-          console.log 'new transaction is waiting for open operation'
+          console.log 'new transaction is queued, waiting for open operation to finish'
         else
           # XXX SHOULD NOT GET HERE.
           # FUTURE TBD TODO: in this exceptional case abort and discard the transaction.
@@ -213,6 +213,8 @@
           success @
           return
 
+        # (done)
+
       else
         console.log 'OPEN database: ' + @dbname
 
@@ -248,19 +250,21 @@
         # store initial DB state:
         @openDBs[@dbname] = DB_STATE_INIT
 
-        # As a WORKAROUND SOLUTION to BUG litehelpers/Cordova-sqlite-storage#666:
+        # As a WORKAROUND SOLUTION to BUG litehelpers/Cordova-sqlite-storage#666
+        # (in the next event tick):
         # If the database was never opened on the JavaScript side
         # start an extra ROLLBACK statement to abort any pending transaction
         # (does not matter whether it succeeds or fails here).
         # FUTURE TBD a better solution would be to send a special signal or parameter
         # if the database was never opened on the JavaScript side.
-        if not txLocks[@dbname]
-          myfn = (tx) ->
-            tx.addStatement 'ROLLBACK'
-            return
-          @addTransaction new SQLitePluginTransaction @, myfn, null, null, false, false
+        nextTick =>
+          if not txLocks[@dbname]
+            myfn = (tx) ->
+              tx.addStatement 'ROLLBACK'
+              return
+            @addTransaction new SQLitePluginTransaction @, myfn, null, null, false, false
 
-        cordova.exec opensuccesscb, openerrorcb, "SQLitePlugin", "open", [ @openargs ]
+          cordova.exec opensuccesscb, openerrorcb, "SQLitePlugin", "open", [ @openargs ]
 
       return
 

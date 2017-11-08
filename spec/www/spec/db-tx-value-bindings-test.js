@@ -1249,6 +1249,7 @@ var mytests = function() {
         it(suiteName + ' stores [Unicode] string with \\u0000 (same as \\0) correctly [HEX encoding check BROKEN for Android-sqlite-connector]', function (done) {
           if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
           if (isWindows) pending('BROKEN on Windows'); // TBD (truncates on Windows)
+          // XXX TBD ???:
           if (!isWebSql && !isWindows && isAndroid && !isImpl2) pending('BROKEN on Android-sqlite-connector implementation)');
 
           var db = openDatabase('UNICODE-store-u0000-test.db');
@@ -1304,6 +1305,8 @@ var mytests = function() {
 
         it(suiteName + ' returns [Unicode] string with \\u0000 (same as \\0) correctly [BROKEN: TRUNCATES on Windows]', function (done) {
           if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
+          if (isWindows) pending('BROKEN on Windows'); // XXX
+          // if (isWebSql && isAndroid) pending('SKIP on Android Web SQL'); // XXX TBD INCONSISTENT RESULTS Android 4 vs 5
 
           var db = openDatabase('UNICODE-retrieve-u0000-test.db');
 

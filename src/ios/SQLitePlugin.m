@@ -10,6 +10,8 @@
 
 #import "sqlite3.h"
 
+#import "PSPDFThreadSafeMutableDictionary.h"
+
 // Defines Macro to only log lines when in DEBUG mode
 #ifdef DEBUG
 #   define DLog(fmt, ...) NSLog((@"%s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
@@ -27,7 +29,7 @@
     DLog(@"Initializing SQLitePlugin");
 
     {
-        openDBs = [NSMutableDictionary dictionaryWithCapacity:0];
+        openDBs = [PSPDFThreadSafeMutableDictionary dictionaryWithCapacity:0];
         appDBPaths = [NSMutableDictionary dictionaryWithCapacity:0];
 #if !__has_feature(objc_arc)
         [openDBs retain];

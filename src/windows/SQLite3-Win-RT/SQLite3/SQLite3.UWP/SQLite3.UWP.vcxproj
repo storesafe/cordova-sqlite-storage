@@ -152,6 +152,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <AdditionalOptions>/SAFESEH %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
 
@@ -168,6 +169,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <AdditionalOptions>/SAFESEH %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
 

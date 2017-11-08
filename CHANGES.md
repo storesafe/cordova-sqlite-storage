@@ -1,5 +1,25 @@
 # Changes
 
+## cordova-sqlite-storage 2.1.1
+
+##### cordova-sqlite-legacy-core 1.0.3
+
+- Suppress warnings when building sqlite3.c & PSPDFThreadSafeMutableDictionary.m on iOS/macOS
+
+##### cordova-sqlite-legacy-core 1.0.2
+
+- Fix log in case of transaction waiting for open to finish; doc fixes
+- SQLite 3.15.2 build with SQLITE_THREADSAFE=2 on iOS/macOS (SQLITE_THREADSAFE=1 on Android/Windows) and other flag fixes in this version branch to avoid possible malformed database due to multithreaded access ref: litehelpers/Cordova-sqlite-storage#703
+- Windows 10 (UWP) build with /SAFESEH flag on Win32 (x86) target
+
+###### cordova-sqlite-legacy-express-core 1.0.2
+
+- Use PSPDFThreadSafeMutableDictionary for iOS/macOS to avoid threading issue ref: litehelpers/Cordova-sqlite-storage#716
+
+###### cordova-sqlite-legacy-express-core 1.0.1
+
+- Fix bug 666 workaround to trigger ROLLBACK in the next event tick (needed to support version with pre-populated database on Windows)
+
 ## cordova-sqlite-storage 2.1.0
 
 - Visual Studio 2017 updates for Windows UWP build
