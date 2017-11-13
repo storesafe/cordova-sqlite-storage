@@ -1,5 +1,11 @@
 # Changes
 
+## cordova-sqlite-storage 2.1.2
+
+##### cordova-sqlite-legacy-core 1.0.4
+
+- New workaround solution to BUG 666: close db before opening (ignore close error)
+
 ## cordova-sqlite-storage 2.1.1
 
 ##### cordova-sqlite-legacy-core 1.0.3
