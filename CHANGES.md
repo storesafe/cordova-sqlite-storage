@@ -1,5 +1,9 @@
 # Changes
 
+###### cordova-sqlite-legacy-express-core 1.0.3-pre0
+
+TBD
+
 ###### cordova-sqlite-legacy-express-core 1.0.2
 
 - Use PSPDFThreadSafeMutableDictionary for iOS/macOS to avoid threading issue ref: litehelpers/Cordova-sqlite-storage#716
