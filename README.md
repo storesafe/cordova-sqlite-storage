@@ -18,6 +18,10 @@ This version branch uses a `before_plugin_install` hook to install sqlite3 libra
 |[![Circle CI](https://circleci.com/gh/litehelpers/Cordova-sqlite-storage.svg?style=svg)](https://circleci.com/gh/litehelpers/Cordova-sqlite-storage)|[![Build Status](https://travis-ci.org/litehelpers/Cordova-sqlite-storage.svg)](https://travis-ci.org/litehelpers/Cordova-sqlite-storage)|
  -->
 
+NOTE: This version branch has some additional known [issues fixed in newer version branches](#issues-fixed-in-newer-version-branches).
+
+<!-- FUTURE TBD other version-specific bug notices -->
+
 <!-- END About this version branch -->
 
 ## WARNING: Multiple SQLite problem on Android
@@ -104,7 +108,6 @@ Use the `location` or `iosDatabaseLocation` option in `sqlitePlugin.openDatabase
   - Windows platform version uses `UTF-16le` internal database encoding while the other platform versions use `UTF-8` internal encoding. (`UTF-8` internal encoding is preferred ref: [litehelpers/Cordova-sqlite-storage#652](https://github.com/litehelpers/Cordova-sqlite-storage/issues/652))
 - FTS3, FTS4, and R-Tree support is tested working OK in this version (for all target platforms in this version branch Android/iOS/macOS/Windows)
 - Android versions supported: 2.3.3 - 7.1.1 (API level 10 - 25), depending on Cordova version ref: <https://cordova.apache.org/docs/en/latest/guide/platforms/android/>
-minimum API level is supported back to SDK 10 (a.k.a. Gingerbread, Android 2.3.3); support for older versions is available upon request.
 - iOS versions supported: 8.x / 9.x / 10.x / 11.x
 - In case of memory issues please use smaller transactions or use the version at [litehelpers / Cordova-sqlite-evcore-extbuild-free](https://github.com/litehelpers/Cordova-sqlite-evcore-extbuild-free) (GPL or commercial license terms).
 
@@ -207,15 +210,15 @@ As "strongly recommended" by [Web SQL Database API 8.5 SQL injection](https://ww
 - Close/delete database bugs described below.
 - When a database is opened and deleted without closing, the iOS/macOS platform version is known to leak resources.
 - It is NOT possible to open multiple databases with the same name but in different locations (iOS/macOS platform version).
-- Incorrect or missing insertId/rowsAffected in results for INSERT/UPDATE/DELETE SQL statements with extra semicolon(s) in the beginning for Android (android.database implementation)
-- readTransaction does *not* reject modification SQL statements with extra semicolon(s) in the beginning
 
-Issues fixed in some newer version branches:
+### Issues fixed in newer version branches
+
+- Incorrect or missing insertId/rowsAffected in results for INSERT/UPDATE/DELETE SQL statements with extra semicolon(s) in the beginning for Android platform version in case the `androidDatabaseImplementation: 2` (built-in android.database implementation) option is used.
 - In case of an error, the error `code` member is bogus on Android
 - iOS platform version generates extra logging in release version
 - iOS platform version may crash if deleteDatabase is called with an object in place of the database name
 - readTransaction does not reject ALTER, REINDEX, and REPLACE operations
-- readTransaction does not reject modification statements with extra semicolon(s) in the beginning
+- readTransaction does *not* reject modification statements with extra semicolon(s) in the beginning
 - extra executeSql callbacks triggered in a transaction after a failure that was not recovered by an error callback that returns false
 - does not signal an error in case of excess parameter argument values given on iOS/macOS
 
@@ -231,7 +234,6 @@ Issues fixed in some newer version branches:
 - In-memory database `db=window.sqlitePlugin.openDatabase({name: ':memory:', ...})` is currently not supported.
 - The Android platform version cannot properly support more than 100 open database files due to the threading model used.
 - SQL error messages reported by Windows platform version are not consistent with Android/iOS/macOS platform versions.
-- UNICODE `\u2028` (line separator) and `\u2029` (paragraph separator) characters are not supported and known to be broken on iOS, macOS, and Android platform versions due to JSON issues reported in [Cordova bug CB-9435](https://issues.apache.org/jira/browse/CB-9435) and [cordova/cordova-discuss#57](https://github.com/cordova/cordova-discuss/issues/57). 
 - UNICODE `\u2028` (line separator) and `\u2029` (paragraph separator) characters are currently not supported and known to be broken on iOS, macOS, and Android platform versions due to JSON issues reported in [Cordova bug CB-9435](https://issues.apache.org/jira/browse/CB-9435) and [cordova/cordova-discuss#57](https://github.com/cordova/cordova-discuss/issues/57). This is fixed with a workaround for iOS/macOS in: [litehelpers / Cordova-sqlite-evplus-legacy-free](https://github.com/litehelpers/Cordova-sqlite-evplus-legacy-free) and [litehelpers / Cordova-sqlite-evplus-legacy-attach-detach-free](https://github.com/litehelpers/Cordova-sqlite-evplus-legacy-attach-detach-free) (available with GPL or special commercial license options) as well as [litehelpers / Cordova-sqlite-evplus-legacy-workers-free](https://github.com/litehelpers/Cordova-sqlite-evplus-legacy-workers-free) (available with GPL or premium commercial license options)
 - The BLOB data type is not fully supported by this version branch. SELECT BLOB in Base64 format is supported by [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) (permissive license terms) and [litehelpers / Cordova-sqlite-evcore-extbuild-free](https://github.com/litehelpers/Cordova-sqlite-evcore-extbuild-free) (GPL or commercial license options).
 - Truncation in case of UNICODE `\u0000` (same as `\0`) character on Android (default Android-sqlite-connector database implementation) and Windows.
@@ -903,14 +905,6 @@ cordova platform add ios
 
 <!-- END Plugin installation sources -->
 
-## Source tree
-
-- `SQLitePlugin.coffee.md`: platform-independent (Literate coffee-script, can be read by recent coffee-script compiler)
-- `www`: `SQLitePlugin.js` platform-independent Javascript as generated from `SQLitePlugin.coffee.md` (and checked in!)
-- `src`: platform-specific source code
-- `spec`: test suite using Jasmine (2.2.0)
-- `tests`: very simple Jasmine test suite that is run on Circle CI (Android platform) and Travis CI (iOS platform) (used as a placeholder)
-
 ## Installation test
 
 ### Easy installation test
@@ -982,7 +976,7 @@ Free support for issues with Angular/"ngCordova"/Ionic will only be provided if 
 ## What information is needed for help
 
 Please include the following:
-- Which platform(s) _(Android/iOS/macOS/Windows 8.1/Windows Phone 8.1/Windows 10)_
+- Which platform(s) (Android/iOS/macOS/Windows 8.1/Windows Phone 8.1/Windows 10)
 - Clear description of the issue
 - A small, complete, self-contained program that demonstrates the problem, preferably as a Github project. ZIP/TGZ/BZ2 archive available from a public link is OK. No RAR or other such formats please!
 - A Cordova project is highly preferred. Intel, MS IDE, or similar project formats should be avoided.
@@ -1034,6 +1028,20 @@ To run from a windows powershell (here is a sample for android target):
 ## PouchDB
 
 - [nolanlawson / pouchdb-adapter-cordova-sqlite](https://github.com/nolanlawson/pouchdb-adapter-cordova-sqlite)
+
+<!-- END Adapters -->
+
+## Source tree
+
+- `SQLitePlugin.coffee.md`: platform-independent (Literate CoffeeScript, can be compiled with a recent CoffeeScript compiler)
+- `www`: platform-independent Javascript as generated from `SQLitePlugin.coffee.md` (and committed!)
+- `src`: platform-specific source code
+- `node_modules`: placeholder for external dependencies
+- `scripts`: installation hook script to fetch the external dependencies via `npm`
+- `spec`: test suite using Jasmine
+- `tests`: very simple Jasmine test suite that is run on Circle CI (Android platform) and Travis CI (iOS platform) (used as a placeholder)
+
+<!-- END Source tree -->
 
 # Contributing
 
