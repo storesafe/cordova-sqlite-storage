@@ -1,5 +1,9 @@
 # Changes
 
+# cordova-sqlite-express-wip 1.0.0-pretest01
+
+New version branch WIP using builtin sqlite library on Android/iOS/macOS, no external sqlite3 dependencies
+
 ## cordova-sqlite-storage 2.1.4-fixdev01
 
 - android.database end transaction if active before closing
