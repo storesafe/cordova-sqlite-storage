@@ -1,8 +1,8 @@
 # Changes
 
-###### cordova-sqlite-legacy-express-core 1.0.3-pre01
+###### cordova-sqlite-legacy-express-core 1.0.3-pre02
 
-TBD
+- selfTest database cleanup do not ignore close or delete error on any platforms
 
 ###### cordova-sqlite-legacy-express-core 1.0.2
 
