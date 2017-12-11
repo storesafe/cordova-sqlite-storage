@@ -1130,8 +1130,7 @@ var mytests = function() {
           }
         }
 
-        test_it(suiteName + ' test sqlitePlugin.deleteDatabase()', function () {
-          stop();
+        it(suiteName + ' test sqlitePlugin.deleteDatabase()', function (done) {
           var db = openDatabase("DB-Deletable", "1.0", "Demo", DEFAULT_SIZE);
 
           function createAndInsertStuff() {
@@ -1142,9 +1141,14 @@ var mytests = function() {
                 tx.executeSql('INSERT INTO test VALUES (?)', ['foo']);
               });
             }, function (err) {
-              ok(false, 'create and insert tx failed with ERROR: ' + JSON.stringify(err));
+              // NOT EXPECTED:
               console.log('create and insert tx failed with ERROR: ' + JSON.stringify(err));
-              start();
+              expect(false).toBe(true);
+              expect(err).toBeDefined();
+              expect(err.message).toBeDefined();
+              expect(err.message).toBe('--');
+              done();
+
             }, function () {
               // check that we can read it
               db.transaction(function(tx) {
@@ -1152,9 +1156,13 @@ var mytests = function() {
                   equal(res.rows.item(0).name, 'foo');
                 });
               }, function (err) {
-                ok(false, 'SELECT tx failed with ERROR: ' + JSON.stringify(err));
+                // NOT EXPECTED:
                 console.log('SELECT tx failed with ERROR: ' + JSON.stringify(err));
-                start();
+                expect(false).toBe(true);
+                expect(err).toBeDefined();
+                expect(err.message).toBeDefined();
+                expect(err.message).toBe('--');
+                done();
               }, function () {
                 deleteAndConfirmDeleted();
               });
@@ -1169,32 +1177,38 @@ var mytests = function() {
               db.transaction(function (tx) {
                 tx.executeSql('SELECT name FROM test', []);
               }, function (err) {
-                ok(true, 'got an expected transaction error');
+                // EXPECTED RESULT:
+                expect(err).toBeDefined();
+                expect(err.message).toBeDefined();
                 testDeleteError();
               }, function () {
+                // SUCCESS CALLBACK NOT EXPECTED:
                 console.log('UNEXPECTED SUCCESS: expected a transaction error');
-                ok(false, 'expected a transaction error');
-                start();
+                expect(false).toBe(true);
+                done();
               });
             }, function (err) {
+              // NOT EXPECTED - DO NOT IGNORE ON ANY PLATFORM:
               console.log("ERROR: " + JSON.stringify(err));
-              // XXX TBD IGNORE delete error on Windows:
-              if (isWindows) return start();
-              ok(false, 'error: ' + err);
-              start();
+              expect(false).toBe(true);
+              expect(err).toBeDefined();
+              expect(err.message).toBeDefined();
+              expect(err.message).toBe('--');
+              done();
             });
           }
 
           function testDeleteError() {
             // should throw an error if the db doesn't exist
             deleteDatabase("Foo-Doesnt-Exist", function () {
+              // SUCCESS CALLBACK NOT EXPECTED:
               console.log('UNEXPECTED SUCCESS: expected a delete error');
-              ok(false, 'expected error');
-              start();
+              expect(false).toBe(true);
+              done();
             }, function (err) {
-              ok(!!err, 'got error like we expected');
-
-              start();
+              // EXPECTED RESULT:
+              expect(err).toBeDefined();
+              done();
             });
           }
 

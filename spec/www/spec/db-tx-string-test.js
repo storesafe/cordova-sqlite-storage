@@ -868,6 +868,7 @@ var mytests = function() {
           if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
           if (!isWebSql && !isWindows && isAndroid) pending('SKIP for Android plugin (cordova-android 6.x BUG: cordova/cordova-discuss#57)');
           if (!isWebSql && !isWindows && !isAndroid && !isWP8) pending('SKIP for iOS/macOS plugin (Cordova BUG: CB-9435)');
+          if (isWebSql && !isWindows && isAndroid) pending('SKIP for Android Web SQL'); // TBD SKIP for Android Web for now
 
           // NOTE: since the above test shows the UNICODE line separator (\u2028)
           // is seen by the sqlite implementation OK, it is now concluded that
