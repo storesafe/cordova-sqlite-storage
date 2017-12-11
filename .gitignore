@@ -3,3 +3,6 @@
 .metadata/*
 *.swp
 *~
+spec/myplugin
+spec/plugins
+spec/platforms

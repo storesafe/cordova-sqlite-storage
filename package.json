@@ -1,6 +1,6 @@
 {
   "name": "cordova-sqlite-legacy-core",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Native interface to SQLite for PhoneGap/Cordova (legacy core version branch)",
   "cordova": {
     "id": "cordova-sqlite-legacy-core",
@@ -20,6 +20,7 @@
     "ecosystem:cordova",
     "cordova-android",
     "cordova-ios",
+    "cordova-osx",
     "cordova-windows"
   ],
   "author": "various",
