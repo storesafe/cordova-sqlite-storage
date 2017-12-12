@@ -114,6 +114,37 @@ var mytests = function() {
 
       });
 
+      describe(suiteName + 'additional sqlite check(s)', function() {
+
+        it(suiteName + 'Check default PRAGMA journal_mode setting (plugin ONLY)', function(done) {
+          if (isWebSql) pending('SKIP: NOT SUPPORTED for (WebKit) Web SQL');
+
+          var db = openDatabase("Check-sqlite-PRAGMA-encoding.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          expect(db).toBeDefined();
+
+          db.executeSql('PRAGMA journal_mode', [], function(rs) {
+            expect(rs).toBeDefined();
+            expect(rs.rows).toBeDefined();
+            expect(rs.rows.length).toBe(1);
+            // TBD different for builtin android.database implementation:
+            if (!isWindows && isAndroid) // TBD ...
+              expect(rs.rows.item(0).journal_mode).toBe('persist');
+            else
+              expect(rs.rows.item(0).journal_mode).toBe('delete');
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            done();
+          });
+        }, MYTIMEOUT);
+
+      });
+
     });
 
   }

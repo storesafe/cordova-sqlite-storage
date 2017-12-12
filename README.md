@@ -66,6 +66,9 @@ Use the `location` or `iosDatabaseLocation` option in `sqlitePlugin.openDatabase
 - R-Tree is *not* tested or supported for Android in this version branch.
 - Android versions supported: 2.3.3 - 7.1.1 (API level 10 - 25), depending on Cordova version ref: <https://cordova.apache.org/docs/en/latest/guide/platforms/android/>
 - iOS versions supported: 8.x / 9.x / 10.x / 11.x
+- Default `PRAGMA journal_mode` setting (*tested*):
+  - Android (builtin android.database implementation): `persist`
+  - otherwise: `delete`
 - In case of memory issues please use smaller transactions or use the version at [litehelpers / Cordova-sqlite-evcore-extbuild-free](https://github.com/litehelpers/Cordova-sqlite-evcore-extbuild-free) (GPL or commercial license terms).
 
 <!-- END Status -->
