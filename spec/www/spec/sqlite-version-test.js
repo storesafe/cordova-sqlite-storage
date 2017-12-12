@@ -30,8 +30,11 @@ var mytests = function() {
       var isWebSql = (i === 1);
       var isImpl2 = (i === 2);
 
-      // NOTE: MUST be defined in proper describe function scope, NOT outer scope:
-      var openDatabase = function(name, ignored1, ignored2, ignored3) {
+      // NOTE 1: MUST be defined in proper describe function scope, NOT outer scope.
+      // NOTE 2: Using same database name in this script to avoid creating extra,
+      //         unneeded database files.
+      var openDatabase = function(name_ignored, ignored1, ignored2, ignored3) {
+        var name = 'sqlite-version-test.db';
         if (isImpl2) {
           return window.sqlitePlugin.openDatabase({
             // prevent reuse of database from default db implementation:
@@ -50,7 +53,7 @@ var mytests = function() {
 
       describe(suiteName + 'basic sqlite version test(s)', function() {
 
-        it(suiteName + 'Check sqlite version (pattern ONLY for WebKit Web SQL & androidDatabaseImplementation: 2)', function(done) {
+        it(suiteName + 'Check sqlite version (check pattern ONLY for WebKit Web SQL & androidDatabaseImplementation: 2)', function(done) {
           var db = openDatabase("check-sqlite-version.db", "1.0", "Demo", DEFAULT_SIZE);
 
           expect(db).toBeDefined();
