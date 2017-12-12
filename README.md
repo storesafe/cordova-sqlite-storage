@@ -171,7 +171,7 @@ As "strongly recommended" by [Web SQL Database API 8.5 SQL injection](https://ww
 
 - Incorrect or missing insertId/rowsAffected in results for INSERT/UPDATE/DELETE SQL statements with extra semicolon(s) in the beginning for Android (android.database implementation)
 - In case of an error, the error `code` member is bogus on Android
-- iOS platform version generates extra logging in release version
+- iOS platform version generates extra logging in release build
 - iOS platform version may crash if deleteDatabase is called with an object in place of the database name
 - readTransaction does not reject ALTER, REINDEX, and REPLACE operations
 - readTransaction does *not* reject modification statements with extra semicolon(s) in the beginning
