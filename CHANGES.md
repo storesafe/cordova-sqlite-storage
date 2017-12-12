@@ -1,5 +1,9 @@
 # Changes
 
+## cordova-sqlite-storage 2.1.4-fixdev01
+
+- android.database end transaction if active before closing
+
 ## cordova-sqlite-storage 2.1.3
 
 ##### cordova-sqlite-legacy-core 1.0.5
