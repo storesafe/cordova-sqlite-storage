@@ -50,7 +50,7 @@ var mytests = function() {
 
       describe(suiteName + 'basic sqlite version test(s)', function() {
 
-        it(suiteName + 'Check sqlite version (pattern ONLY for WebKit Web SQL & androidDatabaseImplementation: 2)', function(done) {
+        it(suiteName + 'Check sqlite version (pattern ONLY IN THIS VERSION BRANCH)', function(done) {
           var db = openDatabase("check-sqlite-version.db", "1.0", "Demo", DEFAULT_SIZE);
 
           expect(db).toBeDefined();
@@ -64,9 +64,10 @@ var mytests = function() {
               expect(rs.rows.length).toBe(1);
               // Check pattern (both Web SQL & plugin)
               expect(rs.rows.item(0).myResult).toMatch(/3\.[0-9]+\.[0-9]+/);
+              // XXX GONE IN THIS VERSION BRANCH:
               // Check specific [plugin only]:
-              if (!isWebSql && !(!isWindows && isAndroid && isImpl2))
-                expect(rs.rows.item(0).myResult).toBe('3.15.2');
+              //* if (!isWebSql && !(!isWindows && isAndroid && isImpl2))
+              //*   expect(rs.rows.item(0).myResult).toBe('3.15.2');
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);

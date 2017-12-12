@@ -1,9 +1,9 @@
 {
-  "name": "cordova-sqlite-storage",
-  "version": "2.1.3",
+  "name": "cordova-sqlite-express-wip",
+  "version": "1.0.0-pretest01",
   "description": "Native interface to SQLite for PhoneGap/Cordova",
   "cordova": {
-    "id": "cordova-sqlite-storage",
+    "id": "cordova-sqlite-express-wip",
     "platforms": [
       "android",
       "ios",
