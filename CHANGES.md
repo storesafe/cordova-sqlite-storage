@@ -1,8 +1,8 @@
 # Changes
 
-###### cordova-sqlite-legacy-express-core 1.0.4-devtest00
+###### cordova-sqlite-legacy-express-core 1.0.4-newdev01
 
-TBD
+- android.database end transaction if active before closing (needed for new BUG 666 workaround solution to pass selfTest in case of builtin android.database implementation)
 
 ###### cordova-sqlite-legacy-express-core 1.0.3
 
