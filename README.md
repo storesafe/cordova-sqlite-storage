@@ -8,7 +8,7 @@ License terms for iOS/macOS platform version: MIT only
 
 ## About this version branch
 
-This version branch contains the source code for the Android/iOS/macOS platforms (legacy core version branch).
+This version branch contains the source code for the Android/iOS/macOS/Windows platforms (legacy core version branch).
 
 This version branch uses a `before_plugin_install` hook to install sqlite3 library dependencies from `cordova-sqlite-storage-dependencies` via npm.
 
@@ -103,7 +103,7 @@ Use the `location` or `iosDatabaseLocation` option in `sqlitePlugin.openDatabase
   - It is **not** possible to use this plugin with the default "Any CPU" target. A specific target CPU type **must** be specified when building an app with this plugin.
   - Truncation issue with UNICODE `\u0000` character (same as `\0`)
   - No background processing
-  - INCORRECT error code and INCONSISTENT error message in error callbacks ref: [litehelpers/Cordova-sqlite-storage#539](https://github.com/litehelpers/Cordova-sqlite-storage/issues/539)
+  - NONCOMPLIANT error code (-1) and INCONSISTENT error message (missing actual error info) in error callbacks ref: [litehelpers/Cordova-sqlite-storage#539](https://github.com/litehelpers/Cordova-sqlite-storage/issues/539)
   - Not possible to read BLOB column values
   - Windows platform version uses `UTF-16le` internal database encoding while the other platform versions use `UTF-8` internal encoding. (`UTF-8` internal encoding is preferred ref: [litehelpers/Cordova-sqlite-storage#652](https://github.com/litehelpers/Cordova-sqlite-storage/issues/652))
 - Android versions supported: 2.3.3 - 7.1.1 (API level 10 - 25), depending on Cordova version ref: <https://cordova.apache.org/docs/en/latest/guide/platforms/android/>
@@ -206,7 +206,6 @@ As "strongly recommended" by [Web SQL Database API 8.5 SQL injection](https://ww
 - Memory issue observed when adding a large number of records due to the JSON implementation which is improved in [litehelpers / Cordova-sqlite-evcore-extbuild-free](https://github.com/litehelpers/Cordova-sqlite-evcore-extbuild-free) (GPL or commercial license terms)
 - Infinity (positive or negative) values are not supported on Android/iOS/macOS due to issues described above including a possible crash on iOS/macOS ref: [litehelpers/Cordova-sqlite-storage#405](https://github.com/litehelpers/Cordova-sqlite-storage/issues/405)
 - A stability issue was reported on the iOS platform version when in use together with [SockJS](http://sockjs.org/) client such as [pusher-js](https://github.com/pusher/pusher-js) at the same time (see [litehelpers/Cordova-sqlite-storage#196](https://github.com/litehelpers/Cordova-sqlite-storage/issues/196)). The workaround is to call sqlite functions and [SockJS](http://sockjs.org/) client functions in separate ticks (using setTimeout with 0 timeout).
-- If a sql statement fails for which there is no error handler or the error handler does not return `false` to signal transaction recovery, the plugin fires the remaining sql callbacks before aborting the transaction.
 - In case of an error, the error `code` member is bogus on _Android and Windows_.
 - Possible crash on Android when using Unicode emoji and other 4-octet UTF-8 characters due to [Android bug 81341](https://code.google.com/p/android/issues/detail?id=81341), which *should* be fixed in Android 6.x
 - Close/delete database bugs described below.
@@ -217,11 +216,12 @@ As "strongly recommended" by [Web SQL Database API 8.5 SQL injection](https://ww
 
 - Incorrect or missing insertId/rowsAffected in results for INSERT/UPDATE/DELETE SQL statements with extra semicolon(s) in the beginning for Android platform version in case the `androidDatabaseImplementation: 2` (built-in android.database implementation) option is used.
 - In case of an error, the error `code` member is bogus on Android
+- Windows platform version reports NONCOMPLIANT error code (-1) in case of an error
 - iOS platform version generates extra logging in release version
 - iOS platform version may crash if deleteDatabase is called with an object in place of the database name
 - readTransaction does not reject ALTER, REINDEX, and REPLACE operations
 - readTransaction does *not* reject modification statements with extra semicolon(s) in the beginning
-- extra executeSql callbacks triggered in a transaction after a failure that was not recovered by an error callback (by returning false)
+- extra executeSql callbacks: if a sql statement fails for which there is no error handler or the error handler does not return `false` to signal transaction recovery, the plugin fires the remaining sql callbacks before aborting the transaction.
 - does not signal an error in case of excess parameter argument values given on iOS/macOS
 
 Some additional issues are tracked in [open Cordova-sqlite-storage bug-general issues](https://github.com/litehelpers/Cordova-sqlite-storage/issues?q=is%3Aissue+is%3Aopen+label%3Abug-general).
