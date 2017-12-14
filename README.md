@@ -12,8 +12,6 @@ This version branch contains the source code for the Android/iOS/macOS platforms
 
 This version branch is now used to develop Android platform version without dependency on JAR or NDK library artifacts for testing on `cordova-android@7`.
 
-**NOTICE:** Workaround solution for [BUG 666 (litehelpers/Cordova-sqlite-storage#666)](https://github.com/litehelpers/Cordova-sqlite-storage/issues/666) (possible transaction issue after window.location change change with possible data loss) is incorrect in this version branch as discussed in [this BUG 666 comment](https://github.com/litehelpers/Cordova-sqlite-storage/issues/666#issuecomment-343757398) and may continue to suffer from a possible data loss risk. New workaround solution described in [this newer BUG 666 comment](https://github.com/litehelpers/Cordova-sqlite-storage/issues/666#issuecomment-350159666) is available in newer version branches. New workaround solution to bug 666 will cause selfTest to fail on Android ref: <https://github.com/litehelpers/Cordova-sqlite-storage/pull/730>
-
 NOTE: This version branch has some additional known [issues fixed in newer version branches](#issues-fixed-in-newer-version-branches).
 
 <!-- END About this version branch -->
@@ -80,8 +78,8 @@ Use the `location` or `iosDatabaseLocation` option in `sqlitePlugin.openDatabase
 - Nice overview of this and other alternatives for storing local data at: <https://www.sitepoint.com/storing-local-data-in-a-cordova-app/>
 - New alternative solution for small data storage: [TheCocoaProject/ cordova-plugin-nativestorage](https://github.com/TheCocoaProject/cordova-plugin-nativestorage) - simpler "native storage of variables" for Android/iOS/Windows
 - Resolved Java 6/7/8 concurrent map compatibility issue reported in [litehelpers/Cordova-sqlite-storage#726](https://github.com/litehelpers/Cordova-sqlite-storage/issues/726), THANKS to pointer by [@NeoLSN (Jason Yang/楊朝傑)](https://github.com/NeoLSN) in [litehelpers/Cordova-sqlite-storage#727](https://github.com/litehelpers/Cordova-sqlite-storage/issues/727).
+- Updated workaround solution to [BUG 666 (litehelpers/Cordova-sqlite-storage#666)](https://github.com/litehelpers/Cordova-sqlite-storage/issues/666) (possible transaction issue after window.location change with possible data loss): close database if already open before opening again
 - Fixed iOS/macOS platform version to use [PSPDFThreadSafeMutableDictionary.m](https://gist.github.com/steipete/5928916) to avoid threading issue ref: [litehelpers/Cordova-sqlite-storage#716](https://github.com/litehelpers/Cordova-sqlite-storage/issues/716)
-- Resolved transaction problem after window.location (page) change with possible data loss ref: [litehelpers/Cordova-sqlite-storage#666](https://github.com/litehelpers/Cordova-sqlite-storage/issues/666)
 - [brodybits / cordova-sqlite-test-app](https://github.com/brodybits/cordova-sqlite-test-app) project is a CC0 (public domain) starting point (NOTE that this plugin must be added) and may also be used to reproduce issues with this plugin.
 - The Lawnchair adapter is now moved to [litehelpers / cordova-sqlite-lawnchair-adapter](https://github.com/litehelpers/cordova-sqlite-lawnchair-adapter).
 - [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) now supports SELECT BLOB data in Base64 format on all platforms in addition to REGEXP (Android/iOS/macOS) and pre-populated database (all platforms).
@@ -106,7 +104,7 @@ Use the `location` or `iosDatabaseLocation` option in `sqlitePlugin.openDatabase
 - As described in [this posting](http://brodyspark.blogspot.com/2012/12/cordovaphonegap-sqlite-plugins-offer.html):
   - Keeps sqlite database in known, platform specific user data location on all supported platforms (Android/iOS/macOS/Windows), which can be reconfigured on iOS/macOS. Whether or not the database on the iOS platform is synchronized to iCloud depends on the selected database location.
   - No arbitrary size limit. SQLite limits described at: <http://www.sqlite.org/limits.html>
-- ~~Also tested for multi-page applications with window location changes~~ _(workaround solution for BUG 666 is incorrect in this version branch)_
+- Also validated for multi-page applications by internal test selfTest function.
 - This project is self-contained: no dependencies on other plugins such as cordova-plugin-file
 - Windows 10 UWP platform version available in TBD uses the performant C++ [doo / SQLite3-WinRT](https://github.com/doo/SQLite3-WinRT) component.
 - [SQLCipher](https://www.zetetic.net/sqlcipher/) support for Android/iOS/macOS/Windows is available in: [litehelpers / Cordova-sqlcipher-adapter](https://github.com/litehelpers/Cordova-sqlcipher-adapter)

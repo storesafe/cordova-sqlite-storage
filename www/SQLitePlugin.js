@@ -162,7 +162,7 @@
   };
 
   SQLitePlugin.prototype.open = function(success, error) {
-    var openerrorcb, opensuccesscb;
+    var openerrorcb, opensuccesscb, step2;
     if (this.dbname in this.openDBs) {
       console.log('database already open: ' + this.dbname);
       nextTick((function(_this) {
@@ -202,18 +202,16 @@
         };
       })(this);
       this.openDBs[this.dbname] = DB_STATE_INIT;
-      nextTick((function(_this) {
+      step2 = (function(_this) {
         return function() {
-          var myfn;
-          if (!txLocks[_this.dbname]) {
-            myfn = function(tx) {
-              tx.addStatement('ROLLBACK');
-            };
-            _this.addTransaction(new SQLitePluginTransaction(_this, myfn, null, null, false, false));
-          }
-          return cordova.exec(opensuccesscb, openerrorcb, "SQLitePlugin", "open", [_this.openargs]);
+          cordova.exec(opensuccesscb, openerrorcb, "SQLitePlugin", "open", [_this.openargs]);
         };
-      })(this));
+      })(this);
+      cordova.exec(step2, step2, 'SQLitePlugin', 'close', [
+        {
+          path: this.dbname
+        }
+      ]);
     }
   };
 

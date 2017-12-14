@@ -250,21 +250,16 @@
         # store initial DB state:
         @openDBs[@dbname] = DB_STATE_INIT
 
-        # As a WORKAROUND SOLUTION to BUG litehelpers/Cordova-sqlite-storage#666
-        # (in the next event tick):
-        # If the database was never opened on the JavaScript side
-        # start an extra ROLLBACK statement to abort any pending transaction
-        # (does not matter whether it succeeds or fails here).
-        # FUTURE TBD a better solution would be to send a special signal or parameter
-        # if the database was never opened on the JavaScript side.
-        nextTick =>
-          if not txLocks[@dbname]
-            myfn = (tx) ->
-              tx.addStatement 'ROLLBACK'
-              return
-            @addTransaction new SQLitePluginTransaction @, myfn, null, null, false, false
-
+        # UPDATED WORKAROUND SOLUTION to cordova-sqlite-storage BUG 666:
+        # Request to native side to close existing database
+        # connection in case it is already open.
+        # Wait for callback before opening the database
+        # (ignore close error).
+        step2 = =>
           cordova.exec opensuccesscb, openerrorcb, "SQLitePlugin", "open", [ @openargs ]
+          return
+
+        cordova.exec step2, step2, 'SQLitePlugin', 'close', [ { path: @dbname } ]
 
       return
 
