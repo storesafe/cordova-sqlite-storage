@@ -1,5 +1,12 @@
 # Changes
 
+##### cordova-sqlite-legacy-core 1.0.6
+
+###### cordova-sqlite-legacy-express-core 1.0.4
+
+- Cleaned up workaround solution to BUG 666: close db before opening (ignore close error)
+- android.database end transaction if active before closing (needed for new BUG 666 workaround solution to pass selfTest in case of builtin android.database implementation)
+
 ##### cordova-sqlite-legacy-core 1.0.5
 
 ###### cordova-sqlite-legacy-express-core 1.0.3
