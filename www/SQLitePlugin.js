@@ -162,7 +162,7 @@
   };
 
   SQLitePlugin.prototype.open = function(success, error) {
-    var openStep2, openerrorcb, opensuccesscb;
+    var openerrorcb, opensuccesscb, step2;
     if (this.dbname in this.openDBs) {
       console.log('database already open: ' + this.dbname);
       nextTick((function(_this) {
@@ -202,12 +202,12 @@
         };
       })(this);
       this.openDBs[this.dbname] = DB_STATE_INIT;
-      openStep2 = (function(_this) {
+      step2 = (function(_this) {
         return function() {
-          return cordova.exec(opensuccesscb, openerrorcb, "SQLitePlugin", "open", [_this.openargs]);
+          cordova.exec(opensuccesscb, openerrorcb, "SQLitePlugin", "open", [_this.openargs]);
         };
       })(this);
-      cordova.exec(openStep2, openStep2, 'SQLitePlugin', 'close', [
+      cordova.exec(step2, step2, 'SQLitePlugin', 'close', [
         {
           path: this.dbname
         }

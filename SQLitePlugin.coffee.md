@@ -250,14 +250,16 @@
         # store initial DB state:
         @openDBs[@dbname] = DB_STATE_INIT
 
-        # NEW WORKAROUND SOLUTION to BUG litehelpers/Cordova-sqlite-storage#666:
-        # Request to native implementation to close existing database
-        # connection if it is already open. Wait for success or error
-        # response before opening the database.
-        openStep2 = =>
+        # UPDATED WORKAROUND SOLUTION to cordova-sqlite-storage BUG 666:
+        # Request to native side to close existing database
+        # connection in case it is already open.
+        # Wait for callback before opening the database
+        # (ignore close error).
+        step2 = =>
           cordova.exec opensuccesscb, openerrorcb, "SQLitePlugin", "open", [ @openargs ]
+          return
 
-        cordova.exec openStep2, openStep2, 'SQLitePlugin', 'close', [ { path: @dbname } ]
+        cordova.exec step2, step2, 'SQLitePlugin', 'close', [ { path: @dbname } ]
 
       return
 
