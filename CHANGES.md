@@ -1,11 +1,33 @@
 # Changes
 
-## cordova-sqlite-ext 0.10.7-pre2
+## cordova-sqlite-ext 0.10.7
 
 - cordova-sqlite-ext build flag fixes:
   - SQLite (3.15.2) build with SQLITE_THREADSAFE=2 on iOS as well as macOS to avoid possible malformed database due to multithreaded access ref: litehelpers/Cordova-sqlite-storage#703
   - Suppress warnings when building sqlite3.c on iOS/macOS
   - Some additional iOS build flag updates in this plugin version
+
+##### cordova-sqlite-legacy-core 1.0.6
+
+###### cordova-sqlite-legacy-express-core 1.0.4
+
+- Cleaned up workaround solution to BUG 666: close db before opening (ignore close error)
+- android.database end transaction if active before closing (needed for new BUG 666 workaround solution to pass selfTest in case of builtin android.database implementation)
+
+##### cordova-sqlite-legacy-core 1.0.5
+
+###### cordova-sqlite-legacy-express-core 1.0.3
+
+- Resolve Java 6/7/8 concurrent map compatibility issue reported in litehelpers/Cordova-sqlite-storage#726, THANKS to pointer by @NeoLSN (Jason Yang/楊朝傑) in litehelpers/Cordova-sqlite-storage#727.
+- selfTest database cleanup do not ignore close or delete error on any platforms
+
+##### cordova-sqlite-legacy-core 1.0.4
+
+- New workaround solution to BUG 666: close db before opening (ignore close error)
+
+##### cordova-sqlite-legacy-core 1.0.3
+
+- Suppress warnings when building sqlite3.c & PSPDFThreadSafeMutableDictionary.m on iOS/macOS
 
 ## cordova-sqlite-ext 0.10.6
 

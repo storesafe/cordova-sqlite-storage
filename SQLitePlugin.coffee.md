@@ -251,21 +251,16 @@
         # store initial DB state:
         @openDBs[@dbname] = DB_STATE_INIT
 
-        # As a WORKAROUND SOLUTION to BUG litehelpers/Cordova-sqlite-storage#666
-        # (in the next event tick):
-        # If the database was never opened on the JavaScript side
-        # start an extra ROLLBACK statement to abort any pending transaction
-        # (does not matter whether it succeeds or fails here).
-        # FUTURE TBD a better solution would be to send a special signal or parameter
-        # if the database was never opened on the JavaScript side.
-        nextTick =>
-          if not txLocks[@dbname]
-            myfn = (tx) ->
-              tx.addStatement 'ROLLBACK'
-              return
-            @addTransaction new SQLitePluginTransaction @, myfn, null, null, false, false
-
+        # UPDATED WORKAROUND SOLUTION to cordova-sqlite-storage BUG 666:
+        # Request to native side to close existing database
+        # connection in case it is already open.
+        # Wait for callback before opening the database
+        # (ignore close error).
+        step2 = =>
           cordova.exec opensuccesscb, openerrorcb, "SQLitePlugin", "open", [ @openargs ]
+          return
+
+        cordova.exec step2, step2, 'SQLitePlugin', 'close', [ { path: @dbname } ]
 
       return
 
@@ -914,6 +909,7 @@
 
                 , (tx2_err) ->
                   SelfTest.finishWithError errorcb, "readTransaction error: #{tx2_err}"
+
                 , () ->
                   if !readTransactionFinished
                     SelfTest.finishWithError errorcb, 'readTransaction did not finish'
@@ -957,25 +953,18 @@
                       if !secondReadTransactionFinished
                         SelfTest.finishWithError errorcb, 'second readTransaction did not finish'
                         return
+
                       # CLEANUP & FINISH:
                       db.close () ->
-                        SQLiteFactory.deleteDatabase {name: SelfTest.DBNAME, location: 'default'}, successcb, (cleanup_err)->
-                          # TBD IGNORE THIS ERROR on Windows (and WP8):
-                          if /Windows /.test(navigator.userAgent) or /IEMobile/.test(navigator.userAgent)
-                            console.log "IGNORE CLEANUP (DELETE) ERROR: #{JSON.stringify cleanup_err} (Windows/WP8)"
-                            successcb()
-                            return
-                          SelfTest.finishWithError errorcb, "Cleanup error: #{cleanup_err}"
+                        SelfTest.cleanupAndFinish successcb, errorcb
+                        return
 
                       , (close_err) ->
-                        # TBD IGNORE THIS ERROR on Windows (and WP8):
-                        if /Windows /.test(navigator.userAgent) or /IEMobile/.test(navigator.userAgent)
-                          console.log "IGNORE close ERROR: #{JSON.stringify close_err} (Windows/WP8)"
-                          SQLiteFactory.deleteDatabase {name: SelfTest.DBNAME, location: 'default'}, successcb, successcb
-                          return
+                        # DO NOT IGNORE CLOSE ERROR ON ANY PLATFORM:
                         SelfTest.finishWithError errorcb, "close error: #{close_err}"
+                        return
 
-                      # FUTURE TODO: return
+                      return
 
             , (select_err) ->
               SelfTest.finishWithError errorcb, "SELECT error: #{select_err}"
@@ -987,13 +976,22 @@
           SelfTest.finishWithError errorcb, "Open database error: #{open_err}"
         return
 
+      cleanupAndFinish: (successcb, errorcb) ->
+        SQLiteFactory.deleteDatabase {name: SelfTest.DBNAME, location: 'default'}, successcb, (cleanup_err)->
+          # DO NOT IGNORE CLEANUP DELETE ERROR ON ANY PLATFORM:
+          SelfTest.finishWithError errorcb, "CLEANUP DELETE ERROR: #{cleanup_err}"
+          return
+        return
+
       finishWithError: (errorcb, message) ->
         console.log "selfTest ERROR with message: #{message}"
         SQLiteFactory.deleteDatabase {name: SelfTest.DBNAME, location: 'default'}, ->
           errorcb newSQLError message
-          # FUTURE TODO: return
-        # FUTURE TODO log err2
-        , (err2)-> errorcb newSQLError "Cleanup error: #{err2} for error: #{message}"
+          return
+        , (err2)->
+          console.log "selfTest CLEANUP DELETE ERROR #{err2}"
+          errorcb newSQLError "CLEANUP DELETE ERROR: #{err2} for error: #{message}"
+          return
         return
 
 ## Exported API:
