@@ -2,10 +2,11 @@
 
 ## cordova-sqlite-ext 0.10.6
 
+- SQLite 3.15.2 build with SQLITE_THREADSAFE=2 on macOS ONLY (SQLITE_THREADSAFE=1 on Android/iOS/Windows) and other flag fixes in this plugin version
+
 ##### cordova-sqlite-legacy-core 1.0.2
 
 - Fix log in case of transaction waiting for open to finish; doc fixes
-- SQLite 3.15.2 build with SQLITE_THREADSAFE=2 on iOS/macOS (SQLITE_THREADSAFE=1 on Android/Windows) and other flag fixes in this version branch to avoid possible malformed database due to multithreaded access ref: litehelpers/Cordova-sqlite-storage#703
 - Windows 10 (UWP) build with /SAFESEH flag on Win32 (x86) target
 
 ###### cordova-sqlite-legacy-express-core 1.0.2
