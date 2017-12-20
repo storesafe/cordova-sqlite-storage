@@ -1,5 +1,9 @@
 # Changes
 
+## cordova-sqlite-ext 0.10.7-pre1
+
+TBD
+
 ## cordova-sqlite-ext 0.10.6
 
 - SQLite 3.15.2 build with SQLITE_THREADSAFE=2 on macOS ONLY (SQLITE_THREADSAFE=1 on Android/iOS/Windows) and other flag fixes in this plugin version
