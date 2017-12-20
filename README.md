@@ -135,12 +135,12 @@ See the [Sample section](#sample) for a sample with a more detailed explanation.
   - REGEXP for Android (default Android-sqlite-connector database implementation), iOS, and macOS using [brodybits / sqlite3-regexp-cached](https://github.com/brodybits/sqlite3-regexp-cached) (based on <http://git.altlinux.org/people/at/packages/?p=sqlite3-pcre.git> by Alexey Tourbin, public domain)
   - DEPRECATED and WILL BE REMOVED in the near future: BLOB data reading (from pre-populated database) for Android/iOS, with the following caveat for the Android version: the database must be opened with the `androidDatabaseImplementation: 2` option to use the built-in android.database implementation. **RECOMMENDED SOLUTION**: use SELECT BASE64(column) to SELECT BLOB data as described below (WITHOUT use of the `androidDatabaseImplementation: 2` setting).
 - SQLite version `3.15.2` included when building with the following build settings:
-  - `SQLITE_THREADSAFE=1` (`SQLITE_THREADSAFE=2` on macOS ONLY)
-  - `SQLITE_DEFAULT_MEMSTATUS=0` (macOS only)
-  - `SQLITE_OMIT_DECLTYPE` (macOS only)
-  - `SQLITE_OMIT_DEPRECATED` (macOS only)
-  - `SQLITE_OMIT_PROGRESS_CALLBACK` (macOS only)
-  - `SQLITE_OMIT_SHARED_CACHE` (macOS only)
+  - `SQLITE_THREADSAFE=2` on iOS/macOS (`SQLITE_THREADSAFE=1` on Android/Windows)
+  - `SQLITE_DEFAULT_MEMSTATUS=0` (iOS/macOS only)
+  - `SQLITE_OMIT_DECLTYPE` (iOS/macOS only)
+  - `SQLITE_OMIT_DEPRECATED` (iOS/macOS only)
+  - `SQLITE_OMIT_PROGRESS_CALLBACK` (iOS/macOS only)
+  - `SQLITE_OMIT_SHARED_CACHE` (iOS/macOS only)
   - `SQLITE_TEMP_STORE=2`
   - `SQLITE_OMIT_LOAD_EXTENSION`
   - `SQLITE_ENABLE_FTS3`
@@ -148,7 +148,7 @@ See the [Sample section](#sample) for a sample with a more detailed explanation.
   - `SQLITE_ENABLE_FTS4`
   - `SQLITE_ENABLE_RTREE`
   - `SQLITE_DEFAULT_PAGE_SIZE=1024` and `SQLITE_DEFAULT_CACHE_SIZE=2000` to avoid "potentially distruptive change(s)" from SQLite 3.12.0 ref: <http://sqlite.org/pgszchng2016.html>
-  - `SQLITE_OMIT_BUILTIN_TEST` - TBD unwanted option to be removed in the near future (Android/iOS/Windows)
+  - `SQLITE_OMIT_BUILTIN_TEST` - TBD unwanted option to be removed in the near future (Android/Windows)
   - `SQLITE_OS_WINRT` (Windows only)
 - This version supports the use of two (2) possible Android sqlite database implementations:
   - default: lightweight [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) (using [brodybits / Android-sqlite-ext-native-driver](https://github.com/brodybits/Android-sqlite-ext-native-driver))

@@ -1,8 +1,11 @@
 # Changes
 
-## cordova-sqlite-ext 0.10.7-pre1
+## cordova-sqlite-ext 0.10.7-pre2
 
-TBD
+- cordova-sqlite-ext build flag fixes:
+  - SQLite (3.15.2) build with SQLITE_THREADSAFE=2 on iOS as well as macOS to avoid possible malformed database due to multithreaded access ref: litehelpers/Cordova-sqlite-storage#703
+  - Suppress warnings when building sqlite3.c on iOS/macOS
+  - Some additional iOS build flag updates in this plugin version
 
 ## cordova-sqlite-ext 0.10.6
 
