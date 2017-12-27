@@ -7,9 +7,9 @@ var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 // FUTURE TODO replace in test(s):
 function ok(test, desc) { expect(test).toBe(true); }
 
-var isAndroid = /Android/.test(navigator.userAgent);
 var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
-var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
+var isWindows = /Windows /.test(navigator.userAgent); // Windows 8.1/Windows Phone 8.1/Windows 10
+var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 
 // NOTE: While in certain version branches there is no difference between
 // the default Android implementation and implementation #2,

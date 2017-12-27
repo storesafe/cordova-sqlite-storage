@@ -1,5 +1,31 @@
 # Changes
 
+## cordova-sqlite-ext 2.0.0
+
+## cordova-sqlite-storage 2.1.4
+
+- Visual Studio 2017 updates for Windows UWP build
+
+### cordova-sqlite-storage 1.5.4
+
+- Fix iOS/macOS version to report undefined insertId in case INSERT OR IGNORE is ignored
+- Fix FIRST_WORD check for android.sqlite.database implementation
+- SQLite 3.15.2 build fixes
+
+## cordova-sqlite-storage 2.0.2
+
+- Fix Windows target platform version
+
+### cordova-sqlite-storage 1.5.3
+
+- Fix merges to prevent possible conflicts with other plugins (Windows)
+- Fix handling of undefined SQL argument values (Windows)
+- Signal error in case of a failure opening the database file (iOS/macOS)
+
+### cordova-sqlite-storage 2.0.0
+
+- Reference Windows platform toolset v141 to support Visual Studio 2017 (RC)
+
 ## cordova-sqlite-ext 0.10.7
 
 - cordova-sqlite-ext build flag fixes:

@@ -17,7 +17,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteStatement;
 
-import android.util.Base64;
 import android.util.Log;
 
 import java.io.File;
@@ -39,7 +38,7 @@ import org.json.JSONObject;
  */
 class SQLiteAndroidDatabase
 {
-    private static final Pattern FIRST_WORD = Pattern.compile("^\\s*(\\S+)",
+    private static final Pattern FIRST_WORD = Pattern.compile("^[\\s;]*([^\\s;]+)",
             Pattern.CASE_INSENSITIVE);
 
     private static final Pattern WHERE_CLAUSE = Pattern.compile("\\s+WHERE\\s+(.+)$",
@@ -137,7 +136,9 @@ class SQLiteAndroidDatabase
             try {
                 boolean needRawQuery = true;
 
+                //Log.v("executeSqlBatch", "get query type");
                 QueryType queryType = getQueryType(query);
+                //Log.v("executeSqlBatch", "query type: " + queryType);
 
                 if (queryType == QueryType.update || queryType == queryType.delete) {
                     if (isPostHoneycomb) {
@@ -510,14 +511,8 @@ class SQLiteAndroidDatabase
             case Cursor.FIELD_TYPE_FLOAT:
                 row.put(key, cur.getDouble(i));
                 break;
-            // XXX FUTURE TBD OBSOLETE:
-            // ** KEEP Read BLOB as Base-64 ENABLED in this version branch:
-            case Cursor.FIELD_TYPE_BLOB:
-                row.put(key, new String(Base64.encode(cur.getBlob(i), Base64.DEFAULT)));
-                break;
-            // ** */
             case Cursor.FIELD_TYPE_STRING:
-            default: /* (not expected) */
+            default: /* (BLOB) */
                 row.put(key, cur.getString(i));
                 break;
         }
@@ -536,26 +531,34 @@ class SQLiteAndroidDatabase
             row.put(key, cursor.getLong(i));
         } else if (cursorWindow.isFloat(pos, i)) {
             row.put(key, cursor.getDouble(i));
-        // XXX FUTURE TBD OBSOLETE:
-        // ** KEEP Read BLOB as Base-64 ENABLED in this version branch:
-        } else if (cursorWindow.isBlob(pos, i)) {
-            row.put(key, new String(Base64.encode(cursor.getBlob(i), Base64.DEFAULT)));
-        // ** */
-        } else { // string
+        } else {
+            // STRING or BLOB:
             row.put(key, cursor.getString(i));
         }
     }
 
     static QueryType getQueryType(String query) {
         Matcher matcher = FIRST_WORD.matcher(query);
+
+        // FIND & return query type, or throw:
         if (matcher.find()) {
             try {
-                return QueryType.valueOf(matcher.group(1).toLowerCase());
+                String first = matcher.group(1);
+
+                // explictly reject if blank
+                // (needed for SQLCipher version)
+                if (first.length() == 0) throw new RuntimeException("query not found");
+
+                return QueryType.valueOf(first.toLowerCase());
             } catch (IllegalArgumentException ignore) {
-                // unknown verb
+                // unknown verb (NOT blank)
+                return QueryType.other;
             }
+        } else {
+            // explictly reject if blank
+            // (needed for SQLCipher version)
+            throw new RuntimeException("query not found");
         }
-        return QueryType.other;
     }
 
     static enum QueryType {

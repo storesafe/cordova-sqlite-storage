@@ -30,7 +30,7 @@ function start(n) {
   if (wait == 0) test_it_done();
 }
 
-var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
+var isWindows = /Windows /.test(navigator.userAgent); // Windows 8.1/Windows Phone 8.1/Windows 10
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 
 // NOTE: While in certain version branches there is no difference between

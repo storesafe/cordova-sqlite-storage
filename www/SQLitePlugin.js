@@ -364,7 +364,7 @@
       for (j = 0, len1 = values.length; j < len1; j++) {
         v = values[j];
         t = typeof v;
-        params.push((v === null || v === void 0 || t === 'number' || t === 'string' ? v : v.toString()));
+        params.push((v === null || v === void 0 ? null : t === 'number' || t === 'string' ? v : v.toString()));
       }
     }
     this.executes.push({

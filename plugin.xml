@@ -2,7 +2,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-sqlite-ext"
-    version="0.10.7">
+    version="2.0.0">
 
     <name>Cordova sqlite storage plugin with extra features</name>
 
@@ -81,7 +81,7 @@
             </feature>
         </config-file>
 
-        <!-- Note: the macOS src is based off src/ios implicitly -->
+        <!-- Note: the macOS (osx) src is based off src/ios implicitly -->
         <header-file src="src/ios/SQLitePlugin.h" />
         <source-file src="src/ios/SQLitePlugin.m" />
         <!-- FUTURE TBD: more common directory name for Apple macOS/iOS versions -->
@@ -107,12 +107,12 @@
     <!-- windows -->
     <platform name="windows">
         <js-module src="src/windows/sqlite-proxy.js" name="SQLiteProxy">
-            <merges target="" />
+            <runs />
         </js-module>
 
         <!-- SQLite3 JS module from SQLite3-WinRT/SQLite3JS: -->
         <js-module src="src/windows/SQLite3-Win-RT/SQLite3JS/js/SQLite3.js" name="SQLite3">
-            <merges target="" />
+            <runs />
         </js-module>
 
         <!-- Thanks to AllJoyn-Cordova / cordova-plugin-alljoyn for guidance: -->

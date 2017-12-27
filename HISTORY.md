@@ -134,6 +134,10 @@ New versions introduced
   available under GPL or commercial licensing options with support for PhoneGap Build
 - Cordova-sqlite-evplus (legacy) versions with GPL or premium commercial licensing options
 
+## Major changes 2017
+
+Windows platform toolset dependency updated for Visual Studio 2017
+
 ## Recent changes
 
 See CHANGES.md

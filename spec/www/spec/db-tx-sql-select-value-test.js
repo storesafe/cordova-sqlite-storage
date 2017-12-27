@@ -10,9 +10,10 @@ var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 var isMac = /Macintosh/.test(navigator.userAgent);
 var isWKWebView = !isWindows && !isAndroid && !isWP8 && !isMac && !!window.webkit && !!window.webkit.messageHandlers;
 
-// NOTE: In the core-master branch there is no difference between the default
-// implementation and implementation #2. But the test will also apply
-// the androidLockWorkaround: 1 option in the case of implementation #2.
+// The following openDatabase settings are used for Plugin-implementation-2
+// on Android:
+// - androidDatabaseImplementation: 2
+// - androidLockWorkaround: 1
 var scenarioList = [
   isAndroid ? 'Plugin-implementation-default' : 'Plugin',
   'HTML5',
@@ -31,15 +32,19 @@ var mytests = function() {
       var isWebSql = (i === 1);
       var isImpl2 = (i === 2);
 
-      // NOTE: MUST be defined in function scope, NOT outer scope:
-      var openDatabase = function(name, ignored1, ignored2, ignored3) {
+      // NOTE 1: MUST be defined in proper describe function scope, NOT outer scope.
+      // NOTE 2: Using same database name in this script to avoid issue with
+      //         "Too many open files" on iOS with WKWebView engine plugin.
+      //         (FUTURE TBD NEEDS INVESTIGATION)
+      var openDatabase = function(name_ignored, ignored1, ignored2, ignored3) {
+        var name = 'select-value-test.db';
         if (isImpl2) {
           return window.sqlitePlugin.openDatabase({
             // prevent reuse of database from default db implementation:
             name: 'i2-'+name,
             androidDatabaseImplementation: 2,
             androidLockWorkaround: 1,
-            location: 1
+            location: 'default'
           });
         }
         if (isWebSql) {
@@ -202,7 +207,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'SELECT ? with [null] parameter argument [returns text in case of androidDatabaseImplementation: 2; BROKEN for Windows]', function(done) {
+        it(suiteName + 'SELECT ? with [null] parameter argument [returns text in case of androidDatabaseImplementation: 2]', function(done) {
           var db = openDatabase('SELECT-with-null-argument.db');
           expect(db).toBeDefined();
 
@@ -224,15 +229,12 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'SELECT TYPEOF(?) with [undefined] parameter argument [returns text in case of Android (WebKit) Web SQL or androidDatabaseImplementation: 2; BROKEN for Windows]', function(done) {
-          if (isWP8) pending('SKIP for WP8'); // SKIP for now
-
+        it(suiteName + 'SELECT TYPEOF(?) with [undefined] parameter argument [returns text in case of Android (WebKit) Web SQL or androidDatabaseImplementation: 2]', function(done) {
           var db = openDatabase('SELECT-TYPEOF-with-undefined-argument.db');
           expect(db).toBeDefined();
 
           db.transaction(function(tx) {
             tx.executeSql('SELECT TYPEOF(?) as myresult', [undefined], function(ignored, rs) {
-              if (isWindows) expect('Windows plugin version FIXED please update this test').toBe('--');
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
@@ -243,17 +245,6 @@ var mytests = function() {
               done();
             });
           }, function(error) {
-            // ERROR in case of Windows:
-            if (isWindows) {
-              expect(error).toBeDefined();
-              expect(error.code).toBeDefined();
-              expect(error.message).toBeDefined();
-              expect(error.code).toBe(0);
-              expect(error.message).toMatch(/a statement with no error handler failed: Unsupported argument type: undefined/);
-              return done();
-            }
-
-            // OTHERWISE
             // NOT EXPECTED:
             expect(false).toBe(true);
             expect(error.message).toBe('--');
@@ -262,14 +253,11 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'SELECT ? with [undefined] parameter argument [returns text in case of androidDatabaseImplementation: 2]', function(done) {
-          if (isWP8) pending('SKIP for WP8'); // SKIP for now
-
           var db = openDatabase('SELECT-with-undefined-argument.db');
           expect(db).toBeDefined();
 
           db.transaction(function(tx) {
             tx.executeSql('SELECT ? as myresult', [undefined], function(ignored, rs) {
-              if (isWindows) expect('Windows plugin version FIXED please update this test').toBe('--');
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
@@ -282,17 +270,6 @@ var mytests = function() {
               done();
             });
           }, function(error) {
-            // ERROR in case of Windows:
-            if (isWindows) {
-              expect(error).toBeDefined();
-              expect(error.code).toBeDefined();
-              expect(error.message).toBeDefined();
-              expect(error.code).toBe(0);
-              expect(error.message).toMatch(/a statement with no error handler failed: Unsupported argument type: undefined/);
-              return done();
-            }
-
-            // OTHERWISE
             // NOT EXPECTED:
             expect(false).toBe(true);
             expect(error.message).toBe('--');
@@ -1814,33 +1791,23 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + "SELECT X'40414243' [TBD BROKEN androidDatabaseImplementation: 2 & Windows]", function(done) {
-          //if (isWindows) pending('SKIP: BROKEN for Windows');
+          if (isWP8) pending('SKIP for WP8'); // [BROKEN]
 
           var db = openDatabase("Inline-BLOB-SELECT-result-40414243-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
 
             tx.executeSql("SELECT X'40414243' AS myresult", [], function(ignored, rs) {
-              //if (isWindows || (!isWebSql && isAndroid && isImpl2)) expect('Behavior changed please update this test').toBe('--');
-              if (isWindows) expect('Behavior changed please update this test').toBe('--');
+              if (isWindows || (!isWebSql && isAndroid && isImpl2)) expect('Behavior changed please update this test').toBe('--');
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-
-              //expect(rs.rows.item(0).myresult).toBe('@ABC');
-              var row = rs.rows.item(0);
-              expect(row).toBeDefined();
-              if (isWebSql || (isAndroid && !isImpl2))
-                expect(row.myresult).toBe('@ABC');
-              else if (isAndroid)
-                expect(row.myresult).toBe('QEFCQw==\n'); // [...]
-              else
-                expect(row.myresult).toBe('QEFCQw==');
+              expect(rs.rows.item(0).myresult).toBe('@ABC');
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             }, function(ignored, error) {
-              if (isWindows) {
+              if (isWindows || (!isWebSql && isAndroid && isImpl2)) {
                 expect(error).toBeDefined();
                 expect(error.code).toBeDefined();
                 expect(error.message).toBeDefined();
@@ -1861,8 +1828,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + "SELECT X'FFD1FFD2' [TBD BROKEN androidDatabaseImplementation: 2 & Windows; missing result value iOS/macOS]", function(done) {
-          //if (isWindows) pending('SKIP: BROKEN for Windows');
-          //if (isWP8) pending('SKIP for WP8');
+          if (isWP8) pending('SKIP for WP8');
           if (!isWebSql && !isWindows && isAndroid && !isImpl2) pending('BROKEN: CRASH on Android 5.x (default sqlite-connector version)');
 
           var db = openDatabase("Inline-SELECT-BLOB-FFD1FFD2-result-test.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -1870,36 +1836,20 @@ var mytests = function() {
           db.transaction(function(tx) {
 
             tx.executeSql("SELECT X'FFD1FFD2' AS myresult", [], function(ignored, rs) {
-              //if (isWindows || (!isWebSql && isAndroid && isImpl2)) expect('Behavior changed please update this test').toBe('--');
-              if (isWindows) expect('Behavior changed please update this test').toBe('--');
+              if (isWindows || (!isWebSql && isAndroid && isImpl2)) expect('Behavior changed please update this test').toBe('--');
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-
-              //if (!isWebSql && !isAndroid && !isWindows && !isWP8)
-              //  expect(rs.rows.item(0).myresult).not.toBeDefined(); // not defined iOS/macOS
-              //else
-              //  expect(rs.rows.item(0).myresult).toBeDefined();
-
-              var item = rs.rows.item(0);
-              expect(item).toBeDefined();
-
-              var myresult = item.myresult;
-
-              if (!isWebSql) {
-                // PLUGIN (...) TBD SUBJECT TO CHANGE:
-                //expect(myresult).not.toBeDefined();
-                expect(myresult).toBeDefined();
-                return done();
-              } else {
-                expect(myresult).toBeDefined();
-                expect(myresult.length).toBe(4);
-              }
+              if (!isWebSql && !isAndroid && !isWindows && !isWP8)
+                expect(rs.rows.item(0).myresult).not.toBeDefined(); // not defined iOS/macOS
+              else
+                expect(rs.rows.item(0).myresult).toBeDefined();
+              // TBD actual value (???)
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             }, function(ignored, error) {
-              if (isWindows) {
+              if (isWindows || (!isWebSql && isAndroid && isImpl2)) {
                 expect(error).toBeDefined();
                 expect(error.code).toBeDefined();
                 expect(error.message).toBeDefined();

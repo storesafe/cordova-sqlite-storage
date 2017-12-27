@@ -8,9 +8,10 @@ var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 
-// NOTE: In the common storage-master branch there is no difference between the
-// default implementation and implementation #2. But the test will also apply
-// the androidLockWorkaround: 1 option in the case of implementation #2.
+// NOTE: While in certain version branches there is no difference between
+// the default Android implementation and implementation #2,
+// this test script will also apply the androidLockWorkaround: 1 option
+// in case of implementation #2.
 var scenarioList = [
   isAndroid ? 'Plugin-implementation-default' : 'Plugin',
   'HTML5',
@@ -101,6 +102,11 @@ var mytests = function() {
               expect(error.code).toBeDefined();
               expect(error.message).toBeDefined();
 
+              // error.hasOwnProperty('message') apparently NOT WORKING on
+              // WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+              if (!isWebSql || isWindows || (isAndroid && (/Android [1-4]/.test(navigator.userAgent))))
+                expect(error.hasOwnProperty('message')).toBe(true);
+
               if (isWindows || (isAndroid && isImpl2))
                 expect(error.code).toBe(0);
               else
@@ -126,6 +132,11 @@ var mytests = function() {
             expect(error).toBeDefined();
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
+
+            // error.hasOwnProperty('message') apparently NOT WORKING on
+            // WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+            if (!isWebSql || isWindows || (isAndroid && (/Android [1-4]/.test(navigator.userAgent))))
+              expect(error.hasOwnProperty('message')).toBe(true);
 
             if (isWindows || isWebSql || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
@@ -171,6 +182,11 @@ var mytests = function() {
               expect(error.code).toBeDefined();
               expect(error.message).toBeDefined();
 
+              // error.hasOwnProperty('message') apparently NOT WORKING on
+              // WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+              if (!isWebSql || isWindows || (isAndroid && (/Android [1-4]/.test(navigator.userAgent))))
+                expect(error.hasOwnProperty('message')).toBe(true);
+
               if (isWindows || (isAndroid && isImpl2))
                 expect(error.code).toBe(0);
               else
@@ -195,6 +211,11 @@ var mytests = function() {
             expect(error).toBeDefined();
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
+
+            // error.hasOwnProperty('message') apparently NOT WORKING on
+            // WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+            if (!isWebSql || isWindows || (isAndroid && (/Android [1-4]/.test(navigator.userAgent))))
+              expect(error.hasOwnProperty('message')).toBe(true);
 
             if (isWindows || isWebSql || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
@@ -247,6 +268,11 @@ var mytests = function() {
               expect(error.code).toBeDefined();
               expect(error.message).toBeDefined();
 
+              // error.hasOwnProperty('message') apparently NOT WORKING on
+              // WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+              if (!isWebSql || isWindows || (isAndroid && (/Android [1-4]/.test(navigator.userAgent))))
+                expect(error.hasOwnProperty('message')).toBe(true);
+
               if (isWebSql && !isAndroid)
                 expect(true).toBe(true); // SKIP for iOS (WebKit) Web SQL
               else if (isWindows)
@@ -277,6 +303,11 @@ var mytests = function() {
             expect(error).toBeDefined();
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
+
+            // error.hasOwnProperty('message') apparently NOT WORKING on
+            // WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+            if (!isWebSql || isWindows || (isAndroid && (/Android [1-4]/.test(navigator.userAgent))))
+              expect(error.hasOwnProperty('message')).toBe(true);
 
             if (isWindows || isWebSql)
               expect(error.code).toBe(0);
@@ -319,6 +350,11 @@ var mytests = function() {
               expect(error.code).toBeDefined();
               expect(error.message).toBeDefined();
 
+              // error.hasOwnProperty('message') apparently NOT WORKING on
+              // WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+              if (!isWebSql || isWindows || (isAndroid && (/Android [1-4]/.test(navigator.userAgent))))
+                expect(error.hasOwnProperty('message')).toBe(true);
+
               if (isWindows || (isAndroid && isImpl2))
                 expect(error.code).toBe(0);
               else
@@ -345,6 +381,11 @@ var mytests = function() {
             expect(error).toBeDefined();
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
+
+            // error.hasOwnProperty('message') apparently NOT WORKING on
+            // WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+            if (!isWebSql || isWindows || (isAndroid && (/Android [1-4]/.test(navigator.userAgent))))
+              expect(error.hasOwnProperty('message')).toBe(true);
 
             if (isWebSql || isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
@@ -388,6 +429,11 @@ var mytests = function() {
               expect(error.code).toBeDefined();
               expect(error.message).toBeDefined();
 
+              // error.hasOwnProperty('message') apparently NOT WORKING on
+              // WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+              if (!isWebSql || isWindows || (isAndroid && (/Android [1-4]/.test(navigator.userAgent))))
+                expect(error.hasOwnProperty('message')).toBe(true);
+
               if (isWindows || (isAndroid && isImpl2))
                 expect(error.code).toBe(0);
               else
@@ -412,6 +458,11 @@ var mytests = function() {
             expect(error).toBeDefined();
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
+
+            // error.hasOwnProperty('message') apparently NOT WORKING on
+            // WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+            if (!isWebSql || isWindows || (isAndroid && (/Android [1-4]/.test(navigator.userAgent))))
+              expect(error.hasOwnProperty('message')).toBe(true);
 
             if (isWebSql || isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
@@ -456,6 +507,11 @@ var mytests = function() {
               expect(error.code).toBeDefined();
               expect(error.message).toBeDefined();
 
+              // error.hasOwnProperty('message') apparently NOT WORKING on
+              // WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+              if (!isWebSql || isWindows || (isAndroid && (/Android [1-4]/.test(navigator.userAgent))))
+                expect(error.hasOwnProperty('message')).toBe(true);
+
               if (isWindows || (isAndroid && isImpl2))
                 expect(error.code).toBe(0);
               else
@@ -481,6 +537,11 @@ var mytests = function() {
             expect(error).toBeDefined();
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
+
+            // error.hasOwnProperty('message') apparently NOT WORKING on
+            // WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+            if (!isWebSql || isWindows || (isAndroid && (/Android [1-4]/.test(navigator.userAgent))))
+              expect(error.hasOwnProperty('message')).toBe(true);
 
             if (isWebSql || isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
@@ -525,6 +586,11 @@ var mytests = function() {
               expect(error.code).toBeDefined();
               expect(error.message).toBeDefined();
 
+              // error.hasOwnProperty('message') apparently NOT WORKING on
+              // WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+              if (!isWebSql || isWindows || (isAndroid && (/Android [1-4]/.test(navigator.userAgent))))
+                expect(error.hasOwnProperty('message')).toBe(true);
+
               if (isWindows || (isAndroid && isImpl2))
                 expect(error.code).toBe(0);
               else
@@ -550,6 +616,11 @@ var mytests = function() {
             expect(error).toBeDefined();
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
+
+            // error.hasOwnProperty('message') apparently NOT WORKING on
+            // WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+            if (!isWebSql || isWindows || (isAndroid && (/Android [1-4]/.test(navigator.userAgent))))
+              expect(error.hasOwnProperty('message')).toBe(true);
 
             if (isWebSql || isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
@@ -596,6 +667,11 @@ var mytests = function() {
               expect(error.code).toBeDefined();
               expect(error.message).toBeDefined();
 
+              // error.hasOwnProperty('message') apparently NOT WORKING on
+              // WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+              if (!isWebSql || isWindows || (isAndroid && (/Android [1-4]/.test(navigator.userAgent))))
+                expect(error.hasOwnProperty('message')).toBe(true);
+
               if (isWindows || (!isWebSql && isAndroid && isImpl2))
                 expect(error.code).toBe(0);
               else
@@ -622,6 +698,11 @@ var mytests = function() {
             expect(error).toBeDefined();
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
+
+            // error.hasOwnProperty('message') apparently NOT WORKING on
+            // WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+            if (!isWebSql || isWindows || (isAndroid && (/Android [1-4]/.test(navigator.userAgent))))
+              expect(error.hasOwnProperty('message')).toBe(true);
 
             if (isWebSql || isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
@@ -656,6 +737,11 @@ var mytests = function() {
             expect(error).toBeDefined();
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
+
+            // error.hasOwnProperty('message') apparently NOT WORKING on
+            // WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+            if (!isWebSql || isWindows || (isAndroid && (/Android [1-4]/.test(navigator.userAgent))))
+              expect(error.hasOwnProperty('message')).toBe(true);
 
             if (isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
@@ -698,6 +784,11 @@ var mytests = function() {
             expect(error).toBeDefined();
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
+
+            // error.hasOwnProperty('message') apparently NOT WORKING on
+            // WebKit Web SQL on Android 5.x/... or iOS 10.x/...:
+            if (!isWebSql || isWindows || (isAndroid && (/Android [1-4]/.test(navigator.userAgent))))
+              expect(error.hasOwnProperty('message')).toBe(true);
 
             if (isWebSql && !isAndroid)
               expect(true).toBe(true); // SKIP for iOS (WebKit) Web SQL

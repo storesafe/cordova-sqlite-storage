@@ -416,7 +416,8 @@
         for v in values
           t = typeof v
           params.push (
-            if v == null || v == undefined || t == 'number' || t == 'string' then v
+            if v == null || v == undefined then null
+            else if t == 'number' || t == 'string' then v
             else v.toString()
           )
 
