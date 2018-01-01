@@ -8,7 +8,7 @@ License terms for iOS/macOS platform version: MIT only
 
 ## About this version branch
 
-This version branch contains the source code for the Android/iOS/macOS platforms (legacy express core version branch). This version does not contain any libraries or source code from www.sqlite.org. This version branch uses the built-in sqlite libraries on Android, iOS, and macOS.
+This plugin version branch contains the source code for the Android/iOS/macOS platforms (legacy express core version branch). This version does not contain any libraries or source code from www.sqlite.org. This version branch uses the built-in sqlite libraries on Android, iOS, and macOS.
 
 This version branch is now used to develop Android platform version without dependency on JAR or NDK library artifacts for testing on `cordova-android@7`.
 
@@ -49,7 +49,7 @@ Use the `location` or `iosDatabaseLocation` option in `sqlitePlugin.openDatabase
 
 ## Status
 
-- A recent version of the Cordova CLI (such as `6.5.0`) is recommended. Cordova versions older than `6.0.0` are missing the `cordova-ios@4.0.0` security fixes. In addition it is *required* to use `cordova prepare` in case of cordova-ios older than `4.3.0` (Cordova CLI `6.4.0`).
+- A recent version of the Cordova CLI (such as `6.5.0` / `7.1.0` / `8.0.0`) is recommended. Cordova versions older than `6.0.0` are missing the `cordova-ios@4.0.0` security fixes. In addition it may be necessary to use `cordova prepare` in case of cordova-ios older than `4.3.0` (Cordova CLI `6.4.0`).
 - The iOS database location is now mandatory, as documented below.
 - Android platform version in this version branch is now using the built-in Android SQLite database classes. Integration with the lightweight [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) is available in the default [litehelpers / Cordova-sqlite-storage](https://github.com/litehelpers/Cordova-sqlite-storage) version branch as well as other versions such as [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) and [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy).
 - iOS/macOS platform version in this version branch uses builtin `libsqlite3.dylib` framework library. Other versions such as the default [litehelpers / Cordova-sqlite-storage](https://github.com/litehelpers/Cordova-sqlite-storage) version branch, [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext), and [litehelpers / Cordova-sqlite-legacy](https://github.com/litehelpers/Cordova-sqlite-legacy) include a build of a recent sqlite3 amalgamation.
@@ -66,7 +66,7 @@ Use the `location` or `iosDatabaseLocation` option in `sqlitePlugin.openDatabase
 - Android versions supported: 2.3.3 - 7.1.1 (API level 10 - 25), depending on Cordova version ref: <https://cordova.apache.org/docs/en/latest/guide/platforms/android/>
 - iOS versions supported: 8.x / 9.x / 10.x / 11.x
 - Default `PRAGMA journal_mode` setting (*tested*):
-  - Android (builtin android.database implementation): `persist`
+  - Android pre-8.0 (builtin android.database implementation): `persist`
   - otherwise: `delete`
 - AUTO-VACUUM is not enabled by default. If no form of `VACUUM` or `PRAGMA auto_vacuum` is used then sqlite will automatically reuse deleted data space for new data but the database file will never shrink. For reference: <http://www.sqlite.org/pragma.html#pragma_auto_vacuum> and [litehelpers/Cordova-sqlite-storage#646](https://github.com/litehelpers/Cordova-sqlite-storage/issues/646)
 - In case of memory issues please use smaller transactions or use the plugin version at [litehelpers / Cordova-sqlite-evcore-extbuild-free](https://github.com/litehelpers/Cordova-sqlite-evcore-extbuild-free) (GPL or commercial license terms).
@@ -999,7 +999,7 @@ To run from a windows powershell (here is a sample for android target):
 - `SQLitePlugin.coffee.md`: platform-independent (Literate CoffeeScript, can be compiled with a recent CoffeeScript (1.x) compiler)
 - `www`: platform-independent Javascript as generated from `SQLitePlugin.coffee.md` using `coffeescript@1` (and committed!)
 - `src`: platform-specific source code
-- `spec`: test suite using Jasmine
+- `spec`: test suite using Jasmine (`2.2.0`)
 - `tests`: very simple Jasmine test suite that is run on Circle CI (Android platform) and Travis CI (iOS platform) (used as a placeholder)
 
 <!-- END Source tree -->
