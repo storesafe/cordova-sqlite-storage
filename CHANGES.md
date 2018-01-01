@@ -1,7 +1,8 @@
 # Changes
 
-###### cordova-sqlite-legacy-express-core 1.0.5-pre02
+###### cordova-sqlite-legacy-express-core 1.0.5
 
+- iOS/macOS @synchronized guard for sqlite3_open operation
 - Signal INTERNAL ERROR in case of attempt to reuse db (Android/iOS) (should never happen due to workaround solution to BUG 666)
 
 ###### cordova-sqlite-legacy-express-core 1.0.4

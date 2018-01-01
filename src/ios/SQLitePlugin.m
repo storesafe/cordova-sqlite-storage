@@ -128,7 +128,11 @@
             // NO LONGER EXPECTED due to BUG 666 workaround solution:
             NSLog(@"INTERNAL ERROR: database already open for db name: %@ (db file name: %@)", dbname, dbfilename);
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString: @"INTERNAL ERROR: database already open"];
-        } else {
+            [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
+            return;
+        }
+
+        @synchronized(self) {
             const char *name = [dbname UTF8String];
             sqlite3 *db;
 
