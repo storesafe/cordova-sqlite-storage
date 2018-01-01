@@ -1,5 +1,9 @@
 # Changes
 
+###### cordova-sqlite-legacy-express-core 1.0.5-pre01
+
+TBD
+
 ###### cordova-sqlite-legacy-express-core 1.0.4
 
 - Cleaned up workaround solution to BUG 666: close db before opening (ignore close error)
