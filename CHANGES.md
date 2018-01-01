@@ -1,6 +1,6 @@
 # Changes
 
-##### cordova-sqlite-legacy-core 1.0.7-pre1
+##### cordova-sqlite-legacy-core 1.0.7-pre2
 
 ###### cordova-sqlite-legacy-express-core 1.0.5
 
