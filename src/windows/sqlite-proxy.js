@@ -29,7 +29,11 @@ module.exports = {
 	    var res;
 
 		function openImmediate(dbname) {
-			//var dbname = options.name;
+			if (!!dbmap[dbname]) {
+				// NO LONGER EXPECTED due to BUG 666 workaround solution:
+				fail("INTERNAL ERROR: database already open for dbname: " + dbname);
+			}
+
 			// from @EionRobb / phonegap-win8-sqlite:
 			var opendbname = Windows.Storage.ApplicationData.current.localFolder.path + "\\" + dbname;
 			console.log("open db name: " + dbname + " at full path: " + opendbname);
