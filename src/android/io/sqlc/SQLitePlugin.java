@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017: Christopher J. Brody (aka Chris Brody)
+ * Copyright (c) 2012-2018: Christopher J. Brody (aka Chris Brody)
  * Copyright (c) 2005-2010, Nitobi Software Inc.
  * Copyright (c) 2010, IBM Corporation
  */
@@ -182,16 +182,11 @@ public class SQLitePlugin extends CordovaPlugin {
     // --------------------------------------------------------------------------
 
     private void startDatabase(String dbname, JSONObject options, CallbackContext cbc) {
-        // TODO: is it an issue that we can orphan an existing thread?  What should we do here?
-        // If we re-use the existing DBRunner it might be in the process of closing...
         DBRunner r = dbrmap.get(dbname);
 
-        // Brody TODO: It may be better to terminate the existing db thread here & start a new one, instead.
         if (r != null) {
-            // don't orphan the existing thread; just re-open the existing database.
-            // In the worst case it might be in the process of closing, but even that's less serious
-            // than orphaning the old DBRunner.
-            cbc.success();
+            // NO LONGER EXPECTED due to BUG 666 workaround solution:
+            cbc.error("INTERNAL ERROR: database already open for db name: " + dbname);
         } else {
             r = new DBRunner(dbname, options, cbc);
             dbrmap.put(dbname, r);
