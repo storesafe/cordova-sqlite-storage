@@ -87,7 +87,7 @@ Use the `location` or `iosDatabaseLocation` option in `sqlitePlugin.openDatabase
   - `SQLITE_ENABLE_FTS3_PARENTHESIS`
   - `SQLITE_ENABLE_FTS4`
   - `SQLITE_ENABLE_RTREE`
-  - `SQLITE_DEFAULT_PAGE_SIZE=1024` and `SQLITE_DEFAULT_CACHE_SIZE=2000` (`SQLITE_DEFAULT_CACHE_SIZE` missing for macOS "osx" and Windows) to avoid "potentially distruptive change(s)" from SQLite 3.12.0 described at: <http://sqlite.org/pgszchng2016.html>
+  - `SQLITE_DEFAULT_PAGE_SIZE=1024` and `SQLITE_DEFAULT_CACHE_SIZE=2000` (`SQLITE_DEFAULT_CACHE_SIZE` missing for Windows) to avoid "potentially distruptive change(s)" from SQLite 3.12.0 described at: <http://sqlite.org/pgszchng2016.html>
   - `SQLITE_OS_WINRT` (Windows only)
   - `NDEBUG` (Windows only)
 - The iOS database location is now mandatory, as documented below.

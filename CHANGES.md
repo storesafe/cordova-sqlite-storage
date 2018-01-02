@@ -1,6 +1,8 @@
 # Changes
 
-##### cordova-sqlite-legacy-core 1.0.7-pre2
+##### cordova-sqlite-legacy-core 1.0.7-pre3
+
+- SQLITE_DEFAULT_CACHE_SIZE build flag fix for macOS ("osx")
 
 ###### cordova-sqlite-legacy-express-core 1.0.5
 
