@@ -1,7 +1,8 @@
 # Changes
 
-##### cordova-sqlite-legacy-core 1.0.7-pre5
+##### cordova-sqlite-legacy-core 1.0.7
 
+- Add error info text in case of close error on Windows
 - Signal INTERNAL ERROR in case of attempt to reuse db on Windows (should never happen due to workaround solution to BUG 666)
 - SQLITE_DEFAULT_CACHE_SIZE build flag fix for macOS ("osx") and Windows
 

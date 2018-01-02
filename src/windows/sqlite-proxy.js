@@ -63,20 +63,24 @@ module.exports = {
 	    var options = args[0];
 	    var res;
 		try {
-		    //res = SQLitePluginRT.SQLitePlugin.closeAsync(JSON.stringify(options));
 			var dbname = options.path;
+
 			nextTick(function() {
-				if (!!dbmap[dbname] && dbmap[dbname].close() == 0) {
+				var rc = 0;
+				var db = dbmap[dbname];
+
+				if (!db) {
+					fail("CLOSE ERROR: cannot find db object for dbname: " + dbname);
+				} else if ((rc = db.close()) !== 0) {
+					fail("CLOSE ERROR CODE: " + rc);
+				} else {
 					delete dbmap[dbname];
 					win();
-				} else {
-					fail(); // XXX TODO REPORT ERROR
 				}
 			});
-        } catch (ex) {
+		} catch (ex) {
 			fail(ex);
 		}
-		//handle(res, win, fail);
 	},
 	backgroundExecuteSqlBatch: function(win, fail, args) {
 	    var options = args[0];
