@@ -1,7 +1,8 @@
 # Changes
 
-## cordova-sqlite-storage 2.2.0-pre1
+## cordova-sqlite-storage 2.2.0
 
+- Android-sqlite-native-driver NDK objects in JAR to resolve issue on cordova-android@7
 - Fix SQLiteAndroidDatabase implementation for Turkish and other foreign locales
 
 ## cordova-sqlite-storage 2.1.5
