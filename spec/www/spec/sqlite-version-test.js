@@ -127,9 +127,12 @@ var mytests = function() {
             expect(rs).toBeDefined();
             expect(rs.rows).toBeDefined();
             expect(rs.rows.length).toBe(1);
-            // TBD different for builtin android.database implementation:
-            if (!isWindows && isAndroid && isImpl2) // TBD ...
-              expect(rs.rows.item(0).journal_mode).toBe('persist');
+            // DEFAULT PRAGMA journal_mode setting is
+            // DIFFERENT for builtin android.database implementation:
+            if (!isWindows && isAndroid && isImpl2)
+              expect(rs.rows.item(0).journal_mode).toBe(
+                (/Android [2-7]/.test(navigator.userAgent)) ?
+                  'persist' : 'truncate');
             else
               expect(rs.rows.item(0).journal_mode).toBe('delete');
 
