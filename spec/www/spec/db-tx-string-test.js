@@ -711,7 +711,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'Inline emoji HEX test: SELECT HEX("@\\uD83D\\uDE03!") [\\u1F603 SMILING FACE (MOUTH OPEN)] [HEX encoding BUG on Android-sqlite-connector]', function(done) {
+        it(suiteName + 'Inline emoji HEX test: SELECT HEX("@\\uD83D\\uDE03!") [\\u1F603 SMILING FACE (MOUTH OPEN)] [HEX encoding BUG on Android-sqlite-connector/XXX]', function(done) {
           var db = openDatabase('Inline-emoji-hex-test-2.db');
           expect(db).toBeDefined();
 
@@ -723,7 +723,7 @@ var mytests = function() {
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
 
-              // STOP HERE [HEX encoding BUG] for Android-sqlite-connector:
+              // STOP HERE [HEX encoding BUG] for Android-sqlite-connector / XXX:
               if (!isWebSql && !isWindows && isAndroid && !isImpl2) return done();
 
               if (isWindows)
@@ -745,7 +745,7 @@ var mytests = function() {
 
         it(suiteName + "Inline BLOB with emoji string manipulation test: SELECT LOWER(X'41F09F9883') [A\uD83D\uDE03] [\\u1F603 SMILING FACE (MOUTH OPEN)]", function(done) {
           if (isWP8) pending('BROKEN for WP8');
-          if (!isWebSql && !isWindows && isAndroid && !isImpl2) pending('BROKEN: CRASH on Android 5.x (default sqlite-connector version)');
+          if (!isWebSql && !isWindows && isAndroid && !isImpl2) pending('BROKEN: CRASH on Android 5.x (default sqlite-connector XXX)');
           if (isWindows) pending('SKIP for Windows'); // FUTURE TBD
 
           var db = openDatabase("Inline-emoji-select-lower-result-test.db", "1.0", "Demo", DEFAULT_SIZE);
