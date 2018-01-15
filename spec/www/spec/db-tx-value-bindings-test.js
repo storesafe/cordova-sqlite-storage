@@ -518,8 +518,9 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        // NOTE: emojis and other 4-octet UTF-8 characters apparently not stored
-        // properly by Android-sqlite-connector ref: litehelpers/Cordova-sqlite-storage#564
+        // NOTE: emojis and other 4-octet UTF-8 characters are evidently
+        // not stored properly by Android-sqlite-connector
+        // ref: litehelpers/Cordova-sqlite-storage#564
         it(suiteName + 'INSERT TEXT string with emoji [\\u1F603 SMILING FACE (MOUTH OPEN)], SELECT the data, check, and check HEX [UTF-16le on Windows; HEX encoding BUG on Android-sqlite-connector]' , function(done) {
           var db = openDatabase('INSERT-emoji-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
 
