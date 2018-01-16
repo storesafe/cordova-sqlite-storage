@@ -25,7 +25,7 @@ var mytests = function() {
 
   for (var i=0; i<pluginScenarioCount; ++i) {
 
-    describe(pluginScenarioList[i] + ': BATCH SQL test(s)', function() {
+    describe(pluginScenarioList[i] + ': sqlBatch test(s)', function() {
       var scenarioName = pluginScenarioList[i];
       var suiteName = scenarioName + ': ';
       var isImpl2 = (i === 1);
