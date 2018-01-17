@@ -24,7 +24,7 @@ var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
 
-    describe(scenarioList[i] + ': detailed tx error handling test(s)', function() {
+    describe(scenarioList[i] + ': tx error handling (detailed tx error handling) test(s)', function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
       var isWebSql = (i === 1);
