@@ -490,7 +490,7 @@ See **Security of sensitive data** in the [Security](#security) section above.
 - Infinity (positive or negative) values are not supported on Android/iOS/macOS due to issues described above including a possible crash on iOS/macOS ref: [litehelpers/Cordova-sqlite-storage#405](https://github.com/litehelpers/Cordova-sqlite-storage/issues/405)
 - A stability issue was reported on the iOS platform version when in use together with [SockJS](http://sockjs.org/) client such as [pusher-js](https://github.com/pusher/pusher-js) at the same time (see [litehelpers/Cordova-sqlite-storage#196](https://github.com/litehelpers/Cordova-sqlite-storage/issues/196)). The workaround is to call sqlite functions and [SockJS](http://sockjs.org/) client functions in separate ticks (using setTimeout with 0 timeout).
 - SQL errors are reported with an INCORRECT error code (0) on Windows ref: [litehelpers/Cordova-sqlite-storage#539](https://github.com/litehelpers/Cordova-sqlite-storage/issues/539). In certain cases SQL errors are also reported with error code 0 on Android in case the built-in Android database is used (using the `androidDatabaseImplementation: 2` setting in `window.sqlitePlugin.openDatabase`).
-- Possible crash on Android when using Unicode emoji and other 4-octet UTF-8 characters due to [Android bug 81341](https://code.google.com/p/android/issues/detail?id=81341), which *should* be fixed in Android 6.x
+- Possible crash on certain Android versions when using Unicode emoji and other 4-byte UTF-8 characters due to [Android bug 81341](https://code.google.com/p/android/issues/detail?id=81341)
 - Close/delete database bugs described below.
 - When a database is opened and deleted without closing, the iOS/macOS platform version is known to leak resources.
 - It is NOT possible to open multiple databases with the same name but in different locations (iOS/macOS platform version).
@@ -547,8 +547,8 @@ Additional limitations are tracked in [marked Cordova-sqlite-storage doc-todo is
 - Handling of invalid transaction and transaction.executeSql arguments
 - Use of database locations on macOS
 - Extremely large and small INTEGER and REAL values ref: [litehelpers/Cordova-sqlite-storage#627](https://github.com/litehelpers/Cordova-sqlite-storage/issues/627))
-- More emojis and other 4-octet UTF-8 characters
-- Database file names with multi-byte UTF-8 characters
+- More emojis and other 4-byte UTF-8 characters
+- More database file names with multi-byte UTF-8 characters including emojis and other 4-byte UTF-8 characters
 - XXX FUTURE TBD Android/iOS directory names with XXX characters
 - XXX Use of `?NNN`/`:AAA`/`@AAAA`/`$AAAA` parameter placeholders documented in <https://www.sqlite.org/lang_expr.html#varparam>, <https://www.sqlite.org/c3ref/bind_blob.html>), NOT supported in this plugin as discussed in XXX
 - Single-statement and SQL batch transaction calls with invalid arguments (TBD behavior subject to change)
@@ -780,10 +780,11 @@ If any sql statements or transactions are attempted on a database object before 
 
 **DATABASE NAME NOTES:**
 
-- Database file names with slash (`/`) character(s) are not supported and not expected to work.
-- Database file names with ASCII control characters such as tab, vertical tab, carriage return, line feed, form feed, and backspace are not supported and do not work on Windows.
-- Some other ASCII characters not supported and not working on Windows: `*` `<` `>` `?` `\` `"` `|`
-- Database file names with emojis and other 4-octet UTF-8 characters are NOT RECOMMENDED.
+- Database file names with slash (`/`) character(s) are not supported and not expected to work on any platform.
+- Database file names with ASCII control characters such as tab, vertical tab, carriage return, line feed, form feed, and backspace are NOT RECOMMENDED and do not work on Windows.
+- Some other ASCII characters NOT RECOMMENDED and do not work on Windows: `*` `<` `>` `?` `\` `"` `|`
+- Database file names with multi-byte UTF-8 characters are NOT RECOMMENDED (very limited testing, not working on all plugin versions).
+- Database file names with emojis and other 4-byte UTF-8 characters are NOT RECOMMENDED (limited testing, not working properly on all plugin versions).
 
 **OTHER NOTES:**
 - The database file name should include the extension, if desired.
