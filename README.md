@@ -20,10 +20,13 @@ This version branch uses a `before_plugin_install` hook to install sqlite3 libra
 
 <!-- FUTURE TBD critial bug notices for this version branch -->
 
+<!-- XXX GONE:
 __IMPORTANT Windows deprecation NOTICE:__ _The Windows platform is now scheduled to be removed from the next major release of this plugin version, will continue to be supported in other plugin versions such as cordova-sqlite-ext (permissive license terms), cordova-sqlite-evcore-extbuild-free (GPL or commercial license terms), etc. For discussion and reference: <https://github.com/litehelpers/Cordova-sqlite-storage/issues/687>_
+ -->
 
 <!-- END About this plugin version branch -->
 
+<!-- XXX GONE:
 ## IMPORTANT API DEPRECATION NOTICE
 
 The "standard" transaction API documented in [Standard asynchronous transactions section](#standard-asynchronous-transactions) (`db.transaction()` and `db.readTransaction` calls) are now deprecated in this plugin version and scheduled to be removed from the next major release ref: <https://github.com/litehelpers/Cordova-sqlite-storage/issues/720> _(will NOT be removed from cordova-sqlite-ext (permissive license terms), cordova-sqlite-evcore-extbuild-free (GPL or commercial license terms), etc.)_
@@ -34,6 +37,7 @@ It is recommended to use the following calls instead:
 - `db.sqlBatch()` to execute a batch of modification statements within an ACID (atomic, failure-safe) transaction.
 
 Note that the "standard" (deprecated) transaction API calls will continue to be supported by other plugin versions such as `cordova-sqlite-ext` (permissive license terms) and `cordova-sqlite-evcore-extbuild-free` (GPL or commercial license terms).
+ -->
 
 <!-- END IMPORTANT API DEPRECATION NOTICE -->
 
