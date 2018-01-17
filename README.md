@@ -150,9 +150,9 @@ See the [Sample section](#sample) for a sample with a more detailed explanation.
 - The "standard" transaction API documented in [Standard asynchronous transactions section](#standard-asynchronous-transactions) (`db.transaction()` and `db.readTransaction` calls) are now deprecated in this plugin version and scheduled to be removed from the next major release ref: <https://github.com/litehelpers/Cordova-sqlite-storage/issues/720>. It is recommended to use `db.executeSql()` and `db.sqlBatch()` instead, as documented below. NOTE that the "standard", deprecated API calls will NOT be removed from other plugin versions such as `cordova-sqlite-ext` (permissive license terms) or `cordova-sqlite-evcore-extbuild-free` (GPL or commercial license terms).
 - This plugin is NOT supported by PhoneGap Developer App or PhoneGap Desktop App.
 - This plugin version uses a `before_plugin_install` hook to install sqlite3 library dependencies from `cordova-sqlite-storage-dependencies` via npm.
-- Use of other systems such as Cordova Plugman, PhoneGap CLI, PhoneGap Build, and Intel XDK is no longer supported _by this plugin version_ since they do not honor the `before_plugin_install` hook. The supported solution is to _use [litehelpers / Cordova-sqlite-evcore-extbuild-free](https://github.com/litehelpers/Cordova-sqlite-evcore-extbuild-free) (GPL or commercial license terms); alternative with permissive license terms is available at: [brodybits / cordova-sqlite-legacy-build-support](https://github.com/brodybits/cordova-sqlite-legacy-build-support) (limited testing, limited updates)_.
-- SQLite `3.15.2` included when building (all platforms), with the following definitions *for iOS/macOS/Windows*:
-  - `SQLITE_THREADSAFE=1` (`SQLITE_THREADSAFE=2` on iOS/macOS)
+- Use of other systems such as Cordova Plugman, PhoneGap CLI, PhoneGap Build, and Intel XDK is no longer supported by this plugin version since they do not honor the `before_plugin_install` hook. The supported solution is to use [litehelpers / Cordova-sqlite-evcore-extbuild-free](https://github.com/litehelpers/Cordova-sqlite-evcore-extbuild-free) (GPL or commercial license terms); alternative with permissive license terms is available at: [brodybits / cordova-sqlite-legacy-build-support](https://github.com/brodybits/cordova-sqlite-legacy-build-support) (limited testing, limited updates).
+- SQLite `3.15.2` included when building, with the following compile-time definitions:
+  - `SQLITE_THREADSAFE=2` (`SQLITE_THREADSAFE=2` on XXX TBD Android/Windows)
   - `SQLITE_DEFAULT_MEMSTATUS=0`
   - `SQLITE_OMIT_DECLTYPE`
   - `SQLITE_OMIT_DEPRECATED`
@@ -166,7 +166,7 @@ See the [Sample section](#sample) for a sample with a more detailed explanation.
   - `SQLITE_ENABLE_RTREE`
   - `SQLITE_DEFAULT_PAGE_SIZE=1024` and `SQLITE_DEFAULT_CACHE_SIZE=2000` to avoid "potentially distruptive change(s)" from SQLite 3.12.0 described at: <http://sqlite.org/pgszchng2016.html>
   - `SQLITE_OS_WINRT` (Windows only)
-  - `NDEBUG` (Windows only)
+  - `NDEBUG` on Windows (Release build only)
 - The iOS database location is now mandatory, as documented below.
 - This version branch supports the use of two (2) possible Android sqlite database implementations:
   - default: lightweight [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector)
@@ -178,7 +178,8 @@ See the [Sample section](#sample) for a sample with a more detailed explanation.
   - Pre-populated database (Android/iOS/macOS/Windows)
 - Amazon Fire-OS is dropped due to lack of support by Cordova. Android platform version should be used to deploy to Fire-OS 5.0(+) devices. For reference: [cordova/cordova-discuss#32 (comment)](https://github.com/cordova/cordova-discuss/issues/32#issuecomment-167021676)
 - Windows platform version (using a customized version of the performant [doo / SQLite3-WinRT](https://github.com/doo/SQLite3-WinRT) C++ component) has the following known limitations:
-  - This _version branch_ has dependency on platform toolset libraries included by Visual Studio 2017 ([litehelpers/Cordova-sqlite-storage#580](https://github.com/litehelpers/Cordova-sqlite-storage/issues/580)). Visual Studio 2015 is now supported by [litehelpers / Cordova-sqlite-legacy-build-support](https://github.com/litehelpers/Cordova-sqlite-legacy-build-support).
+  - This plugin version branch has dependency on platform toolset libraries included by Visual Studio 2017 ref: [litehelpers/Cordova-sqlite-storage#580](https://github.com/litehelpers/Cordova-sqlite-storage/issues/580). (Visual Studio 2015 is now supported by [litehelpers / cordova-sqlite-legacy](https://github.com/litehelpers/cordova-sqlite-legacy) (permissive license terms, no performance enhancements for Android) and [litehelpers / Cordova-sqlite-evcore-common-free](https://github.com/litehelpers/Cordova-sqlite-evcore-common-free) (GPL or commercial license terms, with performance enhancements for Android).)
+
   - It is **not** possible to use this plugin with the default "Any CPU" target. A specific target CPU type **must** be specified when building an app with this plugin.
   - Truncation issue with UNICODE `\u0000` character (same as `\0`)
   - No background processing
@@ -205,7 +206,7 @@ See the [Sample section](#sample) for a sample with a more detailed explanation.
 - Updated workaround solution to [BUG 666 (litehelpers/Cordova-sqlite-storage#666)](https://github.com/litehelpers/Cordova-sqlite-storage/issues/666) (possible transaction issue after window.location change with possible data loss): close database if already open before opening again
 - Windows 10 (UWP) build with /SAFESEH flag on Win32 (x86) target to specify "Image has Safe Exception Handlers" as described in <https://docs.microsoft.com/en-us/cpp/build/reference/safeseh-image-has-safe-exception-handlers>
 - Fixed iOS/macOS platform version to use [PSPDFThreadSafeMutableDictionary.m](https://gist.github.com/steipete/5928916) to avoid threading issue ref: [litehelpers/Cordova-sqlite-storage#716](https://github.com/litehelpers/Cordova-sqlite-storage/issues/716)
-- This version references Windows platform toolset v141 to support Visual Studio 2017. Visual Studio 2015 is now supported by [litehelpers / Cordova-sqlite-legacy-build-support](https://github.com/litehelpers/Cordova-sqlite-legacy-build-support).
+- This plugin version references Windows platform toolset v141 to support Visual Studio 2017 ref: [litehelpers/Cordova-sqlite-storage#580](https://github.com/litehelpers/Cordova-sqlite-storage/issues/580). (Visual Studio 2015 is now supported by [litehelpers / cordova-sqlite-legacy](https://github.com/litehelpers/cordova-sqlite-legacy) (permissive license terms, no performance enhancements for Android) and [litehelpers / Cordova-sqlite-evcore-common-free](https://github.com/litehelpers/Cordova-sqlite-evcore-common-free) (GPL or commercial license terms, with performance enhancements for Android).)
 - [brodybits / cordova-sqlite-storage-starter-app](https://github.com/brodybits/cordova-sqlite-storage-starter-app) project is a CC0 (public domain) starting point and may also be used to reproduce issues with this plugin. In addition [brodybits / cordova-sqlite-test-app](https://github.com/brodybits/cordova-sqlite-test-app) may be used to reproduce issues with other versions of this plugin.
 - The Lawnchair adapter is now moved to [litehelpers / cordova-sqlite-lawnchair-adapter](https://github.com/litehelpers/cordova-sqlite-lawnchair-adapter).
 - [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext) now supports SELECT BLOB data in Base64 format on all platforms in addition to REGEXP (Android/iOS/macOS) and pre-populated database (all platforms).
@@ -264,7 +265,7 @@ More resources can be found by <https://www.google.com/search?q=cordova+tutorial
 In addition, this guide assumes a basic knowledge of some key JavaScript concepts such as variables, function calls, and callback functions. There is an excellent explanation of JavaScript callbacks at <http://cwbuecheler.com/web/tutorials/2013/javascript-callbacks/>.
 
 **MAJOR TIPS:** As described in the [Installing](#installing) section:
-- It is recommended to use the `--save` flag when installing plugins to track them in `config.xml`. If all plugins are tracked in `config.xml` then there is no need to commit the `plugins` subdirectory tree into the source repository.
+- It is recommended to use the `--save` flag when installing plugins to track them in `config.xml` _in case of Cordova CLI pre-7.x_. If all plugins are tracked in `config.xml` then there is no need to commit the `plugins` subdirectory tree into the source repository.
 - In general it is *not* recommended to commit the `platforms` subdirectory tree into the source repository.
 
 **NOTICE:** This plugin is only supported with the Cordova CLI. This plugin is *not* supported with other Cordova/PhoneGap systems such as PhoneGap CLI, PhoneGap Build, Plugman, Intel XDK, Webstorm, etc.
@@ -283,7 +284,7 @@ The Windows platform can present a number of challenges which increase when usin
 Use the following command to install this plugin from the Cordova CLI:
 
 ```shell
-cordova plugin add cordova-sqlite-storage --save
+cordova plugin add cordova-sqlite-storage # --save RECOMMENDED in case of Cordova CLI pre-7.x
 ```
 
 Add any desired platform(s) if not already present, for example:
@@ -381,7 +382,7 @@ In case you get stuck with something please read through the [support](#support)
 
 - <https://phonegappro.com/tutorials/phonegap-sqlite-tutorial-with-example-apache-cordova/>
 
-**NOTICE:** The above tutorial shows `cordova plugin add cordova-sqlite-storage` with the `--save` flag missing. Please be sure to use the `--save` flag to keep the plugins in `config.xml`.
+**NOTICE:** The above tutorial shows `cordova plugin add cordova-sqlite-storage` with the `--save` flag missing. Please be sure to use the `--save` flag to keep the plugins in `config.xml` _in case of Cordova CLI pre-7.x_.
 
 Other plugin tutorials wanted ref: [litehelpers/Cordova-sqlite-storage#609](https://github.com/litehelpers/Cordova-sqlite-storage/issues/609)
 
@@ -518,7 +519,7 @@ Some additional issues are tracked in [open Cordova-sqlite-storage bug-general i
 - Problems have been reported when using this plugin with Crosswalk (for Android). It may help to install Crosswalk as a plugin instead of using Crosswalk to create the project.
 - Does not work with [axemclion / react-native-cordova-plugin](https://github.com/axemclion/react-native-cordova-plugin) since the `window.sqlitePlugin` object is *not* properly exported (ES5 feature). It is recommended to use [andpor / react-native-sqlite-storage](https://github.com/andpor/react-native-sqlite-storage) for SQLite database access with React Native Android/iOS instead.
 - XXX does not support named parameters ref: XXX
-- XXX user defined functions not supported, FUTURE TODO FIND A WAY TO SUPPORT THIS as discussed in <https://github.com/JoshuaWise/better-sqlite3/issues/89#issuecomment-358016415> ref: XXX
+- XXX user defined functions not supported, due to problems described in <https://github.com/litehelpers/Cordova-sqlite-storage/issues/741>
 
 Additional limitations are tracked in [marked Cordova-sqlite-storage doc-todo issues](https://github.com/litehelpers/Cordova-sqlite-storage/issues?q=is%3Aissue+label%3Adoc-todo).
 
@@ -701,7 +702,7 @@ window.sqlitePlugin.selfTest(successCallback, errorCallback);
 
 ## General
 
-- Drop-in replacement for HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/): the only change should be to replace the static `window.openDatabase()` factory call with `window.sqlitePlugin.openDatabase()`, with parameters as documented below. Some other known deviations are _described in this document_. Reports of any other deviations would be appreciated.
+- Drop-in replacement for HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/): the only change should be to replace the static `window.openDatabase()` factory call with `window.sqlitePlugin.openDatabase()`, with parameters as documented below. Some other known deviations are described throughout this document. Reports of any other deviations would be appreciated.
 - Single-page application design is recommended.
 - In case of a multi-page application the JavaScript used by each page must use `sqlitePlugin.openDatabase` to open the database access handle object before it can access the data.
 
@@ -1233,15 +1234,15 @@ Other resource (apparently for Ionic 1): <https://www.packtpub.com/books/content
 ```shell
 npm install -g cordova # (in case you don't have cordova)
 cordova create MyProjectFolder com.my.project MyProject && cd MyProjectFolder # if you are just starting
-cordova plugin add cordova-sqlite-storage --save
+cordova plugin add cordova-sqlite-storage # --save RECOMMENDED on Cordova CLI pre-7.0
 cordova platform add <desired platform> # repeat for all desired platform(s)
 cordova prepare # OPTIONAL (MANDATORY cordova-ios older than 4.3.0 (Cordova CLI 6.4.0))
 ```
 
 **Additional Cordova CLI NOTES:**
 
-- It is recommended to add *all* plugins including standard plugins such as `cordova-plugin-whitelist` with the `--save` flag to track these in `config.xml`.
-- In general there is no need to keep the Cordova `platforms` subdirectory tree in source code control (such as git). In case *all* plugins are added with the `--save` flag then there is no need to keep the `plugins` subdirectory tree in source code control either.
+- It is recommended to add *all* plugins including standard plugins such as `cordova-plugin-whitelist` with the `--save` flag to track these in `config.xml` _in case of Cordova CLI pre-7.0_.
+- In general there is no need to keep the Cordova `platforms` subdirectory tree in source code control (such as git). In case *all* plugins are added with the `--save` flag _(automatic in Cordova CLI 7.x/8.x)_ then there is no need to keep the `plugins` subdirectory tree in source code control either.
 - It is **MANDATORY** to use `cordova prepare` in case of cordova-ios older than `4.3.0` (Cordova CLI `6.4.0`).
 - In case of problems with building and running it is recommended to try again after `cordova prepare`.
 - If you cannot build for a platform after `cordova prepare`, you may have to remove the platform and add it again, such as:
