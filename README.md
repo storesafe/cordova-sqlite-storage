@@ -12,6 +12,12 @@ This is the common version branch which supports the most widely used features a
 
 This version branch uses a `before_plugin_install` hook to install sqlite3 library dependencies from `cordova-sqlite-storage-dependencies` via npm.
 
+XXX RELEASE TEST TODOs:
+- deal with HTML5 Web SQL failures on Android `x86_64`
+- deal with HTML5 Web SQL test failures on iOS 11
+- multi-byte UTF-8 characters in DB name in separate test case
+- stored value test with multi-byte UTF-8 characters
+
 <!-- XXX TBD NOT WORKING:
 |Android Circle-CI (**full** suite)|iOS Travis-CI (partial suite)|
 |-----------------------|----------------------|
