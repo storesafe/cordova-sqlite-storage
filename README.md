@@ -1420,7 +1420,9 @@ To run from a windows powershell (here is a sample for android target):
 
 # Adapters
 
+<!-- XXX GONE:
 **NOTICE:** These adapters use the deprecated transaction API calls, scheduled to be removed from the next major release of this plugin version ref: <https://github.com/litehelpers/Cordova-sqlite-storage/issues/720>. It is recommended to use another sqlite plugin version such as `cordova-sqlite-ext` or `cordova-plugin-sqlite-2` instead.
+ -->
 
 **GENERAL:** The adapters described here are community maintained.
 
