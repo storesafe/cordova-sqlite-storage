@@ -17,6 +17,9 @@ XXX RELEASE TEST TODOs:
 - deal with HTML5 Web SQL test failures on iOS 11
 - multi-byte UTF-8 characters in DB name in separate test case
 - stored value test with multi-byte UTF-8 characters
+- TBD ??? test with NULL character (u0000) in inline string (not sure if this is already done or not)
+- test with NULL character in database file name
+- further testing of major control characters ref: <https://en.wikipedia.org/wiki/Control_character>
 
 <!-- XXX TBD NOT WORKING:
 |Android Circle-CI (**full** suite)|iOS Travis-CI (partial suite)|
