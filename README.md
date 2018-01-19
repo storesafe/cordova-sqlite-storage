@@ -20,6 +20,8 @@ XXX RELEASE TEST TODOs:
 - TBD ??? test with NULL character (u0000) in inline string (not sure if this is already done or not)
 - test with NULL character in database file name
 - further testing of major control characters ref: <https://en.wikipedia.org/wiki/Control_character>
+- review & update support & Unit tests sections
+- review/update hook description
 
 <!-- XXX TBD NOT WORKING:
 |Android Circle-CI (**full** suite)|iOS Travis-CI (partial suite)|
@@ -1388,7 +1390,7 @@ Please include the following:
 - RAR or similar archive formats
 - Intel, MS IDE, or similar project formats unless absolutely necessary
 
-## Where to ask for help
+## Where to request support
 
 Once you have followed the directions above, you may request free support in the following location(s):
 - **For reproducible bugs only:** [litehelpers / Cordova-sqlite-storage / issues](https://github.com/litehelpers/Cordova-sqlite-storage/issues)
