@@ -23,6 +23,8 @@ XXX RELEASE TEST TODOs:
 - review & update support & Unit tests sections
 - review/update hook description
 
+- Gource visualization from 2015 at: <https://www.youtube.com/watch?v=Q16uTYSkIjM>
+
 <!-- XXX TBD NOT WORKING:
 |Android Circle-CI (**full** suite)|iOS Travis-CI (partial suite)|
 |-----------------------|----------------------|
