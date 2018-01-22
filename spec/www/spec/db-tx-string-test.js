@@ -563,6 +563,80 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        it(suiteName + "INLINE UNICODE \\u2013 test", function(done) {
+          var db = openDatabase("String-u2013-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql("SELECT UPPER('First\u2013Second') AS uppertext", [], function(tx_ignored, rs1) {
+              // Check INLINE string result:
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+              expect(rs1.rows.item(0).uppertext).toBe('FIRST\u2013SECOND');
+
+              // Check value binding & HEX result:
+              tx.executeSql("SELECT HEX('1\u2013') AS myResult", null, function(tx_ignored, rs2) {
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+                if (isWindows)
+                  expect(rs2.rows.item(0).myResult).toBe('410008003100'); // (UTF-16le)
+                else
+                  expect(rs2.rows.item(0).myResult).toBe('31E28093');
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "INLINE UNICODE \\u2019 test", function(done) {
+          var db = openDatabase("String-u2019-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql("SELECT UPPER('First\u2019Second') AS uppertext", [], function(tx_ignored, rs1) {
+              // Check INLINE string result:
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+              expect(rs1.rows.item(0).uppertext).toBe('FIRST\u2019SECOND');
+
+              // Check value binding & HEX result:
+              tx.executeSql("SELECT HEX('1\u2019') AS myResult", null, function(tx_ignored, rs2) {
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+                if (isWindows)
+                  expect(rs2.rows.item(0).myResult).toBe('410008003100'); // (UTF-16le)
+                else
+                  expect(rs2.rows.item(0).myResult).toBe('31E28099');
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
       });
 
       describe(suiteName + 'UTF-8 multiple octet character string binding/manipulation tests [default sqlite encoding: UTF-16le on Windows, UTF-8 encoding on others]', function() {
@@ -888,6 +962,190 @@ var mytests = function() {
             tx.executeSql("SELECT LOWER(?) AS lowertext", ['First\u2028Second'], function (tx_ignored, rs) {
               expect(rs).toBeDefined();
               expect(rs.rows.item(0).lowertext).toBe("first\u2028second");
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        // NOTE: the next 3 tests repeat the above for UNICODE \u2029 paragraph separator
+        // on iOS/macOS/Android:
+        // XXX XXX
+
+        it(suiteName + "UNICODE \\u2013 xxx string length", function(done) {
+          if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] Certain UNICODE characters not working with WP(8)
+
+          // NOTE: this test verifies that the UNICODE xxx (\u2013)
+          // is seen by the sqlite implementation OK:
+          var db = openDatabase("UNICODE-paragraph-separator-string-length.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            var text = 'Abcd\u20191234';
+            tx.executeSql("select length(?) AS stringlength", ['First\u2013Second'], function (tx_ignored, rs) {
+              expect(rs.rows.item(0).stringlength).toBe(12);
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'HEX value of string with UNICODE \\u2013 xxx', function(done) {
+          // NOTE: this test verifies that the UNICODE xxx (\u2013)
+          // is seen by the sqlite implementation OK:
+          var db = openDatabase("UNICODE-u2013-hex-value-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql('SELECT HEX(?) AS myresult', ['1\u2013'], function (tx_ignored, rs) {
+              if (isWindows)
+                expect(rs.rows.item(0).myresult).toBe('31002920'); // (UTF-16le)
+              else
+                expect(rs.rows.item(0).myresult).toBe('31E28093'); // (UTF-8)
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + ' handles UNICODE \\u2013 xxx correctly [string test]', function (done) {
+          if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
+          //if (!isWebSql && !isWindows && isAndroid) pending('SKIP for Android plugin (cordova-android 6.x BUG: cordova/cordova-discuss#57)');
+          //if (!isWebSql && !isWindows && !isAndroid && !isWP8) pending('SKIP for iOS/macOS plugin (Cordova BUG: CB-9435)');
+
+          // NOTE: since the above test shows the UNICODE xxx (\u2013)
+          // is seen by the sqlite implementation OK, it is now concluded that
+          // the failure is caused by the native JSON result encoding.
+          var db = openDatabase("UNICODE-paragraph-separator-string-lowertext.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql("SELECT LOWER(?) AS lowertext", ['First\u2013Second'], function (tx_ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows.item(0).lowertext).toBe("first\u2013second");
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        // NOTE: the next 3 tests show that for iOS/macOS/Android:
+        // XXX XXX
+
+        it(suiteName + "UNICODE \\u2019 xxx string length", function(done) {
+          if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] Certain UNICODE characters not working with WP(8)
+
+          // NOTE: this test verifies that the UNICODE xxx (\u2019)
+          // is seen by the sqlite implementation OK:
+          var db = openDatabase("UNICODE-line-separator-string-length.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql("select length(?) AS stringlength", ['First\u2019Second'], function (tx_ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).stringlength).toBe(12);
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'HEX value of string with UNICODE \\u2019 xxx', function(done) {
+          // NOTE: this test verifies that the UNICODE xxx (\u2019)
+          // is seen by the sqlite implementation OK:
+          var db = openDatabase("UNICODE-line-separator-hex-value-test.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql('SELECT HEX(?) AS myresult', ['1\u2019'], function (tx_ignored, rs) {
+              if (isWindows)
+                expect(rs.rows.item(0).myresult).toBe('31002820'); // (UTF-16le)
+              else
+                expect(rs.rows.item(0).myresult).toBe('31E28099'); // (UTF-8)
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + ' handles UNICODE \\u2019 xxx correctly [string test]', function (done) {
+          if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
+          //if (!isWebSql && !isWindows && isAndroid) pending('SKIP for Android plugin (cordova-android 6.x BUG: cordova/cordova-discuss#57)');
+          //if (!isWebSql && !isWindows && !isAndroid && !isWP8) pending('SKIP for iOS/macOS plugin (Cordova BUG: CB-9435)');
+          //if (isWebSql && !isWindows && isAndroid) pending('SKIP for Android Web SQL'); // TBD SKIP for Android Web for now
+
+          // NOTE: since the above test shows the UNICODE xxx (\u2019)
+          // is seen by the sqlite implementation OK, it is now concluded that
+          // the failure is caused by the native JSON result encoding.
+          var db = openDatabase("UNICODE-line-separator-string-lowertext.db", "1.0", "Demo", DEFAULT_SIZE);
+
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql("SELECT LOWER(?) AS lowertext", ['First\u2019Second'], function (tx_ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows.item(0).lowertext).toBe("first\u2019second");
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);

@@ -1396,6 +1396,150 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        it(suiteName +
+            ' handles UNICODE \\u2013 INLINE correctly in database', function (done) {
+          var db = openDatabase('INLINE-u2013-INSERT-test.db');
+
+          var check1 = false;
+
+          db.transaction(function (tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test', [], function () {
+              tx.executeSql('CREATE TABLE test (name, id)', [], function() {
+                tx.executeSql("INSERT INTO test VALUES ('hello\u2013world', 'id1')", null, function () {
+                  tx.executeSql('SELECT name FROM test', [], function (tx_ignored, rs) {
+                    var name = rs.rows.item(0).name;
+
+                    expect(name.length).toBe(11);
+                    expect(name).toBe('hello\u2013world');
+
+                    check1 = true;
+                  });
+                });
+              });
+            });
+
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+
+          }, function() {
+            expect(check1).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName +
+            ' handles UNICODE \\u2019 INLINE correctly in database', function (done) {
+          var db = openDatabase('INLINE-u2019-INSERT-test.db');
+
+          var check1 = false;
+
+          db.transaction(function (tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test', [], function () {
+              tx.executeSql('CREATE TABLE test (name, id)', [], function() {
+                tx.executeSql("INSERT INTO test VALUES ('hello\u2019world', 'id1')", null, function () {
+                  tx.executeSql('SELECT name FROM test', [], function (tx_ignored, rs) {
+                    var name = rs.rows.item(0).name;
+
+                    expect(name.length).toBe(11);
+                    expect(name).toBe('hello\u2019world');
+
+                    check1 = true;
+                  });
+                });
+              });
+            });
+
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+
+          }, function() {
+            expect(check1).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName +
+            ' handles UNICODE \\u2013 xxx correctly in database', function (done) {
+          var db = openDatabase('UNICODE-u2013-INSERT-test.db');
+
+          var check1 = false;
+
+          db.transaction(function (tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test', [], function () {
+              tx.executeSql('CREATE TABLE test (name, id)', [], function() {
+                tx.executeSql('INSERT INTO test VALUES (?, "id1")', ['hello\u2013world'], function () {
+                  tx.executeSql('SELECT name FROM test', [], function (tx_ignored, rs) {
+                    var name = rs.rows.item(0).name;
+
+                    expect(name.length).toBe(11);
+                    expect(name).toBe('hello\u2013world');
+
+                    check1 = true;
+                  });
+                });
+              });
+            });
+
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+
+          }, function() {
+            expect(check1).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName +
+            ' handles UNICODE \\u2019 xxx correctly in database', function (done) {
+          var db = openDatabase('UNICODE-u2019-INSERT-test.db');
+
+          var check1 = false;
+
+          db.transaction(function (tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test', [], function () {
+              tx.executeSql('CREATE TABLE test (name, id)', [], function() {
+                tx.executeSql('INSERT INTO test VALUES (?, "id1")', ['hello\u2019world'], function () {
+                  tx.executeSql('SELECT name FROM test', [], function (tx_ignored, rs) {
+                    var name = rs.rows.item(0).name;
+
+                    expect(name.length).toBe(11);
+                    expect(name).toBe('hello\u2019world');
+
+                    check1 = true;
+                  });
+                });
+              });
+            });
+
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+
+          }, function() {
+            expect(check1).toBe(true);
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
       });
 
     });
