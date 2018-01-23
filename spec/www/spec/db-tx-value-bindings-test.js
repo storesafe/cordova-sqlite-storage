@@ -1306,8 +1306,6 @@ var mytests = function() {
 
         it(suiteName + ' returns [Unicode] string with \\u0000 (same as \\0) correctly [BROKEN: TRUNCATES on Windows]', function (done) {
           if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
-          if (isWindows) pending('BROKEN on Windows'); // XXX
-          // if (isWebSql && isAndroid) pending('SKIP on Android Web SQL'); // XXX TBD INCONSISTENT RESULTS Android 4 vs 5
 
           var db = openDatabase('UNICODE-retrieve-u0000-test.db');
 
