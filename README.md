@@ -63,7 +63,11 @@ This plugin uses a non-standard [Android-sqlite-connector](https://github.com/li
 The workaround is to use the `androidDatabaseImplementation: 2` setting as described in the **Android sqlite implementation** section below:
 
 ```js
-var db = window.sqlitePlugin.openDatabase({name: "my.db", androidDatabaseImplementation: 2});
+var db = window.sqlitePlugin.openDatabase({
+  name: 'my.db',
+  location: 'default',
+  androidDatabaseImplementation: 2
+});
 ```
 
 <!-- END WARNING: Multiple SQLite problem on Android -->
@@ -996,7 +1000,7 @@ db.readTransaction(function(tx) {
 
 ```Javascript
   // BROKEN SAMPLE:
-  var db = window.sqlitePlugin.openDatabase({name: "test.db"});
+  var db = window.sqlitePlugin.openDatabase({name: 'my.db', location: 'default'});
   db.executeSql("DROP TABLE IF EXISTS tt");
   db.executeSql("CREATE TABLE tt (data)");
 
