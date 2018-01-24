@@ -12,6 +12,11 @@ This is the common version branch which supports the most widely used features a
 
 This version branch uses a `before_plugin_install` hook to install sqlite3 library dependencies from `cordova-sqlite-storage-dependencies` via npm.
 
+doc todos:
+
+- install from GitHub ref: <https://github.com/litehelpers/Cordova-sqlite-storage/issues/714>
+- Gource visualization from 2015 at: <https://www.youtube.com/watch?v=Q16uTYSkIjM>
+
 XXX RELEASE TEST TODOs:
 - update for evplus ...
 - Add tip to use S.js / surplus for nice API WITH NO VIRTUAL DOM OVERHEAD
@@ -24,8 +29,6 @@ XXX RELEASE TEST TODOs:
 - further testing of major control characters ref: <https://en.wikipedia.org/wiki/Control_character>
 - review & update support & Unit tests sections
 - review/update hook description
-
-- Gource visualization from 2015 at: <https://www.youtube.com/watch?v=Q16uTYSkIjM>
 
 <!-- XXX TBD NOT WORKING:
 |Android Circle-CI (**full** suite)|iOS Travis-CI (partial suite)|
