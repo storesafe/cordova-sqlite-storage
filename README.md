@@ -109,7 +109,7 @@ document.addEventListener('deviceready', function() {
 
 ### Using deprecated transaction API
 
-**NOTICE:** Support for this API is scheduled to be removed from the next major release ref: <https://github.com/litehelpers/Cordova-sqlite-storage/issues/720>. It is recommended to use `db.executeSql()` and `db.sqlBatch()` as described below.
+~~**NOTICE:** Support for this API is scheduled to be removed from the next major release ref: <https://github.com/litehelpers/Cordova-sqlite-storage/issues/720>. It is recommended to use `db.executeSql()` and `db.sqlBatch()` as described below.~~
 
 To populate a database using the standard transaction API:
 
@@ -170,7 +170,7 @@ See the [Sample section](#sample) for a sample with a more detailed explanation.
 ## Status
 
 - XXX TODO RESTORE NOTE ABOUT USING RECENT Cordova CLI
-- The "standard" transaction API documented in [Standard asynchronous transactions section](#standard-asynchronous-transactions) (`db.transaction()` and `db.readTransaction` calls) are now deprecated in this plugin version and scheduled to be removed from the next major release ref: <https://github.com/litehelpers/Cordova-sqlite-storage/issues/720>. It is recommended to use `db.executeSql()` and `db.sqlBatch()` instead, as documented below. NOTE that the "standard", deprecated API calls will NOT be removed from other plugin versions such as `cordova-sqlite-ext` (permissive license terms) or `cordova-sqlite-evcore-extbuild-free` (GPL or commercial license terms).
+- ~~The "standard" transaction API documented in [Standard asynchronous transactions section](#standard-asynchronous-transactions) (`db.transaction()` and `db.readTransaction` calls) are now deprecated in this plugin version and scheduled to be removed from the next major release ref: <https://github.com/litehelpers/Cordova-sqlite-storage/issues/720>. It is recommended to use `db.executeSql()` and `db.sqlBatch()` instead, as documented below. NOTE that the "standard", deprecated API calls will NOT be removed from other plugin versions such as `cordova-sqlite-ext` (permissive license terms) or `cordova-sqlite-evcore-extbuild-free` (GPL or commercial license terms).~~
 - This plugin is NOT supported by PhoneGap Developer App or PhoneGap Desktop App.
 - This plugin version uses a `before_plugin_install` hook to install sqlite3 library dependencies from `cordova-sqlite-storage-dependencies` via npm.
 - Use of other systems such as Cordova Plugman, PhoneGap CLI, PhoneGap Build, and Intel XDK is no longer supported by this plugin version since they do not honor the `before_plugin_install` hook. The supported solution is to use [litehelpers / Cordova-sqlite-evcore-extbuild-free](https://github.com/litehelpers/Cordova-sqlite-evcore-extbuild-free) (GPL or commercial license terms); alternative with permissive license terms is available at: [brodybits / cordova-sqlite-legacy-build-support](https://github.com/brodybits/cordova-sqlite-legacy-build-support) (limited testing, limited updates).
@@ -893,7 +893,7 @@ var db = window.sqlitePlugin.openDatabase({
 The following types of SQL transactions are supported by this plugin version:
 - Single-statement transactions
 - SQL batch transactions
-- DEPRECATED and scheduled for removal (<https://github.com/litehelpers/Cordova-sqlite-storage/issues/720>): Standard asynchronous transactions
+- ~~DEPRECATED and scheduled for removal (<https://github.com/litehelpers/Cordova-sqlite-storage/issues/720>):~~ Standard asynchronous transactions
 
 **NOTE:** Transaction requests are kept in one queue per database and executed in sequential order, according to the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/).
 
@@ -959,7 +959,7 @@ In case of an error, all changes in a sql batch are automatically discarded usin
 
 ### Standard asynchronous transactions
 
-**NOTICE:** The "standard" (deprecated) transaction API calls described here (`db.transaction()` and `db.readTransaction()`) are scheduled to be removed from the next major release of this plugin version. It is recommended to use the `db.executeSql()` and `db.sqlBatch()` calls instead, as described above. Note that the "standard" (deprecated) transaction API calls will continue to be supported by other plugin versions such as `cordova-sqlite-ext` (permissive license terms) and `cordova-sqlite-evcore-extbuild-free` (GPL or commercial license terms).
+~~**NOTICE:** The "standard" (deprecated) transaction API calls described here (`db.transaction()` and `db.readTransaction()`) are scheduled to be removed from the next major release of this plugin version. It is recommended to use the `db.executeSql()` and `db.sqlBatch()` calls instead, as described above. Note that the "standard" (deprecated) transaction API calls will continue to be supported by other plugin versions such as `cordova-sqlite-ext` (permissive license terms) and `cordova-sqlite-evcore-extbuild-free` (GPL or commercial license terms).~~
 
 "Standard" (deprecated) asynchronous transactions follow the HTML5/[Web SQL API](http://www.w3.org/TR/webdatabase/) which is very well documented and uses BEGIN and COMMIT or ROLLBACK to keep the transactions failure-safe. Here is a simple example:
 
@@ -1454,7 +1454,9 @@ To run from a windows powershell (here is a sample for android target):
 
 Contributed by [@Mikejo5000 (Mike Jones)](https://github.com/Mikejo5000) from Microsoft.
 
+<!-- XXX GONE:
 **WARNING:** The sample below uses deprecated transaction API calls, scheduled to be removed from the next major release of this plugin version ref: <https://github.com/litehelpers/Cordova-sqlite-storage/issues/720>. TODO is to rework the sample JavaScript below to use `db.executeSql()` and `db.sqlBatch()` instead.
+ -->
 
 ## Interact with the SQLite database
 
