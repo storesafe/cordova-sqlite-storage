@@ -18,6 +18,7 @@ doc todos:
 - Gource visualization from 2015 at: <https://www.youtube.com/watch?v=Q16uTYSkIjM>
 
 XXX RELEASE TEST TODOs:
+- open/xxx parameter tests ref: evplus plugin version
 - update for evplus ...
 - Add tip to use S.js / surplus for nice API WITH NO VIRTUAL DOM OVERHEAD
 - deal with HTML5 Web SQL failures on Android `x86_64`
