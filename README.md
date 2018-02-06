@@ -408,8 +408,6 @@ In case you get stuck with something please read through the [support](#support)
 
 - <https://phonegappro.com/tutorials/phonegap-sqlite-tutorial-with-example-apache-cordova/>
 
-**NOTICE:** The above tutorial shows `cordova plugin add cordova-sqlite-storage` with the `--save` flag missing. Please be sure to use the `--save` flag to keep the plugins in `config.xml` _in case of Cordova CLI pre-7.x_.
-
 Other plugin tutorials wanted ref: [litehelpers/Cordova-sqlite-storage#609](https://github.com/litehelpers/Cordova-sqlite-storage/issues/609)
 
 ### SQLite resources
