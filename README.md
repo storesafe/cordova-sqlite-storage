@@ -16,6 +16,7 @@ doc todos:
 
 - install from GitHub ref: <https://github.com/litehelpers/Cordova-sqlite-storage/issues/714>
 - Gource visualization from 2015 at: <https://www.youtube.com/watch?v=Q16uTYSkIjM>
+- add LokiJS alternative
 
 XXX RELEASE TEST TODOs:
 - open/xxx parameter tests ref: evplus plugin version
