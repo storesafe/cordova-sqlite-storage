@@ -1,5 +1,9 @@
 # Changes
 
+### cordova-sqlite-storage 2.2.1-dev1
+
+- Fix Android/iOS src copyright, perpetually
+
 ## cordova-sqlite-storage 2.2.0
 
 - Android-sqlite-native-driver NDK objects in JAR to resolve issue on cordova-android@7
