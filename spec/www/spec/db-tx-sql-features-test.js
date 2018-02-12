@@ -80,7 +80,8 @@ var mytests = function() {
         /* THANKS to @calebeaires: */
         it(suiteName + 'create virtual table using FTS3', function(done) {
           if (isWP8) pending('NOT IMPLEMENTED for WP(8)'); // NOT IMPLEMENTED in CSharp-SQLite
-          if (isAndroid && isWebSql) pending('SKIP for Android Web SQL');
+          if (isWebSql && isAndroid) pending('SKIP for Android Web SQL');
+          if (isWebSql && !isAndroid && (/OS 1[1-9]/.test(navigator.userAgent))) pending('SKIP (WebKit) Web SQL on iOS 11(+)');
 
           var db = openDatabase('virtual-table-using-fts3.db', '1.0', 'Test', DEFAULT_SIZE);
 

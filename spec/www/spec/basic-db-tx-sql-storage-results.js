@@ -315,15 +315,19 @@ var mytests = function() {
                   temp1.data = 'another';
 
                   if (isWebSql) {
-                    // Web SQL STANDARD:
-                    // 1. this is a native object that is NOT affected by the change (SKIP for Android 5.x/+):
-                    if (!isAndroid || /Android [1-4]/.test(navigator.userAgent))
+                    // (WebKit) Web SQL:
+                    // 1. [TBD] this is a native object that is NOT affected by the change
+                    //    on Android pre-5.x & iOS pre-11.x
+                    if ((!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent))) ||
+                        (/Android [2-4]/.test(navigator.userAgent)))
                       expect(temp1.data).toBe('test');
+                    else
+                      expect(temp1.data).toBe('another');
                     // 2. object returned by second resultSet.rows.item call not affected:
                     expect(temp2.data).toBe('test');
                   } else {
                     // PLUGIN:
-                    // 1. DEVIATION - temp1 is just like any other Javascript object:
+                    // 1. [TBD] is just like any other Javascript object:
                     expect(temp1.data).toBe('another');
                     // 2. DEVIATION - same object is returned by second resultSet.rows.item IS affected:
                     expect(temp2.data).toBe('another');

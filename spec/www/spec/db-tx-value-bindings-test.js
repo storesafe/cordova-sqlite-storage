@@ -1304,10 +1304,8 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + ' returns [Unicode] string with \\u0000 (same as \\0) correctly [BROKEN: TRUNCATES on Windows]', function (done) {
+        it(suiteName + ' returns [Unicode] string with \\u0000 (same as \\0) correctly [TRUNCATION BUG on iOS (WebKit) Web SQL, older versions of Android (WebKit) Web SQL, and Windows plugin]', function (done) {
           if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
-          if (isWindows) pending('BROKEN on Windows'); // XXX
-          // if (isWebSql && isAndroid) pending('SKIP on Android Web SQL'); // XXX TBD INCONSISTENT RESULTS Android 4 vs 5
 
           var db = openDatabase('UNICODE-retrieve-u0000-test.db');
 
@@ -1318,6 +1316,10 @@ var mytests = function() {
                   tx.executeSql('SELECT name FROM test', [], function (tx_ignored, rs) {
                     var name = rs.rows.item(0).name;
 
+                    // TRUNCATION BUG
+                    //
+                    // BUG on (WebKit) Web SQL:
+                    //
                     // There is a bug in WebKit and Chromium where strings are created
                     // using methods that rely on '\0' for termination instead of
                     // the specified byte length.
@@ -1327,8 +1329,16 @@ var mytests = function() {
                     // For now we expect this test to fail there, but when it is fixed
                     // we would like to know, so the test is coded to fail if it starts
                     // working there.
+                    //
+                    // UPDATE: SEEMS TO BE FIXED on newer versions of Android
+                    //
+                    // BUG on this plugin:
+                    //
+                    // TRUNCATION BUG REPRODUCED on Windows
 
-                    if (isWindows || (isWebSql && !(/Android [5-9]/.test(navigator.userAgent)))) {
+                    if ((isWebSql && isAndroid && (/Android [2-4]/.test(navigator.userAgent))) ||
+                        (isWebSql && !isAndroid) ||
+                        (!isWebSql && isWindows)) {
                       expect(name.length).toBe(1);
                       expect(name).toBe('a');
                     } else {
