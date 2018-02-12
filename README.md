@@ -73,7 +73,10 @@ To open a database:
 var db = null;
 
 document.addEventListener('deviceready', function() {
-  db = window.sqlitePlugin.openDatabase({name: 'demo.db', location: 'default'});
+  db = window.sqlitePlugin.openDatabase({
+    name: 'my.db',
+    location: 'default',
+  });
 });
 ```
 
@@ -784,7 +787,10 @@ To overwrite `window.openDatabase`:
 
 ```Javascript
 window.openDatabase = function(dbname, ignored1, ignored2, ignored3) {
-  return window.sqlitePlugin.openDatabase({name: dbname, location: 'default'});
+  return window.sqlitePlugin.openDatabase({
+    name: dbname,
+    location: 'default'
+  });
 };
 ```
 
@@ -822,7 +828,11 @@ Use the `location` or `iosDatabaseLocation` option in `sqlitePlugin.openDatabase
 By default, this plugin uses [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector), which is lightweight and should be more efficient than the built-in Android database classes. To use the built-in Android database classes instead:
 
 ```js
-var db = window.sqlitePlugin.openDatabase({name: 'my.db', location: 'default', androidDatabaseImplementation: 2});
+var db = window.sqlitePlugin.openDatabase({
+  name: 'my.db',
+  location: 'default',
+  androidDatabaseImplementation: 2
+});
 ```
 
 **IMPORTANT:**
