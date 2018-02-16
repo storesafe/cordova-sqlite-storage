@@ -1,7 +1,8 @@
 # Changes
 
-### cordova-sqlite-storage 2.2.1-dev1
+### cordova-sqlite-storage 2.2.1
 
+- SQLITE_THREADSAFE=1 compile-time setting for iOS/macOS
 - Fix Android/iOS src copyright, perpetually
 
 ## cordova-sqlite-storage 2.2.0
