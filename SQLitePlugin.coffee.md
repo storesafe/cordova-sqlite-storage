@@ -435,11 +435,7 @@
 
       rows = response.rows || []
       payload =
-        rows:
-          item: (i) ->
-            rows[i]
-
-          length: rows.length
+        rows: rows
 
         rowsAffected: response.rowsAffected or 0
         insertId: response.insertId or undefined
