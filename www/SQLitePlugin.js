@@ -467,7 +467,20 @@
         }
       }
     };
-    cordova.exec(mycb, null, "SQLitePlugin", "backgroundExecuteSqlBatch", [
+    cordova.exec(mycb, function(message){
+/*handle transaction error caused by db-level exception, 
+      like db not open, couldn't add to queue, missing executes list etc. 
+      which failed to call the failed callback in finish function leaving the inProgress property true on Android
+      thus hanging all the operations later on.*/
+      if(typeof result === "string"){
+	          console.log(result);
+            if (tx.error && typeof tx.error === 'function') {
+                tx.error(newSQLError(result, 0));
+            }
+
+      }
+      console.log('error in running backgroundExecuteSqlBatch');
+    }, "SQLitePlugin", "backgroundExecuteSqlBatch", [
       {
         dbargs: {
           dbname: this.db.dbname
