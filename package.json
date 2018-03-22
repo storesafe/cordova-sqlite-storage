@@ -1,6 +1,6 @@
 {
   "name": "cordova-sqlite-storage",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "description": "Native interface to SQLite for PhoneGap/Cordova",
   "cordova": {
     "id": "cordova-sqlite-storage",
@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/litehelpers/Cordova-sqlite-storage",
   "dependencies": {
-    "cordova-sqlite-storage-dependencies": "1.1.0"
+    "cordova-sqlite-storage-dependencies": "1.2.0"
   },
   "scripts": {
     "start": "node scripts/prepareSpec.js"

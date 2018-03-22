@@ -69,7 +69,7 @@ var mytests = function() {
               expect(rs.rows.item(0).myResult).toMatch(/3\.[0-9]+\.[0-9]+/);
               // Check specific [plugin only]:
               if (!isWebSql && !(!isWindows && isAndroid && isImpl2))
-                expect(rs.rows.item(0).myResult).toBe('3.15.2');
+                expect(rs.rows.item(0).myResult).toBe('3.22.0');
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
