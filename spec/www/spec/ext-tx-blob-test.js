@@ -96,7 +96,7 @@ var mytests = function() {
               ok(false, "INSERT blob FAILED");
               done();
             });
-          }, function(err) { 
+          }, function(err) {
             ok(false, "transaction failure with message: " + err.message);
             done();
           });
