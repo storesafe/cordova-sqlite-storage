@@ -79,7 +79,7 @@ var mytests = function() {
       // 2. Cordova-sqlcipher-adapter version of this plugin
       if (isAndroid)
         it(suiteName + 'Android ICU-UNICODE string manipulation test', function(done) {
-          if (isWebSql && /Android [1-4]/.test(navigator.userAgent)) pending('SKIP for Android versions 1.x-4.x Web SQL');
+          if (isWebSql && /Android 4/.test(navigator.userAgent)) pending('SKIP for Android versions 1.x-4.x Web SQL');
           if (!isWebSql) pending('SKIP for plugin');
 
           var db = openDatabase('ICU-UNICODE-string-manipulation-results-test.db', '1.0', 'Test', DEFAULT_SIZE);

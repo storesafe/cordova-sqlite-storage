@@ -319,7 +319,7 @@ var mytests = function() {
                     // 1. [TBD] this is a native object that is NOT affected by the change
                     //    on Android pre-5.x & iOS pre-11.x
                     if ((!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent))) ||
-                        (/Android [2-4]/.test(navigator.userAgent)))
+                        (/Android 4/.test(navigator.userAgent)))
                       expect(temp1.data).toBe('test');
                     else
                       expect(temp1.data).toBe('another');
