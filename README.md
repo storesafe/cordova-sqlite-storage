@@ -447,7 +447,7 @@ As "strongly recommended" by [Web SQL Database API 8.5 SQL injection](https://ww
 - For standard Web SQL transactions include a transaction error callback with the proper logic that indicates to the user if data cannot be stored for any reason. In case of individual SQL error handlers be sure to indicate to the user if there is any issue with storing data.
 - For single statement and batch transactions include an error callback with logic that indicates to the user if data cannot be stored for any reason.
 
-<!-- Avoiding data loss -->
+<!-- END Avoiding data loss -->
 
 ## Deviations
 
