@@ -58,7 +58,7 @@ var mytests = function() {
         }
       }
 
-      describe(suiteName + 'Basic US-ASCII string binding/manipulation tests [default sqlite encoding: UTF-16le on Windows; UTF-8 on others]', function() {
+      describe(suiteName + 'Basic US-ASCII string binding/manipulation tests', function() {
 
         it(suiteName + 'Inline US-ASCII String manipulation test with empty ([]) parameter list', function(done) {
           var db = openDatabase("Inline-US-ASCII-string-test-with-empty-parameter-list.db", "1.0", "Demo", DEFAULT_SIZE);
