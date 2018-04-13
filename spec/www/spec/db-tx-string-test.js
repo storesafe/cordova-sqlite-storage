@@ -210,6 +210,10 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+      });
+
+      describe(suiteName + 'U+0000 character tests', function() {
+
         it(suiteName + 'String HEX encoding test with U+0000 character (same as \\0 [null]) [XXX HEX encoding BUG IGNORED on default Android NDK access implementation (Android-sqlite-connector with Android-sqlite-native-driver), TBD TRUNCATION BUG REPRODUCED on Windows; TBD default sqlite encoding: UTF-16le on Windows & Android 4.1-4.4 (WebKit) Web SQL, UTF-8 otherwise]', function (done) {
           var db = openDatabase('U-0000-hex-test.db');
 
@@ -291,6 +295,10 @@ var mytests = function() {
             (isWebSql) ? done() : db.close(done, done);
           });
         }, MYTIMEOUT);
+
+      });
+
+      describe(suiteName + 'control character tests', function() {
 
         it(suiteName + 'CR-LF String test (inline vs argument parameter value) [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           var db = openDatabase('INLINE-CR-LF-String-test.db');
