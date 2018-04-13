@@ -837,8 +837,8 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "INSERT inline BLOB value (X'40414243') and check stored data [SELECT BLOB value ISSUE with androidDatabaseImplementation: 2 & Windows/WP8]", function(done) {
-          var db = openDatabase('INSERT-inline-BLOB-value-and-check-stored-data.db', '1.0', 'Demo', DEFAULT_SIZE);
+        it(suiteName + "INSERT inline BLOB value (X'40414243') and check stored data [TBD SELECT BLOB value ERROR EXPECTED on Windows, WP8, and Android with androidDatabaseImplementation: 2 setting]", function(done) {
+          var db = openDatabase('INSERT-inline-BLOB-value-40414243-and-check-stored-data.db');
 
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
@@ -859,7 +859,9 @@ var mytests = function() {
                   expect(item.hexValue).toBe('40414243');
 
                   tx.executeSql('SELECT * FROM test_table', [], function(ignored, rs3) {
-                    if (!isWebSql && isAndroid && isImpl2) expect('Behavior changed please update this test').toBe('--');
+                    if (!isWebSql && isWP8) expect('PLUGIN BEHAVIOR CHANGED for WP8').toBe('--'); // XXX DEPRECATED PLATFORM
+                    if (!isWebSql && isWindows) expect('PLUGIN BEHAVIOR CHANGED for Windows').toBe('--');
+                    if (!isWebSql && !isWindows && isAndroid && isImpl2) expect('PLUGIN BEHAVIOR CHANGED for android.database implementation').toBe('--');
                     expect(rs3).toBeDefined();
                     expect(rs3.rows).toBeDefined();
                     expect(rs3.rows.length).toBeDefined();
@@ -879,7 +881,7 @@ var mytests = function() {
                       expect(error.code).toBe(0);
 
                       if (isWP8)
-                        expect(true).toBe(true); // SKIP for now
+                        expect(error.message).toBeDefined(); // TBD (DEPRECATED PLATFORM)
                       else if (isWindows)
                         expect(error.message).toMatch(/Unsupported column type in column 0/);
                       else
