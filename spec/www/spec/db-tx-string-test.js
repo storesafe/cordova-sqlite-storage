@@ -186,32 +186,6 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'US-ASCII String HEX parameter value test ("Test 123")', function(done) {
-          var db = openDatabase("ASCII-String-hex-value-test.db", "1.0", "Demo", DEFAULT_SIZE);
-
-          db.transaction(function(tx) {
-
-            tx.executeSql('SELECT HEX(?) AS myresult', ['Test 123'], function(ignored, rs) {
-              expect(rs).toBeDefined();
-              expect(rs.rows).toBeDefined();
-              expect(rs.rows.length).toBe(1);
-              if (isWindows)
-                expect(rs.rows.item(0).myresult).toBe('54006500730074002000310032003300'); // (UTF-16le)
-              else
-                expect(rs.rows.item(0).myresult).toBe('5465737420313233'); // (UTF-8)
-
-              // Close (plugin only) & finish:
-              (isWebSql) ? done() : db.close(done, done);
-            });
-          }, function(error) {
-            // NOT EXPECTED:
-            expect(false).toBe(true);
-            expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
-          });
-        }, MYTIMEOUT);
-
         it(suiteName + 'tx.executeSql(new String(sql))', function(done) {
           var db = openDatabase("tx-executeSql-new-String-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
