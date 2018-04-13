@@ -210,8 +210,8 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'String HEX encoding test with \\0 (null) character [TRUNCATION BUG on Windows; HEX encoding BUG on Android-sqlite-connector]', function (done) {
-          var db = openDatabase('text-string-with-null-character-test.db');
+        it(suiteName + 'String HEX encoding test with U+0000 character (same as \\0 [null]) [XXX HEX encoding BUG IGNORED on default Android NDK access implementation (Android-sqlite-connector with Android-sqlite-native-driver), TBD TRUNCATION BUG REPRODUCED on Windows]', function (done) {
+          var db = openDatabase('U-0000-hex-test.db');
 
           db.transaction(function (tx) {
             tx.executeSql('SELECT HEX(?) AS hexvalue', ['abcd'], function (tx_ignored, rs) {
@@ -231,92 +231,52 @@ var mytests = function() {
               if (!isWindows)
                 expect(expected_hexvalue_length).toBe(8);
 
-              tx.executeSql('SELECT HEX(?) AS hexvalue', ['a\0cd'], function (tx_ignored, rs2) {
+              tx.executeSql('SELECT HEX(?) AS hexvalue', ['a\u0000cd'], function (tx_ignored, rs2) {
                 expect(rs2).toBeDefined();
                 expect(rs2.rows).toBeDefined();
                 expect(rs2.rows.length).toBe(1);
                 expect(rs2.rows.item(0).hexvalue).toBeDefined();
 
-                // STOP HERE [HEX encoding BUG] for Android-sqlite-connector:
-                if (!isWebSql && !isWindows && isAndroid && !isImpl2) return done();
-
                 var hexvalue = rs2.rows.item(0).hexvalue;
                 if (isWindows)
-                  expect(hexvalue).toBe('6100'); // (UTF16-le with TRUNCATION BUG)
+                  expect(hexvalue).toBe('6100'); // (UTF-16le with TRUNCATION BUG)
                 else if (!isWebSql && isAndroid && !isImpl2)
-                  expect(hexvalue).toBe('--'); // (UTF-8 with TRUNCATION BUG)
+                  expect(hexvalue).toBeDefined(); // (XXX UTF-8 with TRUNCATION BUG IGNORED)
                 else
                   expect(hexvalue).toBe('61006364'); // (UTF-8)
 
                 // extra check:
                 // ensure this matches our expectation of that database's
                 // default encoding
-                if (!isWindows)
-                  expect(hexvalue.length).toBe(expected_hexvalue_length);
-
-                // Close (plugin only) & finish:
-                (isWebSql) ? done() : db.close(done, done);
-              });
-
-            });
-          }, function(err) {
-            // NOT EXPECTED:
-            expect(false).toBe(true);
-            expect(JSON.stringify(err)).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
-          });
-        }, MYTIMEOUT);
-
-        it(suiteName + 'String encoding test with UNICODE \\u0000 (same as \\0) [TRUNCATION BUG on Windows; HEX encoding BUG on Android-sqlite-connector]', function (done) {
-          var db = openDatabase('UNICODE-0000-hex-test.db');
-
-          db.transaction(function (tx) {
-            tx.executeSql('SELECT HEX("efgh") AS hexvalue', [], function (tx_ignored, rs) {
-              expect(rs).toBeDefined();
-              expect(rs.rows).toBeDefined();
-              expect(rs.rows.length).toBe(1);
-
-              // NOTE: WebKit Web SQL on recent versions of Android & iOS
-              // seems to use follow UTF-8 encoding/decoding rules.
-
-              if (isWindows)
-                expect(rs.rows.item(0).hexvalue).toBe('6500660067006800'); // )UTF-16le)
-              else
-                expect(rs.rows.item(0).hexvalue).toBe('65666768'); // (UTF-8)
-
-              var expected_hexvalue_length = rs.rows.item(0).hexvalue.length;
-              if (!isWindows)
-                expect(expected_hexvalue_length).toBe(8);
-
-              tx.executeSql('SELECT HEX(?) AS hexvalue', ['e\u0000gh'], function (tx_ignored, rs2) {
-                expect(rs2).toBeDefined();
-                expect(rs2.rows).toBeDefined();
-                expect(rs2.rows.length).toBe(1);
-                expect(rs2.rows.item(0).hexvalue).toBeDefined();
-
-                // STOP HERE [HEX encoding BUG] for Android-sqlite-connector:
-                if (!isWebSql && !isWindows && isAndroid && !isImpl2) return done();
-
-                var hexvalue = rs2.rows.item(0).hexvalue;
                 if (isWindows)
-                  expect(hexvalue).toBe('6500'); // (UTF-16le with TRUNCATION BUG)
-                else if (!isWebSql && isAndroid && !isImpl2)
-                  expect(hexvalue).toBe('--'); // (UTF-8 with TRUNCATION BUG)
+                  expect(hexvalue.length).toBe(4); // (UTF-16le with TRUNCATION BUG REPRODUCED)
+                else if (!isWebSql && !isWindows && isAndroid && !isImpl2)
+                  expect(hexvalue.length).toBeDefined(); // (XXX UTF-8 with TRUNCATION BUG IGNORED)
                 else
-                  expect(hexvalue).toBe('65006768'); // (UTF-8)
-
-                // extra check:
-                // ensure this matches our expectation of that database's
-                // default encoding
-                if (!isWindows)
                   expect(hexvalue.length).toBe(expected_hexvalue_length);
 
-                // Close (plugin only) & finish:
-                (isWebSql) ? done() : db.close(done, done);
+                tx.executeSql('SELECT HEX(?) AS hexvalue', ['e\0gh'], function (tx_ignored, rs3) {
+                  expect(rs3).toBeDefined();
+                  expect(rs3.rows).toBeDefined();
+                  expect(rs3.rows.length).toBe(1);
+                  expect(rs3.rows.item(0).hexvalue).toBeDefined();
+
+                  var hexvalue = rs3.rows.item(0).hexvalue;
+                  if (isWindows)
+                    expect(hexvalue).toBe('6500'); // (UTF-16le with TRUNCATION BUG REPRODUCED)
+                  else if (!isWebSql && !isWindows && isAndroid && !isImpl2)
+                    expect(hexvalue).toBeDefined(); // (XXX UTF-8 with TRUNCATION BUG IGNORED)
+                  else
+                    expect(hexvalue).toBe('65006768'); // (TBD UTF-8)
+
+                  // Close (plugin only) & finish:
+                  (isWebSql) ? done() : db.close(done, done);
+                });
+
               });
 
             });
+
           }, function(err) {
             // NOT EXPECTED:
             expect(false).toBe(true);
