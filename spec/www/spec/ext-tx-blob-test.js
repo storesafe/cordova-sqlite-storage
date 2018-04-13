@@ -58,8 +58,7 @@ var mytests = function() {
         // the same but on the JavaScript side and converts to a string like `[object Blob]`.
         it(suiteName + "INSERT Blob from ArrayBuffer (non-standard parameter type)", function(done) {
           if (isWP8) pending('BROKEN for WP(8)'); // (???)
-          // XXX TBD:
-          // if (/Android [1-4]/.test(navigator.userAgent)) pending('BROKEN for Android [version 1.x-4.x]');
+          if (/Android 4.[1-3]/.test(navigator.userAgent)) pending('SKIP for Android 4.1-4.3');
 
           // IMPORTANT:
           if (typeof Blob === "undefined") pending('Blob type does not exist');

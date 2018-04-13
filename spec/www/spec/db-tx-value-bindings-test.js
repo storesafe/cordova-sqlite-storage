@@ -58,7 +58,7 @@ var mytests = function() {
 
       describe(suiteName + 'transaction column value insertion test(s)', function() {
 
-        it(suiteName + 'INSERT US-ASCII TEXT string ("Test 123"), SELECT the data, check, and check HEX value', function(done) {
+        it(suiteName + 'INSERT US-ASCII TEXT string ("Test 123"), SELECT the data, check, and check HEX value [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           var db = openDatabase('INSERT-ascii-text-string-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -83,7 +83,7 @@ var mytests = function() {
                     expect(rs3.rows.length).toBe(1);
 
                     var hexvalue = rs3.rows.item(0).hexvalue;
-                    if (isWindows)
+                    if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
                       expect(hexvalue).toBe('54006500730074002000310032003300'); // (UTF-16le)
                     else
                       expect(hexvalue).toBe('5465737420313233'); // (UTF-8)
@@ -104,7 +104,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'INSERT TEXT string with é (UTF-8 2 octets), SELECT the data, check, and check HEX value [UTF-16le on Windows]', function(done) {
+        it(suiteName + 'INSERT TEXT string with é (UTF-8 2 octets), SELECT the data, check, and check HEX value [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           var db = openDatabase('INSERT-UTF8-2-octets-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -122,7 +122,7 @@ var mytests = function() {
                   expect(row.data).toBe('é');
 
                   tx.executeSql('SELECT HEX(data) AS hexvalue FROM test_table', [], function(tx, res) {
-                    if (isWindows)
+                    if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
                       expect(res.rows.item(0).hexvalue).toBe('E900'); // (UTF-16le)
                     else
                       expect(res.rows.item(0).hexvalue).toBe('C3A9'); // (UTF-8)
@@ -143,7 +143,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'INSERT TEXT string with € (UTF-8 3 octets), SELECT the data, check, and check HEX value [UTF-16le on Windows]', function(done) {
+        it(suiteName + 'INSERT TEXT string with € (UTF-8 3 octets), SELECT the data, check, and check HEX value [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           var db = openDatabase('INSERT-UTF8-3-octets-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -161,7 +161,7 @@ var mytests = function() {
                   expect(row.data).toBe('€');
 
                   tx.executeSql('SELECT HEX(data) AS hexvalue FROM test_table', [], function(tx, res) {
-                    if (isWindows)
+                    if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
                       expect(res.rows.item(0).hexvalue).toBe('AC20');
                     else
                       expect(res.rows.item(0).hexvalue).toBe('E282AC');
@@ -521,7 +521,7 @@ var mytests = function() {
         // NOTE: emojis and other 4-octet UTF-8 characters are evidently
         // not stored properly by Android-sqlite-connector
         // ref: litehelpers/Cordova-sqlite-storage#564
-        it(suiteName + 'INSERT TEXT string with emoji [\\u1F603 SMILING FACE (MOUTH OPEN)], SELECT the data, check, and check HEX [UTF-16le on Windows; HEX encoding BUG on Android-sqlite-connector]' , function(done) {
+        it(suiteName + 'INSERT TEXT string with emoji [\\u1F603 SMILING FACE (MOUTH OPEN)], SELECT the data, check, and check HEX [XXX HEX encoding BUG IGNORED on default Android NDK access implementation (Android-sqlite-connector with Android-sqlite-native-driver), TBD TRUNCATION BUG REPRODUCED on Windows; default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]' , function(done) {
           var db = openDatabase('INSERT-emoji-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -548,13 +548,15 @@ var mytests = function() {
                     expect(rs3.rows).toBeDefined();
                     expect(rs3.rows.length).toBe(1);
 
+                    // XXX TBD HEX encoding BUG IGNORED on default Android NDK access implementation
                     // STOP HERE [HEX encoding BUG] for Android-sqlite-connector:
                     if (!isWebSql && !isWindows && isAndroid && !isImpl2) return done();
 
-                    if (isWindows)
+                    if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
                       expect(rs3.rows.item(0).hexvalue).toBe('40003DD803DE2100'); // (UTF-16le)
+                    /* XXX TBD HEX encoding BUG IGNORED on default Android NDK access implementation (...)
                     else if (!isWebSql && isAndroid && !isImpl2)
-                      expect(rs3.rows.item(0).hexvalue).toBe('--'); // (UTF-8)
+                      expect(rs3.rows.item(0).hexvalue).toBe('--'); // (...) */
                     else
                       expect(rs3.rows.item(0).hexvalue).toBe('40F09F988321'); // (UTF-8)
 
@@ -837,7 +839,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "INSERT inline BLOB value (X'40414243') and check stored data [TBD SELECT BLOB value ERROR EXPECTED on Windows, WP8, and Android with androidDatabaseImplementation: 2 setting]", function(done) {
+        it(suiteName + "INSERT inline BLOB value (X'40414243') and check stored data [TBD SELECT BLOB value ERROR EXPECTED on Windows, WP8, and Android with androidDatabaseImplementation: 2 setting; with default sqlite HEX encoding: UTF-6le on Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]", function(done) {
           var db = openDatabase('INSERT-inline-BLOB-value-40414243-and-check-stored-data.db');
 
           db.transaction(function(tx) {
@@ -868,7 +870,10 @@ var mytests = function() {
 
                     var item = rs3.rows.item(0);
                     expect(item).toBeDefined();
-                    expect(item.data).toBe('@ABC');
+                    if (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent))
+                      expect(item.data).toBe('䅀䍂'); // (UTF-16le)
+                    else
+                      expect(item.data).toBe('@ABC'); // (UTF-8)
 
                     // Close (plugin only) & finish:
                     (isWebSql) ? done() : db.close(done, done);
@@ -1249,7 +1254,7 @@ var mytests = function() {
 
       describe(scenarioList[i] + ': special UNICODE column value binding test(s)', function() {
 
-        it(suiteName + ' stores [Unicode] string with \\u0000 (same as \\0) correctly [HEX encoding check BROKEN for Android-sqlite-connector]', function (done) {
+        it(suiteName + ' stores [Unicode] string with \\u0000 (same as \\0) correctly [default sqlite HEX encoding: UTF-6le on XXX TBD Android 4.1-4.3 (WebKit) Web SQL ...]', function (done) {
           if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
           if (isWindows) pending('BROKEN on Windows'); // TBD (truncates on Windows)
           // XXX TBD ???:
@@ -1269,8 +1274,14 @@ var mytests = function() {
                     // NOTE: WebKit Web SQL on recent versions of Android & iOS
                     // seems to use follow UTF-8 encoding/decoding rules
                     // (tested elsewhere).
-                    expect(hexValue.length).toBe(8);
-                    expect(hexValue).toBe('61006364'); // (UTF-8)
+                    if (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent))
+                      expect(hexValue.length).toBe(16);
+                    else
+                      expect(hexValue.length).toBe(8);
+                    if (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent))
+                      expect(hexValue).toBe('6100000063006400'); // (UTF-16le)
+                    else
+                      expect(hexValue).toBe('61006364'); // (UTF-8)
 
                     // Check correct ordering:
                     var least = "54key3\u0000\u0000";

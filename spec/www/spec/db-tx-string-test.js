@@ -160,7 +160,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'US-ASCII String HEX parameter value test ("Test 123")', function(done) {
+        it(suiteName + 'US-ASCII String HEX parameter value test ("Test 123") [default sqlite encoding: UTF-16le on Windows & Android 4.1-4.4 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           var db = openDatabase("ASCII-String-hex-value-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -169,7 +169,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWindows)
+              if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
                 expect(rs.rows.item(0).myresult).toBe('54006500730074002000310032003300'); // (UTF-16le)
               else
                 expect(rs.rows.item(0).myresult).toBe('5465737420313233'); // (UTF-8)
@@ -210,7 +210,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'String HEX encoding test with U+0000 character (same as \\0 [null]) [XXX HEX encoding BUG IGNORED on default Android NDK access implementation (Android-sqlite-connector with Android-sqlite-native-driver), TBD TRUNCATION BUG REPRODUCED on Windows]', function (done) {
+        it(suiteName + 'String HEX encoding test with U+0000 character (same as \\0 [null]) [XXX HEX encoding BUG IGNORED on default Android NDK access implementation (Android-sqlite-connector with Android-sqlite-native-driver), TBD TRUNCATION BUG REPRODUCED on Windows; TBD default sqlite encoding: UTF-16le on Windows & Android 4.1-4.4 (WebKit) Web SQL, UTF-8 otherwise]', function (done) {
           var db = openDatabase('U-0000-hex-test.db');
 
           db.transaction(function (tx) {
@@ -222,14 +222,16 @@ var mytests = function() {
               // NOTE: WebKit Web SQL on recent versions of Android & iOS
               // seems to use follow UTF-8 encoding/decoding rules.
 
-              if (isWindows)
-                expect(rs.rows.item(0).hexvalue).toBe('6100620063006400'); // (UTF16-le)
+              if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
+                expect(rs.rows.item(0).hexvalue).toBe('6100620063006400'); // (UTF-16le)
               else
                 expect(rs.rows.item(0).hexvalue).toBe('61626364'); // (UTF-8)
 
               var expected_hexvalue_length = rs.rows.item(0).hexvalue.length;
-              if (!isWindows)
-                expect(expected_hexvalue_length).toBe(8);
+              if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
+                expect(expected_hexvalue_length).toBe(16); // (UTF-16le)
+              else
+                expect(expected_hexvalue_length).toBe(8); // (UTF-8)
 
               tx.executeSql('SELECT HEX(?) AS hexvalue', ['a\u0000cd'], function (tx_ignored, rs2) {
                 expect(rs2).toBeDefined();
@@ -240,6 +242,8 @@ var mytests = function() {
                 var hexvalue = rs2.rows.item(0).hexvalue;
                 if (isWindows)
                   expect(hexvalue).toBe('6100'); // (UTF-16le with TRUNCATION BUG)
+                else if ((isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
+                  expect(hexvalue).toBe('6100000063006400'); // (UTF-16le)
                 else if (!isWebSql && isAndroid && !isImpl2)
                   expect(hexvalue).toBeDefined(); // (XXX UTF-8 with TRUNCATION BUG IGNORED)
                 else
@@ -264,6 +268,8 @@ var mytests = function() {
                   var hexvalue = rs3.rows.item(0).hexvalue;
                   if (isWindows)
                     expect(hexvalue).toBe('6500'); // (UTF-16le with TRUNCATION BUG REPRODUCED)
+                  else if ((isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
+                    expect(hexvalue).toBe('6500000067006800'); // (UTF-16le)
                   else if (!isWebSql && !isWindows && isAndroid && !isImpl2)
                     expect(hexvalue).toBeDefined(); // (XXX UTF-8 with TRUNCATION BUG IGNORED)
                   else
@@ -286,7 +292,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'INLINE CR-LF String test', function(done) {
+        it(suiteName + 'CR-LF String test (inline vs argument parameter value) [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           var db = openDatabase('INLINE-CR-LF-String-test.db');
           expect(db).toBeDefined();
 
@@ -320,7 +326,7 @@ var mytests = function() {
                     expect(rs4).toBeDefined();
                     expect(rs4.rows).toBeDefined();
                     expect(rs4.rows.length).toBe(1);
-                    if (isWindows)
+                    if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
                       expect(rs4.rows.item(0).myResult).toBe('31000D0032000A0033000D000A003400'); // (UTF-16le)
                     else
                       expect(rs4.rows.item(0).myResult).toBe('310D320A330D0A34');
@@ -340,7 +346,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'string tab test (inline vs argument parameter value)', function(done) {
+        it(suiteName + 'string tab test (inline vs argument parameter value) [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           var db = openDatabase('string-tab-test.db');
           expect(db).toBeDefined();
 
@@ -359,7 +365,7 @@ var mytests = function() {
                 expect(rs2).toBeDefined();
                 expect(rs2.rows).toBeDefined();
                 expect(rs2.rows.length).toBe(1);
-                if (isWindows)
+                if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
                   expect(rs2.rows.item(0).myResult).toBe('410009003100'); // (UTF-16le)
                 else
                   expect(rs2.rows.item(0).myResult).toBe('410931');
@@ -378,7 +384,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'string vertical tab test (inline vs argument parameter value)', function(done) {
+        it(suiteName + 'string vertical tab test (inline vs argument parameter value) [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
 
           var db = openDatabase('String-vertical-tab-test.db');
@@ -399,7 +405,7 @@ var mytests = function() {
                 expect(rs2).toBeDefined();
                 expect(rs2.rows).toBeDefined();
                 expect(rs2.rows.length).toBe(1);
-                if (isWindows)
+                if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
                   expect(rs2.rows.item(0).myResult).toBe('41000B003100'); // (UTF-16le)
                 else
                   expect(rs2.rows.item(0).myResult).toBe('410B31');
@@ -418,7 +424,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'string form feed test (inline vs argument parameter value)', function(done) {
+        it(suiteName + 'string form feed test (inline vs argument parameter value) [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
 
           var db = openDatabase('String-form-feed-test.db');
@@ -439,7 +445,7 @@ var mytests = function() {
                 expect(rs2).toBeDefined();
                 expect(rs2.rows).toBeDefined();
                 expect(rs2.rows.length).toBe(1);
-                if (isWindows)
+                if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
                   expect(rs2.rows.item(0).myResult).toBe('41000C003100'); // (UTF-16le)
                 else
                   expect(rs2.rows.item(0).myResult).toBe('410C31');
@@ -458,7 +464,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'string backspace test (inline vs argument parameter value)', function(done) {
+        it(suiteName + 'string backspace test (inline vs argument parameter value) [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
 
           var db = openDatabase('String-backspace-test.db');
@@ -479,7 +485,7 @@ var mytests = function() {
                 expect(rs2).toBeDefined();
                 expect(rs2.rows).toBeDefined();
                 expect(rs2.rows.length).toBe(1);
-                if (isWindows)
+                if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
                   expect(rs2.rows.item(0).myResult).toBe('410008003100'); // (UTF-16le)
                 else
                   expect(rs2.rows.item(0).myResult).toBe('410831');
@@ -499,9 +505,8 @@ var mytests = function() {
 
       });
 
-      describe(suiteName + 'UTF-8 multiple octet character string binding/manipulation tests [default sqlite encoding: UTF-16le on Windows, UTF-8 encoding on others]', function() {
-
-        it(suiteName + 'string HEX parameter value test with UTF-8 2-octet character é', function(done) {
+      describe(suiteName + 'UTF-8 multiple octet character string binding/manipulation tests', function() {
+        it(suiteName + 'string HEX parameter value test with UTF-8 2-octet character é [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           var db = openDatabase("UTF8-2-octet-hex-value-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -510,7 +515,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWindows)
+                if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
                 expect(rs.rows.item(0).myresult).toBe('3100E900'); // (UTF-16le)
               else
                 expect(rs.rows.item(0).myresult).toBe('31C3A9'); // (UTF-8)
@@ -536,7 +541,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isAndroid && (isWebSql || (isImpl2 && /Android [5-9]/.test(navigator.userAgent))))
+              if (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent))))
                 expect(rs.rows.item(0).myresult).toBe('AÉ');
               else
                 expect(rs.rows.item(0).myresult).toBe('Aé');
@@ -553,7 +558,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'string HEX parameter value test with UTF-8 3-octet character €', function(done) {
+        it(suiteName + 'string HEX parameter value test with UTF-8 3-octet character € [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           if (isWP8) pending('SKIP for WP(8)');
 
           var db = openDatabase("UTF8-3-octet-hex-value-test.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -564,7 +569,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWindows)
+              if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
                 expect(rs.rows.item(0).myresult).toBe('3100AC20'); // (UTF-16le)
               else
                 expect(rs.rows.item(0).myresult).toBe('31E282AC'); // (UTF-8)
@@ -645,7 +650,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'Inline emoji HEX test: SELECT HEX("@\\uD83D\\uDE03!") [\\u1F603 SMILING FACE (MOUTH OPEN)] [HEX encoding BUG on Android-sqlite-connector]', function(done) {
+        it(suiteName + 'Inline emoji HEX test: SELECT HEX("@\\uD83D\\uDE03!") [\\u1F603 SMILING FACE (MOUTH OPEN)] [XXX TBD HEX encoding BUG IGNORED on default Android-sqlite-connector for Android versions XXX; default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           var db = openDatabase('Inline-emoji-hex-test-2.db');
           expect(db).toBeDefined();
 
@@ -657,10 +662,11 @@ var mytests = function() {
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
 
-              // STOP HERE [HEX encoding BUG] for Android-sqlite-connector:
+              // XXX TBD STOP HERE [HEX encoding BUG IGNORED] on
+              // Android-sqlite-connector for Android versions XXX:
               if (!isWebSql && !isWindows && isAndroid && !isImpl2) return done();
 
-              if (isWindows)
+              if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
                 expect(rs.rows.item(0).hexvalue).toBe('40003DD803DE2100'); // (UTF-16le)
               else
                 expect(rs.rows.item(0).hexvalue).toBe('40F09F988321'); // (UTF-8)
@@ -679,7 +685,8 @@ var mytests = function() {
 
         it(suiteName + "Inline BLOB with emoji string manipulation test: SELECT LOWER(X'41F09F9883') [A\uD83D\uDE03] [\\u1F603 SMILING FACE (MOUTH OPEN)]", function(done) {
           if (isWP8) pending('BROKEN for WP8');
-          if (!isWebSql && !isWindows && isAndroid && !isImpl2) pending('BROKEN: CRASH on Android 5.x (default sqlite-connector version)');
+          if (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)) pending('SKIP for Android 4.1-4.3 (WebKit) Web SQL'); // TBD ???
+          if (!isWebSql && !isWindows && isAndroid && !isImpl2) pending('XXX CRASH on Android 5.x (default sqlite-connector implementation)');
           if (isWindows) pending('SKIP for Windows'); // FUTURE TBD
 
           var db = openDatabase("Inline-emoji-select-lower-result-test.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -706,9 +713,9 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'emoji SELECT HEX(?) parameter value test: "@\\uD83D\\uDE03!" [\\u1F603 SMILING FACE (MOUTH OPEN)]', function(done) {
+        it(suiteName + 'emoji SELECT HEX(?) parameter value test: "@\\uD83D\\uDE03!" [\\u1F603 SMILING FACE (MOUTH OPEN)] [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           if (isWP8) pending('BROKEN for WP8');
-          if (isAndroid && !isWebSql && !isImpl2) pending('BROKEN for Android (default sqlite-connector version)');
+          if (isAndroid && !isWebSql && !isImpl2) pending('XXX ENCODING BUG on Android (default sqlite-connector version)');
 
           var db = openDatabase("String-emoji-parameter-value-test.db", "1.0", "Demo", DEFAULT_SIZE);
           expect(db).toBeDefined();
@@ -720,7 +727,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWindows)
+              if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
                 expect(rs.rows.item(0).hexvalue).toBe('40003DD803DE2100'); // (UTF-16le)
               else
                 expect(rs.rows.item(0).hexvalue).toBe('40F09F988321'); // (UTF-8)
@@ -775,7 +782,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'HEX value of string with UNICODE \\u2028 line separator', function(done) {
+        it(suiteName + 'HEX value of string with UNICODE \\u2028 line separator [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           // NOTE: this test verifies that the UNICODE line separator (\u2028)
           // is seen by the sqlite implementation OK:
           var db = openDatabase("UNICODE-line-separator-hex-value-test.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -786,7 +793,7 @@ var mytests = function() {
             expect(tx).toBeDefined();
 
             tx.executeSql('SELECT HEX(?) AS myresult', ['1\u2028'], function (tx_ignored, rs) {
-              if (isWindows)
+              if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
                 expect(rs.rows.item(0).myresult).toBe('31002820'); // (UTF-16le)
               else
                 expect(rs.rows.item(0).myresult).toBe('31E280A8'); // (UTF-8)
@@ -872,7 +879,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'HEX value of string with UNICODE \\u2029 paragraph separator', function(done) {
+        it(suiteName + 'HEX value of string with UNICODE \\u2029 paragraph separator [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           // NOTE: this test verifies that the UNICODE paragraph separator (\u2029)
           // is seen by the sqlite implementation OK:
           var db = openDatabase("UNICODE-paragraph-separator-hex-value-test.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -883,7 +890,7 @@ var mytests = function() {
             expect(tx).toBeDefined();
 
             tx.executeSql('SELECT HEX(?) AS myresult', ['1\u2029'], function (tx_ignored, rs) {
-              if (isWindows)
+              if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
                 expect(rs.rows.item(0).myresult).toBe('31002920'); // (UTF-16le)
               else
                 expect(rs.rows.item(0).myresult).toBe('31E280A9'); // (UTF-8)
@@ -942,7 +949,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isAndroid && (isWebSql || (isImpl2 && /Android [5-9]/.test(navigator.userAgent))))
+              if (isAndroid && ((isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent))))
                 expect(rs.rows.item(0).upper_result).toBe('TEST ¢ É €');
               else
                 expect(rs.rows.item(0).upper_result).toBe('TEST ¢ é €');
@@ -970,7 +977,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isAndroid && (isWebSql || (isImpl2 && /Android [5-9]/.test(navigator.userAgent))))
+              if (isAndroid && ((isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent))))
                 expect(rs.rows.item(0).upper_result).toBe('TEST ¢ É €');
               else
                 expect(rs.rows.item(0).upper_result).toBe('TEST ¢ é €');

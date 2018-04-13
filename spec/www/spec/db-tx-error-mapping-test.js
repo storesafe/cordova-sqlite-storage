@@ -112,13 +112,13 @@ var mytests = function() {
               else
                 expect(error.code).toBe(5);
 
-              if (isWebSql)
+              if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
                 expect(error.message).toMatch(/could not prepare statement.*1 near \"SLCT\": syntax error/);
               else if (isWindows)
                 expect(error.message).toMatch(/Error preparing an SQLite statement/);
-              else if (isAndroid && !isImpl2)
+              else if (!isWebSql && !isWindows && isAndroid && !isImpl2)
                 expect(error.message).toMatch(/sqlite3_prepare_v2 failure:.*near \"SLCT\": syntax error/);
-              else if (isAndroid && isImpl2)
+              else if (!isWebSql && !isWindows && isAndroid && isImpl2)
                 expect(error.message).toMatch(/near \"SLCT\": syntax error.*code 1.*while compiling: SLCT 1/);
               else
                 expect(error.message).toMatch(/near \"SLCT\": syntax error/);
@@ -192,8 +192,10 @@ var mytests = function() {
               else
                 expect(error.code).toBe(5);
 
-              if (isWebSql)
+              if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
                 expect(error.message).toMatch(/could not prepare statement.*1 near \"VALUES\": syntax error/);
+              else if (isWebSql)
+                expect(error.message).toMatch(/near \"VALUES\": syntax error/);
               else if (isWindows)
                 expect(error.message).toMatch(/Error preparing an SQLite statement/);
               //* else if (isAndroid && !isImpl2) //* XXX TBD Android (default implementation) vs ...
@@ -274,18 +276,20 @@ var mytests = function() {
               if (!isWebSql || isWindows || (isAndroid && (/Android 4/.test(navigator.userAgent))))
                 expect(error.hasOwnProperty('message')).toBe(true);
 
-              if (isWebSql && !isAndroid)
-                expect(true).toBe(true); // SKIP for iOS (WebKit) Web SQL
+              if (isWebSql && (!isAndroid || /Android 4.[1-3]/.test(navigator.userAgent)))
+                expect(true).toBe(true); // SKIP for iOS (WebKit) & Android 4.1-4.3 (WebKit) Web SQL
               else if (isWindows)
                 expect(error.code).toBe(0);
               else
                 expect(error.code).toBe(6);
 
               // (WebKit) Web SQL (Android/iOS) possibly with a missing 'r'
-              if (isWebSql && isAndroid)
+              if (isWebSql && /Android 4.[1-3]/.test(navigator.userAgent))
+                expect(error.message).toMatch(/column data is not unique/);
+              else if (isWebSql && isAndroid)
                 expect(error.message).toMatch(/could not execute statement due to a constr?aint failure.*19.*constraint failed/);
               else if (isWebSql)
-                expect(error.message).toMatch(/constr?aint fail/);
+                expect(error.message).toMatch(/constr?aint fail/); // [possibly missing letter on iOS (WebKit) Web SQL]
               else if (isWindows)
                 expect(error.message).toMatch(/SQLite3 step error result code: 1/);
               else if (isAndroid && !isImpl2)
@@ -362,13 +366,13 @@ var mytests = function() {
                 expect(error.code).toBe(5);
 
               // ACTUAL WebKit Web SQL vs plugin error.message
-              if (isWebSql)
+              if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
                 expect(error.message).toMatch(/could not prepare statement.*1 no such function: uper/);
               else if (isWindows)
                 expect(error.message).toMatch(/Error preparing an SQLite statement/);
-              else if (isAndroid && !isImpl2)
+              else if (!isWebSql && !isWindows && isAndroid && !isImpl2)
                 expect(error.message).toMatch(/sqlite3_prepare_v2 failure:.*no such function: uper/);
-              else if (isAndroid && isImpl2)
+              else if (!isWebSql && !isWindows && isAndroid && isImpl2)
                 expect(error.message).toMatch(/no such function: uper.*code 1/);
               else
                 expect(error.message).toMatch(/no such function: uper/);
@@ -440,13 +444,13 @@ var mytests = function() {
               else
                 expect(error.code).toBe(5);
 
-              if (isWebSql)
+              if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
                 expect(error.message).toMatch(/could not prepare statement.*1 no such table: BogusTable/);
               else if (isWindows)
                 expect(error.message).toMatch(/Error preparing an SQLite statement/);
-              else if (isAndroid && !isImpl2)
+              else if (!isWebSql && !isWindows && isAndroid && !isImpl2)
                 expect(error.message).toMatch(/sqlite3_prepare_v2 failure:.*no such table: BogusTable/);
-              else if (isAndroid && isImpl2)
+              else if (!isWebSql && !isWindows && isAndroid && isImpl2)
                 expect(error.message).toMatch(/no such table: BogusTable.*code 1/);
               else
                 expect(error.message).toMatch(/no such table: BogusTable/);
@@ -518,13 +522,13 @@ var mytests = function() {
               else
                 expect(error.code).toBe(5);
 
-              if (isWebSql)
+              if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
                 expect(error.message).toMatch(/could not prepare statement.*1 table test_table has 2 columns but 1 values were supplied/);
               else if (isWindows)
                 expect(error.message).toMatch(/Error preparing an SQLite statement/);
-              else if (isAndroid && !isImpl2)
+              else if (!isWebSql && !isWindows && isAndroid && !isImpl2)
                 expect(error.message).toMatch(/sqlite3_prepare_v2 failure:.*table test_table has 2 columns but 1 values were supplied/);
-              else if (isAndroid && isImpl2)
+              else if (!isWebSql && !isWindows && isAndroid && isImpl2)
                 expect(error.message).toMatch(/table test_table has 2 columns but 1 values were supplied.*code 1.*while compiling: INSERT INTO test_table/);
               else
                 expect(error.message).toMatch(/table test_table has 2 columns but 1 values were supplied/);
@@ -597,13 +601,13 @@ var mytests = function() {
               else
                 expect(error.code).toBe(5);
 
-              if (isWebSql)
+              if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
                 expect(error.message).toMatch(/could not prepare statement.*1 table test_table has no column named wrong_column/);
               else if (isWindows)
                 expect(error.message).toMatch(/Error preparing an SQLite statement/);
-              else if (isAndroid && !isImpl2)
+              else if (!isWebSql && !isWindows && isAndroid && !isImpl2)
                 expect(error.message).toMatch(/sqlite3_prepare_v2 failure:.*table test_table has no column named wrong_column/);
-              else if (isAndroid && isImpl2)
+              else if (!isWebSql && !isWindows && isAndroid && isImpl2)
                 expect(error.message).toMatch(/table test_table has no column named wrong_column.*code 1.*while compiling: INSERT INTO test_table/);
               else
                 expect(error.message).toMatch(/table test_table has no column named wrong_column/);
@@ -678,9 +682,11 @@ var mytests = function() {
               else
                 expect(error.code).toBe(5);
 
-              if (isWebSql && isAndroid)
+              if (isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent)))
                 expect(error.message).toMatch(/could not prepare statement.*not authorized/);
-              else if (isWebSql) // (iOS)
+              else if (isWebSql && isAndroid)
+                expect(error.message).toMatch(/not authorized/);
+              else if (isWebSql) // [iOS (WebKit) Web SQL]
                 expect(error.message).toMatch(/could not prepare statement.*1 not authorized/);
               else if (isWindows)
                 expect(error.message).toMatch(/SQLite3 step error result code: 1/);
@@ -749,16 +755,18 @@ var mytests = function() {
             else
               expect(error.code).toBe(5);
 
-            if (isWebSql)
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(error.message).toMatch(/could not prepare statement.*1 near \"SLCT\": syntax error/);
             else if (isWindows)
               expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);
-            else if (isAndroid && !isImpl2)
+            else if (!isWebSql && !isWindows && isAndroid && !isImpl2)
               expect(error.message).toMatch(/sqlite3_prepare_v2 failure:.*near \"SLCT\": syntax error/);
-            else if (isAndroid && isImpl2)
+            else if (!isWebSql && !isWindows && isAndroid && isImpl2)
               expect(error.message).toMatch(/a statement with no error handler failed: near \"SLCT\": syntax error.*code 1.*while compiling: SLCT 1/);
-            else
+            else if (!isWebSql) // [iOS/macOS plugin]
               expect(error.message).toMatch(/a statement with no error handler failed.*near \"SLCT\": syntax error/);
+            else
+              expect(error.message).toMatch(/near \"SLCT\": syntax error/);
 
             isWebSql ? done() : db.close(done, done);
           }, function() {
@@ -791,15 +799,17 @@ var mytests = function() {
             if (!isWebSql || isWindows || (isAndroid && (/Android 4/.test(navigator.userAgent))))
               expect(error.hasOwnProperty('message')).toBe(true);
 
-            if (isWebSql && !isAndroid)
-              expect(true).toBe(true); // SKIP for iOS (WebKit) Web SQL
+            if (isWebSql && (!isAndroid || /Android 4.[1-3]/.test(navigator.userAgent)))
+              expect(true).toBe(true); // SKIP for iOS (WebKit) & Android 4.1-4.3 (WebKit) Web SQL
             else if (isWindows)
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(6);
 
             // (WebKit) Web SQL (Android/iOS) possibly with a missing 'r'
-            if (isWebSql && isAndroid)
+            if (isWebSql && /Android 4.[1-3]/.test(navigator.userAgent))
+              expect(error.message).toMatch(/column data is not unique/);
+            else if (isWebSql && isAndroid)
               expect(error.message).toMatch(/could not execute statement due to a constr?aint failure.*19.*constraint failed/);
             else if (isWebSql)
               expect(error.message).toMatch(/constr?aint fail/);

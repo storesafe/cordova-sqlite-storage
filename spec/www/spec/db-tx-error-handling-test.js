@@ -625,7 +625,7 @@ var mytests = function() {
             expect(ex).toBeDefined();
 
             // TBD WebKit Web SQL vs plugin according to spec?
-            if (isWebSql)
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(ex.code).not.toBeDefined();
             else
               expect(ex.code).toBeDefined();
@@ -675,7 +675,7 @@ var mytests = function() {
             expect(ex).toBeDefined();
 
             // TBD WebKit Web SQL vs plugin according to spec?
-            if (isWebSql)
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(ex.code).not.toBeDefined();
             else
               expect(ex.code).toBeDefined();
@@ -725,7 +725,7 @@ var mytests = function() {
             expect(ex).toBeDefined();
 
             // TBD WebKit Web SQL vs plugin according to spec?
-            if (isWebSql)
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(ex.code).not.toBeDefined();
             else
               expect(ex.code).toBeDefined();
@@ -775,7 +775,7 @@ var mytests = function() {
             expect(ex).toBeDefined();
 
             // TBD WebKit Web SQL vs plugin according to spec?
-            if (isWebSql)
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(ex.code).not.toBeDefined();
             else
               expect(ex.code).toBeDefined();
@@ -825,7 +825,7 @@ var mytests = function() {
             expect(ex).toBeDefined();
 
             // TBD WebKit Web SQL vs plugin according to spec?
-            if (isWebSql)
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(ex.code).not.toBeDefined();
             else
               expect(ex.code).toBeDefined();
@@ -875,7 +875,7 @@ var mytests = function() {
             expect(ex).toBeDefined();
 
             // TBD WebKit Web SQL vs plugin according to spec?
-            if (isWebSql)
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(ex.code).not.toBeDefined();
             else
               expect(ex.code).toBeDefined();
@@ -925,7 +925,7 @@ var mytests = function() {
             expect(ex).toBeDefined();
 
             // TBD WebKit Web SQL vs plugin according to spec?
-            if (isWebSql)
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(ex.code).not.toBeDefined();
             else
               expect(ex.code).toBeDefined();
@@ -975,7 +975,7 @@ var mytests = function() {
             expect(ex).toBeDefined();
 
             // TBD WebKit Web SQL vs plugin according to spec?
-            if (isWebSql)
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(ex.code).not.toBeDefined();
             else
               expect(ex.code).toBeDefined();
@@ -1025,7 +1025,7 @@ var mytests = function() {
             expect(ex).toBeDefined();
 
             // TBD WebKit Web SQL vs plugin according to spec?
-            if (isWebSql)
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(ex.code).not.toBeDefined();
             else
               expect(ex.code).toBeDefined();
@@ -1075,7 +1075,7 @@ var mytests = function() {
             expect(ex).toBeDefined();
 
             // TBD WebKit Web SQL vs plugin according to spec?
-            if (isWebSql)
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(ex.code).not.toBeDefined();
             else
               expect(ex.code).toBeDefined();
@@ -1125,7 +1125,7 @@ var mytests = function() {
             expect(ex).toBeDefined();
 
             // TBD WebKit Web SQL vs plugin according to spec?
-            if (isWebSql)
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(ex.code).not.toBeDefined();
             else
               expect(ex.code).toBeDefined();
@@ -1175,7 +1175,7 @@ var mytests = function() {
             expect(ex).toBeDefined();
 
             // TBD WebKit Web SQL vs plugin according to spec?
-            if (isWebSql)
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(ex.code).not.toBeDefined();
             else
               expect(ex.code).toBeDefined();
@@ -1227,7 +1227,11 @@ var mytests = function() {
             if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('');
             expect(ex).toBeDefined();
 
-            expect(ex.code).not.toBeDefined();
+            // TBD WebKit Web SQL vs plugin according to spec?
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
+              expect(ex.code).not.toBeDefined();
+            else
+              expect(ex.code).toBeDefined();
             expect(ex.message).toBeDefined();
 
             if (isAndroid)
@@ -1272,7 +1276,7 @@ var mytests = function() {
             expect(ex).toBeDefined();
 
             // TBD WebKit Web SQL vs plugin according to spec?
-            if (isWebSql)
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(ex.code).not.toBeDefined();
             else
               expect(ex.code).toBeDefined();
@@ -1319,7 +1323,11 @@ var mytests = function() {
             if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('');
             expect(ex).toBeDefined();
 
-            expect(ex.code).not.toBeDefined();
+            // TBD WebKit Web SQL vs plugin according to spec?
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
+              expect(ex.code).not.toBeDefined();
+            else
+              expect(ex.code).toBeDefined();
             expect(ex.message).toBeDefined();
 
             if (isAndroid)
@@ -1363,7 +1371,11 @@ var mytests = function() {
             if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('');
             expect(ex).toBeDefined();
 
-            expect(ex.code).not.toBeDefined();
+            // TBD WebKit Web SQL vs plugin according to spec?
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
+              expect(ex.code).not.toBeDefined();
+            else
+              expect(ex.code).toBeDefined();
             expect(ex.message).toBeDefined();
 
             if (isAndroid)
@@ -1407,7 +1419,11 @@ var mytests = function() {
             if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('');
             expect(ex).toBeDefined();
 
-            expect(ex.code).not.toBeDefined();
+            // TBD WebKit Web SQL vs plugin according to spec?
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
+              expect(ex.code).not.toBeDefined();
+            else
+              expect(ex.code).toBeDefined();
             expect(ex.message).toBeDefined();
 
             if (isAndroid)
@@ -1451,7 +1467,11 @@ var mytests = function() {
             if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('');
             expect(ex).toBeDefined();
 
-            expect(ex.code).not.toBeDefined();
+            // TBD WebKit Web SQL vs plugin according to spec?
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
+              expect(ex.code).not.toBeDefined();
+            else
+              expect(ex.code).toBeDefined();
             expect(ex.message).toBeDefined();
 
             if (isAndroid)
@@ -1495,7 +1515,11 @@ var mytests = function() {
             if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('');
             expect(ex).toBeDefined();
 
-            expect(ex.code).not.toBeDefined();
+            // TBD WebKit Web SQL vs plugin according to spec?
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
+              expect(ex.code).not.toBeDefined();
+            else
+              expect(ex.code).toBeDefined();
             expect(ex.message).toBeDefined();
 
             if (isAndroid)
@@ -1539,7 +1563,11 @@ var mytests = function() {
             if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('');
             expect(ex).toBeDefined();
 
-            expect(ex.code).not.toBeDefined();
+            // TBD WebKit Web SQL vs plugin according to spec?
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
+              expect(ex.code).not.toBeDefined();
+            else
+              expect(ex.code).toBeDefined();
             expect(ex.message).toBeDefined();
 
             if (isAndroid)
@@ -1737,8 +1765,10 @@ var mytests = function() {
               expect(error.message).toMatch(/a statement with no error handler failed: query not found/);
             else if (!isWebSql)
               expect(error.message).toMatch(/a statement with no error handler failed:.*not an error/);
-            else
+            else if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(error.message).toMatch(/could not execute statement \(0 not an error\)/);
+            else
+              expect(error.message).toMatch(/not an error/);
 
             // VERIFY we can still continue:
             var gotStringLength = false; // poor man's spy
@@ -1801,8 +1831,10 @@ var mytests = function() {
               expect(error.message).toMatch(/a statement with no error handler failed: query not found/);
             else if (!isWebSql)
               expect(error.message).toMatch(/a statement with no error handler failed:.*not an error/);
-            else
+            else if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(error.message).toMatch(/could not execute statement \(0 not an error\)/);
+            else
+              expect(error.message).toMatch(/not an error/);
 
             // VERIFY we can still continue:
             var gotStringLength = false; // poor man's spy
@@ -1865,8 +1897,10 @@ var mytests = function() {
               expect(error.message).toMatch(/a statement with no error handler failed: query not found/);
             else if (!isWebSql)
               expect(error.message).toMatch(/a statement with no error handler failed:.*not an error/);
-            else
+            else if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(error.message).toMatch(/could not execute statement \(0 not an error\)/);
+            else
+              expect(error.message).toMatch(/not an error/);
 
             // VERIFY we can still continue:
             var gotStringLength = false; // poor man's spy
@@ -1930,8 +1964,10 @@ var mytests = function() {
               expect(error.message).toMatch(/a statement with no error handler failed: query not found/);
             else if (!isWebSql)
               expect(error.message).toMatch(/a statement with no error handler failed:.*not an error/);
-            else
+            else if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(error.message).toMatch(/could not execute statement \(0 not an error\)/);
+            else
+              expect(error.message).toMatch(/not an error/);
 
             // VERIFY we can still continue:
             var gotStringLength = false; // poor man's spy
@@ -1993,8 +2029,10 @@ var mytests = function() {
               expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);
             else if (!isWebSql)
               expect(error.message).toMatch(/a statement with no error handler failed:.*near \"\[object Object\]\": syntax error/);
-            else
+            else if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(error.message).toMatch(/could not prepare statement \(1 near \"\[object Object\]\": syntax error\)/);
+            else
+              expect(error.message).toMatch(/near \"\[object Object\]\": syntax error/);
 
             // VERIFY we can still continue:
             var gotStringLength = false; // poor man's spy
@@ -2059,8 +2097,10 @@ var mytests = function() {
               expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);
             else if (!isWebSql)
               expect(error.message).toMatch(/a statement with no error handler failed:.*near \"\[object Object\]\": syntax error/);
-            else
+            else if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(error.message).toMatch(/could not prepare statement \(1 near \"\[object Object\]\": syntax error\)/);
+            else
+              expect(error.message).toMatch(/near \"\[object Object\]\": syntax error/);
 
             // VERIFY we can still continue:
             var gotStringLength = false; // poor man's spy
@@ -2125,8 +2165,10 @@ var mytests = function() {
               expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);
             else if (!isWebSql)
               expect(error.message).toMatch(/a statement with no error handler failed:.*near \"first\": syntax error/);
-            else
+            else if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(error.message).toMatch(/could not prepare statement \(1 near \"first\": syntax error\)/);
+            else
+              expect(error.message).toMatch(/near \"first\": syntax error/);
 
             // VERIFY we can still continue:
             var gotStringLength = false; // poor man's spy
@@ -2187,8 +2229,10 @@ var mytests = function() {
               expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);
             else if (!isWebSql)
               expect(error.message).toMatch(/a statement with no error handler failed:.*near \"101\": syntax error/);
-            else
+            else if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(error.message).toMatch(/could not prepare statement \(1 near \"101\": syntax error\)/);
+            else
+              expect(error.message).toMatch(/near \"101\": syntax error/);
 
             // VERIFY we can still continue:
             var gotStringLength = false; // poor man's spy
@@ -2250,8 +2294,10 @@ var mytests = function() {
               expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);
             else if (!isWebSql)
               expect(error.message).toMatch(/a statement with no error handler failed:.*near \"0\": syntax error/);
-            else
+            else if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(error.message).toMatch(/could not prepare statement \(1 near \"0\": syntax error\)/);
+            else
+              expect(error.message).toMatch(/near \"0\": syntax error/);
 
             // VERIFY we can still continue:
             var gotStringLength = false; // poor man's spy
@@ -2308,8 +2354,10 @@ var mytests = function() {
             else
               expect(error.code).toBe(5);
 
-            if (isWebSql)
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(error.message).toMatch(/could not prepare statement \(1 near \"undefined\": syntax error\)/);
+            else if (isWebSql)
+              expect(error.message).toMatch(/near \"undefined\": syntax error/);
             else if (isWindows)
               expect(error.message).toMatch(/Unable to get property 'toString' of undefined or null reference/);
             else if (isAndroid)
@@ -2371,8 +2419,10 @@ var mytests = function() {
             else
               expect(error.code).toBe(5);
 
-            if (isWebSql)
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(error.message).toMatch(/could not prepare statement \(1 near \"null\": syntax error\)/);
+            else if (isWebSql)
+              expect(error.message).toMatch(/near \"null\": syntax error/);
             else if (isWindows)
               expect(error.message).toMatch(/Unable to get property 'toString' of undefined or null reference/);
             else if (isAndroid)
@@ -2439,8 +2489,10 @@ var mytests = function() {
               expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);
             else if (!isWebSql)
               expect(error.message).toMatch(/a statement with no error handler failed:.*near \"true\": syntax error/);
-            else
+            else if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(error.message).toMatch(/could not prepare statement \(1 near \"true\": syntax error\)/);
+            else
+              expect(error.message).toMatch(/near \"true\": syntax error/);
 
             // Verify we can still continue:
             var gotStringLength = false; // poor man's spy
@@ -2501,8 +2553,10 @@ var mytests = function() {
               expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);
             else if (!isWebSql)
               expect(error.message).toMatch(/a statement with no error handler failed:.*near \"false\": syntax error/);
-            else
+            else if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(error.message).toMatch(/could not prepare statement \(1 near \"false\": syntax error\)/);
+            else
+              expect(error.message).toMatch(/near \"false\": syntax error/);
 
             // Verify we can still continue:
             var gotStringLength = false; // poor man's spy
@@ -2563,8 +2617,10 @@ var mytests = function() {
               expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);
             else if (!isWebSql)
               expect(error.message).toMatch(/a statement with no error handler failed:.*near \"Infinity\": syntax error/);
-            else
+            else if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(error.message).toMatch(/could not prepare statement \(1 near \"Infinity\": syntax error\)/);
+            else
+              expect(error.message).toMatch(/near \"Infinity\": syntax error/);
 
             // Verify we can still continue:
             var gotStringLength = false; // poor man's spy
@@ -2624,8 +2680,10 @@ var mytests = function() {
               expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);
             else if (!isWebSql)
               expect(error.message).toMatch(/a statement with no error handler failed:.*near \"-\": syntax error/);
-            else
+            else if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(error.message).toMatch(/could not prepare statement \(1 near \"-\": syntax error\)/);
+            else
+              expect(error.message).toMatch(/near \"-\": syntax error/);
 
             // Verify we can still continue:
             var gotStringLength = false; // poor man's spy
@@ -2685,8 +2743,10 @@ var mytests = function() {
               expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);
             else if (!isWebSql)
               expect(error.message).toMatch(/a statement with no error handler failed:.*near \"NaN\": syntax error/);
-            else
+            else if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(error.message).toMatch(/could not prepare statement \(1 near \"NaN\": syntax error\)/);
+            else
+              expect(error.message).toMatch(/near \"NaN\": syntax error/);
 
             // Verify we can still continue:
             var gotStringLength = false; // poor man's spy
@@ -2746,8 +2806,10 @@ var mytests = function() {
               expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);
             else if (!isWebSql)
               expect(error.message).toMatch(/a statement with no error handler failed:.*near \"NaN\": syntax error/);
-            else
+            else if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(error.message).toMatch(/could not prepare statement \(1 near \"NaN\": syntax error\)/);
+            else
+              expect(error.message).toMatch(/near \"NaN\": syntax error/);
 
             // Verify we can still continue:
             var gotStringLength = false; // poor man's spy
@@ -2802,8 +2864,10 @@ var mytests = function() {
             else
               expect(error.code).toBe(5);
 
-            if (isWebSql)
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(error.message).toMatch(/could not prepare statement \(1 near \"undefined\": syntax error\)/);
+            else if (isWebSql)
+              expect(error.message).toMatch(/near \"undefined\": syntax error/);
             else if (isWindows)
               expect(error.message).toMatch(/Unable to get property 'toString' of undefined or null reference/);
             else if (isAndroid)

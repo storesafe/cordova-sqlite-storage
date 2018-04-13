@@ -656,8 +656,10 @@ var mytests = function() {
 
             expect(error.code).toBe(5); // (SQLError.SYNTAX_ERR)
 
-            // WebKit Web SQL error message (apparenly with SQLite error code)
-            if (isWebSql)
+            // WebKit Web SQL error message
+            // (with SQLite error code on iOS & Android post-4.3)
+            expect(error.message).toMatch(/not an error/);
+            if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
               expect(error.message).toMatch(/could not prepare statement.*1 not an error/);
 
             // Close (plugin only) & finish:
@@ -722,8 +724,10 @@ var mytests = function() {
 
               expect(error.code).toBe(5); // (SQLError.SYNTAX_ERR)
 
-              // WebKit Web SQL error message (apparenly with SQLite error code)
-              if (isWebSql)
+              // WebKit Web SQL error message
+              // (with SQLite error code on iOS & Android post-4.3)
+              expect(error.message).toMatch(/not an error/);
+              if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
                 expect(error.message).toMatch(/could not prepare statement.*1 not an error/);
 
               // Close (plugin only), return false, and finish:
@@ -828,7 +832,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'INSERT with TRIGGER & check results [rowsAffected INCORRECT with androidDatabaseImplementation: 2 (built-in android.database) setting]', function(done) {
+        it(suiteName + 'INSERT with TRIGGER & check results [rowsAffected INCORRECT with Android 4.1-4.3 (WebKit) Web SQL & androidDatabaseImplementation: 2 (built-in android.database) setting]', function(done) {
           if (isWP8) pending('SKIP (NOT SUPPORTED) for WP8'); // NOT SUPPORTED for WP8
 
           var db = openDatabase('INSERT-with-TRIGGER-test.db', '1.0', 'Test', DEFAULT_SIZE);
@@ -855,9 +859,11 @@ var mytests = function() {
               expect(rs1.insertId).toBe(1);
               // [INCORRECT rowsAffected with androidDatabaseImplementation: 2 (built-in android.database) setting]
               if (!(isAndroid && isImpl2))
-                expect(rs1.rowsAffected).toBe(2);
-              else
+              if (isWebSql && /Android 4.[1-3]/.test(navigator.userAgent) ||
+                  (isAndroid && isImpl2))
                 expect(rs1.rowsAffected).toBe(1);
+              else
+                expect(rs1.rowsAffected).toBe(2);
 
               tx.executeSql('SELECT COUNT(*) AS count1 FROM tt1', [], function(ignored, rs2) {
                 // EXPECTED: CORRECT RESULT:
