@@ -178,6 +178,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db transaction result object lifetime', function(done) {
+          if (isWebSql && /Android 5.1/.test(navigator.userAgent)) pending('SKIP on (WebKit) Web SQL on Android 5.1'); // XXX TBD INCONSISTENT RESULT on (WebKit) Web SQL on Android 5.1(.1) x86 emulator vs Samsung test device
+
           var db = openDatabase('db-tx-result-lifetime-test.db', '1.0', 'Test', DEFAULT_SIZE);
 
           expect(db).toBeDefined();

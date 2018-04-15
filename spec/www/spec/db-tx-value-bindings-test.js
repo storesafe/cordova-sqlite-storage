@@ -1319,6 +1319,7 @@ var mytests = function() {
 
         it(suiteName + ' returns [Unicode] string with \\u0000 (same as \\0) correctly [TRUNCATION BUG on iOS (WebKit) Web SQL, older versions of Android (WebKit) Web SQL, and Windows plugin]', function (done) {
           if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
+          if (isWebSql && /Android 5.1/.test(navigator.userAgent)) pending('SKIP on (WebKit) Web SQL on Android 5.1'); // XXX TBD INCONSISTENT RESULT on (WebKit) Web SQL on Android 5.1(.1) x86 emulator vs Samsung test device
 
           var db = openDatabase('UNICODE-retrieve-u0000-test.db');
 

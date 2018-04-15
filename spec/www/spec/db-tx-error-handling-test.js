@@ -2905,6 +2905,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'transaction.executeSql with no SQL statement in a try-catch block (BOGUS)', function (done) {
+          if (isWebSql && /Android 5.1/.test(navigator.userAgent)) pending('SKIP on (WebKit) Web SQL on Android 5.1'); // XXX TBD INCONSISTENT RESULT on (WebKit) Web SQL on Android 5.1(.1) x86 emulator vs Samsung test device
+
           var db = openDatabase("tx-with-missing-sql-statement-try-catch.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(transaction) {
@@ -2988,6 +2990,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'readTransaction.executeSql with no SQL statement in a try-catch block (BOGUS)', function (done) {
+          if (isWebSql && /Android 5.1/.test(navigator.userAgent)) pending('SKIP on (WebKit) Web SQL on Android 5.1'); // XXX TBD INCONSISTENT RESULT on (WebKit) Web SQL on Android 5.1(.1) x86 emulator vs Samsung test device
+
           var db = openDatabase("read-tx-with-missing-sql-statement-try-catch.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.readTransaction(function(readTransaction) {
@@ -3071,6 +3075,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'Inline US-ASCII String manipulation test with arguments array="string-value" (BOGUS) in a try-catch block', function(done) {
+          if (isWebSql && /Android 5.1/.test(navigator.userAgent)) pending('SKIP on (WebKit) Web SQL on Android 5.1'); // XXX TBD INCONSISTENT RESULT on (WebKit) Web SQL on Android 5.1(.1) x86 emulator vs Samsung test device
+
           var db = openDatabase("Inline-US-ASCII-string-test-with-arguments-array-equals-string-value.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -3118,6 +3124,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'Inline US-ASCII String manipulation test with arguments array="string-value" (BOGUS) in a try-catch block read tx', function(done) {
+          if (isWebSql && /Android 5.1/.test(navigator.userAgent)) pending('SKIP on (WebKit) Web SQL on Android 5.1'); // XXX TBD INCONSISTENT RESULT on (WebKit) Web SQL on Android 5.1(.1) x86 emulator vs Samsung test device
+
           var db = openDatabase("Inline-US-ASCII-string-test-with-arguments-array-equals-string-value-read-tx.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.readTransaction(function(tx) {
@@ -3165,6 +3173,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'Inline US-ASCII String manipulation test with arguments array=false (BOGUS) in a try-catch block', function(done) {
+          if (isWebSql && /Android 5.1/.test(navigator.userAgent)) pending('SKIP on (WebKit) Web SQL on Android 5.1'); // XXX TBD INCONSISTENT RESULT on (WebKit) Web SQL on Android 5.1(.1) x86 emulator vs Samsung test device
+
           var db = openDatabase("Inline-US-ASCII-string-test-with-arguments-array-equals-false.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -3212,6 +3222,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'Inline US-ASCII String manipulation test with arguments array=false (BOGUS) in a try-catch block read tx', function(done) {
+          if (isWebSql && /Android 5.1/.test(navigator.userAgent)) pending('SKIP on (WebKit) Web SQL on Android 5.1'); // XXX TBD INCONSISTENT RESULT on (WebKit) Web SQL on Android 5.1(.1) x86 emulator vs Samsung test device
+
           var db = openDatabase("Inline-US-ASCII-string-test-with-arguments-array-equals-false-read-tx.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.readTransaction(function(tx) {
@@ -3479,6 +3491,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + "transaction.executeSql('SELECT 1') with string for success callback in a try-catch block (BOGUS)", function (done) {
+          if (isWebSql && /Android 5.1/.test(navigator.userAgent)) pending('SKIP on (WebKit) Web SQL on Android 5.1'); // XXX TBD INCONSISTENT RESULT on (WebKit) Web SQL on Android 5.1(.1) x86 emulator vs Samsung test device
+
           var db = openDatabase("tx-sql-with-string-for-success-cb.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(transaction) {
@@ -3529,6 +3543,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + "readTransaction.executeSql('SELECT 1') with string for success callback in a try-catch block (BOGUS)", function (done) {
+          if (isWebSql && /Android 5.1/.test(navigator.userAgent)) pending('SKIP on (WebKit) Web SQL on Android 5.1'); // XXX TBD INCONSISTENT RESULT on (WebKit) Web SQL on Android 5.1(.1) x86 emulator vs Samsung test device
+
           var db = openDatabase("read-tx-sql-with-string-for-success-cb.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.readTransaction(function(readTransaction) {
@@ -3579,6 +3595,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + "transaction.executeSql('SLCT 1') with string for success callback in a try-catch block (BOGUS)", function (done) {
+          if (isWebSql && /Android 5.1/.test(navigator.userAgent)) pending('SKIP on (WebKit) Web SQL on Android 5.1'); // XXX TBD INCONSISTENT RESULT on (WebKit) Web SQL on Android 5.1(.1) x86 emulator vs Samsung test device
+
           var db = openDatabase("tx-sql-misspelling-with-string-for-success-cb.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(transaction) {
@@ -3634,6 +3652,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + "readTransaction.executeSql('SLCT 1') with string for success callback in a try-catch block (BOGUS)", function (done) {
+          if (isWebSql && /Android 5.1/.test(navigator.userAgent)) pending('SKIP on (WebKit) Web SQL on Android 5.1'); // XXX TBD INCONSISTENT RESULT on (WebKit) Web SQL on Android 5.1(.1) x86 emulator vs Samsung test device
+
           var db = openDatabase("read-tx-sql-misspelling-with-string-for-success-cb.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.readTransaction(function(readTransaction) {
@@ -3689,6 +3709,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + "transaction.executeSql('SELECT 1') with string for error callback in a try-catch block (BOGUS)", function (done) {
+          if (isWebSql && /Android 5.1/.test(navigator.userAgent)) pending('SKIP on (WebKit) Web SQL on Android 5.1'); // XXX TBD INCONSISTENT RESULT on (WebKit) Web SQL on Android 5.1(.1) x86 emulator vs Samsung test device
+
           var db = openDatabase("tx-sql-with-string-for-error-cb.db", "1.0", "Demo", DEFAULT_SIZE);
 
           var check1 = false;
@@ -3737,6 +3759,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + "readTransaction.executeSql('SELECT 1') with string for error callback in a try-catch block (BOGUS)", function (done) {
+          if (isWebSql && /Android 5.1/.test(navigator.userAgent)) pending('SKIP on (WebKit) Web SQL on Android 5.1'); // XXX TBD INCONSISTENT RESULT on (WebKit) Web SQL on Android 5.1(.1) x86 emulator vs Samsung test device
+
           var db = openDatabase("read-tx-sql-with-string-for-error-cb.db", "1.0", "Demo", DEFAULT_SIZE);
 
           var check1 = false;
@@ -3785,6 +3809,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + "transaction.executeSql('SLCT 1') with string for error callback in a try-catch block (BOGUS)", function (done) {
+          if (isWebSql && /Android 5.1/.test(navigator.userAgent)) pending('SKIP on (WebKit) Web SQL on Android 5.1'); // XXX TBD INCONSISTENT RESULT on (WebKit) Web SQL on Android 5.1(.1) x86 emulator vs Samsung test device
+
           var db = openDatabase("tx-sql-misspelling-with-string-for-error-cb.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(transaction) {
@@ -3834,6 +3860,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + "readTransaction.executeSql('SLCT 1') with string for error callback in a try-catch block (BOGUS)", function (done) {
+          if (isWebSql && /Android 5.1/.test(navigator.userAgent)) pending('SKIP on (WebKit) Web SQL on Android 5.1'); // XXX TBD INCONSISTENT RESULT on (WebKit) Web SQL on Android 5.1(.1) x86 emulator vs Samsung test device
+
           var db = openDatabase("read-tx-sql-misspelling-with-string-for-error-cb.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.readTransaction(function(readTransaction) {
