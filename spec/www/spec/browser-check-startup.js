@@ -12,7 +12,7 @@ window.hasBrowser = true;
 // and in actual test scripts
 window.hasWebKitBrowser = (!isWindows && !isWP8 && !isMac && (isAndroid || !(window.webkit && window.webkit.messageHandlers)));
 
-describe('check startup', function() {
+describe('Check startup for navigator.userAgent: ' + navigator.userAgent, function() {
   it('receives deviceready event', function(done) {
     expect(true).toBe(true);
     document.addEventListener("deviceready", function() {
