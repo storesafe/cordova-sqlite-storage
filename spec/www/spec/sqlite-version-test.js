@@ -131,8 +131,9 @@ var mytests = function() {
             // DIFFERENT for builtin android.database implementation:
             if (!isWindows && isAndroid && isImpl2)
               expect(rs.rows.item(0).journal_mode).toBe(
-                (/Android [2-7]/.test(navigator.userAgent)) ?
-                  'persist' : 'truncate');
+                (/Android 8.1.99/.test(navigator.userAgent)) ? 'wal' :
+                (/Android 8/.test(navigator.userAgent)) ? 'truncate' :
+                'persist');
             else
               expect(rs.rows.item(0).journal_mode).toBe('delete');
 
