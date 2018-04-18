@@ -19,6 +19,10 @@
 #   define DLog(...)
 #endif
 
+#if !__has_feature(objc_arc)
+#   error "Missing objc_arc feature"
+#endif
+
 @implementation SQLitePlugin
 
 @synthesize openDBs;
@@ -31,10 +35,6 @@
     {
         openDBs = [PSPDFThreadSafeMutableDictionary dictionaryWithCapacity:0];
         appDBPaths = [NSMutableDictionary dictionaryWithCapacity:0];
-#if !__has_feature(objc_arc)
-        [openDBs retain];
-        [appDBPaths retain];
-#endif
 
         NSString *docs = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
         DLog(@"Detected docs path: %@", docs);
@@ -386,9 +386,6 @@
                             columnValue = [[NSString alloc] initWithBytes:(char *)sqlite3_column_text(statement, i)
                                                                    length:sqlite3_column_bytes(statement, i)
                                                                  encoding:NSUTF8StringEncoding];
-#if !__has_feature(objc_arc)
-                            [columnValue autorelease];
-#endif
                             break;
                         case SQLITE_NULL:
                         // just in case (should not happen):
@@ -490,12 +487,6 @@
         db = [pointer pointerValue];
         sqlite3_close (db);
     }
-
-#if !__has_feature(objc_arc)
-    [openDBs release];
-    [appDBPaths release];
-    [super dealloc];
-#endif
 }
 
 +(NSDictionary *)captureSQLiteErrorFromDb:(struct sqlite3 *)db
