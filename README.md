@@ -1230,13 +1230,26 @@ The transactional nature of the API makes it relatively straightforward to manag
 
 ## Use with Ionic/ngCordova/Angular
 
+### Ionic Native with browser support
+
+- <https://medium.com/@tintin301/ionic-sqlite-storage-setting-up-for-browser-development-and-testing-67c0f17fc7af>
+- <https://www.techiediaries.com/mocking-native-sqlite-plugin/>
+
+### Ionic 3
+
+- <https://www.techiediaries.com/ionic-sqlite-pouchdb/>
+- <https://github.com/didinj/ionic3-angular4-cordova-sqlite-example>
+- <https://www.djamware.com/post/59c53a1280aca768e4d2b143/ionic-3-angular-4-and-sqlite-crud-offline-mobile-app>
+
 ### Ionic 2
 
 Tutorials with Ionic 2:
 - <https://www.thepolyglotdeveloper.com/2016/08/using-sqlstorage-instead-sqlite-ionic-2-app/> (title is somewhat misleading, "SQL storage" *does* use this sqlite plugin)
 - <https://www.thepolyglotdeveloper.com/2015/12/use-sqlite-in-ionic-2-instead-of-local-storage/> (older tutorial)
 
-Sample for Ionic 2 wanted ref: [litehelpers/Cordova-sqlite-storage#585](https://github.com/litehelpers/Cordova-sqlite-storage/issues/585)
+Sample on Ionic 2:
+
+- <https://github.com/kiranchenna/ionic-2-native-sqlite>
 
 ### Ionic 1
 
