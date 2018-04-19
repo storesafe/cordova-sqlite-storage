@@ -791,6 +791,92 @@ var mytests = function() {
         // using NDK) on Android pre-6.0
         // ref: litehelpers/Cordova-sqlite-storage#564
 
+        it(suiteName + 'string HEX value test with UTF-8 3-byte Samaritan character Bit (U+0801) [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
+          var db = openDatabase('UTF8-0801-hex-value-test.db');
+
+          db.transaction(function(tx) {
+
+            tx.executeSql('SELECT HEX(?) AS myresult', ['@\u0801!'], function(ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+
+              var resultRow1 = rs1.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.myresult).toBeDefined();
+              if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
+                expect(resultRow1.myresult).toBe('400001082100');   // (UTF-16le)
+              else
+                expect(resultRow1.myresult).toBe('40E0A08121');     // (UTF-8)
+
+              tx.executeSql("SELECT HEX('@\u0801!') AS myresult", [], function(ignored, rs2) {
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+
+                var resultRow2 = rs2.rows.item(0);
+                expect(resultRow2).toBeDefined();
+                expect(resultRow2.myresult).toBeDefined();
+                if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
+                  expect(resultRow2.myresult).toBe('400001082100'); // (UTF-16le)
+                else
+                  expect(resultRow2.myresult).toBe('40E0A08121');   // (UTF-8)
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+
+            });
+
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'string manipulation test with UTF-8 3-byte Samaritan character Bit (U+0801)', function(done) {
+          // ref: litehelpers/Cordova-sqlite-evcore-extbuild-free#37
+          var db = openDatabase('UTF8-0801-string-upper-value-test.db');
+
+          db.transaction(function(tx) {
+
+            tx.executeSql('SELECT UPPER(?) AS myresult', ['a\u0801;'], function(ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+
+              var resultRow1 = rs1.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.myresult).toBeDefined();
+              expect(resultRow1.myresult).toBe('Aࠁ;');
+
+              tx.executeSql("SELECT UPPER('b\u0801.') AS myresult", [], function(ignored, rs2) {
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+                var resultRow2 = rs2.rows.item(0);
+
+                expect(resultRow2).toBeDefined();
+                expect(resultRow2.myresult).toBeDefined();
+                expect(resultRow2.myresult).toBe('Bࠁ.');
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
         it(suiteName + 'Inline emoji string manipulation test: SELECT UPPER("a\\uD83D\\uDE03.") [\\u1F603 SMILING FACE (MOUTH OPEN)]', function(done) {
           var db = openDatabase('Inline-emoji-select-upper-test.db');
           expect(db).toBeDefined();
