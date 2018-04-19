@@ -2919,6 +2919,7 @@ var mytests = function() {
 
               if (isWebSql &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
+                   (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
                 expect(ex.code).toBe(12);
               else
@@ -3001,6 +3002,7 @@ var mytests = function() {
 
               if (isWebSql &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
+                   (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
                 expect(ex.code).toBe(12);
               else
@@ -3092,6 +3094,7 @@ var mytests = function() {
               expect(ex).toBeDefined();
               if (isWebSql &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
+                   (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
                 expect(ex.code).toBe(17);
               else
@@ -3138,6 +3141,7 @@ var mytests = function() {
               expect(ex).toBeDefined();
               if (isWebSql &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
+                   (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
                 expect(ex.code).toBe(17);
               else
@@ -3184,6 +3188,7 @@ var mytests = function() {
               expect(ex).toBeDefined();
               if (isWebSql &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
+                   (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
                 expect(ex.code).toBe(17);
               else
@@ -3230,6 +3235,7 @@ var mytests = function() {
               expect(ex).toBeDefined();
               if (isWebSql &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
+                   (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
                 expect(ex.code).toBe(17);
               else
@@ -3485,6 +3491,7 @@ var mytests = function() {
               expect(ex).toBeDefined();
               if (isWebSql &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
+                   (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
                 expect(ex.code).toBe(17);
               else
@@ -3534,6 +3541,7 @@ var mytests = function() {
               expect(ex).toBeDefined();
               if (isWebSql &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
+                   (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
                 expect(ex.code).toBe(17);
               else
@@ -3583,6 +3591,7 @@ var mytests = function() {
               expect(ex).toBeDefined();
               if (isWebSql &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
+                   (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
                 expect(ex.code).toBe(17);
               else
@@ -3637,6 +3646,7 @@ var mytests = function() {
               expect(ex).toBeDefined();
               if (isWebSql &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
+                   (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
                 expect(ex.code).toBe(17);
               else
@@ -3693,6 +3703,7 @@ var mytests = function() {
               expect(ex).toBeDefined();
               if (isWebSql &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
+                   (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
                 expect(ex.code).toBe(17);
               else
@@ -3740,6 +3751,7 @@ var mytests = function() {
               expect(ex).toBeDefined();
               if (isWebSql &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
+                   (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
                 expect(ex.code).toBe(17);
               else
@@ -3785,6 +3797,7 @@ var mytests = function() {
               expect(ex).toBeDefined();
               if (isWebSql &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
+                   (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
                 expect(ex.code).toBe(17);
               else
@@ -3833,6 +3846,7 @@ var mytests = function() {
               expect(ex).toBeDefined();
               if (isWebSql &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
+                   (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
                 expect(ex.code).toBe(17);
               else
