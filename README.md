@@ -1,12 +1,32 @@
 # Cordova/PhoneGap sqlite storage plugin
 
-Native interface to sqlite in a Cordova/PhoneGap plugin for Android, iOS, macOS, and Windows 10 (UWP), with API similar to HTML5/[Web SQL (DRAFT) API](http://www.w3.org/TR/webdatabase/).
+Native SQLite component with API based on HTML5/[Web SQL (DRAFT) API](http://www.w3.org/TR/webdatabase/) for the following platforms:
+- Android
+- iOS
+- macOS ("osx" platform)
+- Windows 10 (UWP) desktop and mobile (see below for major limitations)
 
-License terms for Android and Windows platform versions: MIT or Apache 2.0
+**LICENSE:** MIT, with Apache 2.0 option for Android and Windows platforms (see [LICENSE.md](./LICENSE.md) for details, including third-party components used by this plugin)
 
-License terms for iOS/macOS platform version: MIT only
+## WARNING: Multiple SQLite problem on all platforms
 
-## About this plugin version branch
+with possible corruption risk in case of sqlite access from multiple plugins (see below)
+
+## NEW MAJOR RELEASE in June 2018 with BREAKING CHANGES
+
+New release in June 2018 will include the following major enhancements:
+
+- browser platform support using [kripken / sql.js](https://github.com/kripken/sql.js) ([litehelpers/Cordova-sqlite-storage#576](https://github.com/litehelpers/Cordova-sqlite-storage/pull/576))
+- cordova-sqlite-storage and cordova-sqlite-ext will be combined together, no more separate plugin version needed for pre-populated databases ([litehelpers/Cordova-sqlite-storage#529](https://github.com/litehelpers/Cordova-sqlite-storage/issues/529))
+- include typings from DefinitelyTyped ([litehelpers/Cordova-sqlite-storage#768](https://github.com/litehelpers/Cordova-sqlite-storage/pull/768))
+
+Breaking changes expected:
+
+- drop support for Android pre-5.0 ([litehelpers/Cordova-sqlite-storage#771](https://github.com/litehelpers/Cordova-sqlite-storage/issues/771)); feedback is requested in case of interest in support for Android 4.4, 4.3, 4.2, or 4.1
+- drop support for iOS 8.x (was already dropped by cordova-ios@4.4.0)
+- drop Android NDK build for x86_64 ([litehelpers/Cordova-sqlite-storage#772](https://github.com/litehelpers/Cordova-sqlite-storage/issues/772)); NDK build for x86 will still work on x86_64 if no other plugins have NDK build for x86_64; feedback is requested in case of interest in NDK build for x86_64
+
+## About this plugin version
 
 This is the common plugin version branch which supports the most widely used features and serves as the basis for the other versions.
 

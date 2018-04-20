@@ -1,5 +1,10 @@
 # Changes
 
+### cordova-sqlite-storage 2.3.1
+
+- Mark some iOS/macOS plugin error messages as internal plugin errors (quick fix)
+- Quick documentation updates
+
 ### cordova-sqlite-storage 2.3.0
 
 - Use SQLite 3.22.0 with SQLITE_DEFAULT_SYNCHRONOUS=3 (EXTRA DURABLE) compile-time setting on all platforms (Android/iOS/macOS/Windows) ref: litehelpers/Cordova-sqlite-storage#736

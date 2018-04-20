@@ -119,8 +119,8 @@
     if (dbname == NULL) {
         // XXX NOT EXPECTED (INTERNAL ERROR - XXX TODO SIGNAL ERROR STATUS):
         // NSLog(@"No db name specified for open");
-        DLog(@"No db name specified for open");
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"You must specify database name"];
+        DLog(@"INTERNAL PLUGIN ERROR: No db name specified for open");
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"INTERNAL PLUGIN ERROR: You must specify database name"];
     }
     else {
         NSValue *dbPointer = [openDBs objectForKey:dbfilename];
@@ -193,7 +193,7 @@
     if (dbFileName == NULL) {
         // Should not happen:
         DLog(@"No db name specified for close");
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify database path"];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"INTERNAL PLUGIN ERROR: You must specify database path"];
     } else {
         NSValue *val = [openDBs objectForKey:dbFileName];
         sqlite3 *db = [val pointerValue];
@@ -201,7 +201,7 @@
         if (db == NULL) {
             // Should not happen:
             DLog(@"close: db name was not open: %@", dbFileName);
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Specified db was not open"];
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"INTERNAL PLUGIN ERROR: Specified db was not open"];
         }
         else {
             DLog(@"close db name: %@", dbFileName);
@@ -234,7 +234,7 @@
     if (dbFileName==NULL) {
         // Should not happen:
         DLog(@"No db name specified for delete");
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify database path"];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"INTERNAL PLUGIN ERROR: You must specify database path"];
     } else {
         NSString *dbPath = [self getDBPath:dbFileName at:dblocation];
 
@@ -317,20 +317,20 @@
 {
     NSString *dbFileName = [dbargs objectForKey:@"dbname"];
     if (dbFileName == NULL) {
-        return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify database path"];
+        return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"INTERNAL PLUGIN ERROR: You must specify database path"];
     }
 
     NSMutableArray *params = [options objectForKey:@"params"]; // optional
 
     NSValue *dbPointer = [openDBs objectForKey:dbFileName];
     if (dbPointer == NULL) {
-        return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"No such database, you must open it first"];
+        return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"INTERNAL PLUGIN ERROR: No such database, you must open it first"];
     }
     sqlite3 *db = [dbPointer pointerValue];
 
     NSString *sql = [options objectForKey:@"sql"];
     if (sql == NULL) {
-        return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"You must specify a sql query to execute"];
+        return [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"INTERNAL PLUGIN ERROR: You must specify a sql query to execute"];
     }
 
     const char *sql_stmt = [sql UTF8String];
