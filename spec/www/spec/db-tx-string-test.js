@@ -85,6 +85,7 @@ var mytests = function() {
             (isWebSql) ? done() : db.close(done, done);
           });
         }, MYTIMEOUT);
+        //return;
 
         it(suiteName + 'Inline US-ASCII String manipulation test with null parameter list', function(done) {
           var db = openDatabase("Inline-US-ASCII-string-test-with-null-parameter-list.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -564,6 +565,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
       });
+
+      //return;
 
       describe(suiteName + 'UTF-8 multiple octet character string binding/manipulation tests [default sqlite encoding: UTF-16le on Windows, UTF-8 encoding on others]', function() {
 
@@ -1648,7 +1651,8 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'String manipulation test with extra readTransaction callbacks', function(done) {
+        // XXX
+        xit(suiteName + 'String manipulation test with extra readTransaction callbacks', function(done) {
           var db = openDatabase("String-test-with-extra-readtx-cb.db", "1.0", "Demo", DEFAULT_SIZE);
 
           var check1 = false;
@@ -1683,7 +1687,8 @@ var mytests = function() {
 
       describe(suiteName + 'BLOB string test(s)', function() {
 
-        it(suiteName + "SELECT HEX(X'010203') [BLOB value test]", function(done) {
+        // XXX
+        xit(suiteName + "SELECT HEX(X'010203') [BLOB value test]", function(done) {
           var db = openDatabase("SELECT-HEX-BLOB-test.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {

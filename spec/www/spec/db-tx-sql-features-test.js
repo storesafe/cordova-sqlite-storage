@@ -171,7 +171,7 @@ var mytests = function() {
         // Test for Cordova-sqlcipher-adapter version (SQLCipher 3.4.0 based on SQLite 3.11.0)
         it(suiteName + 'Basic JSON1 json test', function(done) {
           //if (isWebSql) pending('SKIP for Web SQL (not implemented)');
-          pending('SKIP: NOT IMPLEMENTED for this version');
+          //pending('SKIP: NOT IMPLEMENTED for this version');
 
           var db = openDatabase('basic-json1-json-test.db', '1.0', 'Test', DEFAULT_SIZE);
 
@@ -201,7 +201,7 @@ var mytests = function() {
         // Test for Cordova-sqlcipher-adapter version (SQLCipher 3.4.0 based on SQLite 3.11.0)
         it(suiteName + 'JSON1 json_object test', function(done) {
           //if (isWebSql) pending('SKIP for Web SQL (not implemented)');
-          pending('SKIP: NOT IMPLEMENTED for this version');
+          //pending('SKIP: NOT IMPLEMENTED for this version');
 
           var db = openDatabase('json1-json-object-test.db', '1.0', 'Test', DEFAULT_SIZE);
 
@@ -232,7 +232,7 @@ var mytests = function() {
         // Test for Cordova-sqlcipher-adapter version (SQLCipher 3.4.0 based on SQLite 3.11.0)
         it(suiteName + 'create virtual table using FTS5', function(done) {
           //if (isWebSql) pending('SKIP for Web SQL (not implemented)');
-          pending('SKIP: NOT IMPLEMENTED for this version');
+          //pending('SKIP: NOT IMPLEMENTED for this version');
 
           var db = openDatabase('virtual-table-using-fts5.db', '1.0', 'Test', DEFAULT_SIZE);
 
@@ -273,7 +273,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'create virtual table using R-Tree', function(done) {
+        xit(suiteName + 'create virtual table using R-Tree', function(done) {
           if (isWebSql) pending('SKIP for Web SQL');
           if (isWP8) pending('NOT IMPLEMENTED for WP(8)'); // NOT IMPLEMENTED in CSharp-SQLite
           if (isAndroid && isImpl2) pending('NOT IMPLEMENTED for all versions of android.database'); // NOT IMPLEMENTED for all versions of Android database (failed in Circle CI)

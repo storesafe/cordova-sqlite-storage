@@ -951,7 +951,7 @@ var mytests = function() {
 
       describe(suiteName + 'ALTER TABLE tests', function() {
 
-        it(suiteName + 'ALTER TABLE ADD COLUMN test', function(done) {
+        xit(suiteName + 'ALTER TABLE ADD COLUMN test', function(done) {
           var dbname = 'ALTER-TABLE-ADD-COLUMN-test.db';
           var createdb = openDatabase(dbname, '1.0', 'Test', DEFAULT_SIZE);
 
@@ -1010,7 +1010,7 @@ var mytests = function() {
           }
         }, MYTIMEOUT);
 
-        it(suiteName + 'ALTER TABLE RENAME test', function(done) {
+        xit(suiteName + 'ALTER TABLE RENAME test', function(done) {
           var dbname = 'ALTER-TABLE-RENAME-test.db';
           var createdb = openDatabase(dbname, '1.0', 'Test', DEFAULT_SIZE);
 

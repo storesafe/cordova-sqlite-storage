@@ -1111,6 +1111,8 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        return; // XXX TBD
+
         it(suiteName + 'db.executeSql error test with true for SQL statement', function(done) {
           var db = openDatabase("DB-execute-sql-error-test-with-true-for-sql.db", "1.0", "Demo", DEFAULT_SIZE);
           expect(db).toBeDefined();
