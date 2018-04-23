@@ -1,5 +1,8 @@
 # Changes
 
+### cordova-sqlite-storage 3.0.0-0.00-dev+updatewip
+
+
 ### cordova-sqlite-storage 2.3.1
 
 - Mark some iOS/macOS plugin error messages as internal plugin errors (quick fix)
