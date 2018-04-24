@@ -588,7 +588,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'batch sql with batch item with "string-value" for arguments array (BOGUS)', function(done) {
+        xit(suiteName + 'batch sql with batch item with "string-value" for arguments array (BOGUS)', function(done) {
           var db = openDatabase('batch-sql-with-false-for-args-array.db', '1.0', 'Test', DEFAULT_SIZE);
 
           var check1 = false;
