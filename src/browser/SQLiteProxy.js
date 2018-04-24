@@ -1,5 +1,9 @@
 var dbmap = {};
 
+function echoStringValue(success, error, options) {
+  success(options[0].value);
+}
+
 function open(success, error, options) {
   var name = options[0].name;
   if (!!dbmap[name]) return error('INTERNAL ERROR: db already open for ' + name);
@@ -81,6 +85,7 @@ function close(success, error, options) {
 }
 
 module.exports = {
+  echoStringValue: echoStringValue,
   open: open,
   backgroundExecuteSqlBatch: backgroundExecuteSqlBatch,
   close: close
