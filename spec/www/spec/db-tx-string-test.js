@@ -61,7 +61,7 @@ var mytests = function() {
       describe(suiteName + 'Basic US-ASCII string binding/manipulation tests', function() {
 
         it(suiteName + 'Inline US-ASCII String manipulation test with empty ([]) parameter list', function(done) {
-          var db = openDatabase("Inline-US-ASCII-string-test-with-empty-parameter-list.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('Inline-US-ASCII-string-test-with-empty-parameter-list.db')
 
           expect(db).toBeDefined();
 
@@ -87,7 +87,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'Inline US-ASCII String manipulation test with null parameter list', function(done) {
-          var db = openDatabase("Inline-US-ASCII-string-test-with-null-parameter-list.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('Inline-US-ASCII-string-test-with-null-parameter-list.db');
 
           expect(db).toBeDefined();
 
@@ -113,7 +113,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'Inline US-ASCII String manipulation test with undefined parameter list', function(done) {
-          var db = openDatabase("Inline-US-ASCII-string-test-with-undefined-parameter-list.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('Inline-US-ASCII-string-test-with-undefined-parameter-list.db');
 
           expect(db).toBeDefined();
 
@@ -139,7 +139,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'US-ASCII String binding test', function(done) {
-          var db = openDatabase("ASCII-string-binding-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('ASCII-string-binding-test.db');
 
           db.transaction(function(tx) {
             tx.executeSql('SELECT UPPER(?) AS uppertext', ['Some US-ASCII text'], function(tx_ignored, rs) {
@@ -161,7 +161,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'US-ASCII String HEX parameter value test ("Test 123") [default sqlite encoding: UTF-16le on Windows & Android 4.1-4.4 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
-          var db = openDatabase("ASCII-String-hex-value-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('ASCII-String-hex-value-test.db');
 
           db.transaction(function(tx) {
 
@@ -187,7 +187,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'tx.executeSql(new String(sql))', function(done) {
-          var db = openDatabase("tx-executeSql-new-String-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('tx-executeSql-new-String-test.db');
 
           db.transaction(function(tx) {
             expect(tx).toBeDefined();
@@ -1366,7 +1366,7 @@ var mytests = function() {
 
           // NOTE: this test verifies that the UNICODE line separator (\u2028)
           // is seen by the sqlite implementation OK:
-          var db = openDatabase("UNICODE-line-separator-string-length.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('UNICODE-line-separator-string-length.db');
 
           expect(db).toBeDefined();
 
@@ -1394,7 +1394,7 @@ var mytests = function() {
         it(suiteName + 'HEX value of string with UNICODE \\u2028 line separator [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           // NOTE: this test verifies that the UNICODE line separator (\u2028)
           // is seen by the sqlite implementation OK:
-          var db = openDatabase("UNICODE-line-separator-hex-value-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('UNICODE-line-separator-hex-value-test.db');
 
           expect(db).toBeDefined();
 
@@ -1428,7 +1428,7 @@ var mytests = function() {
           // NOTE: since the above test shows the UNICODE line separator (\u2028)
           // is seen by the sqlite implementation OK, it is now concluded that
           // the failure is caused by the native JSON result encoding.
-          var db = openDatabase("UNICODE-line-separator-string-lowertext.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('UNICODE-line-separator-string-lowertext.db');
 
           expect(db).toBeDefined();
 
@@ -1465,7 +1465,7 @@ var mytests = function() {
 
           // NOTE: this test verifies that the UNICODE paragraph separator (\u2029)
           // is seen by the sqlite implementation OK:
-          var db = openDatabase("UNICODE-paragraph-separator-string-length.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('UNICODE-paragraph-separator-string-length.db');
 
           expect(db).toBeDefined();
 
@@ -1491,7 +1491,7 @@ var mytests = function() {
         it(suiteName + 'HEX value of string with UNICODE \\u2029 paragraph separator [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           // NOTE: this test verifies that the UNICODE paragraph separator (\u2029)
           // is seen by the sqlite implementation OK:
-          var db = openDatabase("UNICODE-paragraph-separator-hex-value-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('UNICODE-paragraph-separator-hex-value-test.db');
 
           expect(db).toBeDefined();
 
@@ -1524,7 +1524,7 @@ var mytests = function() {
           // NOTE: since the above test shows the UNICODE paragraph separator (\u2029)
           // is seen by the sqlite implementation OK, it is now concluded that
           // the failure is caused by the native JSON result encoding.
-          var db = openDatabase("UNICODE-paragraph-separator-string-lowertext.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('UNICODE-paragraph-separator-string-lowertext.db');
 
           expect(db).toBeDefined();
 
@@ -1614,7 +1614,7 @@ var mytests = function() {
         // TBD CHECK HEX value results
 
         it(suiteName + 'INLINE Double-quote string manipulation test', function(done) {
-          var db = openDatabase("INLINE-Double-quote-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('INLINE-Double-quote-string-test.db');
 
           db.transaction(function(tx) {
 
@@ -1637,7 +1637,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'Double-quote string binding test', function(done) {
-          var db = openDatabase("Double-quote-string-binding-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('Double-quote-string-binding-test.db');
 
           db.transaction(function(tx) {
 
@@ -1660,7 +1660,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'INLINE Backslash string test', function(done) {
-          var db = openDatabase("INLINE-Backslash-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('INLINE-Backslash-string-test.db');
 
           db.transaction(function(tx) {
 
@@ -1683,7 +1683,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'Backslash string binding test', function(done) {
-          var db = openDatabase("Backslash-string-binding-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('Backslash-string-binding-test.db');
 
           db.transaction(function(tx) {
 
@@ -1710,7 +1710,7 @@ var mytests = function() {
       describe(suiteName + 'string test with non-primitive parameter values', function() {
 
         it(suiteName + 'String test with array parameter value', function(done) {
-          var db = openDatabase("String-test-with-array-parameter-value.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('String-test-with-array-parameter-value.db');
 
           db.transaction(function(tx) {
 
@@ -1733,7 +1733,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'String test with new String object', function(done) {
-          var db = openDatabase("String-object-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('String-object-string-test.db');
 
           db.transaction(function(tx) {
 
@@ -1766,7 +1766,7 @@ var mytests = function() {
           expect(myObject.toString()).toBe('toString result');
           expect(myObject.valueOf()).toBe('valueOf result');
 
-          var db = openDatabase("Custom-object-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('Custom-object-string-test.db');
 
           db.transaction(function(tx) {
 
@@ -1794,7 +1794,7 @@ var mytests = function() {
         it(suiteName + 'String test with new String for SQL', function(done) {
           var myNewString = new String("SELECT UPPER('Alice') as u1");
 
-          var db = openDatabase("New-string-for-sql-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('New-string-for-sql-test.db');
 
           db.transaction(function(tx) {
             tx.executeSql(myNewString, [], function(tx_ignored, resultSet) {
@@ -1821,7 +1821,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'String test with single element array for SQL', function(done) {
-          var db = openDatabase("String-test-with-single-element-array-for-sql.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('String-test-with-single-element-array-for-sql.db');
 
           db.transaction(function(tx) {
             tx.executeSql(["SELECT UPPER('Alice') as u1"], [], function(tx_ignored, resultSet) {
@@ -1858,7 +1858,7 @@ var mytests = function() {
           expect(myObject.toString()).toBe("SELECT UPPER('Alice') as u1");
           expect(myObject.valueOf()).toBe("SELECT UPPER('Betty') as u1");
 
-          var db = openDatabase("Custom-object-for-sql-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('Custom-object-for-sql-test.db');
 
           db.transaction(function(tx) {
             tx.executeSql(myObject, [], function(tx_ignored, resultSet) {
@@ -1898,7 +1898,7 @@ var mytests = function() {
           // Check myObject:
           expect(myObject.toString()).toBe("SELECT UPPER('Alice') as uppertext");
 
-          var db = openDatabase("Dynamic-object-for-sql-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('Dynamic-object-for-sql-test.db');
 
           db.transaction(function(tx) {
             myObject.name = 'Betty';
@@ -1934,7 +1934,7 @@ var mytests = function() {
           // Check myObject:
           expect(myObject.toString()).toBe('Alice');
 
-          var db = openDatabase("Dynamic-object-arg-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('Dynamic-object-arg-string-test.db');
 
           db.transaction(function(tx) {
             myObject.name = 'Betty';
@@ -2046,7 +2046,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'Blank transaction string test with null/undefined callback functions', function(done) {
-          var db = openDatabase("Blank-tx-string-test-with-undefined-parameter-list.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('Blank-tx-string-test-with-undefined-parameter-list.db');
 
           expect(db).toBeDefined();
 
@@ -2083,7 +2083,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'Blank readTransaction string test with null/undefined callback functions', function(done) {
-          var db = openDatabase("Blank-readtx-string-test-with-undefined-parameter-list.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('Blank-readtx-string-test-with-undefined-parameter-list.db');
 
           expect(db).toBeDefined();
 
@@ -2120,7 +2120,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'String binding test with extra transaction executeSql arguments', function(done) {
-          var db = openDatabase("String-binding-test-extra-execute-args.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('String-binding-test-extra-execute-args.db');
 
           db.transaction(function(tx) {
             tx.executeSql('SELECT UPPER(?) AS uppertext', ['Some US-ASCII text'], function success(ignored, rs) {
@@ -2146,7 +2146,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'String binding test with extra readTransaction executeSql arguments', function(done) {
-          var db = openDatabase("String-binding-test-extra-readtx-execute-args.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('String-binding-test-extra-readtx-execute-args.db');
 
           db.readTransaction(function(tx) {
             tx.executeSql('SELECT UPPER(?) AS uppertext', ['Some US-ASCII text'], function success(ignored, rs) {
@@ -2172,7 +2172,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'String manipulation test with extra transaction callbacks', function(done) {
-          var db = openDatabase("String-test-with-extra-tx-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('String-test-with-extra-tx-cb.db');
 
           var check1 = false;
           db.transaction(function(tx) {
@@ -2203,7 +2203,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'String manipulation test with extra readTransaction callbacks', function(done) {
-          var db = openDatabase("String-test-with-extra-readtx-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('String-test-with-extra-readtx-cb.db');
 
           var check1 = false;
           db.readTransaction(function(tx) {
@@ -2238,7 +2238,7 @@ var mytests = function() {
       describe(suiteName + 'BLOB string test(s)', function() {
 
         it(suiteName + "SELECT HEX(X'010203') [BLOB value test]", function(done) {
-          var db = openDatabase("SELECT-HEX-BLOB-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('SELECT-HEX-BLOB-test.db');
 
           db.transaction(function(tx) {
 
