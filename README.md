@@ -737,7 +737,7 @@ To open a database access handle object (in the **new** default location):
 var db = window.sqlitePlugin.openDatabase({name: 'my.db', location: 'default'}, successcb, errorcb);
 ```
 
-**WARNING:** The new "default" location value is *NOT* the same as the old default location and would break an upgrade for an app that was using the old default value (0) on iOS.
+**WARNING:** The new "default" location value is different from the old default location used until March 2016 and would break an upgrade for an app that was using the old default setting (`location: 0`, same as using `iosDatabaseLocation: 'Documents'`) on iOS. The recommended solution is to continue to open the database from the same location, using `iosDatabaseLocation: 'Documents'`.
 
 **WARNING 2:** As described above: by default this plugin uses a non-standard [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) implementation on Android. In case an application access the **same** database using multiple plugins there is a risk of data corruption ref: [litehelpers/Cordova-sqlite-storage#626](https://github.com/litehelpers/Cordova-sqlite-storage/issues/626)) as described in <http://ericsink.com/entries/multiple_sqlite_problem.html> and <https://www.sqlite.org/howtocorrupt.html>. The workaround is to use the `androidDatabaseImplementation: 2` setting as described in the **Android sqlite implementation** section below.
 
