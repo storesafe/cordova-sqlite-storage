@@ -877,6 +877,78 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        it(suiteName + 'string HEX value test with UTF-8 4-byte Gothic bairkan 𐌱 (U+10331) [XXX ENCODING BUG REPRODUCED on default Android SQLite3 NDK build (using Android-sqlite-connector with Android-sqlite-ext-native-driver) on Android 4.x/5.x; default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
+          var db = openDatabase('UTF8-2050-hex-value-test.db');
+
+          db.transaction(function(tx) {
+
+            tx.executeSql('SELECT HEX(?) AS myresult', ['@𐌱'], function(ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+              if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
+                expect(rs1.rows.item(0).myresult).toBe('400000D831DF'); // (UTF-16le)
+              else if (!isWebSql && !isWindows && isAndroid && !isImpl2 && (/Android [4-5]/.test(navigator.userAgent)))
+                expect(rs1.rows.item(0).myresult).toBe('40EDA080EDBCB1'); // (XXX ENCODING BUG REPRODUCED on default Android NDK implementation on Android 4.x/5.x)
+              else
+                expect(rs1.rows.item(0).myresult).toBe('40F0908CB1'); // (UTF-8)
+
+              tx.executeSql("SELECT HEX('@𐌱') AS myresult", null, function(ignored, rs2) {
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+                if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
+                  expect(rs2.rows.item(0).myresult).toBe('400000D831DF'); // (UTF-16le)
+                else if (!isWebSql && !isWindows && isAndroid && !isImpl2 && (/Android [4-5]/.test(navigator.userAgent)))
+                  expect(rs2.rows.item(0).myresult).toBe('40EDA080EDBCB1'); // (XXX ENCODING BUG REPRODUCED on default Android NDK implementation on Android 4.x/5.x)
+                else
+                  expect(rs2.rows.item(0).myresult).toBe('40F0908CB1'); // (UTF-8)
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+
+              });
+
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'string manipulation test with UTF-8 4-byte Gothic bairkan 𐌱 (U+10331)', function(done) {
+          var db = openDatabase('UTF8-2050-upper-value-string-test.db');
+
+          db.transaction(function(tx) {
+
+            tx.executeSql('SELECT UPPER(?) AS myresult', ['a𐌱'], function(ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+              expect(rs1.rows.item(0).myresult).toBe('A𐌱');
+
+              tx.executeSql("SELECT UPPER('a𐌱') AS myresult", null, function(ignored, rs2) {
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+                expect(rs2.rows.item(0).myresult).toBe('A𐌱');
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
         it(suiteName + 'Inline emoji string manipulation test: SELECT UPPER("a\\uD83D\\uDE03.") [\\u1F603 SMILING FACE (MOUTH OPEN)]', function(done) {
           var db = openDatabase('Inline-emoji-select-upper-test.db');
           expect(db).toBeDefined();
