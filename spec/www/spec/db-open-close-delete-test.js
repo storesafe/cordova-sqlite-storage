@@ -367,6 +367,7 @@ var mytests = function() {
           {label: ';', dbName: 'first;second.db'},
           {label: "'1'", dbName: "'1'.db"},
           // UTF-8 multiple octets:
+          {label: '¢ (UTF-8 2 bytes)', dbName: 'a¢.db'},
           {label: 'é (UTF-8 2 octets)', dbName: 'aé.db'},
           {label: '€ (UTF-8 3 octets)', dbName: 'a€.db'},
         ];
