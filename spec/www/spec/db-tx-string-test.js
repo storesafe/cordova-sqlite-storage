@@ -375,6 +375,40 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        it(suiteName + 'U+0000 string parameter manipulation test [TBD TRUNCATION ISSUE REPRODUCED on (WebKit) Web SQL & plugin on multiple platforms]', function(done) {
+          var db = openDatabase('U-0000-string-parameter-upper-test');
+
+          db.transaction(function(tx) {
+            tx.executeSql('SELECT UPPER(?) AS uppertext', ['a\u0000cd'], function(tx_ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+
+              // TRUNCATION ISSUE REPRODUCED on (WebKit) Web SQL & plugin
+              // on multiple platforms
+
+              if ((isWebSql && isAndroid && (/Android 4/.test(navigator.userAgent))) ||
+                  (isWebSql && isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
+                  (isWebSql && !isAndroid) ||
+                  (!isWebSql && isWindows) ||
+                  (!isWebSql && !isWindows && isAndroid && isImpl2 &&
+                    !(/Android 4/.test(navigator.userAgent))))
+                expect(rs.rows.item(0).uppertext).toBe('A');
+              else
+                expect(rs.rows.item(0).uppertext).toBe('A\0CD');
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
       });
 
       describe(suiteName + 'control character tests', function() {
