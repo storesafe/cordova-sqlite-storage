@@ -214,70 +214,77 @@ var mytests = function() {
 
       describe(suiteName + 'U+0000 character tests', function() {
 
-        it(suiteName + 'String HEX encoding test with U+0000 character (same as \\0 [null]) [XXX HEX encoding BUG IGNORED on default Android NDK access implementation (Android-sqlite-connector with Android-sqlite-native-driver), TBD TRUNCATION BUG REPRODUCED on Windows; TBD default sqlite encoding: UTF-16le on Windows & Android 4.1-4.4 (WebKit) Web SQL, UTF-8 otherwise]', function (done) {
+        it(suiteName + 'String HEX encoding test with U+0000 character (same as \\0 [null]) [XXX HEX ENCODING BUG REPRODUCED on default Android NDK access implementation (Android-sqlite-connector with Android-sqlite-native-driver), TRUNCATION ISSUE REPRODUCED on Windows; default sqlite encoding: UTF-16le on Windows & Android 4.1-4.4 (WebKit) Web SQL, UTF-8 otherwise]', function (done) {
           var db = openDatabase('U-0000-hex-test.db');
 
           db.transaction(function (tx) {
-            tx.executeSql('SELECT HEX(?) AS hexvalue', ['abcd'], function (tx_ignored, rs) {
-              expect(rs).toBeDefined();
-              expect(rs.rows).toBeDefined();
-              expect(rs.rows.length).toBe(1);
+            tx.executeSql('SELECT HEX(?) AS hexvalue', ['abcd'], function (tx_ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+
+              var resultRow1 = rs1.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.hexvalue).toBeDefined();
 
               // NOTE: WebKit Web SQL on recent versions of Android & iOS
               // seems to use follow UTF-8 encoding/decoding rules.
-
               if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
-                expect(rs.rows.item(0).hexvalue).toBe('6100620063006400'); // (UTF-16le)
+                expect(resultRow1.hexvalue).toBe('6100620063006400');   // (UTF-16le)
               else
-                expect(rs.rows.item(0).hexvalue).toBe('61626364'); // (UTF-8)
+                expect(resultRow1.hexvalue).toBe('61626364');           // (UTF-8)
 
-              var expected_hexvalue_length = rs.rows.item(0).hexvalue.length;
+              var expected_hexvalue_length = resultRow1.hexvalue.length;
               if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
-                expect(expected_hexvalue_length).toBe(16); // (UTF-16le)
+                expect(expected_hexvalue_length).toBe(16);  // (UTF-16le)
               else
-                expect(expected_hexvalue_length).toBe(8); // (UTF-8)
+                expect(expected_hexvalue_length).toBe(8);   // (UTF-8)
 
               tx.executeSql('SELECT HEX(?) AS hexvalue', ['a\u0000cd'], function (tx_ignored, rs2) {
                 expect(rs2).toBeDefined();
                 expect(rs2.rows).toBeDefined();
                 expect(rs2.rows.length).toBe(1);
-                expect(rs2.rows.item(0).hexvalue).toBeDefined();
 
-                var hexvalue = rs2.rows.item(0).hexvalue;
+                var resultRow2 = rs2.rows.item(0);
+                expect(resultRow2).toBeDefined();
+                expect(resultRow2.hexvalue).toBeDefined();
+
                 if (isWindows)
-                  expect(hexvalue).toBe('6100'); // (UTF-16le with TRUNCATION BUG)
+                  expect(resultRow2.hexvalue).toBe('6100');     // (UTF-16le with TRUNCATION BUG)
                 else if ((isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
-                  expect(hexvalue).toBe('6100000063006400'); // (UTF-16le)
+                  expect(resultRow2.hexvalue).toBe('6100000063006400'); // (UTF-16le)
                 else if (!isWebSql && isAndroid && !isImpl2)
-                  expect(hexvalue).toBeDefined(); // (XXX UTF-8 with TRUNCATION BUG IGNORED)
+                  expect(resultRow2.hexvalue).toBe('61C0806364'); // (XXX UTF-8 with XXX ENCODING BUG REPRODUCED on Android)
                 else
-                  expect(hexvalue).toBe('61006364'); // (UTF-8)
+                  expect(resultRow2.hexvalue).toBe('61006364');   // (UTF-8)
 
                 // extra check:
                 // ensure this matches our expectation of that database's
                 // default encoding
                 if (isWindows)
-                  expect(hexvalue.length).toBe(4); // (UTF-16le with TRUNCATION BUG REPRODUCED)
+                  expect(resultRow2.hexvalue.length).toBe(4);   // (UTF-16le with TRUNCATION ISSUE REPRODUCED on Windows)
                 else if (!isWebSql && !isWindows && isAndroid && !isImpl2)
-                  expect(hexvalue.length).toBeDefined(); // (XXX UTF-8 with TRUNCATION BUG IGNORED)
+                  expect(resultRow2.hexvalue.length).toBe(10);  // (XXX UTF-8 with ENCODING BUG REPRODUCED on Android)
                 else
-                  expect(hexvalue.length).toBe(expected_hexvalue_length);
+                  expect(resultRow2.hexvalue.length).toBe(expected_hexvalue_length);
 
                 tx.executeSql('SELECT HEX(?) AS hexvalue', ['e\0gh'], function (tx_ignored, rs3) {
                   expect(rs3).toBeDefined();
                   expect(rs3.rows).toBeDefined();
                   expect(rs3.rows.length).toBe(1);
-                  expect(rs3.rows.item(0).hexvalue).toBeDefined();
 
-                  var hexvalue = rs3.rows.item(0).hexvalue;
+                  var resultRow3 = rs3.rows.item(0);
+                  expect(resultRow3).toBeDefined();
+                  expect(resultRow3.hexvalue).toBeDefined();
+
                   if (isWindows)
-                    expect(hexvalue).toBe('6500'); // (UTF-16le with TRUNCATION BUG REPRODUCED)
+                    expect(resultRow3.hexvalue).toBe('6500');       // (UTF-16le with TRUNCATION ISSUE REPRODUCED on Windows)
                   else if ((isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
-                    expect(hexvalue).toBe('6500000067006800'); // (UTF-16le)
+                    expect(resultRow3.hexvalue).toBe('6500000067006800'); // (UTF-16le)
                   else if (!isWebSql && !isWindows && isAndroid && !isImpl2)
-                    expect(hexvalue).toBeDefined(); // (XXX UTF-8 with TRUNCATION BUG IGNORED)
+                    expect(resultRow3.hexvalue).toBe('65C0806768'); // (XXX UTF-8 with ENCODING BUG REPRODUCED on Android)
                   else
-                    expect(hexvalue).toBe('65006768'); // (TBD UTF-8)
+                    expect(resultRow3.hexvalue).toBe('65006768');   // (UTF-8)
 
                   // Close (plugin only) & finish:
                   (isWebSql) ? done() : db.close(done, done);
