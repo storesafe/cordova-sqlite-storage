@@ -303,6 +303,78 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        it(suiteName + 'INLINE HEX encoding test with U+0000 (\\0) [XXX HEX ENCODING BUG REPRODUCED on default Android NDK access implementation (Android-sqlite-connector with Android-sqlite-native-driver), SQL ERROR reported otherwise; default sqlite encoding: UTF-16le on TBD, UTF-8 otherwise]', function (done) {
+          var db = openDatabase('INLINE-UNICODE-0000-hex-test.db');
+
+          db.transaction(function (tx) {
+            tx.executeSql('SELECT HEX("efgh") AS hexvalue', [], function (tx_ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+
+              var resultRow1 = rs1.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.hexvalue).toBeDefined();
+              // NOTE: WebKit Web SQL on recent versions of Android & iOS
+              // seems to use follow UTF-8 encoding/decoding rules.
+              if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
+                expect(resultRow1.hexvalue).toBe('6500660067006800'); // (UTF-16le)
+              else
+                expect(resultRow1.hexvalue).toBe('65666768'); // (UTF-8)
+
+              var expected_hexvalue_length = resultRow1.hexvalue.length;
+              if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
+                expect(expected_hexvalue_length).toBe(16); // (UTF-16le)
+              else
+                expect(expected_hexvalue_length).toBe(8); // (UTF-8)
+
+              tx.executeSql("SELECT HEX('e\u0000gh') AS hexvalue", [], function (tx_ignored, rs2) {
+                if (isWebSql) expect('UNEXPECTED SUCCESS on (WebKit) Web SQL PLEASE UPDATE THIS TEST').toBe('--');
+                if (!isWebSql && isWindows) expect('UNEXPECTED SUCCESS on Windows PLUGIN PLEASE UPDATE THIS TEST').toBe('--');
+                if (!isWebSql && !isWindows && isAndroid && isImpl2) expect('UNEXPECTED SUCCESS on BUILTIN android.database PLEASE UPDATE THIS TEST').toBe('--');
+                if (!isWebSql && !isWindows && !isAndroid) expect('UNEXPECTED SUCCESS on iOS/macOS PLUGIN PLEASE UPDATE THIS TEST').toBe('--');
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+
+                var resultRow2 = rs2.rows.item(0);
+                expect(resultRow2).toBeDefined();
+                expect(resultRow2.hexvalue).toBeDefined();
+                if (!isWebSql && !isWindows && isAndroid && !isImpl2)
+                  expect(resultRow2.hexvalue).toBe('65C0806768'); // XXX UTF-8 ENCODING BUG REPRODUCED on default Android implementation (NDK)
+                else
+                  expect(resultRow2.hexvalue).toBe('??'); // FUTURE TBD ??
+
+                // extra check:
+                // ensure this matches our expectation of that database's
+                // default encoding
+                if (!isWebSql && !isWindows && isAndroid && !isImpl2)
+                  expect(resultRow2.hexvalue.length).toBe(10);  // XXX INCORRECT LENGTH on default Android implementation (NDK)
+                else
+                  expect(resultRow2.hexvalue.length).toBe(expected_hexvalue_length);
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+
+              }, function(ignored, error) {
+                // ERROR NOT EXPECTED on default Android implementation (NDK):
+                if (!isWebSql && !isWindows && isAndroid && !isImpl2)
+                  expect(false).toBe(true);
+                expect(error).toBeDefined();
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+
+            }, function(ignored, err) {
+              // NOT EXPECTED for first SELECT:
+              expect(false).toBe(true);
+              expect(JSON.stringify(err)).toBe('--');
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          });
+        }, MYTIMEOUT);
+
       });
 
       describe(suiteName + 'control character tests', function() {
