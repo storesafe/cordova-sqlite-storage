@@ -114,6 +114,66 @@ var mytests = function() {
 
       });
 
+      describe(suiteName + 'default page/cache size check(s)', function() {
+
+        it(suiteName + 'Check default page size (plugin ONLY)', function(done) {
+          // ref: litehelpers/Cordova-sqlite-storage#781
+          if (isWebSql) pending('SKIP: NOT SUPPORTED for (WebKit) Web SQL');
+
+          var db = openDatabase('default-page-size.db');
+
+          db.executeSql('PRAGMA page_size', null, function(rs) {
+            expect(rs).toBeDefined();
+            expect(rs.rows).toBeDefined();
+            expect(rs.rows.length).toBe(1);
+            if (!isWebSql && !isWindows && isAndroid && isImpl2)
+              expect(rs.rows.item(0).page_size).toBe(4096); // CORRECT [androidDatabaseImplementation: 2]
+            else
+              expect(rs.rows.item(0).page_size).toBe(1024); // XXX TBD OLD VALUE USED IN THIS PLUGIN VERSION ref: litehelpers/Cordova-sqlite-storage#781
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            done();
+          });
+
+        }, MYTIMEOUT);
+
+        it(suiteName + 'Check default cache size (plugin ONLY)', function(done) {
+          // ref: litehelpers/Cordova-sqlite-storage#781
+          if (isWebSql) pending('SKIP: NOT SUPPORTED for (WebKit) Web SQL');
+
+          var db = openDatabase('default-cache-size.db');
+
+          db.executeSql('PRAGMA cache_size', null, function(rs) {
+            expect(rs).toBeDefined();
+            expect(rs.rows).toBeDefined();
+            expect(rs.rows.length).toBe(1);
+            var resultRow = rs.rows.item(0);
+            expect(resultRow).toBeDefined();
+            expect(resultRow.cache_size).toBeDefined();
+            if (!isWebSql && !isWindows && isAndroid && isImpl2 &&
+                (/Android 8/.test(navigator.userAgent)))
+              expect(resultRow.cache_size).toBe(-2000); // NEW VALUE for androidDatabaseImplementation: 2, Android 8.x
+            else
+              expect(resultRow.cache_size).toBe(2000); // XXX TBD OLD VALUE USED IN THIS PLUGIN VERSION & androidDatabaseImplementation: 2 for Android 4.x-7.x
+
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            done();
+          });
+
+        }, MYTIMEOUT);
+
+      });
+
       describe(suiteName + 'additional sqlite check(s)', function() {
 
         it(suiteName + 'Check default PRAGMA journal_mode setting (plugin ONLY)', function(done) {
