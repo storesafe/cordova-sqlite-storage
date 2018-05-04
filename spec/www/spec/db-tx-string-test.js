@@ -619,22 +619,15 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        // TBD NOTE: In case of the default Android database access
-        // implementation (Android-sqlite-connector) it is possible to
-        // manipulate, store, and retrieve a text string with 4-octet
-        // UTF-8 characters such as emojis.
-        // However HEX manipulations do not work the same as on
-        // Android/iOS WebKit Web SQL, iOS plugin,
-        // builtin android.database implementation
-        // (Android plugin with androidDatabaseImplementation : 2 option),
-        // or Windows.
-        // This likely indicates that such characters are stored differently
-        // [incorrectly] due to UTF-8 string handling limitations of
-        // Android-sqlite-connector and Android-sqlite-native-driver.
+        // ENCODING BUG REPRODUCED for emojis and other
+        // 4-byte UTF-8 characters in SELECT HEX value tests
+        // on default Android database access implementation
+        // (Android-sqlite-connector with Android-sqlite-ext-native-driver,
+        // using NDK) on Android pre-6.0
         // ref: litehelpers/Cordova-sqlite-storage#564
 
         it(suiteName + 'Inline emoji string manipulation test: SELECT UPPER("a\\uD83D\\uDE03.") [\\u1F603 SMILING FACE (MOUTH OPEN)]', function(done) {
-          var db = openDatabase('Inline-emoji-hex-test-1.db');
+          var db = openDatabase('Inline-emoji-select-upper-test.db');
           expect(db).toBeDefined();
 
           db.transaction(function(tx) {
@@ -658,30 +651,43 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'Inline emoji HEX test: SELECT HEX("@\\uD83D\\uDE03!") [\\u1F603 SMILING FACE (MOUTH OPEN)] [XXX TBD HEX encoding BUG IGNORED on default Android-sqlite-connector for Android versions XXX; default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
-          var db = openDatabase('Inline-emoji-hex-test-2.db');
+        it(suiteName + 'emoji HEX test: SELECT HEX("@\\uD83D\\uDE03!") [\\u1F603 SMILING FACE (MOUTH OPEN)] [XXX TBD HEX encoding BUG REPRODUCED default Android SQLite3 NDK build (using Android-sqlite-connector with Android-sqlite-ext-native-driver) on Android 4.x & 5.x; default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
+          var db = openDatabase('emoji-select-hex-value-test.db');
           expect(db).toBeDefined();
 
           db.transaction(function(tx) {
             expect(tx).toBeDefined();
 
-            tx.executeSql('SELECT HEX("@\uD83D\uDE03!") AS hexvalue', [], function(tx_ignored, rs) {
+            tx.executeSql('SELECT HEX(?) AS hexvalue', ['@\uD83D\uDE03!'], function(tx_ignored, rs) {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
 
-              // XXX TBD STOP HERE [HEX encoding BUG IGNORED] on
-              // Android-sqlite-connector for Android versions XXX:
-              if (!isWebSql && !isWindows && isAndroid && !isImpl2) return done();
-
               if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
                 expect(rs.rows.item(0).hexvalue).toBe('40003DD803DE2100'); // (UTF-16le)
+              else if (!isWebSql && !isWindows && isAndroid && !isImpl2 && /Android [4-5]/.test(navigator.userAgent))
+                expect(rs.rows.item(0).hexvalue).toBe('40EDA0BDEDB88321'); // (XXX BUG REPRODUCED on default Android NDK implementation)
               else
                 expect(rs.rows.item(0).hexvalue).toBe('40F09F988321'); // (UTF-8)
 
-              // Close (plugin only) & finish:
-              (isWebSql) ? done() : db.close(done, done);
+              tx.executeSql('SELECT HEX("@\uD83D\uDE03!") AS hexvalue', [], function(tx_ignored, rs2) {
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+
+                if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
+                  expect(rs2.rows.item(0).hexvalue).toBe('40003DD803DE2100'); // (UTF-16le)
+                else if (!isWebSql && !isWindows && isAndroid && !isImpl2 && /Android [4-5]/.test(navigator.userAgent))
+                  expect(rs2.rows.item(0).hexvalue).toBe('40EDA0BDEDB88321'); // (XXX BUG REPRODUCED on default Android NDK implementation)
+                else
+                  expect(rs2.rows.item(0).hexvalue).toBe('40F09F988321'); // (UTF-8)
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+
             });
+
           }, function(error) {
             // NOT EXPECTED:
             expect(false).toBe(true);
@@ -708,37 +714,6 @@ var mytests = function() {
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
               expect(rs.rows.item(0).lowertext).toBe('a\uD83D\uDE03');
-
-              // Close (plugin only) & finish:
-              (isWebSql) ? done() : db.close(done, done);
-            });
-          }, function(error) {
-            // NOT EXPECTED:
-            expect(false).toBe(true);
-            expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
-          });
-        }, MYTIMEOUT);
-
-        it(suiteName + 'emoji SELECT HEX(?) parameter value test: "@\\uD83D\\uDE03!" [\\u1F603 SMILING FACE (MOUTH OPEN)] [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
-          if (isWP8) pending('BROKEN for WP8');
-          if (isAndroid && !isWebSql && !isImpl2) pending('XXX ENCODING BUG on Android (default sqlite-connector version)');
-
-          var db = openDatabase("String-emoji-parameter-value-test.db", "1.0", "Demo", DEFAULT_SIZE);
-          expect(db).toBeDefined();
-
-          db.transaction(function(tx) {
-            expect(tx).toBeDefined();
-
-            tx.executeSql('SELECT HEX(?) AS hexvalue', ['@\uD83D\uDE03!'], function(tx_ignored, rs) {
-              expect(rs).toBeDefined();
-              expect(rs.rows).toBeDefined();
-              expect(rs.rows.length).toBe(1);
-              if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
-                expect(rs.rows.item(0).hexvalue).toBe('40003DD803DE2100'); // (UTF-16le)
-              else
-                expect(rs.rows.item(0).hexvalue).toBe('40F09F988321'); // (UTF-8)
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
