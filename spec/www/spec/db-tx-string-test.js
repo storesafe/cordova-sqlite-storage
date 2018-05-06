@@ -513,77 +513,44 @@ var mytests = function() {
 
       });
 
-      describe(suiteName + 'UTF-8 multiple octet character string binding/manipulation tests', function() {
-        it(suiteName + 'string HEX parameter value test with UTF-8 2-octet character é [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
-          var db = openDatabase("UTF8-2-octet-hex-value-test.db", "1.0", "Demo", DEFAULT_SIZE);
+      describe(suiteName + 'UTF-8 multi-byte character string binding & manipulation tests', function() {
+
+        it(suiteName + 'string HEX value test with UTF-8 2-byte accented character é [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
+          var db = openDatabase('UTF8-2-byte-accented-character-hex-value-test.db');
 
           db.transaction(function(tx) {
+            expect(tx).toBeDefined();
 
-            tx.executeSql('SELECT HEX(?) AS myresult', ['1é'], function(ignored, rs) {
-              expect(rs).toBeDefined();
-              expect(rs.rows).toBeDefined();
-              expect(rs.rows.length).toBe(1);
-                if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
-                expect(rs.rows.item(0).myresult).toBe('3100E900'); // (UTF-16le)
-              else
-                expect(rs.rows.item(0).myresult).toBe('31C3A9'); // (UTF-8)
+            tx.executeSql('SELECT HEX(?) AS myresult', ['1é'], function(ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
 
-              // Close (plugin only) & finish:
-              (isWebSql) ? done() : db.close(done, done);
-            });
-          }, function(error) {
-            // NOT EXPECTED:
-            expect(false).toBe(true);
-            expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
-          });
-        }, MYTIMEOUT);
-
-        it(suiteName + 'string parameter value manipulation test with UTF-8 2-octet character é', function(done) {
-          var db = openDatabase("UTF8-2-octet-upper-value-string-test.db", "1.0", "Demo", DEFAULT_SIZE);
-
-          db.transaction(function(tx) {
-
-            tx.executeSql('SELECT UPPER(?) AS myresult', ['aé'], function(ignored, rs) {
-              expect(rs).toBeDefined();
-              expect(rs.rows).toBeDefined();
-              expect(rs.rows.length).toBe(1);
-              if (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent))))
-                expect(rs.rows.item(0).myresult).toBe('AÉ');
-              else
-                expect(rs.rows.item(0).myresult).toBe('Aé');
-
-              // Close (plugin only) & finish:
-              (isWebSql) ? done() : db.close(done, done);
-            });
-          }, function(error) {
-            // NOT EXPECTED:
-            expect(false).toBe(true);
-            expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
-          });
-        }, MYTIMEOUT);
-
-        it(suiteName + 'string HEX parameter value test with UTF-8 3-octet character € [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
-          if (isWP8) pending('SKIP for WP(8)');
-
-          var db = openDatabase("UTF8-3-octet-hex-value-test.db", "1.0", "Demo", DEFAULT_SIZE);
-
-          db.transaction(function(tx) {
-
-            tx.executeSql('SELECT HEX(?) AS myresult', ['1€'], function(ignored, rs) {
-              expect(rs).toBeDefined();
-              expect(rs.rows).toBeDefined();
-              expect(rs.rows.length).toBe(1);
+              var resultRow1 = rs1.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.myresult).toBeDefined();
               if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
-                expect(rs.rows.item(0).myresult).toBe('3100AC20'); // (UTF-16le)
+                expect(resultRow1.myresult).toBe('3100E900');   // (UTF-16le)
               else
-                expect(rs.rows.item(0).myresult).toBe('31E282AC'); // (UTF-8)
+                expect(resultRow1.myresult).toBe('31C3A9');     // (UTF-8)
 
-              // Close (plugin only) & finish:
-              (isWebSql) ? done() : db.close(done, done);
+              tx.executeSql("SELECT HEX('@é') AS myresult", [], function(ignored, rs2) {
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+
+                var resultRow2 = rs2.rows.item(0);
+                expect(resultRow2).toBeDefined();
+                expect(resultRow2.myresult).toBeDefined();
+                if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
+                  expect(resultRow2.myresult).toBe('4000E900'); // (UTF-16le)
+                else
+                  expect(resultRow2.myresult).toBe('40C3A9');   // (UTF-8)
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+
             });
           }, function(error) {
             // NOT EXPECTED:
@@ -594,21 +561,132 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'string parameter value manipulation test with UTF-8 3-octet character €', function(done) {
-          if (isWP8) pending('SKIP for WP(8)');
-
-          var db = openDatabase("UTF8-3-octet-string-upper-value-test.db", "1.0", "Demo", DEFAULT_SIZE);
+        it(suiteName + 'string value manipulation test with UTF-8 2-byte accented character é', function(done) {
+          var db = openDatabase('UTF8-2-byte-accented-character-upper-value-string-test.db');
 
           db.transaction(function(tx) {
+            expect(tx).toBeDefined();
 
-            tx.executeSql('SELECT UPPER(?) AS myresult', ['a€'], function(ignored, rs) {
-              expect(rs).toBeDefined();
-              expect(rs.rows).toBeDefined();
-              expect(rs.rows.length).toBe(1);
-              expect(rs.rows.item(0).myresult).toBe('A€');
+            tx.executeSql('SELECT UPPER(?) AS myresult', ['aé'], function(ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
 
-              // Close (plugin only) & finish:
-              (isWebSql) ? done() : db.close(done, done);
+              var resultRow1 = rs1.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.myresult).toBeDefined();
+              // SQLite3 with ICU-UNICODE for builtin android.database on Android 4.4 and greater
+              if (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent))))
+                expect(resultRow1.myresult).toBe('AÉ');
+              else
+                expect(resultRow1.myresult).toBe('Aé');
+
+              tx.executeSql("SELECT UPPER('bé') AS myresult", [], function(ignored, rs2) {
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+
+                var resultRow2 = rs2.rows.item(0);
+                expect(resultRow2).toBeDefined();
+                expect(resultRow2.myresult).toBeDefined();
+                // SQLite3 with ICU-UNICODE for builtin android.database on Android 4.4 and greater
+                if (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent))))
+                  expect(resultRow2.myresult).toBe('BÉ');
+                else
+                  expect(resultRow2.myresult).toBe('Bé');
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'string HEX value test with UTF-8 3-byte Euro character (€) [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
+          // if (isWP8) pending('SKIP for WP(8)'); // XXX GONE
+          var db = openDatabase('UTF8-3-byte-euro-hex-value-test.db');
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql('SELECT HEX(?) AS myresult', ['1€'], function(ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+
+              var resultRow1 = rs1.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.myresult).toBeDefined();
+              if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
+                expect(resultRow1.myresult).toBe('3100AC20');   // (UTF-16le)
+              else
+                expect(resultRow1.myresult).toBe('31E282AC');   // (UTF-8)
+
+              tx.executeSql("SELECT HEX('@€') AS myresult", [], function(ignored, rs2) {
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+
+                var resultRow2 = rs2.rows.item(0);
+                expect(resultRow2).toBeDefined();
+                expect(resultRow2.myresult).toBeDefined();
+                if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
+                  expect(resultRow2.myresult).toBe('4000AC20'); // (UTF-16le)
+                else
+                  expect(resultRow2.myresult).toBe('40E282AC'); // (UTF-8)
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'string parameter value manipulation test with UTF-8 3-byte Euro character (€)', function(done) {
+          // if (isWP8) pending('SKIP for WP(8)'); // XXX GONE
+          var db = openDatabase('UTF8-3-byte-euro-string-upper-value-test.db');
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql('SELECT UPPER(?) AS myresult', ['a€'], function(ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+
+              var resultRow1 = rs1.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.myresult).toBeDefined();
+              expect(resultRow1.myresult).toBe('A€');
+
+              tx.executeSql("SELECT UPPER('b€') AS myresult", [], function(ignored, rs2) {
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+
+                var resultRow2 = rs2.rows.item(0);
+                expect(resultRow2).toBeDefined();
+                expect(resultRow2.myresult).toBeDefined();
+                expect(resultRow2.myresult).toBe('B€');
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+
             });
           }, function(error) {
             // NOT EXPECTED:
@@ -946,10 +1024,14 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'Inline string manipulation test with UTF-8 2/3 octet characters', function(done) {
+      });
+
+      describe(suiteName + 'additional (extra) multi-byte UTF-8 character string binding & manipulation tests', function() {
+
+        it(suiteName + 'Inline string manipulation test with a combination of UTF-8 2-byte & 3-byte characters', function(done) {
           if (isWP8) pending('SKIP for WP(8)');
 
-          var db = openDatabase("Inline-UTF8-string-manipulation-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('Inline-UTF8-combo-string-manipulation-test.db');
 
           db.transaction(function(tx) {
 
@@ -974,10 +1056,10 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'string parameter manipulation test with UTF-8 2/3 octet characters', function(done) {
+        it(suiteName + 'string parameter manipulation test with a combination of UTF-8 2-byte & 3-byte characters', function(done) {
           if (isWP8) pending('SKIP for WP(8)');
 
-          var db = openDatabase("UTF8-string-parameter-manipulation-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('UTF8-combo-select-upper-test.db');
 
           db.transaction(function(tx) {
 
