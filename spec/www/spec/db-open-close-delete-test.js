@@ -346,9 +346,8 @@ var mytests = function() {
           }
         }, MYTIMEOUT);
 
-        // TBD emoji (UTF-8 4 octets) [NOT RECOMMENDED]:
-        it(suiteName + 'Open database with emoji \uD83D\uDE03 (UTF-8 4 octets) & check database file name [NOT RECOMMENDED]', function(done) {
-          var dbName = 'a\uD83D\uDE03';
+        it(suiteName + 'Open database with emoji \uD83D\uDE03 (UTF-8 4 bytes) & check internal database file name', function(done) {
+          var dbName = 'a\uD83D\uDE03.db';
 
           try {
             openDatabase({name: dbName, location: 'default'}, function(db) {
