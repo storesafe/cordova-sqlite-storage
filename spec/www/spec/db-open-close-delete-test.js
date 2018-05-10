@@ -308,6 +308,44 @@ var mytests = function() {
           }
         }, MYTIMEOUT);
 
+        it(suiteName + 'Open database with U+0801 (3-byte Samaritan character Bit) & check internal database file name', function(done) {
+          var dbName = 'a\u0801.db';
+
+          try {
+            openDatabase({name: dbName, location: 'default'}, function(db) {
+              // EXPECTED RESULT:
+              expect(db).toBeDefined();
+              db.executeSql('PRAGMA database_list', [], function(rs) {
+                // EXPECTED RESULT:
+                expect(rs).toBeDefined();
+                expect(rs.rows).toBeDefined();
+                expect(rs.rows.length).toBe(1);
+                expect(rs.rows.item(0).name).toBe('main');
+                expect(rs.rows.item(0).file).toBeDefined();
+                expect(rs.rows.item(0).file.indexOf(dbName)).not.toBe(-1);
+
+                // Close & finish:
+                db.close(done, done);
+              }, function(error) {
+                // NOT EXPECTED:
+                expect(false).toBe(true);
+                expect(error.message).toBe('--');
+                done();
+              });
+            }, function(error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              expect(error.message).toBe('--');
+              done();
+            });
+          } catch (e) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(e.message).toBe('--');
+            done();
+          }
+        }, MYTIMEOUT);
+
         // TBD emoji (UTF-8 4 octets) [NOT RECOMMENDED]:
         it(suiteName + 'Open database with emoji \uD83D\uDE03 (UTF-8 4 octets) & check database file name [NOT RECOMMENDED]', function(done) {
           var dbName = 'a\uD83D\uDE03';
