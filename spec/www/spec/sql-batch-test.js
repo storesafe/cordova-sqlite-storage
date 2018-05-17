@@ -2,8 +2,6 @@
 
 var MYTIMEOUT = 12000;
 
-var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
-
 var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
@@ -50,7 +48,7 @@ var mytests = function() {
       describe(pluginScenarioList[i] + ': Basic sql batch test(s)', function() {
 
         it(suiteName + 'Single-column batch sql test', function(done) {
-          var db = openDatabase('Single-column-batch-sql-test.db', '1.0', 'Test', DEFAULT_SIZE);
+          var db = openDatabase('Single-column-batch-sql-test.db');
           expect(db).toBeDefined();
 
           db.sqlBatch([
@@ -73,7 +71,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'Single-column batch sql test 2 (CREATE TABLE SQL statement with no parameters in [])', function(done) {
-          var db = openDatabase('Single-column-batch-sql-test-2.db', '1.0', 'Test', DEFAULT_SIZE);
+          var db = openDatabase('Single-column-batch-sql-test-2.db');
           expect(db).toBeDefined();
 
           db.sqlBatch([
@@ -96,7 +94,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'Single-column batch sql test values: INSERT INTEGER/REAL number values and check stored data', function(done) {
-          var db = openDatabase('Single-column-batch-sql-test-number-values.db', '1.0', 'Test', DEFAULT_SIZE);
+          var db = openDatabase('Single-column-batch-sql-test-number-values.db');
           expect(db).toBeDefined();
 
           db.sqlBatch([
@@ -182,7 +180,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'Single-column batch sql test values: INSERT null/undefined values and check stored data', function(done) {
-          var db = openDatabase('Single-column-batch-sql-test-null-undefined-values.db', '1.0', 'Test', DEFAULT_SIZE);
+          var db = openDatabase('Single-column-batch-sql-test-null-undefined-values.db');
           expect(db).toBeDefined();
 
           db.sqlBatch([
@@ -216,7 +214,7 @@ var mytests = function() {
           if (isWP8) pending('SKIP for WP8'); // SKIP for now
           if (isMac) pending('SKIP for macOS [CRASH]'); // FUTURE TBD
 
-          var db = openDatabase('Single-column-batch-sql-test-infinity-nan-values.db', '1.0', 'Test', DEFAULT_SIZE);
+          var db = openDatabase('Single-column-batch-sql-test-infinity-nan-values.db');
           expect(db).toBeDefined();
 
           db.sqlBatch([
@@ -263,7 +261,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'Single-column batch sql test values: INSERT true/false values and check stored data [stored as strings]', function(done) {
-          var db = openDatabase('Single-column-batch-sql-test-true-false-values.db', '1.0', 'Test', DEFAULT_SIZE);
+          var db = openDatabase('Single-column-batch-sql-test-true-false-values.db');
 
           db.sqlBatch([
             'DROP TABLE IF EXISTS MyTable',
@@ -349,7 +347,7 @@ var mytests = function() {
           // Check myObject:
           expect(myObject.toString()).toBe("INSERT INTO MyTable VALUES ('Alice')");
 
-          var db = openDatabase('batch-sql-with-dynamic-object-for-sql.db', '1.0', 'Test', DEFAULT_SIZE);
+          var db = openDatabase('batch-sql-with-dynamic-object-for-sql.db');
 
           expect(db).toBeDefined();
 
@@ -382,7 +380,7 @@ var mytests = function() {
           // Check myObject:
           expect(myObject.toString()).toBe('Alice');
 
-          var db = openDatabase('batch-sql-with-dynamic-object-for-sql-arg-value.db', '1.0', 'Test', DEFAULT_SIZE);
+          var db = openDatabase('batch-sql-with-dynamic-object-for-sql-arg-value.db');
 
           expect(db).toBeDefined();
 
@@ -408,8 +406,7 @@ var mytests = function() {
         it(suiteName + 'Multi-row INSERT with parameters in batch sql test', function(done) {
           if (isWP8) pending('SKIP: NOT SUPPORTED for WP8');
 
-          var db = openDatabase('Multi-row-INSERT-with-parameters-batch-sql-test.db', '1.0', 'Test', DEFAULT_SIZE);
-
+          var db = openDatabase('Multi-row-INSERT-with-parameters-batch-sql-test.db');
           expect(db).toBeDefined();
 
           db.sqlBatch([
@@ -435,7 +432,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'batch sql with syntax error', function(done) {
-          var db = openDatabase('batch-sql-syntax-error-test.db', '1.0', 'Test', DEFAULT_SIZE);
+          var db = openDatabase('batch-sql-syntax-error-test.db');
 
           expect(db).toBeDefined();
 
@@ -473,7 +470,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'batch sql with constraint violation (check error code & basic error message pattern)', function(done) {
-          var db = openDatabase('batch-sql-constraint-violation-test.db', '1.0', 'Test', DEFAULT_SIZE);
+          var db = openDatabase('batch-sql-constraint-violation-test.db');
 
           expect(db).toBeDefined();
 
@@ -511,7 +508,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'batch sql failure-safe semantics', function(done) {
-          var db = openDatabase('batch-sql-failure-safe-test.db', '1.0', 'Test', DEFAULT_SIZE);
+          var db = openDatabase('batch-sql-failure-safe-test.db');
 
           expect(db).toBeDefined();
 
@@ -543,7 +540,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'sqlBatch() with no arguments (BOGUS)', function(done) {
-          var db = openDatabase('sql-batch-with-no-arguments.db', '1.0', 'Test', DEFAULT_SIZE);
+          var db = openDatabase('sql-batch-with-no-arguments.db');
 
           try {
             db.sqlBatch();
@@ -558,7 +555,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'sqlBatch with [] for sql batch item (BOGUS)', function(done) {
-          var db = openDatabase('sql-batch-with-empty-array-for-batch-item.db', '1.0', 'Test', DEFAULT_SIZE);
+          var db = openDatabase('sql-batch-with-empty-array-for-batch-item.db');
 
           try {
             db.sqlBatch(['SELECT 1', []], function() {
@@ -580,7 +577,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'sqlBatch with true for SQL statements (BOGUS)', function(done) {
-          var db = openDatabase('sql-batch-with-true-for-sql-statements.db', '1.0', 'Test', DEFAULT_SIZE);
+          var db = openDatabase('sql-batch-with-true-for-sql-statements.db');
 
           try {
             db.sqlBatch(true, function() {
@@ -602,7 +599,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'batch sql with batch item with false for arguments array (BOGUS)', function(done) {
-          var db = openDatabase('batch-sql-with-false-for-args-array.db', '1.0', 'Test', DEFAULT_SIZE);
+          var db = openDatabase('batch-sql-with-false-for-args-array.db');
 
           var check1 = false;
           try {
@@ -637,7 +634,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'batch sql with batch item with "string-value" for arguments array (BOGUS)', function(done) {
-          var db = openDatabase('batch-sql-with-false-for-args-array.db', '1.0', 'Test', DEFAULT_SIZE);
+          var db = openDatabase('batch-sql-with-false-for-args-array.db');
 
           var check1 = false;
           try {
@@ -672,7 +669,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'sqlBatch with single SELECT statement, false for error callback (BOGUS)', function(done) {
-          var db = openDatabase('sql-batch-with-select-false-for-error-cb.db', '1.0', 'Test', DEFAULT_SIZE);
+          var db = openDatabase('sql-batch-with-select-false-for-error-cb.db');
 
           try {
             db.sqlBatch(['SELECT 1'], function() {
@@ -687,7 +684,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'sqlBatch with single SELECT statement, string-value for error callback (BOGUS)', function(done) {
-          var db = openDatabase('sql-batch-with-select-string-value-for-error-cb.db', '1.0', 'Test', DEFAULT_SIZE);
+          var db = openDatabase('sql-batch-with-select-string-value-for-error-cb.db');
 
           try {
             db.sqlBatch(['SELECT 1'], function() {
@@ -702,7 +699,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'sqlBatch with error, false for success callback (BOGUS)', function(done) {
-          var db = openDatabase('sql-batch-with-select-false-for-success-cb.db', '1.0', 'Test', DEFAULT_SIZE);
+          var db = openDatabase('sql-batch-with-select-false-for-success-cb.db');
 
           try {
             db.sqlBatch(['SLCT 1'], false, function(e) {
@@ -718,7 +715,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'sqlBatch with error, string-value for success callback (BOGUS)', function(done) {
-          var db = openDatabase('sql-batch-with-select-string-value-for-success-cb.db', '1.0', 'Test', DEFAULT_SIZE);
+          var db = openDatabase('sql-batch-with-select-string-value-for-success-cb.db');
 
           try {
             db.sqlBatch(['SLCT 1'], 'string-value', function(e) {

@@ -2,8 +2,6 @@
 
 var MYTIMEOUT = 12000;
 
-var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
-
 // FUTURE TODO replace in test(s):
 function ok(test, desc) { expect(test).toBe(true); }
 function equal(a, b, desc) { expect(a).toEqual(b); } // '=='
@@ -98,7 +96,7 @@ var mytests = function() {
         }
 
         it(suiteName + 'db.executeSql string result test with null for parameter argument array', function(done) {
-          var db = openDatabase("DB-sql-String-result-test-with-null-parameter-arg-array.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-String-result-test-with-null-parameter-arg-array.db');
           expect(db).toBeDefined();
 
           db.executeSql("SELECT UPPER('first') AS uppertext", null, function(rs) {
@@ -116,7 +114,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'Inline db.executeSql US-ASCII String manipulation test with empty ([]) parameter list', function(done) {
-          var db = openDatabase("Inline-db-sql-US-ASCII-string-test-with-empty-parameter-list.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('Inline-db-sql-US-ASCII-string-test-with-empty-parameter-list.db');
           expect(db).toBeDefined();
 
           db.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", [], function(res) {
@@ -132,7 +130,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql string result test with undefined for parameter argument array', function(done) {
-          var db = openDatabase("DB-sql-String-result-test-with-undefined-for-parameter-arg-array.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-String-result-test-with-undefined-for-parameter-arg-array.db');
           expect(db).toBeDefined();
 
           db.executeSql("SELECT UPPER('first') AS uppertext", undefined, function(rs) {
@@ -150,7 +148,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql check SELECT TYPEOF(?) with [101] for parameter argument array', function(done) {
-          var db = openDatabase("DB-sql-SELECT-TYPEOF-101.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-SELECT-TYPEOF-101.db');
           expect(db).toBeDefined();
 
           db.executeSql('SELECT TYPEOF(?) AS myresult', [101], function(rs) {
@@ -173,7 +171,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql check SELECT ? with [101] for parameter argument array', function(done) {
-          var db = openDatabase("DB-sql-SELECT-101.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-SELECT-101.db');
           expect(db).toBeDefined();
 
           db.executeSql('SELECT ? AS myresult', [101], function(rs) {
@@ -194,7 +192,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql check SELECT TYPEOF(?) with [-101] for parameter argument array', function(done) {
-          var db = openDatabase("DB-sql-SELECT-TYPEOF-minus-101.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-SELECT-TYPEOF-minus-101.db');
           expect(db).toBeDefined();
 
           db.executeSql('SELECT TYPEOF(?) AS myresult', [-101], function(rs) {
@@ -217,7 +215,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql check SELECT ? with [-101] for parameter argument array', function(done) {
-          var db = openDatabase("DB-sql-SELECT-minus-101.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-SELECT-minus-101.db');
           expect(db).toBeDefined();
 
           db.executeSql('SELECT ? AS myresult', [-101], function(rs) {
@@ -238,7 +236,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql check SELECT TYPEOF(?) with [123.456] for parameter argument array', function(done) {
-          var db = openDatabase("DB-sql-SELECT-TYPEOF-123.456.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-SELECT-TYPEOF-123.456.db');
           expect(db).toBeDefined();
 
           db.executeSql('SELECT TYPEOF(?) AS myresult', [123.456], function(rs) {
@@ -259,7 +257,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql check SELECT ? with [123.456] for parameter argument array', function(done) {
-          var db = openDatabase("DB-sql-SELECT-123.456.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-SELECT-123.456.db');
           expect(db).toBeDefined();
 
           db.executeSql('SELECT ? AS myresult', [123.456], function(rs) {
@@ -280,7 +278,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql check SELECT TYPEOF(?) with [-123.456] for parameter argument array', function(done) {
-          var db = openDatabase("DB-sql-SELECT-TYPEOF-minus-123.456.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-SELECT-TYPEOF-minus-123.456.db');
           expect(db).toBeDefined();
 
           db.executeSql('SELECT TYPEOF(?) AS myresult', [-123.456], function(rs) {
@@ -301,7 +299,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql check SELECT ? with [-123.456] for parameter argument array', function(done) {
-          var db = openDatabase("DB-sql-SELECT-minus-123.456.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-SELECT-minus-123.456.db');
           expect(db).toBeDefined();
 
           db.executeSql('SELECT ? AS myresult', [-123.456], function(rs) {
@@ -322,7 +320,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql check SELECT TYPEOF(?) with [0] for parameter argument array', function(done) {
-          var db = openDatabase("DB-sql-SELECT-TYPEOF-0.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-SELECT-TYPEOF-0.db');
           expect(db).toBeDefined();
 
           db.executeSql('SELECT TYPEOF(?) AS myresult', [0], function(rs) {
@@ -345,7 +343,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql check SELECT ? with [0] for parameter argument array', function(done) {
-          var db = openDatabase("DB-sql-SELECT-TYPEOF-0.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-SELECT-TYPEOF-0.db');
           expect(db).toBeDefined();
 
           db.executeSql('SELECT ? AS myresult', [0], function(rs) {
@@ -366,7 +364,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql check SELECT TYPEOF(?) with [null] for parameter argument array', function(done) {
-          var db = openDatabase("DB-sql-SELECT-TYPEOF-null.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-SELECT-TYPEOF-null.db');
           expect(db).toBeDefined();
 
           db.executeSql('SELECT TYPEOF(?) AS myresult', [null], function(rs) {
@@ -387,7 +385,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql check SELECT TYPEOF(?) with [undefined] for parameter argument array', function(done) {
-          var db = openDatabase("DB-sql-SELECT-TYPEOF-undefined.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-SELECT-TYPEOF-undefined.db');
           expect(db).toBeDefined();
 
           db.executeSql('SELECT TYPEOF(?) AS myresult', [undefined], function(rs) {
@@ -410,7 +408,7 @@ var mytests = function() {
         it(suiteName + 'db.executeSql check SELECT TYPEOF(?) with [Infinity] for parameter argument array [TBD Android/iOS/macOS plugin result]', function(done) {
           if (isWP8) pending('SKIP for WP8'); // SKIP for now
 
-          var db = openDatabase("DB-sql-SELECT-TYPEOF-infinity.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-SELECT-TYPEOF-infinity.db');
           expect(db).toBeDefined();
 
           db.executeSql('SELECT TYPEOF(?) AS myresult', [Infinity], function(rs) {
@@ -436,7 +434,7 @@ var mytests = function() {
           if (isWP8) pending('SKIP for WP8'); // SKIP for now
           if (isMac) pending('SKIP for macOS [CRASH]'); // FUTURE TBD
 
-          var db = openDatabase("DB-sql-SELECT-infinity.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-SELECT-infinity.db');
           expect(db).toBeDefined();
 
           db.executeSql('SELECT ? AS myresult', [Infinity], function(rs) {
@@ -461,7 +459,7 @@ var mytests = function() {
         it(suiteName + 'db.executeSql check SELECT TYPEOF(?) with [-Infinity] for parameter argument array [TBD Android/iOS/macOS plugin result]', function(done) {
           if (isWP8) pending('SKIP for WP8'); // SKIP for now
 
-          var db = openDatabase("DB-sql-SELECT-TYPEOF-minus-infinity.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-SELECT-TYPEOF-minus-infinity.db');
           expect(db).toBeDefined();
 
           db.executeSql('SELECT TYPEOF(?) AS myresult', [-Infinity], function(rs) {
@@ -487,7 +485,7 @@ var mytests = function() {
           if (isWP8) pending('SKIP for WP8'); // SKIP for now
           if (isMac) pending('SKIP for macOS [CRASH]'); // FUTURE TBD
 
-          var db = openDatabase("DB-sql-SELECT-minus-infinity.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-SELECT-minus-infinity.db');
           expect(db).toBeDefined();
 
           db.executeSql('SELECT ? AS myresult', [-Infinity], function(rs) {
@@ -510,7 +508,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql check SELECT TYPEOF(?) with [NaN] for parameter argument array [TBD Android/iOS/macOS plugin result]', function(done) {
-          var db = openDatabase("DB-sql-SELECT-TYPEOF-nan.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-SELECT-TYPEOF-nan.db');
           expect(db).toBeDefined();
 
           db.executeSql('SELECT TYPEOF(?) AS myresult', [NaN], function(rs) {
@@ -531,7 +529,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql store numeric values and check', function(done) {
-          var db = openDatabase("DB-sql-store-numeric-values-and-check.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-store-numeric-values-and-check.db');
           expect(db).toBeDefined();
           db.executeSql('DROP TABLE IF EXISTS MyTable');
           db.executeSql('CREATE TABLE MyTable (data)');
@@ -619,7 +617,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql store null/undefined values and check', function(done) {
-          var db = openDatabase("DB-sql-store-null-undefined-values-and-check.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-store-null-undefined-values-and-check.db');
           expect(db).toBeDefined();
 
           db.executeSql('DROP TABLE IF EXISTS MyTable');
@@ -647,7 +645,7 @@ var mytests = function() {
           if (isWP8) pending('SKIP for WP8'); // SKIP for now
           if (isMac) pending('SKIP for macOS [CRASH]'); // FUTURE TBD
 
-          var db = openDatabase("DB-sql-store-infinity-nan-values-and-check.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-store-infinity-nan-values-and-check.db');
           expect(db).toBeDefined();
           db.executeSql('DROP TABLE IF EXISTS MyTable');
           db.executeSql('CREATE TABLE MyTable (data)');
@@ -686,7 +684,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql store true/false values and check [stored as strings]', function(done) {
-          var db = openDatabase("DB-sql-store-true-false-values-and-check.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-store-true-false-values-and-check.db');
 
           db.executeSql('DROP TABLE IF EXISTS MyTable');
           db.executeSql('CREATE TABLE MyTable (data)');
@@ -709,7 +707,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql string result test with new String for SQL', function(done) {
-          var db = openDatabase("DB-sql-new-String-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-new-String-test.db');
           expect(db).toBeDefined();
 
           db.executeSql(new String("SELECT UPPER('first') AS uppertext"), null, function(rs) {
@@ -809,7 +807,7 @@ var mytests = function() {
 
           // NOTE: this test checks that for db.executeSql(), the result callback is
           // called exactly once, with the proper result:
-          var db = openDatabase("DB-sql-string-result-test-with-dynamic-object-for-sql.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-string-result-test-with-dynamic-object-for-sql.db');
           expect(db).toBeDefined();
 
           myObject.name = 'Betty';
@@ -842,7 +840,7 @@ var mytests = function() {
 
           // NOTE: this test checks that for db.executeSql(), the result callback is
           // called exactly once, with the proper result:
-          var db = openDatabase("DB-sql-string-result-test-with-dynamic-object-for-parameter-arg.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-sql-string-result-test-with-dynamic-object-for-parameter-arg.db');
           expect(db).toBeDefined();
 
           myObject.name = 'Betty';
@@ -909,7 +907,7 @@ var mytests = function() {
         test_it(suiteName + "Multiple db.executeSql string result test", function() {
           // NOTE: this test checks that for db.executeSql(), the result callback is
           // called exactly once, with the proper result:
-          var db = openDatabase("Multiple-DB-sql-String-result-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('Multiple-DB-sql-String-result-test.db');
 
           var expected = [ 'FIRST', 'SECOND' ];
           var i=0;
@@ -994,7 +992,7 @@ var mytests = function() {
         }
 
         it(suiteName + 'db.executeSql() with no arguments and then inline string test', function(done) {
-          var db = openDatabase("DB-execute-sql-with-no-arguments.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-execute-sql-with-no-arguments.db');
           expect(db).toBeDefined();
 
           var check1 = true;
@@ -1026,7 +1024,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql error test with null for SQL statement', function(done) {
-          var db = openDatabase("DB-execute-sql-error-test-with-null-for-sql.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-execute-sql-error-test-with-null-for-sql.db');
           expect(db).toBeDefined();
 
           var check1 = false;
@@ -1069,7 +1067,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql error test with undefined for SQL statement', function(done) {
-          var db = openDatabase("DB-execute-sql-error-test-with-undefined-for-sql.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-execute-sql-error-test-with-undefined-for-sql.db');
           expect(db).toBeDefined();
 
           var check1 = false;
@@ -1112,7 +1110,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql error test with true for SQL statement', function(done) {
-          var db = openDatabase("DB-execute-sql-error-test-with-true-for-sql.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-execute-sql-error-test-with-true-for-sql.db');
           expect(db).toBeDefined();
 
           db.executeSql(true, null, function(ignored) {
@@ -1144,7 +1142,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql error test with false for SQL statement', function(done) {
-          var db = openDatabase("DB-execute-sql-error-test-with-false-for-sql.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-execute-sql-error-test-with-false-for-sql.db');
           expect(db).toBeDefined();
 
           db.executeSql(false, null, function(ignored) {
@@ -1176,7 +1174,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql error test with Infinity for SQL statement', function(done) {
-          var db = openDatabase("DB-execute-sql-error-test-with-infinity-for-sql.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-execute-sql-error-test-with-infinity-for-sql.db');
           expect(db).toBeDefined();
 
           db.executeSql(Infinity, null, function(ignored) {
@@ -1208,7 +1206,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql error test with -Infinity for SQL statement', function(done) {
-          var db = openDatabase("DB-execute-sql-error-test-with-infinity-for-sql.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-execute-sql-error-test-with-infinity-for-sql.db');
           expect(db).toBeDefined();
 
           db.executeSql(-Infinity, null, function(ignored) {
@@ -1240,7 +1238,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql error test with NaN for SQL statement', function(done) {
-          var db = openDatabase("DB-execute-sql-error-test-with-nan-for-sql.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-execute-sql-error-test-with-nan-for-sql.db');
           expect(db).toBeDefined();
 
           db.executeSql(NaN, null, function(ignored) {
@@ -1272,7 +1270,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql error test with null for parameter argument array', function(done) {
-          var db = openDatabase("DB-execute-sql-error-test-with-null-for-parameter-arg-array.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-execute-sql-error-test-with-null-for-parameter-arg-array.db');
           expect(db).toBeDefined();
 
           db.executeSql('SLCT 1', null, function(ignored) {
@@ -1304,7 +1302,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql error test with undefined for parameter argument array', function(done) {
-          var db = openDatabase("DB-execute-sql-error-test-with-undefined-for-parameter-arg-array.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-execute-sql-error-test-with-undefined-for-parameter-arg-array.db');
           expect(db).toBeDefined();
 
           db.executeSql('SLCT 1', undefined, function(ignored) {
@@ -1336,7 +1334,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql error test with "string-value" for parameter argument array', function(done) {
-          var db = openDatabase("DB-execute-sql-error-test-with-string-value-for-parameter-arg-array.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-execute-sql-error-test-with-string-value-for-parameter-arg-array.db');
           expect(db).toBeDefined();
 
           try {
@@ -1358,7 +1356,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql error test with false for parameter argument array', function(done) {
-          var db = openDatabase("DB-execute-sql-error-test-with-false-for-parameter-arg-array.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-execute-sql-error-test-with-false-for-parameter-arg-array.db');
           expect(db).toBeDefined();
 
           try {
@@ -1380,7 +1378,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql() with valid SQL, null arguments, false for success cb then inline string test', function(done) {
-          var db = openDatabase("DB-execute-sql-with-false-for-success-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-execute-sql-with-false-for-success-cb.db');
           expect(db).toBeDefined();
 
           var check1 = false;
@@ -1415,7 +1413,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql() with valid SQL, null arguments, "string-value" for success cb then inline string test', function(done) {
-          var db = openDatabase("DB-execute-sql-with-string-value-for-success-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-execute-sql-with-string-value-for-success-cb.db');
           expect(db).toBeDefined();
 
           var check1 = false;
@@ -1450,7 +1448,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql() error test with false for success callback', function(done) {
-          var db = openDatabase("DB-execute-sql-error-with-false-for-success-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-execute-sql-error-with-false-for-success-cb.db');
           expect(db).toBeDefined();
 
           try {
@@ -1469,7 +1467,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql() error test with "string-value" for success callback', function(done) {
-          var db = openDatabase("DB-execute-sql-error-with-string-value-for-success-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-execute-sql-error-with-string-value-for-success-cb.db');
           expect(db).toBeDefined();
 
           var check1 = true;
@@ -1489,7 +1487,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql() error test with false for error callback and then inline string test', function(done) {
-          var db = openDatabase("DB-execute-sql-with-false-for-error-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-execute-sql-with-false-for-error-cb.db');
           expect(db).toBeDefined();
 
           var check1 = true;
@@ -1521,7 +1519,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'db.executeSql() error test with "string-value" for error callback and then inline string test', function(done) {
-          var db = openDatabase("DB-execute-sql-with-string-value-for-error-cb.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB-execute-sql-with-string-value-for-error-cb.db');
           expect(db).toBeDefined();
 
           var check1 = true;
@@ -1555,7 +1553,7 @@ var mytests = function() {
         it(suiteName + "Multiple db.executeSql error result test", function(done) {
           // NOTE: this test checks that for db.executeSql(), the error result
           // callback is called exactly once, with the proper result:
-          var db = openDatabase("Multiple-DB-sql-error-result-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('Multiple-DB-sql-error-result-test.db');
 
           var error_result_count = 0;
 
@@ -1672,9 +1670,9 @@ var mytests = function() {
         }
 
         test_it(suiteName + "PRAGMAs & multiple database transactions mixed together", function() {
-          var db = openDatabase("DB1", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('DB1');
 
-          var db2 = openDatabase("DB2", "1.0", "Demo", DEFAULT_SIZE);
+          var db2 = openDatabase('DB2');
 
           stop(2);
 
