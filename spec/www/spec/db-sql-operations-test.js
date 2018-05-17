@@ -49,7 +49,7 @@ var scenarioCount = (!!window.hasWebKitBrowser) ? (isAndroid ? 3 : 2) : 1;
 
 var mytests = function() {
 
-  describe('Plugin: plugin-specific sql operations test(s)', function() {
+  describe('Plugin: sql operations using db.executeSql (plugin-specific) test(s)', function() {
 
     var pluginScenarioList = [
       isAndroid ? 'Plugin-implementation-default' : 'Plugin',
