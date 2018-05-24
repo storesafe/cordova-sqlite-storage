@@ -89,7 +89,7 @@ Other services available include:
 - Mentoring and training services
 
 For more information:
-- <http://litehelpers.net/>
+- <https://litehelpers.net>
 - <sales@litehelpers.net>
 
 <!-- END Services available -->
@@ -1362,7 +1362,7 @@ Free support is provided on a best-effort basis and is only available in public 
 
 Professional support is available by contacting: <sales@litehelpers.net>
 
-For more information: <http://litehelpers.net/>
+For more information: <https://litehelpers.net>
 
 ## Before seeking help
 
