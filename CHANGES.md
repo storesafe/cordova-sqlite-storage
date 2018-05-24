@@ -1,5 +1,12 @@
 # Changes
 
+### cordova-sqlite-storage 2.3.2
+
+- Mark some Android errors as internal plugin errors (quick fix)
+- remove trailing whitespace from Android implementation
+- test coverage updates
+- quick doc updates
+
 ### cordova-sqlite-storage 2.3.1
 
 - Mark some iOS/macOS plugin error messages as internal plugin errors (quick fix)

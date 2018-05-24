@@ -104,7 +104,8 @@ class SQLiteAndroidDatabase
 
         if (mydb == null) {
             // not allowed - can only happen if someone has closed (and possibly deleted) a database and then re-used the database
-            cbc.error("database has been closed");
+            // (internal plugin error)
+            cbc.error("INTERNAL PLUGIN ERROR: database not open");
             return;
         }
 
