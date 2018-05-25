@@ -1062,13 +1062,6 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        // ENCODING BUG REPRODUCED for emojis and other
-        // 4-byte UTF-8 characters in SELECT HEX value tests
-        // on default Android database access implementation
-        // (Android-sqlite-connector with Android-sqlite-ext-native-driver,
-        // using NDK) on Android pre-6.0
-        // ref: litehelpers/Cordova-sqlite-storage#564
-
         it(suiteName + 'string HEX value test with UTF-8 3-byte Samaritan character Bit (U+0801) [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           var db = openDatabase('UTF8-0801-hex-value-test.db');
 
@@ -1156,6 +1149,11 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'string HEX value test with UTF-8 4-byte Gothic bairkan 𐌱 (U+10331) [XXX ENCODING BUG REPRODUCED on default Android SQLite3 NDK build (using Android-sqlite-connector with Android-sqlite-ext-native-driver) on Android 4.x/5.x; default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
+          // ENCODING BUG REPRODUCED for 4-byte UTF-8 characters
+          // on default Android database access implementation
+          // (Android-sqlite-connector with Android-sqlite-ext-native-driver,
+          // using NDK) on Android pre-6.0
+          // ref: litehelpers/Cordova-sqlite-storage#564
           var db = openDatabase('UTF8-2050-hex-value-test.db');
 
           db.transaction(function(tx) {
@@ -1278,6 +1276,11 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'emoji HEX test: SELECT HEX("@\\uD83D\\uDE03!") [\\u1F603 SMILING FACE (MOUTH OPEN)] [XXX TBD HEX encoding BUG REPRODUCED default Android SQLite3 NDK build (using Android-sqlite-connector with Android-sqlite-ext-native-driver) on Android 4.x & 5.x; default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
+          // ENCODING BUG REPRODUCED for emojis and other 4-byte UTF-8
+          // characters on default Android database access implementation
+          // (Android-sqlite-connector with Android-sqlite-ext-native-driver,
+          // using NDK) on Android pre-6.0
+          // ref: litehelpers/Cordova-sqlite-storage#564
           var db = openDatabase('emoji-select-hex-value-test.db');
           expect(db).toBeDefined();
 
