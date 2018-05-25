@@ -807,8 +807,8 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "executeSql parameter as 'boolean' true/false values (apparently stringified)", function(done) {
-          var db = openDatabase("array-parameter.db", "1.0", "Demo", DEFAULT_SIZE);
+        it(suiteName + "INSERT with as 'boolean' true/false argument values [evidently stringified]", function(done) {
+          var db = openDatabase('INSERT-true-false-parameter-value-bindings-test.db');
 
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
