@@ -292,6 +292,54 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        it(suiteName + 'sql batch with changing SQL element [TBD POSSIBLY INCONSISTENT BEHAVIOR]', function(done) {
+          var db = openDatabase('sql-batch-with-changing-sql-test.db');
+
+          var mybatch = [
+            'DROP TABLE IF EXISTS MyTable',
+            'CREATE TABLE MyTable (data)',
+            "INSERT INTO MyTable VALUES ('Alice')"
+          ];
+
+          db.sqlBatch(mybatch, function() {
+            db.executeSql('SELECT * FROM MyTable', [], function (rs) {
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).data).toBe('Alice');
+              db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            db.close(done, done);
+          });
+          mybatch[2] = "INSERT INTO MyTable VALUES ('Betty')";
+        }, MYTIMEOUT);
+
+        it(suiteName + 'sql batch with changing argument value [TBD POSSIBLY INCONSISTENT BEHAVIOR]', function(done) {
+          var db = openDatabase('sql-batch-with-changing-sql-test.db');
+
+          var mybatch = [
+            'DROP TABLE IF EXISTS MyTable',
+            'CREATE TABLE MyTable (data)',
+            ['INSERT INTO MyTable VALUES (?)', ['Alice']]
+          ];
+
+          db.sqlBatch(mybatch, function() {
+            db.executeSql('SELECT * FROM MyTable', [], function (rs) {
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0).data).toBe('Betty');
+              db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            db.close(done, done);
+          });
+          mybatch[2][1][0] = 'Betty';
+        }, MYTIMEOUT);
+
         it(suiteName + 'batch sql with dynamic object for SQL [INCONSISTENT BEHAVIOR]', function(done) {
           // MyDynamicObject "class":
           function MyDynamicObject() { this.name = 'Alice'; };
