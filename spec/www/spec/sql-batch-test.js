@@ -554,6 +554,32 @@ var mytests = function() {
           };
         }, MYTIMEOUT);
 
+        it(suiteName + 'sqlBatch([]) (empty array) - reports success', function(done) {
+          var db = openDatabase('sql-batch-with-empty-array-argument-test.db');
+          expect(db).toBeDefined();
+
+          try {
+            db.sqlBatch([], function() {
+              // EXPECTED RESULT:
+              db.close(done, done);
+            }, function(error) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+              expect(error).toBeDefined();
+              expect(error.message).toBeDefined();
+              expect(error.message).toBe('--');
+              db.close(done, done);
+            });
+          } catch(e) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(e).toBeDefined();
+            expect(e.message).toBeDefined();
+            expect(e.message).toBe('--');
+            db.close(done, done);
+          };
+        }, MYTIMEOUT);
+
         it(suiteName + 'sqlBatch with [] for sql batch item (BOGUS)', function(done) {
           var db = openDatabase('sql-batch-with-empty-array-for-batch-item.db');
 
