@@ -1660,52 +1660,6 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'INLINE Backslash string test', function(done) {
-          var db = openDatabase('INLINE-Backslash-string-test.db');
-
-          db.transaction(function(tx) {
-
-            tx.executeSql("SELECT UPPER('Test \\') AS upper_result", [], function(ignored, rs) {
-              expect(rs).toBeDefined();
-              expect(rs.rows).toBeDefined();
-              expect(rs.rows.length).toBe(1);
-              expect(rs.rows.item(0).upper_result).toBe('TEST \\');
-
-              // Close (plugin only) & finish:
-              (isWebSql) ? done() : db.close(done, done);
-            });
-          }, function(error) {
-            // NOT EXPECTED:
-            expect(false).toBe(true);
-            expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
-          });
-        }, MYTIMEOUT);
-
-        it(suiteName + 'Backslash string binding test', function(done) {
-          var db = openDatabase('Backslash-string-binding-test.db');
-
-          db.transaction(function(tx) {
-
-            tx.executeSql('SELECT UPPER(?) AS upper_result', ['Test \\'], function(tx_ignored, rs1) {
-              expect(rs1).toBeDefined();
-              expect(rs1.rows).toBeDefined();
-              expect(rs1.rows.length).toBe(1);
-              expect(rs1.rows.item(0).upper_result).toBe('TEST \\');
-
-              // Close (plugin only) & finish:
-              (isWebSql) ? done() : db.close(done, done);
-            });
-          }, function(error) {
-            // NOT EXPECTED:
-            expect(false).toBe(true);
-            expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
-          });
-        }, MYTIMEOUT);
-
       });
 
       describe(suiteName + 'string test with non-primitive parameter values', function() {
