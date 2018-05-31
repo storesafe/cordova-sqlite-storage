@@ -1612,9 +1612,7 @@ var mytests = function() {
 
       });
 
-      describe(suiteName + 'Additional US-ASCII string binding/manipulation tests', function() {
-
-        // TBD CHECK HEX value results
+      describe(suiteName + 'Extra US-ASCII string binding/manipulation tests', function() {
 
         it(suiteName + 'INLINE Double-quote string manipulation test', function(done) {
           var db = openDatabase('INLINE-Double-quote-string-test.db');
