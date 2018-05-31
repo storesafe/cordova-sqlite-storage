@@ -158,7 +158,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'INSERT syntax error [VALUES in the wrong place] with a trailing space [XXX "incomplete input" message]', function(done) {
+        it(suiteName + 'INSERT with VALUES in the wrong place (with a trailing space) [XXX TBD "incomplete input" vs "syntax error" message on (WebKit) Web SQL on Android 8.x/...]', function(done) {
           if (isWP8) pending('SKIP for WP(8)'); // FUTURE TBD
 
           var db = openDatabase("INSERT-Syntax-error-test.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -192,19 +192,20 @@ var mytests = function() {
               else
                 expect(error.code).toBe(5);
 
-              if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
+              if (isWebSql && (/Android [8-9]/.test(navigator.userAgent)))
+                expect(error.message).toMatch(/could not prepare statement.*/); // XXX TBD incomplete input vs syntax error message on Android 8(+)
+              else if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
                 expect(error.message).toMatch(/could not prepare statement.*1 near \"VALUES\": syntax error/);
               else if (isWebSql)
                 expect(error.message).toMatch(/near \"VALUES\": syntax error/);
               else if (isWindows)
                 expect(error.message).toMatch(/Error preparing an SQLite statement/);
-              //* else if (isAndroid && !isImpl2) //* XXX TBD Android (default implementation) vs ...
-              //*   expect(error.message).toMatch(/sqlite3_prepare_v2 failure:.*near \" \": syntax error/);
+              else if (isAndroid && !isImpl2)
+                expect(error.message).toMatch(/sqlite3_prepare_v2 failure:.*incomplete input/);
               else if (isAndroid && isImpl2)
                 expect(error.message).toMatch(/near \"VALUES\": syntax error.*code 1.*while compiling: INSERT INTO test_table/);
               else
-                //* expect(error.message).toMatch(/near \" \": syntax error/);
-                expect(error.message).toMatch(/incomplete input/); // XXX SQLite 3.22.0
+                expect(error.message).toMatch(/incomplete input/);
 
               // FAIL transaction & check reported transaction error:
               return true;
