@@ -12,63 +12,40 @@ var isWKWebView = !isWindows && !isAndroid && !isWP8 && !isMac && !!window.webki
 // the default Android implementation and implementation #2,
 // this test script will also apply the androidLockWorkaround: 1 option
 // in case of implementation #2.
-var scenarioList = [
+var pluginScenarioList = [
   isAndroid ? 'Plugin-implementation-default' : 'Plugin',
-  'HTML5',
   'Plugin-implementation-2'
 ];
 
-var scenarioCount = (!!window.hasWebKitBrowser) ? (isAndroid ? 3 : 2) : 1;
+var pluginScenarioCount = isAndroid ? 2 : 1;
 
 var mytests = function() {
 
-  describe('Plugin: sql operations using db.executeSql (plugin-specific) test(s)', function() {
+  for (var i=0; i<pluginScenarioCount; ++i) {
 
-    var pluginScenarioList = [
-      isAndroid ? 'Plugin-implementation-default' : 'Plugin',
-      'Plugin-implementation-2'
-    ];
+    describe(pluginScenarioList[i] + ': sql operations via plugin-specific db.executeSql test(s)', function() {
+      var scenarioName = pluginScenarioList[i];
+      var suiteName = scenarioName + ': ';
+      var isImpl2 = (i === 1);
 
-    var pluginScenarioCount = isAndroid ? 2 : 1;
-
-    for (var i=0; i<pluginScenarioCount; ++i) {
-
-      describe(pluginScenarioList[i] + ': db.executeSql test(s)', function() {
-        var scenarioName = pluginScenarioList[i];
-        var suiteName = scenarioName + ': ';
-        var isImpl2 = (i === 1);
-
-        // NOTE: MUST be defined in function scope, NOT outer scope:
-        var openDatabase = function(first, second, third, fourth, fifth, sixth) {
-          //if (!isImpl2) {
-          //  return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
-          //}
-
-          var dbname, okcb, errorcb;
-
-          if (first.constructor === String ) {
-            dbname = first;
-            okcb = fifth;
-            errorcb = sixth;
-          } else {
-            dbname = first.name;
-            okcb = second;
-            errorcb = third;
-          }
-
-          if (!isImpl2) {
-            return window.sqlitePlugin.openDatabase({name: dbname, location: 0}, okcb, errorcb);
-          }
-
-          var dbopts = {
-            name: 'i2-'+dbname,
+      // NOTE: MUST be defined in function scope, NOT outer scope:
+      var openDatabase = function(name, ignored1, ignored2, ignored3) {
+        if (isImpl2) {
+          return window.sqlitePlugin.openDatabase({
+            // prevent reuse of database from default db implementation:
+            name: 'i2-'+name,
+            // explicit database location:
+            location: 'default',
             androidDatabaseImplementation: 2,
-            androidLockWorkaround: 1,
-            location: 1
-          };
-
-          return window.sqlitePlugin.openDatabase(dbopts, okcb, errorcb);
+            androidLockWorkaround: 1
+          });
+        } else {
+          // explicit database location:
+          return window.sqlitePlugin.openDatabase({name: name, location: 'default'});
         }
+      }
+
+      describe(pluginScenarioList[i] + ': db.executeSql SELECT result test(s)', function() {
 
         it(suiteName + 'db.executeSql string result test with null for parameter argument array', function(done) {
           var db = openDatabase('DB-sql-String-result-test-with-null-parameter-arg-array.db');
@@ -503,6 +480,10 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+      });
+
+      describe(pluginScenarioList[i] + ': db.executeSql value storage test(s)', function() {
+
         it(suiteName + 'db.executeSql store numeric values and check', function(done) {
           var db = openDatabase('DB-sql-store-numeric-values-and-check.db');
           expect(db).toBeDefined();
@@ -698,6 +679,10 @@ var mytests = function() {
             db.close(done, done);
           });
         }, MYTIMEOUT);
+
+      });
+
+      describe(pluginScenarioList[i] + ': more db.executeSql SELECT result test(s)', function() {
 
         it(suiteName + 'SELECT UPPER(?) AS upper1, UPPER(?) AS upper2 with "naive" Array subclass (constructor NOT explicitly set to subclasss) as value arguments array', function(done) {
           var db = openDatabase('DB-SQL-SELECT-multi-upper-on-array-subclass.db');
@@ -917,57 +902,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
       });
-    }
-
-  });
-
-  describe('Plugin: plugin-specific error test(s)', function() {
-
-    var pluginScenarioList = [
-      isAndroid ? 'Plugin-implementation-default' : 'Plugin',
-      'Plugin-implementation-2'
-    ];
-
-    var pluginScenarioCount = isAndroid ? 2 : 1;
-
-    for (var i=0; i<pluginScenarioCount; ++i) {
 
       describe(pluginScenarioList[i] + ': db.executeSql error test(s)', function() {
-        var scenarioName = pluginScenarioList[i];
-        var suiteName = scenarioName + ': ';
-        var isImpl2 = (i === 1);
-
-        // NOTE: MUST be defined in function scope, NOT outer scope:
-        var openDatabase = function(first, second, third, fourth, fifth, sixth) {
-          //if (!isImpl2) {
-          //  return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
-          //}
-
-          var dbname, okcb, errorcb;
-
-          if (first.constructor === String ) {
-            dbname = first;
-            okcb = fifth;
-            errorcb = sixth;
-          } else {
-            dbname = first.name;
-            okcb = second;
-            errorcb = third;
-          }
-
-          if (!isImpl2) {
-            return window.sqlitePlugin.openDatabase({name: dbname, location: 0}, okcb, errorcb);
-          }
-
-          var dbopts = {
-            name: 'i2-'+dbname,
-            androidDatabaseImplementation: 2,
-            androidLockWorkaround: 1,
-            location: 1
-          };
-
-          return window.sqlitePlugin.openDatabase(dbopts, okcb, errorcb);
-        }
 
         it(suiteName + 'db.executeSql() with no arguments and then inline string test', function(done) {
           var db = openDatabase('DB-execute-sql-with-no-arguments.db');
@@ -1595,57 +1531,8 @@ var mytests = function() {
         });
 
       });
-    }
 
-  });
-
-  describe('Plugin: more plugin-specific test(s)', function() {
-
-    var pluginScenarioList = [
-      isAndroid ? 'Plugin-implementation-default' : 'Plugin',
-      'Plugin-implementation-2'
-    ];
-
-    var pluginScenarioCount = isAndroid ? 2 : 1;
-
-    for (var i=0; i<pluginScenarioCount; ++i) {
-
-      describe(pluginScenarioList[i] + ': more db.executeSql test(s)', function() {
-        var scenarioName = pluginScenarioList[i];
-        var suiteName = scenarioName + ': ';
-        var isImpl2 = (i === 1);
-
-        // NOTE: MUST be defined in function scope, NOT outer scope:
-        var openDatabase = function(first, second, third, fourth, fifth, sixth) {
-          //if (!isImpl2) {
-          //  return window.sqlitePlugin.openDatabase(first, second, third, fourth, fifth, sixth);
-          //}
-
-          var dbname, okcb, errorcb;
-
-          if (first.constructor === String ) {
-            dbname = first;
-            okcb = fifth;
-            errorcb = sixth;
-          } else {
-            dbname = first.name;
-            okcb = second;
-            errorcb = third;
-          }
-
-          if (!isImpl2) {
-            return window.sqlitePlugin.openDatabase({name: dbname, location: 0}, okcb, errorcb);
-          }
-
-          var dbopts = {
-            name: 'i2-'+dbname,
-            androidDatabaseImplementation: 2,
-            androidLockWorkaround: 1,
-            location: 1
-          };
-
-          return window.sqlitePlugin.openDatabase(dbopts, okcb, errorcb);
-        }
+      describe(pluginScenarioList[i] + ': additional db.executeSql test(s)', function() {
 
         it(suiteName + 'PRAGMA & multiple database transaction combination test', function(done) {
           var db = openDatabase('DB1');
@@ -1736,9 +1623,10 @@ var mytests = function() {
         });
 
       });
-    }
 
-  });
+    });
+
+  }
 
 }
 
