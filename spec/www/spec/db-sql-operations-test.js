@@ -2,31 +2,6 @@
 
 var MYTIMEOUT = 12000;
 
-// FUTURE TODO replace in test(s):
-function ok(test, desc) { expect(test).toBe(true); }
-function equal(a, b, desc) { expect(a).toEqual(b); } // '=='
-
-// XXX TODO REFACTOR OUT OF OLD TESTS:
-var wait = 0;
-var test_it_done = null;
-function xtest_it(desc, fun) { xit(desc, fun); }
-function test_it(desc, fun) {
-  wait = 0;
-  it(desc, function(done) {
-    test_it_done = done;
-    fun();
-  }, MYTIMEOUT);
-}
-function stop(n) {
-  if (!!n) wait += n
-  else ++wait;
-}
-function start(n) {
-  if (!!n) wait -= n;
-  else --wait;
-  if (wait == 0) test_it_done();
-}
-
 var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
@@ -1672,49 +1647,90 @@ var mytests = function() {
           return window.sqlitePlugin.openDatabase(dbopts, okcb, errorcb);
         }
 
-        test_it(suiteName + "PRAGMAs & multiple database transactions mixed together", function() {
+        it(suiteName + 'PRAGMA & multiple database transaction combination test', function(done) {
           var db = openDatabase('DB1');
 
           var db2 = openDatabase('DB2');
 
-          stop(2);
+          // Replacement for QUnit stop()/start() functions:
+          var checkCount = 0;
+          var expectedCheckCount = 2;
 
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)', [], function() {
-              console.log("test_table created");
-            });
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id INTEGER PRIMARY KEY, data TEXT, data_num INTEGER)');
 
-            stop();
-            db.executeSql("pragma table_info (test_table);", [], function(res) {
-              start();
-              console.log("PRAGMA res: " + JSON.stringify(res));
-              equal(res.rows.item(2).name, "data_num", "DB1 table number field name");
+            ++expectedCheckCount;
+
+            db.executeSql('PRAGMA table_info (test_table);', [], function(resultSet) {
+              ++checkCount;
+
+              expect(resultSet).toBeDefined();
+              expect(resultSet.rows).toBeDefined();
+              expect(resultSet.rows.length).toBe(3);
+
+              var resultRow1 = resultSet.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.name).toBe('id');
+
+              var resultRow2 = resultSet.rows.item(1);
+              expect(resultRow2).toBeDefined();
+              expect(resultRow2.name).toBe('data');
+
+              var resultRow3 = resultSet.rows.item(2);
+              expect(resultRow3).toBeDefined();
+              expect(resultRow3.name).toBe('data_num');
             });
           });
 
           db2.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS tt2');
-            tx.executeSql('CREATE TABLE IF NOT EXISTS tt2 (id2 integer primary key, data2 text, data_num2 integer)', [], function() {
-              console.log("tt2 created");
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt2 (id2 INTEGER PRIMARY KEY, data2 TEXT, data_num2 INTEGER)');
+
+            db.executeSql('PRAGMA table_info (test_table);', [], function(resultSet) {
+              ++checkCount;
+
+              expect(resultSet).toBeDefined();
+              expect(resultSet.rows).toBeDefined();
+
+              expect(resultSet.rows.length).toBe(3);
+
+              var resultRow1 = resultSet.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.name).toBe('id');
+
+              var resultRow2 = resultSet.rows.item(1);
+              expect(resultRow2).toBeDefined();
+              expect(resultRow2.name).toBe('data');
+
+              var resultRow3 = resultSet.rows.item(2);
+              expect(resultRow3).toBeDefined();
+              expect(resultRow3.name).toBe('data_num');
+
+              if (checkCount === expectedCheckCount) db.close(done, done);
             });
 
-            db.executeSql("pragma table_info (test_table);", [], function(res) {
-              console.log("PRAGMA (db) res: " + JSON.stringify(res));
-              equal(res.rows.item(0).name, "id", "DB1 table key field name");
-              equal(res.rows.item(1).name, "data", "DB1 table text field name");
-              equal(res.rows.item(2).name, "data_num", "DB1 table number field name");
+            db2.executeSql("PRAGMA table_info (tt2);", [], function(resultSet) {
+              ++checkCount;
 
-              start();
-            });
+              expect(resultSet).toBeDefined();
+              expect(resultSet.rows).toBeDefined();
 
-            db2.executeSql("pragma table_info (tt2);", [], function(res) {
-              console.log("PRAGMA (tt2) res: " + JSON.stringify(res));
-              equal(res.rows.item(0).name, "id2", "DB2 table key field name");
-              equal(res.rows.item(1).name, "data2", "DB2 table text field name");
-              equal(res.rows.item(2).name, "data_num2", "DB2 table number field name");
+              expect(resultSet.rows.length).toBe(3);
 
-              start();
+              var resultRow1 = resultSet.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.name).toBe('id2');
+
+              var resultRow2 = resultSet.rows.item(1);
+              expect(resultRow2).toBeDefined();
+              expect(resultRow2.name).toBe('data2');
+
+              var resultRow3 = resultSet.rows.item(2);
+              expect(resultRow3).toBeDefined();
+              expect(resultRow3.name).toBe('data_num2');
+
+              if (checkCount === expectedCheckCount) db.close(done, done);
             });
           });
         });
