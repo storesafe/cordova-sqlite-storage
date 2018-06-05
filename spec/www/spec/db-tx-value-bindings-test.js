@@ -830,6 +830,62 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        it(suiteName + "'012012.012' string INSERT value bindings", function(done) {
+          // Additional test ref: litehelpers/Cordova-sqlite-storage#791
+          var db = openDatabase('012012.012-string-INSERT-value-bindings-test.db');
+
+          var myValue = '012012.012';
+          var myValueAsRealNumber = 12012.012;
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS tt');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (data1, data2 TEXT, data3 NUMERIC, data4 INTEGER, data5 REAL)', null, function(ignored1, ignored2) {
+              tx.executeSql('INSERT INTO tt VALUES (?,?,?,?,?)',
+                  [myValue, myValue, myValue, myValue, myValue], function(ignored, rs1) {
+                expect(rs1).toBeDefined();
+                expect(rs1.rowsAffected).toBe(1);
+                expect(rs1.insertId).toBe(1);
+
+                tx.executeSql('SELECT * FROM tt', [], function(ignored, rs2) {
+                  expect(rs2).toBeDefined();
+                  expect(rs2.rows).toBeDefined();
+                  expect(rs2.rows.length).toBe(1);
+
+                  var resultRow2 = rs2.rows.item(0);
+                  expect(resultRow2.data1).toBe(myValue);
+                  expect(resultRow2.data2).toBe(myValue);
+                  expect(resultRow2.data3).toBe(myValueAsRealNumber);
+                  expect(resultRow2.data4).toBe(myValueAsRealNumber);
+                  expect(resultRow2.data5).toBe(myValueAsRealNumber);
+
+                  tx.executeSql('SELECT TYPEOF(data1) AS t1, TYPEOF(data2) AS t2, TYPEOF(data3) AS t3, TYPEOF(data4) AS t4, TYPEOF(data5) AS t5 FROM tt', [], function(ignored, rs3) {
+                    expect(rs3).toBeDefined();
+                    expect(rs3.rows).toBeDefined();
+                    expect(rs3.rows.length).toBe(1);
+
+                    var resultRow3 = rs3.rows.item(0);
+                    expect(resultRow3.t1).toBe('text');
+                    expect(resultRow3.t2).toBe('text');
+                    expect(resultRow3.t3).toBe('real');
+                    expect(resultRow3.t4).toBe('real');
+                    expect(resultRow3.t5).toBe('real');
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  });
+
+                });
+              });
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
         it(suiteName + "executeSql parameter as array", function(done) {
           var db = openDatabase("array-parameter.db", "1.0", "Demo", DEFAULT_SIZE);
 
