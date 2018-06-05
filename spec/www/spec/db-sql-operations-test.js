@@ -904,38 +904,41 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        test_it(suiteName + "Multiple db.executeSql string result test", function() {
+        it(suiteName + 'Multiple db.executeSql string result test', function(done) {
           // NOTE: this test checks that for db.executeSql(), the result callback is
           // called exactly once, with the proper result:
           var db = openDatabase('Multiple-DB-sql-String-result-test.db');
 
-          var expected = [ 'FIRST', 'SECOND' ];
+          expect(db).toBeDefined();
+
+          var expectedText = [ 'FIRST', 'SECOND' ];
           var i=0;
 
-          ok(!!db, 'valid db object');
+          var okcb = function(resultSet) {
+            expect(resultSet).toBeDefined();
 
-          stop(2);
+            // ignore the rest of this callback (and do not count)
+            // in case resultSet data is not present:
+            if (!resultSet) return;
 
-          var okcb = function(result) {
-            if (i > 1) {
-              ok(false, "unexpected result: " + JSON.stringify(result));
-              console.log("discarding unexpected result: " + JSON.stringify(result))
-              return;
-            }
+            expect(resultSet.rows).toBeDefined();
+            expect(resultSet.rows.length).toBe(1);
 
-            ok(!!result, "valid result object");
+            var resultRow = resultSet.rows.item(0);
+            expect(resultRow).toBeDefined();
 
-            // ignore cb (and do not count) if result is undefined:
-            if (!!result) {
-              console.log("result.rows.item(0).uppertext: " + result.rows.item(0).uppertext);
-              equal(result.rows.item(0).uppertext, expected[i], "Check result " + i);
-              i++;
-              start(1);
-            }
+            expect(i < 2).toBe(true);
+
+            expect(resultRow.upperText).toBe(expectedText[i]);
+
+            ++i;
+
+            // wait for second callback:
+            if (i === 2) db.close(done, done);
           };
 
-          db.executeSql("select upper('first') as uppertext", [], okcb);
-          db.executeSql("select upper('second') as uppertext", [], okcb);
+          db.executeSql("SELECT UPPER('first') as upperText", [], okcb);
+          db.executeSql("SELECT UPPER('second') as upperText", [], okcb);
         }, MYTIMEOUT);
 
       });
