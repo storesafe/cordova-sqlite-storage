@@ -662,6 +662,10 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+      });
+
+      describe(pluginScenarioList[i] + ': more db.executeSql SELECT result test(s)', function() {
+
         it(suiteName + 'db.executeSql string result test with new String for SQL', function(done) {
           var db = openDatabase('DB-sql-new-String-test.db');
           expect(db).toBeDefined();
@@ -679,10 +683,6 @@ var mytests = function() {
             db.close(done, done);
           });
         }, MYTIMEOUT);
-
-      });
-
-      describe(pluginScenarioList[i] + ': more db.executeSql SELECT result test(s)', function() {
 
         it(suiteName + 'SELECT UPPER(?) AS upper1, UPPER(?) AS upper2 with "naive" Array subclass (constructor NOT explicitly set to subclasss) as value arguments array', function(done) {
           var db = openDatabase('DB-SQL-SELECT-multi-upper-on-array-subclass.db');
