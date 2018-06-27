@@ -419,7 +419,8 @@ var mytests = function() {
                   (isWebSql && !isAndroid) ||
                   (!isWebSql && isWindows) ||
                   (!isWebSql && !isWindows && isAndroid && isImpl2 &&
-                    !(/Android 4/.test(navigator.userAgent))))
+                    !(/Android 4/.test(navigator.userAgent)) &&
+                    !(/Android 8/.test(navigator.userAgent))))
                 expect(rs.rows.item(0).uppertext).toBe('A');
               else
                 expect(rs.rows.item(0).uppertext).toBe('A\0CD');
