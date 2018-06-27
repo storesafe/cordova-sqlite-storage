@@ -952,6 +952,10 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+      });
+
+      describe(suiteName + 'INLINE BLOB value storage tests', function() {
+
         it(suiteName + "INSERT inline BLOB value (X'40414243') and check stored data [TBD SELECT BLOB value ERROR EXPECTED on Windows, WP8, and Android with androidDatabaseImplementation: 2 setting; with default sqlite HEX encoding: UTF-6le on Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]", function(done) {
           var db = openDatabase('INSERT-inline-BLOB-value-40414243-and-check-stored-data.db');
 
