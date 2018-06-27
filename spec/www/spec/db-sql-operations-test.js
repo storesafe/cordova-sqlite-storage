@@ -1,6 +1,6 @@
 /* 'use strict'; */
 
-var MYTIMEOUT = 12000;
+var MYTIMEOUT = 30000;
 
 var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows
