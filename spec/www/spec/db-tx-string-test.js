@@ -403,6 +403,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'U+0000 string parameter manipulation test [TBD TRUNCATION ISSUE REPRODUCED on (WebKit) Web SQL & plugin on multiple platforms]', function(done) {
+          if (isWebSql && /Android 6/.test(navigator.userAgent)) pending('SKIP on (WebKit) Web SQL on Android 6'); // XXX TBD
+
           var db = openDatabase('U-0000-string-parameter-upper-test');
 
           db.transaction(function(tx) {
