@@ -186,6 +186,33 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        it(suiteName + 'US-ASCII String concatenation test with multiple argument values', function(done) {
+          var db = openDatabase('ASCII-String-concat-test.db');
+
+          db.transaction(function(tx) {
+
+            tx.executeSql('SELECT (? || ?) AS myResult', ['First', '-second'], function(ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+
+              var resultRow = rs.rows.item(0);
+              expect(resultRow).toBeDefined();
+              expect(resultRow.myResult).toBeDefined();
+              expect(resultRow.myResult).toBe('First-second');
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
         it(suiteName + 'tx.executeSql(new String(sql))', function(done) {
           var db = openDatabase('tx-executeSql-new-String-test.db');
 
