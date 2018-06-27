@@ -664,6 +664,31 @@ var mytests = function() {
 
       });
 
+      describe(pluginScenarioList[i] + ': db.executeSql numbered parameters storage test(s)', function() {
+
+        it(suiteName + 'db.executeSql store numbered parameters (reversed) and check', function(done) {
+          var db = openDatabase('DB-executeSql-store-numbered-parameters-reversed-and-check.db');
+
+          db.executeSql('DROP TABLE IF EXISTS MyTable');
+          db.executeSql('CREATE TABLE MyTable (x,y)');
+          db.executeSql('INSERT INTO MyTable VALUES (?2,?1)', ['a',1]);
+
+          db.executeSql('SELECT * FROM MyTable', [], function (resultSet) {
+            // EXPECTED: CORRECT RESULT:
+            expect(resultSet).toBeDefined();
+            expect(resultSet.rows).toBeDefined();
+            expect(resultSet.rows.length).toBe(1);
+
+            var resultRow = resultSet.rows.item(0);
+            expect(resultRow).toBeDefined();
+            expect(resultRow.x).toBe(1);
+            expect(resultRow.y).toBe('a');
+            db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+      });
+
       describe(pluginScenarioList[i] + ': more db.executeSql SELECT result test(s)', function() {
 
         it(suiteName + 'db.executeSql string result test with new String for SQL', function(done) {

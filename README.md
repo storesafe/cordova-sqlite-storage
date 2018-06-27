@@ -6,7 +6,7 @@ Native SQLite component with API based on HTML5/[Web SQL (DRAFT) API](http://www
 - macOS ("osx" platform)
 - Windows 10 (UWP) DESKTOP and MOBILE (see below for major limitations)
 
-Browser platform is supported as described in [Browser platform usage notes](#browser-platform-usage-notes) section below.
+Browser platform is supported _with some limitations (no support for numbered parameters)_ as described in [Browser platform usage notes](#browser-platform-usage-notes) section below.
 
 **LICENSE:** MIT, with Apache 2.0 option for Android and Windows platforms (see [LICENSE.md](./LICENSE.md) for details, including third-party components used by this plugin)
 
@@ -31,7 +31,7 @@ New release in July 2018 will include the following major enhancements ([litehel
 
 ## Browser platform usage notes
 
-As stated above the browser platform will be supported using [kripken / sql.js](https://github.com/kripken/sql.js) (see [litehelpers/Cordova-sqlite-storage#576](https://github.com/litehelpers/Cordova-sqlite-storage/pull/576)) in the near future. Alternative solutions for now:
+As stated above the browser platform will be supported _(with numbered parameters working_ using [kripken / sql.js](https://github.com/kripken/sql.js) (see [litehelpers/Cordova-sqlite-storage#576](https://github.com/litehelpers/Cordova-sqlite-storage/pull/576)) in the near future. Alternative solutions for now _(with no support for numbered parameters such as `?1`, `?2`, ...)_:
 
 - Use [brodybits / sql-promise-helper](https://github.com/brodybits/sql-promise-helper) as described in [brodybits/sql-promise-helper#4](https://github.com/brodybits/sql-promise-helper/issues/4)
 - Mocking on Ionic Native is possible as described in <https://www.techiediaries.com/mocking-native-sqlite-plugin/> and <https://medium.com/@tintin301/ionic-sqlite-storage-setting-up-for-browser-development-and-testing-67c0f17fc7af>
@@ -128,6 +128,20 @@ To populate a database using the DRAFT standard transaction API:
   });
 ```
 
+or using numbered parameters as documented in <https://www.sqlite.org/c3ref/bind_blob.html>:
+
+```Javascript
+  db.transaction(function(tx) {
+    tx.executeSql('CREATE TABLE IF NOT EXISTS DemoTable (name, score)');
+    tx.executeSql('INSERT INTO DemoTable VALUES (?1,?2)', ['Alice', 101]);
+    tx.executeSql('INSERT INTO DemoTable VALUES (?1,?2)', ['Betty', 202]);
+  }, function(error) {
+    console.log('Transaction ERROR: ' + error.message);
+  }, function() {
+    console.log('Populated database OK');
+  });
+```
+
 To check the data using the "standard" (deprecated) transaction API:
 
 ```Javascript
@@ -149,6 +163,20 @@ To populate a database using the SQL batch API:
     'CREATE TABLE IF NOT EXISTS DemoTable (name, score)',
     [ 'INSERT INTO DemoTable VALUES (?,?)', ['Alice', 101] ],
     [ 'INSERT INTO DemoTable VALUES (?,?)', ['Betty', 202] ],
+  ], function() {
+    console.log('Populated database OK');
+  }, function(error) {
+    console.log('SQL batch ERROR: ' + error.message);
+  });
+```
+
+or using numbered parameters as documented in <https://www.sqlite.org/c3ref/bind_blob.html>:
+
+```Javascript
+  db.sqlBatch([
+    'CREATE TABLE IF NOT EXISTS DemoTable (name, score)',
+    [ 'INSERT INTO DemoTable VALUES (?1,?2)', ['Alice', 101] ],
+    [ 'INSERT INTO DemoTable VALUES (?1,?2)', ['Betty', 202] ],
   ], function() {
     console.log('Populated database OK');
   }, function(error) {
@@ -490,6 +518,7 @@ As "strongly recommended" by [Web SQL Database API 8.5 SQL injection](https://ww
 - In certain cases such as `transaction.executeSql()` with no arguments (Android/iOS WebKit) Web SQL includes includes a code member with value of 0 (SQLError.UNKNOWN_ERR) in the exception while the plugin includes no such code member.
 - If the SQL arguments are passed in an `Array` subclass object where the `constructor` does not point to `Array` then the SQL arguments are ignored by the plugin.
 - The results data objects are not immutable as specified/implied by [Web SQL (DRAFT) API section 4.5](https://www.w3.org/TR/webdatabase/#database-query-results).
+- This plugin supports use of numbered parameters (`?1`, `?2`, etc.) as documented in <https://www.sqlite.org/c3ref/bind_blob.html>, not supported by HTML5/[Web SQL (DRAFT) API](http://www.w3.org/TR/webdatabase/) ref: [Web SQL (DRAFT) API section 4.2](https://www.w3.org/TR/webdatabase/#parsing-and-processing-sql-statements).
 
 ### Security of deleted data
 
@@ -577,6 +606,7 @@ Additional limitations are tracked in [marked Cordova-sqlite-storage doc-todo is
 - Extremely large and small INTEGER and REAL values ref: [litehelpers/Cordova-sqlite-storage#627](https://github.com/litehelpers/Cordova-sqlite-storage/issues/627)
 - More emojis and other 4-octet UTF-8 characters
 - More database file names with some more control characters and multi-byte UTF-8 characters (including emojis and other 4-byte UTF-8 characters)
+- Use of numbered parameters (`?1`, `?2`, etc.) as documented in <https://www.sqlite.org/c3ref/bind_blob.html>
 - Use of `?NNN`/`:AAA`/`@AAAA`/`$AAAA` parameter placeholders as documented in <https://www.sqlite.org/lang_expr.html#varparam> and <https://www.sqlite.org/c3ref/bind_blob.html>) (currently NOT supported by this plugin) ref: [litehelpers/Cordova-sqlite-storage#717](https://github.com/litehelpers/Cordova-sqlite-storage/issues/717)
 - Single-statement and SQL batch transaction calls with invalid arguments (TBD behavior subject to change)
 - Plugin vs (WebKit) Web SQL transaction behavior in case of an error handler which returns various falsy vs truthy values
@@ -927,6 +957,17 @@ db.executeSql('INSERT INTO MyTable VALUES (?)', ['test-value'], function (result
 });
 ```
 
+or using numbered parameters as documented in <https://www.sqlite.org/c3ref/bind_blob.html>:
+
+```Javascript
+db.executeSql('INSERT INTO MyTable VALUES (?1)', ['test-value'], function (resultSet) {
+  console.log('resultSet.insertId: ' + resultSet.insertId);
+  console.log('resultSet.rowsAffected: ' + resultSet.rowsAffected);
+}, function(error) {
+  console.log('SELECT error: ' + error.message);
+});
+```
+
 Sample with SELECT:
 
 ```Javascript
@@ -968,6 +1009,20 @@ db.sqlBatch([
 });
 ```
 
+or using numbered parameters as documented in <https://www.sqlite.org/c3ref/bind_blob.html>:
+
+```Javascript
+db.sqlBatch([
+  'CREATE TABLE MyTable IF NOT EXISTS (name STRING, balance INTEGER)',
+  [ 'INSERT INTO MyTable VALUES (?1,?2)', ['Alice', 100] ],
+  [ 'INSERT INTO MyTable VALUES (?1,?2)', ['Betty', 200] ],
+], function() {
+  console.log('MyTable is now populated.');
+}, function(error) {
+  console.log('Populate table error: ' + error.message);
+});
+```
+
 In case of an error, all changes in a sql batch are automatically discarded using ROLLBACK.
 
 <!-- END SQL batch transactions -->
@@ -981,6 +1036,25 @@ db.transaction(function(tx) {
   tx.executeSql('DROP TABLE IF EXISTS MyTable');
   tx.executeSql('CREATE TABLE MyTable (SampleColumn)');
   tx.executeSql('INSERT INTO MyTable VALUES (?)', ['test-value'], function(tx, resultSet) {
+    console.log('resultSet.insertId: ' + resultSet.insertId);
+    console.log('resultSet.rowsAffected: ' + resultSet.rowsAffected);
+  }, function(tx, error) {
+    console.log('INSERT error: ' + error.message);
+  });
+}, function(error) {
+  console.log('transaction error: ' + error.message);
+}, function() {
+  console.log('transaction ok');
+});
+```
+
+or using numbered parameters as documented in <https://www.sqlite.org/c3ref/bind_blob.html>:
+
+```Javascript
+db.transaction(function(tx) {
+  tx.executeSql('DROP TABLE IF EXISTS MyTable');
+  tx.executeSql('CREATE TABLE MyTable (SampleColumn)');
+  tx.executeSql('INSERT INTO MyTable VALUES (?1)', ['test-value'], function(tx, resultSet) {
     console.log('resultSet.insertId: ' + resultSet.insertId);
     console.log('resultSet.rowsAffected: ' + resultSet.rowsAffected);
   }, function(tx, error) {

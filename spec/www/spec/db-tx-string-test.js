@@ -213,6 +213,60 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        it(suiteName + 'String concatenation test with numbered parameters', function(done) {
+          var db = openDatabase('string-concat-with-numbered-parameters-test.db');
+
+          db.transaction(function(tx) {
+
+            tx.executeSql('SELECT (?1 || ?2) AS myResult', ['First', '-second'], function(ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+
+              var resultRow = rs.rows.item(0);
+              expect(resultRow).toBeDefined();
+              expect(resultRow.myResult).toBeDefined();
+              expect(resultRow.myResult).toBe('First-second');
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'String concatenation test with reversed numbered parameters', function(done) {
+          var db = openDatabase('string-concat-with-reversed-numbered-parameters-test.db');
+
+          db.transaction(function(tx) {
+
+            tx.executeSql('SELECT (?2 || ?1) AS myResult', ['Alice', 'Betty'], function(ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+
+              var resultRow = rs.rows.item(0);
+              expect(resultRow).toBeDefined();
+              expect(resultRow.myResult).toBeDefined();
+              expect(resultRow.myResult).toBe('BettyAlice');
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
         it(suiteName + 'tx.executeSql(new String(sql))', function(done) {
           var db = openDatabase('tx-executeSql-new-String-test.db');
 

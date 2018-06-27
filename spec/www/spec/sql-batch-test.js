@@ -431,6 +431,31 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        it(suiteName + 'sqlBatch INSERT with numbered parameters (reversed)', function(done) {
+          var db = openDatabase('sqlBatch-INSERT-with-numbered-parameters-reversed-test.db');
+
+          expect(db).toBeDefined();
+
+          db.sqlBatch([
+            'DROP TABLE IF EXISTS MyTable',
+            'CREATE TABLE MyTable (x,y)',
+            [ 'INSERT INTO MyTable VALUES (?2,?1)', ['a',1] ],
+          ], function() {
+            db.executeSql('SELECT * FROM MyTable', [], function (resultSet) {
+              // EXPECTED: CORRECT RESULT:
+              expect(resultSet.rows.length).toBe(1);
+              expect(resultSet.rows.item(0).x).toBe(1);
+              expect(resultSet.rows.item(0).y).toBe('a');
+              db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
         it(suiteName + 'batch sql with syntax error', function(done) {
           var db = openDatabase('batch-sql-syntax-error-test.db');
 

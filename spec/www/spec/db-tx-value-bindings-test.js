@@ -954,6 +954,84 @@ var mytests = function() {
 
       });
 
+      describe(suiteName + 'numbered argument parameters storage tests', function() {
+
+        it(suiteName + 'INSERT with numbered argument parameters', function(done) {
+          var db = openDatabase('INSERT-with-numbered-argument-parameters-test.db');
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS MyTable');
+            // create columns with no type affinity
+            tx.executeSql('CREATE TABLE IF NOT EXISTS MyTable (id integer primary key, data1, data2)', null, function(ignored1, ignored2) {
+
+              tx.executeSql("INSERT INTO MyTable (data1, data2) VALUES (?1,?2)", ['a', 1], function(tx, rs1) {
+                expect(rs1).toBeDefined();
+                expect(rs1.rowsAffected).toBe(1);
+
+                tx.executeSql("SELECT * FROM MyTable", [], function(tx_ignored, rs2) {
+                  expect(rs2).toBeDefined();
+                  expect(rs2.rows).toBeDefined();
+                  expect(rs2.rows.length).toBe(1);
+
+                  var resultRow2 = rs2.rows.item(0);
+                  expect(resultRow2).toBeDefined();
+                  expect(resultRow2.id).toBe(1);
+                  expect(resultRow2.data1).toBe('a');
+                  expect(resultRow2.data2).toBe(1);
+
+                  // Close (plugin only) & finish:
+                  (isWebSql) ? done() : db.close(done, done);
+                });
+              });
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'INSERT with numbered argument parameters reversed', function(done) {
+          var db = openDatabase('INSERT-with-numbered-argument-parameters-reversed-test.db');
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS MyTable');
+            // create columns with no type affinity
+            tx.executeSql('CREATE TABLE IF NOT EXISTS MyTable (id integer primary key, data1, data2)', null, function(ignored1, ignored2) {
+
+              tx.executeSql("INSERT INTO MyTable (data1, data2) VALUES (?2,?1)", ['a', 1], function(tx, rs1) {
+                expect(rs1).toBeDefined();
+                expect(rs1.rowsAffected).toBe(1);
+
+                tx.executeSql("SELECT * FROM MyTable", [], function(tx_ignored, rs2) {
+                  expect(rs2).toBeDefined();
+                  expect(rs2.rows).toBeDefined();
+                  expect(rs2.rows.length).toBe(1);
+
+                  var resultRow2 = rs2.rows.item(0);
+                  expect(resultRow2).toBeDefined();
+                  expect(resultRow2.id).toBe(1);
+                  expect(resultRow2.data1).toBe(1);
+                  expect(resultRow2.data2).toBe('a');
+
+                  // Close (plugin only) & finish:
+                  (isWebSql) ? done() : db.close(done, done);
+                });
+              });
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+      });
+
       describe(suiteName + 'INLINE BLOB value storage tests', function() {
 
         it(suiteName + "INSERT inline BLOB value (X'40414243') and check stored data [TBD SELECT BLOB value ERROR EXPECTED on Windows, WP8, and Android with androidDatabaseImplementation: 2 setting; with default sqlite HEX encoding: UTF-6le on Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]", function(done) {
