@@ -6,7 +6,7 @@ Native SQLite component with API based on HTML5/[Web SQL (DRAFT) API](http://www
 - macOS ("osx" platform)
 - Windows 10 (UWP) DESKTOP and MOBILE (see below for major limitations)
 
-Browser platform is supported _with some limitations (no support for numbered parameters)_ as described in [Browser platform usage notes](#browser-platform-usage-notes) section below.
+Browser platform is currently supported with some limitations as described in [browser platform usage notes](#browser-platform-usage-notes) section below, will be supported with more features such as numbered parameters in upcoming major release for July 2018 (see below).
 
 **LICENSE:** MIT, with Apache 2.0 option for Android and Windows platforms (see [LICENSE.md](./LICENSE.md) for details, including third-party components used by this plugin)
 
@@ -28,13 +28,6 @@ New release in July 2018 will include the following major enhancements ([litehel
 - drop support for iOS 8.x (was already dropped by cordova-ios@4.4.0)
 - ~~drop Android NDK build for x86_64 ([litehelpers/Cordova-sqlite-storage#772](https://github.com/litehelpers/Cordova-sqlite-storage/issues/772)); NDK build for x86 will still work on x86_64 if no other plugins have NDK build for x86_64; feedback is requested in case of interest in NDK build for x86_64~~
 - drop support for location: 0-2 values in openDatabase call (please use `location: 'default'` or `iosDatabaseLocation` setting in openDatabase as documented below)
-
-## Browser platform usage notes
-
-As stated above the browser platform will be supported _(with numbered parameters working_ using [kripken / sql.js](https://github.com/kripken/sql.js) (see [litehelpers/Cordova-sqlite-storage#576](https://github.com/litehelpers/Cordova-sqlite-storage/pull/576)) in the near future. Alternative solutions for now _(with no support for numbered parameters such as `?1`, `?2`, ...)_:
-
-- Use [brodybits / sql-promise-helper](https://github.com/brodybits/sql-promise-helper) as described in [brodybits/sql-promise-helper#4](https://github.com/brodybits/sql-promise-helper/issues/4)
-- Mocking on Ionic Native is possible as described in <https://www.techiediaries.com/mocking-native-sqlite-plugin/> and <https://medium.com/@tintin301/ionic-sqlite-storage-setting-up-for-browser-development-and-testing-67c0f17fc7af>
 
 ## About this plugin version
 
@@ -142,7 +135,7 @@ or using numbered parameters as documented in <https://www.sqlite.org/c3ref/bind
   });
 ```
 
-To check the data using the "standard" (deprecated) transaction API:
+To check the data using the DRAFT standard transaction API:
 
 ```Javascript
   db.transaction(function(tx) {
@@ -154,7 +147,9 @@ To check the data using the "standard" (deprecated) transaction API:
   });
 ```
 
-### Using recommended API calls
+### Using plugin-specific API calls
+
+NOTE: These samples will NOT work alternative 3 for browser platform support discussed in [browser platform usage notes](#browser-platform-usage-notes).
 
 To populate a database using the SQL batch API:
 
@@ -193,6 +188,8 @@ To check the data using the single SQL statement API:
     console.log('SELECT SQL statement ERROR: ' + error.message);
   });
 ```
+
+### More detailed sample
 
 See the [Sample section](#sample) for a sample with a more detailed explanation (using the DRAFT standard transaction API).
 
@@ -325,6 +322,37 @@ In addition, this guide assumes a basic knowledge of some key JavaScript concept
 - In general it is *not* recommended to commit the `platforms` subdirectory tree into the source repository.
 
 **NOTICE:** This plugin is only supported with the Cordova CLI. This plugin is *not* supported with other Cordova/PhoneGap systems such as PhoneGap CLI, PhoneGap Build, Plugman, Intel XDK, Webstorm, etc.
+
+## Browser platform usage notes
+
+As stated above the browser platform will supported with features such as numbered parameters using [kripken / sql.js](https://github.com/kripken/sql.js) (see [litehelpers/Cordova-sqlite-storage#576](https://github.com/litehelpers/Cordova-sqlite-storage/pull/576)) in the near future. Alternative solutions for now, with features such as numbered paramters (`?1`, `?2`, etc.) missing:
+
+1. Use [brodybits / sql-promise-helper](https://github.com/brodybits/sql-promise-helper) as described in [brodybits/sql-promise-helper#4](https://github.com/brodybits/sql-promise-helper/issues/4)
+2. Mocking on Ionic Native is possible as described in <https://www.techiediaries.com/mocking-native-sqlite-plugin/> and <https://medium.com/@tintin301/ionic-sqlite-storage-setting-up-for-browser-development-and-testing-67c0f17fc7af>
+3. Open the database as follows:
+
+```js
+if (window.cordova.platformId === 'browser') db = window.openDatabase('MyDatabase', '1.0', 'Data', 2*1024*1024);
+else db = window.sqlitePlugin.openDatabase({name: 'MyDatabase.db', location: 'default'});
+```
+
+or more compactly:
+
+```js
+db = (window.cordova.platformId === 'browser') ?
+  window.openDatabase('MyDatabase', '1.0', 'Data', 2*1024*1024) :
+  window.sqlitePlugin.openDatabase({name: 'MyDatabase.db', location: 'default'});
+```
+
+(lower limit needed to avoid extra permission request popup on Safari)
+
+and limit database access to DRAFT standard transactions, no plugin-specific API calls:
+- no `executeSql` calls outside DRAFT standard transactions
+- no `sqlBatch` calls
+- no `echoTest` or `selfTest` possible
+- no `deleteDatabase` calls
+
+It would be ideal for the application code to abstract the openDatabase part away from the rest of the database access code.
 
 ### Windows platform notes
 
@@ -617,7 +645,7 @@ Additional limitations are tracked in [marked Cordova-sqlite-storage doc-todo is
 
 ## Some tips and tricks
 
-- If you run into problems and your code follows the asynchronous HTML5/[Web SQL](http://www.w3.org/TR/webdatabase/) transaction API, you can try opening a test database using `window.openDatabase` and see if you get the same problems.
+- In case of issues with code that follows the asynchronous Web SQL transaction API, it is possible to test with a test database using `window.openDatabase` for comparison with (WebKit) Web SQL.
 - In case your database schema may change, it is recommended to keep a table with one row and one column to keep track of your own schema version number. It is possible to add it later. The recommended schema update procedure is described below.
 
 <!-- END Some tips and tricks -->
@@ -688,7 +716,6 @@ FUTURE TBD: Proper date/time handling will be further tested and documented at s
 ## Major TODOs
 
 - More formal documentation of API, especially for non-standard functions
-- Browser platform
 - IndexedDBShim adapter (possibly based on IndexedDBShim)
 - Further cleanup of [support](#support) section
 - Resolve or document remaining [open Cordova-sqlite-storage bugs](https://github.com/litehelpers/Cordova-sqlite-storage/issues?q=is%3Aissue+is%3Aopen+label%3Abug-general)
@@ -954,6 +981,8 @@ The following types of SQL transactions are supported by this plugin version:
 
 ### Single-statement transactions
 
+NOTE: This call will NOT work alternative 3 for browser platform support discussed in [browser platform usage notes](#browser-platform-usage-notes).
+
 Sample with INSERT:
 
 ```Javascript
@@ -1000,6 +1029,8 @@ db.executeSql("SELECT UPPER('First') AS uppertext", [], function (resultSet) {
 <!-- END Single-statement transactions -->
 
 ### SQL batch transactions
+
+NOTE: This call will NOT work alternative 3 for browser platform support discussed in [browser platform usage notes](#browser-platform-usage-notes).
 
 Sample:
 
