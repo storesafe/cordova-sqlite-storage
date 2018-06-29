@@ -429,18 +429,19 @@ The new [brodybits / cordova-sqlite-test-app](https://github.com/brodybits/cordo
 
 In case you get stuck with something please read through the [support](#support) section and follow the instructions before raising an issue. Professional support is also available by contacting: <sales@litehelpers.net>
 
-### Plugin usage examples
+### Plugin usage examples and tutorials
+
+**Simple example:**
 
 - [brodybits / cordova-sqlite-storage-starter-app](https://github.com/brodybits/cordova-sqlite-storage-starter-app) (using `cordova-sqlite-storage` plugin version)
-- <http://stackoverflow.com/questions/26604952/a-simple-cordova-android-example-including-sqlite-read-write-and-search> (also using `cordova-sqlite-storage` plugin version)
 
-### Plugin tutorials
+**Tutorials:**
 
-- <https://phonegappro.com/tutorials/phonegap-sqlite-tutorial-with-example-apache-cordova/> (using `cordova-sqlite-storage` plugin version)
+- <https://codesundar.com/cordova-sqlite-storage/> (using `cordova-sqlite-storage` plugin version with JQuery)
 
-**NOTICE:** The above tutorial shows `cordova plugin add cordova-sqlite-storage` with the `--save` flag missing, needed in case of Cordova CLI pre-7.0 to keep the plugins in `config.xml` (automatic starting with Cordova CLI 7.0).
+**PITFALL WARNING:** A number of tutorials show up in search results that use Web SQL database instead of this plugin.
 
-Other plugin tutorials wanted ref: [litehelpers/Cordova-sqlite-storage#609](https://github.com/litehelpers/Cordova-sqlite-storage/issues/609)
+WANTED: simple, working CRUD tutorial sample ref: [litehelpers / Cordova-sqlite-storage#795](https://github.com/litehelpers/Cordova-sqlite-storage/issues/795)
 
 ### SQLite resources
 
@@ -625,7 +626,14 @@ Additional limitations are tracked in [marked Cordova-sqlite-storage doc-todo is
 
 ### Some common pitfall(s)
 
+### Extremely common pitfall(s)
+
+IMPORTANT: A number of tutorials and samples in search results suffer from the following pitfall:
+
 - If a database is opened using the standard `window.openDatabase` call it will not have any of the benefits of this plugin and features such as the `sqlBatch` call would not be available.
+
+### Other common pitfall(s)
+
 - It is NOT allowed to execute sql statements on a transaction that has already finished, as described below. This is consistent with the HTML5/[Web SQL (DRAFT) API](http://www.w3.org/TR/webdatabase/).
 - The plugin class name starts with "SQL" in capital letters, but in Javascript the `sqlitePlugin` object name starts with "sql" in small letters.
 - Attempting to open a database before receiving the 'deviceready' event callback.
