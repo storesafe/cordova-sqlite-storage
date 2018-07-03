@@ -7,7 +7,9 @@ var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 var isWindows = /Windows /.test(navigator.userAgent); // Windows
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 var isMac = /Macintosh/.test(navigator.userAgent);
-var isWKWebView = !isWindows && !isAndroid && !isMac && !!window.webkit && !!window.webkit.messageHandlers;
+var isAppleMobileOS = /iPhone/.test(navigator.userAgent) ||
+      /iPad/.test(navigator.userAgent) || /iPod/.test(navigator.userAgent);
+var isWKWebView = isAppleMobileOS && !!window.webkit && !!window.webkit.messageHandlers;
 
 // The following openDatabase settings are used for Plugin-implementation-2
 // on Android:
@@ -1084,7 +1086,7 @@ var mytests = function() {
 
         it(suiteName + "SELECT -ABS(?) with '9e999' (Infinity) parameter argument" +
            ((!isWebSql && isAndroid) ? ' [Android PLUGIN BROKEN: missing result]' : ''), function(done) {
-          if (!isWebSql && !isAndroid && !isWindows) pending('SKIP for iOS/macOS plugin due to CRASH');
+          if (!isWebSql && (isAppleMobileOS || isMac)) pending('KNOWN CRASH on iOS/macOS'); // XXX (litehelpers/Cordova-sqlite-storage#405)
 
           var db = openDatabase('SELECT-ABS-minus-Infinite-parameter-results-test.db', '1.0', 'Test', DEFAULT_SIZE);
 
@@ -1183,7 +1185,7 @@ var mytests = function() {
               // Android/iOS plugin issue
               if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('');
-              else if (!isWebSql && !isWindows && !isMac)
+              else if (!isWebSql && (isAndroid || isAppleMobileOS))
                 expect(rs.rows.item(0).myresult).toBe(null);
               else
                 expect(rs.rows.item(0).myresult).toBe('inf');
@@ -1216,7 +1218,7 @@ var mytests = function() {
               // Android/iOS plugin issue
               if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('');
-              else if (!isWebSql && !isWindows && !isMac)
+              else if (!isWebSql && (isAndroid || isAppleMobileOS))
                 expect(rs.rows.item(0).myresult).toBe(null);
               else
                 expect(rs.rows.item(0).myresult).toBe('-INF');
@@ -1249,7 +1251,7 @@ var mytests = function() {
               // Android/iOS plugin issue
               if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('text');
-              else if (!isWebSql && !isWindows && !isMac)
+              else if (!isWebSql && (isAndroid || isAppleMobileOS))
                 expect(rs.rows.item(0).myresult).toBe('null');
               else
                 expect(rs.rows.item(0).myresult).toBe('real');
@@ -1282,7 +1284,7 @@ var mytests = function() {
               // Android/iOS plugin issue
               if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('text');
-              else if (!isWebSql && !isWindows && !isMac)
+              else if (!isWebSql && (isAndroid || isAppleMobileOS))
                 expect(rs.rows.item(0).myresult).toBe('null');
               else
                 expect(rs.rows.item(0).myresult).toBe('real');
@@ -1316,7 +1318,7 @@ var mytests = function() {
               // Android/iOS plugin issue
               if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('');
-              else if (!isWebSql && !isWindows)
+              else if (!isWebSql && (isAndroid || isAppleMobileOS || isMac))
                 expect(rs.rows.item(0).myresult).toBe(null);
               else
                 expect(rs.rows.item(0).myresult).toBe(Infinity);
@@ -1347,10 +1349,10 @@ var mytests = function() {
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
 
-              // Android/iOS plugin issue
+              // Android/iOS/macOS plugin issue
               if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('');
-              else if (!isWebSql && !isWindows)
+              else if (!isWebSql && (isAndroid || isAppleMobileOS || isMac))
                 expect(rs.rows.item(0).myresult).toBe(null);
               else
                 expect(rs.rows.item(0).myresult).toBe(-Infinity);
@@ -1828,8 +1830,8 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (!isWebSql && !isAndroid && !isWindows)
-                expect(rs.rows.item(0).myresult).not.toBeDefined(); // not defined iOS/macOS
+              if (!isWebSql && (isAppleMobileOS || isMac))
+                expect(rs.rows.item(0).myresult).not.toBeDefined(); // not defined iOS/macOS plugin
               else
                 expect(rs.rows.item(0).myresult).toBeDefined();
               // TBD actual value (???)

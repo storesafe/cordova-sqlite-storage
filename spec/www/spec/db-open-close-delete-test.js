@@ -228,7 +228,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'Open database with u2028 & check internal database file name on Windows ONLY [KNOWN ISSUE on Cordova for Android/iOS/...]', function(done) {
-          if (!isWindows) pending('SKIP for Android/macOS/iOS due to KNOWN CORDOVA ISSUE');
+          if (isAndroid || isAppleMobileOS || isMac) pending('SKIP for Android/macOS/iOS due to KNOWN CORDOVA ISSUE');
 
           var dbName = 'first\u2028second.db';
 
@@ -268,7 +268,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'Open database with u2029 & check internal database file name on Windows ONLY [KNOWN ISSUE on Cordova for Android/iOS/...]', function(done) {
-          if (!isWindows) pending('SKIP for Android/macOS/iOS due to KNOWN CORDOVA ISSUE');
+          if (isAndroid || isAppleMobileOS || isMac) pending('SKIP for Android/macOS/iOS due to KNOWN CORDOVA ISSUE');
 
           var dbName = 'first\u2029second.db';
 

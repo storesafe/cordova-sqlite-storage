@@ -7,6 +7,8 @@ var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 var isWindows = /Windows /.test(navigator.userAgent); // Windows
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 var isMac = /Macintosh/.test(navigator.userAgent);
+var isAppleMobileOS = /iPhone/.test(navigator.userAgent) ||
+      /iPad/.test(navigator.userAgent) || /iPod/.test(navigator.userAgent);
 
 // NOTE: While in certain version branches there is no difference between
 // the default Android implementation and implementation #2,
@@ -319,7 +321,7 @@ var mytests = function() {
                     // (WebKit) Web SQL:
                     // 1. [TBD] this is a native object that is NOT affected by the change
                     //    on Android pre-5.x & iOS pre-11.x
-                    if ((!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent))) ||
+                    if ((isAppleMobileOS && !(/OS 1[1-9]/.test(navigator.userAgent))) ||
                         (/Android 4/.test(navigator.userAgent)) ||
                         (/Android 5.0/.test(navigator.userAgent)))
                       expect(temp1.data).toBe('test');

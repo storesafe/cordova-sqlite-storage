@@ -5,11 +5,16 @@ var MYTIMEOUT = 12000;
 var isWindows = /Windows /.test(navigator.userAgent); // Windows 8.1/Windows Phone 8.1/Windows 10
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 var isMac = /Macintosh/.test(navigator.userAgent);
+var isAppleMobileOS = /iPhone/.test(navigator.userAgent) ||
+      /iPad/.test(navigator.userAgent) || /iPod/.test(navigator.userAgent);
+// XXX FUTURE TBD RENAME to hasWKWebView
+// (here and in actual test scripts):
+var isWKWebView = isAppleMobileOS && !!window.webkit && !!window.webkit.messageHandlers;
 
 window.hasBrowser = true;
-// XXX FUTURE TODO rename to something like window.hasWebKitWebSQL here
-// and in actual test scripts
-window.hasWebKitBrowser = (!isWindows && !isMac && (isAndroid || !(window.webkit && window.webkit.messageHandlers)));
+// XXX FUTURE TODO RENAME to window.hasWebKitWebSQL
+// (here and in actual test scripts):
+window.hasWebKitBrowser = isAndroid || (isAppleMobileOS && !isWKWebView);
 
 describe('Check startup for navigator.userAgent: ' + navigator.userAgent, function() {
   it('receives deviceready event', function(done) {

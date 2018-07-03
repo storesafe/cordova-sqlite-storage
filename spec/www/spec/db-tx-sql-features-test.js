@@ -6,6 +6,9 @@ var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 
 var isWindows = /Windows /.test(navigator.userAgent); // Windows
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
+var isMac = /Macintosh/.test(navigator.userAgent);
+var isAppleMobileOS = /iPhone/.test(navigator.userAgent) ||
+      /iPad/.test(navigator.userAgent) || /iPod/.test(navigator.userAgent);
 
 // NOTE: While in certain version branches there is no difference between
 // the default Android implementation and implementation #2,
@@ -78,7 +81,7 @@ var mytests = function() {
         /* THANKS to @calebeaires: */
         it(suiteName + 'create virtual table using FTS3', function(done) {
           if (isWebSql && isAndroid) pending('SKIP for Android Web SQL');
-          if (isWebSql && !isAndroid && (/OS 1[1-9]/.test(navigator.userAgent))) pending('SKIP (WebKit) Web SQL on iOS 11(+)');
+          if (isWebSql && isAppleMobileOS && (/OS 1[1-9]/.test(navigator.userAgent))) pending('SKIP (WebKit) Web SQL on iOS 11(+)');
 
           var db = openDatabase('virtual-table-using-fts3.db', '1.0', 'Test', DEFAULT_SIZE);
 
@@ -319,7 +322,7 @@ var mytests = function() {
           if (isWebSql) pending('SKIP for Web SQL (NOT IMPLEMENTED)');
           if (isWindows) pending('NOT IMPLEMENTED for Windows');
           if (isAndroid && !isWebSql) pending('SKIP for Android plugin'); // FUTURE TBD test with newer versions (android.database)
-          if (!(isAndroid || isWindows || isWP8)) pending('SKIP for iOS'); // NOT WORKING on any versions of iOS (plugin or Web SQL)
+          if (isAppleMobileOS || isMac) pending('SKIP for iOS/macOS'); // NOT WORKING on any versions of iOS/macOS (plugin or Web SQL)
 
           var db = openDatabase('delete-limit-test.db', '1.0', 'Test', DEFAULT_SIZE);
           expect(db).toBeDefined();

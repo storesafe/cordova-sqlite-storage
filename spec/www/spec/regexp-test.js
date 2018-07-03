@@ -8,6 +8,9 @@ var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 var isWindows = /Windows /.test(navigator.userAgent); // Windows
 var isAndroidUA = /Android/.test(navigator.userAgent);
 var isAndroid = (isAndroidUA && !isWindows);
+var isMac = /Macintosh/.test(navigator.userAgent);
+var isAppleMobileOS = /iPhone/.test(navigator.userAgent) ||
+      /iPad/.test(navigator.userAgent) || /iPod/.test(navigator.userAgent);
 
 var scenarioList = [ isAndroid ? 'Plugin-implementation-default' : 'Plugin', 'HTML5', 'Plugin-implementation-2' ];
 
@@ -43,9 +46,9 @@ var mytests = function() {
           if (isWindows) pending('NOT IMPLEMENTED for Windows (plugin)');
           if (!isWebSql && !isWindows && isAndroid) pending('SKIP for Android plugin'); // TBD SKIP for Android plugin (for now)
           if (isWebSql && /Android 4.[1-3]/.test(navigator.userAgent)) pending('SKIP for Android 4.1-4.3 (WebKit) Web SQL');
-          if (isWebSql && !isAndroid && !isWindows) pending('SKIP for iOS (WebKit) Web SQL');
+          if (isWebSql && isAppleMobileOS) pending('SKIP for iOS (WebKit) Web SQL');
           // TBD REMOVE from version branches such as cordova-sqlite-ext:
-          if (!isWebSql && !isAndroid && !isWindows) pending('NOT IMPLEMENTED for iOS/macOS plugin');
+          if (!isWebSql && (isAppleMobileOS || isMac)) pending('NOT IMPLEMENTED on iOS/macOS plugin');
 
           var db = openDatabase('simple-regexp-test.db', '1.0', 'test', DEFAULT_SIZE);
 
