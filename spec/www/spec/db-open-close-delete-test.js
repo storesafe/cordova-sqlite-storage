@@ -30,7 +30,6 @@ function start(n) {
   if (wait == 0) test_it_done();
 }
 
-var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent);
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 
@@ -1364,7 +1363,7 @@ var mytests = function() {
 
         test_it(suiteName + ' database.close (immediately after open) calls its success callback', function () {
           // TBD POSSIBLY BROKEN on iOS/macOS due to current background processing implementation:
-          if (!isAndroid && !isWindows && !isWP8) pending('CURRENTLY BROKEN on iOS/macOS (background processing implementation)');
+          if (!isAndroid && !isWindows) pending('CURRENTLY BROKEN on iOS/macOS (background processing implementation)');
 
           // asynch test coming up
           stop(1);
@@ -1700,7 +1699,7 @@ var mytests = function() {
         // XXX SEE BELOW: repeat scenario but wait for open callback before close/delete/reopen
         // Needed to support some large-scale applications:
         test_it(suiteName + ' immediate close, then delete then re-open allows subsequent queries to run', function () {
-          if (!isAndroid && !isWindows && !isWP8) pending('CURRENTLY BROKEN on iOS/macOS (background processing implementation)');
+          if (!isAndroid && !isWindows) pending('CURRENTLY BROKEN on iOS/macOS (background processing implementation)');
 
           var dbName = "Immediate-close-delete-Reopen.db";
           var dbargs = {name: dbName, location: 'default'};
@@ -1847,7 +1846,7 @@ var mytests = function() {
 
         test_it(suiteName + ' repeatedly open and close database faster (5x)', function () {
           // TBD CURRENTLY BROKEN on iOS/macOS due to current background processing implementation:
-          if (!isAndroid && !isWindows && !isWP8) pending('CURRENTLY BROKEN on iOS/macOS (background processing implementation)');
+          if (!isAndroid && !isWindows) pending('CURRENTLY BROKEN on iOS/macOS (background processing implementation)');
           // TBD ???:
           if (isAndroid && isImpl2) pending('FAILS on builtin android.database implementation (androidDatabaseImplementation: 2)');
 
@@ -1971,7 +1970,7 @@ var mytests = function() {
         // Needed to support some large-scale applications:
         test_it(suiteName + ' repeatedly open and delete database faster (5x)', function () {
           // TBD POSSIBLY BROKEN on iOS/macOS ...
-          // if (!isAndroid && !isWindows && !isWP8) pending(...);
+          // if (!isAndroid && !isWindows) pending(...);
           // TBD CURRENTLY BROKEN DUE TO BUG 666 WORKAROUND SOLUTION
           pending('CURRENTLY BROKEN DUE TO BUG 666 WORKAROUND SOLUTION');
 

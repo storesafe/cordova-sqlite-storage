@@ -4,7 +4,6 @@ var MYTIMEOUT = 12000;
 
 var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 
-var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 
@@ -755,8 +754,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'string vertical tab test (inline vs argument parameter value) [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
-          if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
-
           var db = openDatabase('String-vertical-tab-test.db');
           expect(db).toBeDefined();
 
@@ -795,8 +792,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'string form feed test (inline vs argument parameter value) [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
-          if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
-
           var db = openDatabase('String-form-feed-test.db');
           expect(db).toBeDefined();
 
@@ -835,8 +830,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'string backspace test (inline vs argument parameter value) [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
-          if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
-
           var db = openDatabase('String-backspace-test.db');
           expect(db).toBeDefined();
 
@@ -1059,7 +1052,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'string HEX value test with UTF-8 3-byte Euro character (€) [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
-          // if (isWP8) pending('SKIP for WP(8)'); // XXX GONE
           var db = openDatabase('UTF8-3-byte-euro-hex-value-test.db');
 
           db.transaction(function(tx) {
@@ -1106,7 +1098,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'string parameter value manipulation test with UTF-8 3-byte Euro character (€)', function(done) {
-          // if (isWP8) pending('SKIP for WP(8)'); // XXX GONE
           var db = openDatabase('UTF8-3-byte-euro-string-upper-value-test.db');
 
           db.transaction(function(tx) {
@@ -1411,7 +1402,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + "Inline BLOB with emoji string manipulation test: SELECT LOWER(X'41F09F9883') [A\uD83D\uDE03] [\\u1F603 SMILING FACE (MOUTH OPEN)]", function(done) {
-          if (isWP8) pending('BROKEN for WP8');
           if (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)) pending('SKIP for Android 4.1-4.3 (WebKit) Web SQL'); // TBD ???
           if (!isWebSql && !isWindows && isAndroid && !isImpl2) pending('XXX CRASH on Android 5.x (default sqlite-connector implementation)');
           if (isWindows) pending('SKIP for Windows'); // FUTURE TBD
@@ -1449,8 +1439,6 @@ var mytests = function() {
         // - cordova/cordova-discuss#57 (issue with cordova-android)
 
         it(suiteName + "UNICODE \\u2028 line separator string length", function(done) {
-          if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] Certain UNICODE characters not working with WP(8)
-
           // NOTE: this test verifies that the UNICODE line separator (\u2028)
           // is seen by the sqlite implementation OK:
           var db = openDatabase('UNICODE-line-separator-string-length.db');
@@ -1507,9 +1495,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + ' handles UNICODE \\u2028 line separator correctly [string test]', function (done) {
-          if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
           if (!isWebSql && !isWindows && isAndroid) pending('SKIP for Android plugin (cordova-android 6.x BUG: cordova/cordova-discuss#57)');
-          if (!isWebSql && !isWindows && !isAndroid && !isWP8) pending('SKIP for iOS/macOS plugin (Cordova BUG: CB-9435)');
+          if (!isWebSql && !isWindows && !isAndroid) pending('SKIP for iOS/macOS plugin (Cordova BUG: CB-9435)');
           if (isWebSql && !isWindows && isAndroid) pending('SKIP for Android Web SQL'); // TBD SKIP for Android Web for now
 
           // NOTE: since the above test shows the UNICODE line separator (\u2028)
@@ -1548,8 +1535,6 @@ var mytests = function() {
         // - cordova/cordova-discuss#57 (issue with cordova-android)
 
         it(suiteName + "UNICODE \\u2029 paragraph separator string length", function(done) {
-          if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] Certain UNICODE characters not working with WP(8)
-
           // NOTE: this test verifies that the UNICODE paragraph separator (\u2029)
           // is seen by the sqlite implementation OK:
           var db = openDatabase('UNICODE-paragraph-separator-string-length.db');
@@ -1604,9 +1589,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + ' handles UNICODE \\u2029 paragraph separator correctly [string test]', function (done) {
-          if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
           if (!isWebSql && !isWindows && isAndroid) pending('SKIP for Android plugin (cordova-android 6.x BUG: cordova/cordova-discuss#57)');
-          if (!isWebSql && !isWindows && !isAndroid && !isWP8) pending('SKIP for iOS/macOS plugin (Cordova BUG: CB-9435)');
+          if (!isWebSql && !isWindows && !isAndroid) pending('SKIP for iOS/macOS plugin (Cordova BUG: CB-9435)');
 
           // NOTE: since the above test shows the UNICODE paragraph separator (\u2029)
           // is seen by the sqlite implementation OK, it is now concluded that
@@ -1639,8 +1623,6 @@ var mytests = function() {
       describe(suiteName + 'additional (extra) multi-byte UTF-8 character string binding & manipulation tests', function() {
 
         it(suiteName + 'Inline string manipulation test with a combination of UTF-8 2-byte & 3-byte characters', function(done) {
-          if (isWP8) pending('SKIP for WP(8)');
-
           var db = openDatabase('Inline-UTF8-combo-string-manipulation-test.db');
 
           db.transaction(function(tx) {
@@ -1667,8 +1649,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'string parameter manipulation test with a combination of UTF-8 2-byte & 3-byte characters', function(done) {
-          if (isWP8) pending('SKIP for WP(8)');
-
           var db = openDatabase('UTF8-combo-select-upper-test.db');
 
           db.transaction(function(tx) {

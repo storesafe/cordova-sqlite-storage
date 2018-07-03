@@ -4,11 +4,10 @@ var MYTIMEOUT = 12000;
 
 var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 
-var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows 8.1/Windows Phone 8.1/Windows 10
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 var isMac = /Macintosh/.test(navigator.userAgent);
-var isWKWebView = !isWindows && !isAndroid && !isWP8 && !isMac && !!window.webkit && !!window.webkit.messageHandlers;
+var isWKWebView = !isWindows && !isAndroid && !isMac && !!window.webkit && !!window.webkit.messageHandlers;
 
 // NOTE: While in certain version branches there is no difference between
 // the default Android implementation and implementation #2,
@@ -366,7 +365,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'INSERT Infinity with no/NUMERIC/REAL/INTEGER/TEXT type affinity and check stored data [Android/iOS Plugin BROKEN: stored with null value]', function(done) {
-          if (isWP8) pending('SKIP for WP8'); // SKIP for now
           if (isMac) pending('SKIP for macOS [CRASH]'); // FUTURE TBD
 
           var db = openDatabase('INSERT-Infinity-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
@@ -421,7 +419,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'INSERT -Infinity with no/NUMERIC/REAL/INTEGER/TEXT type affinity and check stored data [Android/iOS Plugin BROKEN: stored with null value]', function(done) {
-          if (isWP8) pending('SKIP for WP8'); // SKIP for now
           if (isMac) pending('SKIP for macOS [CRASH]'); // FUTURE TBD
 
           var db = openDatabase('INSERT-minus-Infinity-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
@@ -601,10 +598,7 @@ var mytests = function() {
 
                   expect(row.id).toBe(1);
                   expect(row.data_text1).toBe("314159"); // (data_text1 should have inserted data as text)
-
-                  if (!isWP8) // JSON issue in WP(8) version
-                    expect(row.data_text2).toBe("3.14159"); // (data_text2 should have inserted data as text)
-
+                  expect(row.data_text2).toBe("3.14159"); // (data_text2 should have inserted data as text)
                   expect(row.data_int).toBe(314159); // (data_int should have inserted data as an integer)
                   expect(Math.abs(row.data_real - 3.14159) < 0.000001).toBe(true); // (data_real should have inserted data as a real)
 
@@ -1034,7 +1028,7 @@ var mytests = function() {
 
       describe(suiteName + 'INLINE BLOB value storage tests', function() {
 
-        it(suiteName + "INSERT inline BLOB value (X'40414243') and check stored data [TBD SELECT BLOB value ERROR EXPECTED on Windows, WP8, and Android with androidDatabaseImplementation: 2 setting; with default sqlite HEX encoding: UTF-6le on Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]", function(done) {
+        it(suiteName + "INSERT inline BLOB value (X'40414243') and check stored data [TBD SELECT BLOB value ERROR EXPECTED on Windows and Android with androidDatabaseImplementation: 2 setting; with default sqlite HEX encoding: UTF-6le on Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]", function(done) {
           var db = openDatabase('INSERT-inline-BLOB-value-40414243-and-check-stored-data.db');
 
           db.transaction(function(tx) {
@@ -1056,7 +1050,6 @@ var mytests = function() {
                   expect(item.hexValue).toBe('40414243');
 
                   tx.executeSql('SELECT * FROM test_table', [], function(ignored, rs3) {
-                    if (!isWebSql && isWP8) expect('PLUGIN BEHAVIOR CHANGED for WP8').toBe('--'); // XXX DEPRECATED PLATFORM
                     if (!isWebSql && isWindows) expect('PLUGIN BEHAVIOR CHANGED for Windows').toBe('--');
                     if (!isWebSql && !isWindows && isAndroid && isImpl2) expect('PLUGIN BEHAVIOR CHANGED for android.database implementation').toBe('--');
                     expect(rs3).toBeDefined();
@@ -1073,16 +1066,14 @@ var mytests = function() {
                     // Close (plugin only) & finish:
                     (isWebSql) ? done() : db.close(done, done);
                   }, function(ignored, error) {
-                    if (!isWebSql && (isWindows || isWP8 || (isAndroid && isImpl2))) {
+                    if (!isWebSql && (isWindows || (isAndroid && isImpl2))) {
                       expect(error).toBeDefined();
                       expect(error.code).toBeDefined();
                       expect(error.message).toBeDefined();
 
                       expect(error.code).toBe(0);
 
-                      if (isWP8)
-                        expect(error.message).toBeDefined(); // TBD (DEPRECATED PLATFORM)
-                      else if (isWindows)
+                      if (isWindows)
                         expect(error.message).toMatch(/Unsupported column type in column 0/);
                       else
                         expect(error.message).toMatch(/unknown error.*code 0.*Unable to convert BLOB to string/);
@@ -1151,16 +1142,14 @@ var mytests = function() {
                     // Close (plugin only) & finish:
                     (isWebSql) ? done() : db.close(done, done);
                   }, function(ignored, error) {
-                    if (!isWebSql && (isWindows || isWP8 || (isAndroid && isImpl2))) {
+                    if (!isWebSql && (isWindows || (isAndroid && isImpl2))) {
                       expect(error).toBeDefined();
                       expect(error.code).toBeDefined();
                       expect(error.message).toBeDefined();
 
                       expect(error.code).toBe(0);
 
-                      if (isWP8)
-                        expect(true).toBe(true); // SKIP for now
-                      else if (isWindows)
+                      if (isWindows)
                         expect(error.message).toMatch(/Unsupported column type in column 0/);
                       else
                         expect(error.message).toMatch(/unknown error.*code 0.*Unable to convert BLOB to string/);
@@ -1269,8 +1258,6 @@ var mytests = function() {
                 // FUTURE TBD plugin error message subject to change
                 if (isWebSql)
                   expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
-                else if (isWP8)
-                  expect(true).toBe(true); // SKIP for now
                 else if (isWindows)
                   expect(error.message).toMatch(/Error 25 when binding argument to SQL query/);
                 else
@@ -1323,8 +1310,6 @@ var mytests = function() {
                 // FUTURE TBD plugin error message subject to change
                 if (isWebSql)
                   expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
-                else if (isWP8)
-                  expect(true).toBe(true); // SKIP for now
                 else if (isWindows)
                   expect(error.message).toMatch(/Error 25 when binding argument to SQL query/);
                 else
@@ -1377,8 +1362,6 @@ var mytests = function() {
                 // FUTURE TBD plugin error message subject to change
                 if (isWebSql)
                   expect(error.message).toMatch(/number of '\?'s in statement string does not match argument count/);
-                else if (isWP8)
-                  expect(true).toBe(true); // SKIP for now
                 else if (isWindows)
                   expect(error.message).toMatch(/Error 25 when binding argument to SQL query/);
                 else
@@ -1392,8 +1375,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'executeSql with too many parameters [extra NULL value]', function(done) {
-          if (isWP8) pending('SKIP for WP8'); // TBD BROKEN on WP8
-
           var db = openDatabase("too-many-parameters-extra-null-value.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -1450,7 +1431,6 @@ var mytests = function() {
       describe(scenarioList[i] + ': special UNICODE column value binding test(s)', function() {
 
         it(suiteName + ' stores [Unicode] string with \\u0000 (same as \\0) correctly [default sqlite HEX encoding: UTF-6le on XXX TBD Android 4.1-4.3 (WebKit) Web SQL ...]', function (done) {
-          if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
           if (isWindows) pending('BROKEN on Windows'); // TBD (truncates on Windows)
           // XXX TBD ???:
           if (!isWebSql && !isWindows && isAndroid && !isImpl2) pending('BROKEN on Android-sqlite-connector implementation)');
@@ -1513,7 +1493,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + ' returns [Unicode] string with \\u0000 (same as \\0) correctly [TRUNCATION BUG on iOS (WebKit) Web SQL, older versions of Android (WebKit) Web SQL, and Windows plugin]', function (done) {
-          if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
           if (isWebSql && /Android 5.1/.test(navigator.userAgent)) pending('SKIP on (WebKit) Web SQL on Android 5.1'); // XXX TBD INCONSISTENT RESULT on (WebKit) Web SQL on Android 5.1(.1) x86 emulator vs Samsung test device
           if (isWebSql && /Android 6/.test(navigator.userAgent)) pending('SKIP on (WebKit) Web SQL on Android 6'); // XXX TBD
 
@@ -1579,9 +1558,8 @@ var mytests = function() {
         // - cordova/cordova-discuss#57 (issue with cordova-android)
         it(suiteName +
             ' handles UNICODE \\u2028 line separator correctly in database', function (done) {
-          if (isWP8) pending('BROKEN on WP(8)'); // [BUG #202] UNICODE characters not working with WP(8)
           if (!isWebSql && !isWindows && isAndroid) pending('SKIP for Android plugin (cordova-android 6.x BUG: cordova/cordova-discuss#57)');
-          if (!isWebSql && !isWindows && !isAndroid && !isWP8) pending('SKIP for iOS/macOS plugin (Cordova BUG: CB-9435)');
+          if (!isWebSql && !isWindows && !isAndroid) pending('SKIP for iOS/macOS plugin (Cordova BUG: CB-9435)');
 
           var db = openDatabase('UNICODE-line-separator-INSERT-test.db');
 

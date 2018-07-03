@@ -2,11 +2,10 @@
 
 var MYTIMEOUT = 12000;
 
-var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 var isMac = /Macintosh/.test(navigator.userAgent);
-var isWKWebView = !isWindows && !isAndroid && !isWP8 && !isMac && !!window.webkit && !!window.webkit.messageHandlers;
+var isWKWebView = !isWindows && !isAndroid && !isMac && !!window.webkit && !!window.webkit.messageHandlers;
 
 // NOTE: While in certain version branches there is no difference between
 // the default Android implementation and implementation #2,
@@ -211,7 +210,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'Single-column batch sql test values: INSERT +/- Infinity & NaN values and check stored data [TBD Android/iOS/macOS plugin result for +/- Infinity]', function(done) {
-          if (isWP8) pending('SKIP for WP8'); // SKIP for now
           if (isMac) pending('SKIP for macOS [CRASH]'); // FUTURE TBD
 
           var db = openDatabase('Single-column-batch-sql-test-infinity-nan-values.db');
@@ -404,9 +402,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'Multi-row INSERT with parameters in batch sql test', function(done) {
-          if (isWP8) pending('SKIP: NOT SUPPORTED for WP8');
-
           var db = openDatabase('Multi-row-INSERT-with-parameters-batch-sql-test.db');
+
           expect(db).toBeDefined();
 
           db.sqlBatch([
@@ -476,16 +473,12 @@ var mytests = function() {
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
 
-            if (isWP8)
-              expect(true).toBe(true); // SKIP for now
-            else if (isWindows || (isAndroid && isImpl2))
+            if (isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
 
-            if (isWP8)
-              expect(true).toBe(true); // SKIP for now
-            else if (isWindows)
+            if (isWindows)
               expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);
             else
               expect(error.message).toMatch(/a statement with no error handler failed.*near \"CRETE\": syntax error/);
@@ -515,16 +508,12 @@ var mytests = function() {
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
 
-            if (isWP8)
-              expect(true).toBe(true); // SKIP for now
-            else if (isWindows)
+            if (isWindows)
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(6);
 
-            if (isWP8)
-              expect(true).toBe(true); // SKIP for now
-            else if (isWindows)
+            if (isWindows)
               expect(error.message).toMatch(/a statement with no error handler failed: SQLite3 step error result code: 1/);
             else
               expect(error.message).toMatch(/a statement with no error handler failed.*constraint fail/);

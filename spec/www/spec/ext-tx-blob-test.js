@@ -4,7 +4,6 @@ var MYTIMEOUT = 12000;
 
 var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 
-var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows 8.1/Windows Phone 8.1/Windows 10
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 
@@ -57,7 +56,6 @@ var mytests = function() {
         // and so this verifies the type is converted to a string and continues. Web SQL does
         // the same but on the JavaScript side and converts to a string like `[object Blob]`.
         it(suiteName + "INSERT Blob from ArrayBuffer (non-standard parameter type)", function(done) {
-          if (isWP8) pending('BROKEN for WP(8)'); // (???)
           if (/Android 4.[1-3]/.test(navigator.userAgent)) pending('SKIP for Android 4.1-4.3');
 
           // IMPORTANT:

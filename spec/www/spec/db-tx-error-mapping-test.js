@@ -4,7 +4,6 @@ var MYTIMEOUT = 12000;
 
 var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 
-var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 
@@ -26,7 +25,7 @@ var mytests = function() {
 
     // GENERAL: SKIP ALL on WP8 for now
     describe(scenarioList[i] + ': db tx error mapping test(s)' +
-             ((isWindows && !isWP8) ?
+             (isWindows ?
               ' [Windows version with INCORRECT error code (0) & INCONSISTENT error message (missing actual error info)]' :
                ''), function() {
       var scenarioName = scenarioList[i];
@@ -82,8 +81,6 @@ var mytests = function() {
         // GENERAL NOTE: ERROR MESSAGES are subject to improvements and other possible changes.
 
         it(suiteName + 'syntax error: command with misspelling', function(done) {
-          if (isWP8) pending('SKIP for WP(8)'); // SKIP for now
-
           var db = openDatabase("Syntax-error-test.db", "1.0", "Demo", DEFAULT_SIZE);
           expect(db).toBeDefined();
 
@@ -159,8 +156,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'INSERT with VALUES in the wrong place (with a trailing space) [XXX TBD "incomplete input" vs "syntax error" message on (WebKit) Web SQL on Android 8.x/...]', function(done) {
-          if (isWP8) pending('SKIP for WP(8)'); // FUTURE TBD
-
           var db = openDatabase("INSERT-Syntax-error-test.db", "1.0", "Demo", DEFAULT_SIZE);
           expect(db).toBeDefined();
 
@@ -242,8 +237,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'constraint violation', function(done) {
-          if (isWP8) pending('SKIP for WP(8)'); // FUTURE TBD
-
           var db = openDatabase("Constraint-violation-test.db", "1.0", "Demo", DEFAULT_SIZE);
           expect(db).toBeDefined();
 
@@ -336,8 +329,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'SELECT uper("Test") (misspelled function name) [INCORRECT error code WebKit Web SQL & plugin]', function(done) {
-          if (isWP8) pending('SKIP for WP(8)'); // FUTURE TBD
-
           var db = openDatabase("Misspelled-function-name-error-test.db", "1.0", "Demo", DEFAULT_SIZE);
           expect(db).toBeDefined();
 
@@ -414,8 +405,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'SELECT FROM bogus table (other database error) [INCORRECT error code WebKit Web SQL & plugin]', function(done) {
-          if (isWP8) pending('SKIP for WP(8)'); // FUTURE TBD
-
           var db = openDatabase("SELECT-FROM-bogus-table-error-test.db", "1.0", "Demo", DEFAULT_SIZE);
           expect(db).toBeDefined();
 
@@ -491,8 +480,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'INSERT missing column [INCORRECT error code WebKit Web SQL & plugin]', function(done) {
-          if (isWP8) pending('SKIP for WP(8)'); // FUTURE TBD
-
           var db = openDatabase("INSERT-missing-column-test.db", "1.0", "Demo", DEFAULT_SIZE);
           expect(db).toBeDefined();
 
@@ -570,8 +557,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'INSERT wrong column name [INCORRECT error code WebKit Web SQL & plugin]', function(done) {
-          if (isWP8) pending('SKIP for WP(8)'); // FUTURE TBD
-
           var db = openDatabase("INSERT-wrong-column-name-test.db", "1.0", "Demo", DEFAULT_SIZE);
           expect(db).toBeDefined();
 
@@ -652,8 +637,6 @@ var mytests = function() {
         // claims to detect the error at the "prepare statement" stage while the
         // plugin detects the error at the "execute statement" stage.
         it(suiteName + 'CREATE VIRTUAL TABLE USING bogus module (other database error) [INCORRECT error code WebKit Web SQL & plugin]', function(done) {
-          if (isWP8) pending('SKIP for WP(8)'); // FUTURE TBD
-
           var db = openDatabase("create-virtual-table-using-bogus-module-error-test.db", "1.0", "Demo", DEFAULT_SIZE);
           expect(db).toBeDefined();
 
@@ -735,8 +718,6 @@ var mytests = function() {
         // TESTS with no SQL error handler:
 
         it(suiteName + 'transaction.executeSql syntax error (command with misspelling) with no SQL error handler', function(done) {
-          if (isWP8) pending('SKIP for WP(8)'); // FUTURE TBD
-
           db = openDatabase('tx-sql-syntax-error-with-no-sql-error-handler-test.db');
           db.transaction(function(transaction) {
             transaction.executeSql('SLCT 1');
@@ -778,8 +759,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'transaction.executeSql constraint violation with no SQL error handler', function(done) {
-          if (isWP8) pending('SKIP for WP(8)'); // FUTURE TBD
-
           var db = openDatabase("Constraint-violation-with-no-sql-error-handler.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {

@@ -4,7 +4,6 @@ var MYTIMEOUT = 20000;
 
 var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 
-var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 
@@ -52,7 +51,6 @@ var mytests = function() {
         // - Android (default Android-sqlite-connector implementation)
         // - iOS & Windows (with newer sqlite3 build)
         it(suiteName + 'db readTransaction with a WITH clause', function(done) {
-          if (isWP8) pending('NOT IMPLEMENTED for WP(8)');
           if (isWebSql) pending('SKIP for Web SQL'); // NOT WORKING on all versions (Android/iOS)
           if (isAndroid && isImpl2) pending('SKIP for android.database implementation'); // NOT WORKING on all versions
 
@@ -79,7 +77,6 @@ var mytests = function() {
 
         /* THANKS to @calebeaires: */
         it(suiteName + 'create virtual table using FTS3', function(done) {
-          if (isWP8) pending('NOT IMPLEMENTED for WP(8)'); // NOT IMPLEMENTED in CSharp-SQLite
           if (isWebSql && isAndroid) pending('SKIP for Android Web SQL');
           if (isWebSql && !isAndroid && (/OS 1[1-9]/.test(navigator.userAgent))) pending('SKIP (WebKit) Web SQL on iOS 11(+)');
 
@@ -126,7 +123,6 @@ var mytests = function() {
         // FTS4 seems to be working as well!
         // (thanks again to @calebeaires for this scenario)
         it(suiteName + 'create virtual table using FTS4', function(done) {
-          if (isWP8) pending('NOT IMPLEMENTED for WP(8)'); // NOT IMPLEMENTED in CSharp-SQLite
           if (isWebSql) pending('SKIP for Web SQL');
 
           var db = openDatabase('virtual-table-using-fts4.db', '1.0', 'Test', DEFAULT_SIZE);
@@ -275,7 +271,6 @@ var mytests = function() {
 
         it(suiteName + 'create virtual table using R-Tree', function(done) {
           if (isWebSql) pending('SKIP for Web SQL');
-          if (isWP8) pending('NOT IMPLEMENTED for WP(8)'); // NOT IMPLEMENTED in CSharp-SQLite
           if (isAndroid && isImpl2) pending('NOT IMPLEMENTED for all versions of android.database'); // NOT IMPLEMENTED for all versions of Android database (failed in Circle CI)
 
           var db = openDatabase('virtual-table-using-r-tree.db', '1.0', 'Test', DEFAULT_SIZE);
@@ -321,7 +316,6 @@ var mytests = function() {
         // SQLITE_ENABLE_UPDATE_DELETE_LIMIT defined
         // for this feature to work.
         xit(suiteName + 'DELETE LIMIT', function(done) {
-          if (isWP8) pending('NOT IMPLEMENTED for WP(8)');
           if (isWebSql) pending('SKIP for Web SQL (NOT IMPLEMENTED)');
           if (isWindows) pending('NOT IMPLEMENTED for Windows');
           if (isAndroid && !isWebSql) pending('SKIP for Android plugin'); // FUTURE TBD test with newer versions (android.database)

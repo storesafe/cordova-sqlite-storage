@@ -4,7 +4,6 @@ var MYTIMEOUT = 12000;
 
 var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 
-var isWP8 = /IEMobile/.test(navigator.userAgent); // Matches WP(7/8/8.1)
 var isWindows = /Windows /.test(navigator.userAgent); // Windows
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 var isMac = /Macintosh/.test(navigator.userAgent);
@@ -386,8 +385,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'tx sql starting with extra space results test', function(done) {
-          if (isWP8) pending('BROKEN for WP8');
-
           var db = openDatabase('tx-sql-starting-with-extra-space-results-test.db', '1.0', 'Test', DEFAULT_SIZE);
 
           expect(db).toBeDefined();
@@ -488,8 +485,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'tx sql starting with extra semicolon results test', function(done) {
-          if (isWP8) pending('BROKEN for WP8');
-
           var db = openDatabase('tx-sql-starting-with-extra-semicolon-results-test.db', '1.0', 'Test', DEFAULT_SIZE);
 
           expect(db).toBeDefined();
@@ -595,7 +590,6 @@ var mytests = function() {
            ((!isWebSql && isAndroid && isImpl2) ?
             ' [SQLResultSet.rowsAffected BROKEN for androidDatabaseImplementation: 2 (built-in android.database)]' :
              ''), function(done) {
-          if (isWP8) pending('SKIP: NOT SUPPORTED for WP8');
           if (isWebSql && isAndroid) pending('SKIP for Android Web SQL'); // FUTURE TBD (??)
 
           var db = openDatabase('Multi-row-INSERT-with-parameters-test.db', '1.0', 'Test', DEFAULT_SIZE);
@@ -836,8 +830,6 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'INSERT with TRIGGER & check results [rowsAffected INCORRECT with Android 4.1-4.3 (WebKit) Web SQL & androidDatabaseImplementation: 2 (built-in android.database) setting]', function(done) {
-          if (isWP8) pending('SKIP (NOT SUPPORTED) for WP8'); // NOT SUPPORTED for WP8
-
           var db = openDatabase('INSERT-with-TRIGGER-test.db', '1.0', 'Test', DEFAULT_SIZE);
 
           db.transaction(function(tx) {
