@@ -563,7 +563,7 @@ var mytests = function() {
           }
         }, MYTIMEOUT);
 
-      if (window.hasWebKitBrowser)
+      if (window.hasWebKitWebSQL)
         it('Web SQL check that db name is really a string', function(done) {
           var p1 = { name: 'my.db.name', location: 'default' };
           try {

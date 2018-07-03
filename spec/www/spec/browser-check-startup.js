@@ -12,9 +12,7 @@ var isAppleMobileOS = /iPhone/.test(navigator.userAgent) ||
 var isWKWebView = isAppleMobileOS && !!window.webkit && !!window.webkit.messageHandlers;
 
 window.hasBrowser = true;
-// XXX FUTURE TODO RENAME to window.hasWebKitWebSQL
-// (here and in actual test scripts):
-window.hasWebKitBrowser = isAndroid || (isAppleMobileOS && !isWKWebView);
+window.hasWebKitWebSQL = isAndroid || (isAppleMobileOS && !isWKWebView);
 
 describe('Check startup for navigator.userAgent: ' + navigator.userAgent, function() {
   it('receives deviceready event', function(done) {
@@ -25,7 +23,7 @@ describe('Check startup for navigator.userAgent: ' + navigator.userAgent, functi
   }, MYTIMEOUT);
 
   it('has openDatabase', function() {
-    if (window.hasWebKitBrowser) expect(window.openDatabase).toBeDefined();
+    if (window.hasWebKitWebSQL) expect(window.openDatabase).toBeDefined();
     expect(window.sqlitePlugin).toBeDefined();
     expect(window.sqlitePlugin.openDatabase).toBeDefined();
   });
