@@ -30,7 +30,7 @@ function start(n) {
   if (wait == 0) test_it_done();
 }
 
-var isWindows = /Windows /.test(navigator.userAgent);
+var isWindows = /MSAppHost/.test(navigator.userAgent);
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 
 // NOTE: While in certain version branches there is no difference between

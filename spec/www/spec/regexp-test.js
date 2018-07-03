@@ -5,7 +5,7 @@ var MYTIMEOUT = 12000;
 var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 
 // Detect actual platform:
-var isWindows = /Windows /.test(navigator.userAgent); // Windows
+var isWindows = /MSAppHost/.test(navigator.userAgent);
 var isAndroidUA = /Android/.test(navigator.userAgent);
 var isAndroid = (isAndroidUA && !isWindows);
 var isMac = /Macintosh/.test(navigator.userAgent);

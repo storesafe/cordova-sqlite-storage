@@ -4,7 +4,7 @@ var MYTIMEOUT = 20000;
 
 var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 
-var isWindows = /Windows /.test(navigator.userAgent); // Windows
+var isWindows = /MSAppHost/.test(navigator.userAgent);
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 
 // NOTE: While in certain version branches there is no difference between

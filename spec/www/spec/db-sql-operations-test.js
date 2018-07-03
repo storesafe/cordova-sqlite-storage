@@ -2,7 +2,7 @@
 
 var MYTIMEOUT = 30000;
 
-var isWindows = /Windows /.test(navigator.userAgent); // Windows
+var isWindows = /MSAppHost/.test(navigator.userAgent);
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 var isMac = /Macintosh/.test(navigator.userAgent);
 var isAppleMobileOS = /iPhone/.test(navigator.userAgent) ||

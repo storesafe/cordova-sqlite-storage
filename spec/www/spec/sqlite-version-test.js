@@ -4,7 +4,7 @@ var MYTIMEOUT = 12000;
 
 var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 
-var isWindows = /Windows /.test(navigator.userAgent); // Windows (8.1)
+var isWindows = /MSAppHost/.test(navigator.userAgent);
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 
 // The following openDatabase settings are used for Plugin-implementation-2
