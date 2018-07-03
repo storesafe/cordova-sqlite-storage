@@ -1,5 +1,11 @@
 # Changes
 
+### cordova-sqlite-storage 2.3.3
+
+- Quick fix for some iOS/macOS internal plugin error log messagess
+- test updates
+- quick doc updates
+
 ### cordova-sqlite-storage 2.3.2
 
 - Mark some Android errors as internal plugin errors (quick fix)
