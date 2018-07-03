@@ -9,7 +9,7 @@ var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 var isMac = /Macintosh/.test(navigator.userAgent);
 var isAppleMobileOS = /iPhone/.test(navigator.userAgent) ||
       /iPad/.test(navigator.userAgent) || /iPod/.test(navigator.userAgent);
-var isWKWebView = isAppleMobileOS && !!window.webkit && !!window.webkit.messageHandlers;
+var hasMobileWKWebView = isAppleMobileOS && !!window.webkit && !!window.webkit.messageHandlers;
 
 // The following openDatabase settings are used for Plugin-implementation-2
 // on Android:
@@ -409,7 +409,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWebSql || isMac || isWKWebView)
+              if (isWebSql || isMac || hasMobileWKWebView)
                 expect(rs.rows.item(0).myresult).toBe('real');
               else if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('text');
@@ -474,7 +474,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWebSql || isMac || isWKWebView)
+              if (isWebSql || isMac || hasMobileWKWebView)
                 expect(rs.rows.item(0).myresult).toBe('real');
               else if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('text');
@@ -665,7 +665,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWebSql || isMac || isWKWebView)
+              if (isWebSql || isMac || hasMobileWKWebView)
                 expect(rs.rows.item(0).myresult).toBe('real');
               else if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('text');
@@ -730,7 +730,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWebSql || isMac || isWKWebView)
+              if (isWebSql || isMac || hasMobileWKWebView)
                 expect(rs.rows.item(0).myresult).toBe('real');
               else if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('text');
@@ -924,7 +924,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWebSql || isMac || isWKWebView)
+              if (isWebSql || isMac || hasMobileWKWebView)
                 expect(rs.rows.item(0).myresult).toBe('real');
               else if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('text');
@@ -989,7 +989,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (isWebSql || isMac || isWKWebView)
+              if (isWebSql || isMac || hasMobileWKWebView)
                 expect(rs.rows.item(0).myresult).toBe('real');
               else if (!isWebSql && isAndroid && isImpl2)
                 expect(rs.rows.item(0).myresult).toBe('text');

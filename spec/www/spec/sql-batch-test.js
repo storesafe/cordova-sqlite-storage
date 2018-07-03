@@ -7,7 +7,7 @@ var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 var isMac = /Macintosh/.test(navigator.userAgent);
 var isAppleMobileOS = /iPhone/.test(navigator.userAgent) ||
       /iPad/.test(navigator.userAgent) || /iPod/.test(navigator.userAgent);
-var isWKWebView = isAppleMobileOS && !!window.webkit && !!window.webkit.messageHandlers;
+var hasMobileWKWebView = isAppleMobileOS && !!window.webkit && !!window.webkit.messageHandlers;
 
 // NOTE: While in certain version branches there is no difference between
 // the default Android implementation and implementation #2,
@@ -113,22 +113,22 @@ var mytests = function() {
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(7);
               expect(rs.rows.item(0).d1).toBe(101);
-              if (isMac || isWKWebView)
+              if (isMac || hasMobileWKWebView)
                 expect(rs.rows.item(0).t1).toBe('real');
               else
                 expect(rs.rows.item(0).t1).toBe('integer');
               expect(rs.rows.item(0).a1).toBe(101);
-              if (isMac || isWKWebView)
+              if (isMac || hasMobileWKWebView)
                 expect(rs.rows.item(0).u1).toBe('101.0');
               else
                 expect(rs.rows.item(0).u1).toBe('101');
               expect(rs.rows.item(1).d1).toBe(-101);
-              if (isMac || isWKWebView)
+              if (isMac || hasMobileWKWebView)
                 expect(rs.rows.item(1).t1).toBe('real');
               else
                 expect(rs.rows.item(1).t1).toBe('integer');
               expect(rs.rows.item(1).a1).toBe(101);
-              if (isMac || isWKWebView)
+              if (isMac || hasMobileWKWebView)
                 expect(rs.rows.item(1).u1).toBe('-101.0');
               else
                 expect(rs.rows.item(1).u1).toBe('-101');
@@ -141,32 +141,32 @@ var mytests = function() {
               expect(rs.rows.item(3).a1).toBe(123.456);
               expect(rs.rows.item(3).u1).toBe('-123.456');
               expect(rs.rows.item(4).d1).toBe(1234567890123);
-              if (isMac || isWKWebView)
+              if (isMac || hasMobileWKWebView)
                 expect(rs.rows.item(4).t1).toBe('real');
               else
                 expect(rs.rows.item(4).t1).toBe('integer');
               expect(rs.rows.item(4).a1).toBe(1234567890123);
-              if (isMac || isWKWebView)
+              if (isMac || hasMobileWKWebView)
                 expect(rs.rows.item(4).u1).toBe('1234567890123.0');
               else
                 expect(rs.rows.item(4).u1).toBe('1234567890123');
               expect(rs.rows.item(5).d1).toBe(-1234567890123);
-              if (isMac || isWKWebView)
+              if (isMac || hasMobileWKWebView)
                 expect(rs.rows.item(5).t1).toBe('real');
               else
                 expect(rs.rows.item(5).t1).toBe('integer');
               expect(rs.rows.item(5).a1).toBe(1234567890123);
-              if (isMac || isWKWebView)
+              if (isMac || hasMobileWKWebView)
                 expect(rs.rows.item(5).u1).toBe('-1234567890123.0');
               else
                 expect(rs.rows.item(5).u1).toBe('-1234567890123');
               expect(rs.rows.item(6).d1).toBe(0);
-              if (isMac || isWKWebView)
+              if (isMac || hasMobileWKWebView)
                 expect(rs.rows.item(6).t1).toBe('real');
               else
                 expect(rs.rows.item(6).t1).toBe('integer');
               expect(rs.rows.item(6).a1).toBe(0);
-              if (isMac || isWKWebView)
+              if (isMac || hasMobileWKWebView)
                 expect(rs.rows.item(6).u1).toBe('0.0');
               else
                 expect(rs.rows.item(6).u1).toBe('0');

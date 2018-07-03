@@ -7,9 +7,7 @@ var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 var isMac = /Macintosh/.test(navigator.userAgent);
 var isAppleMobileOS = /iPhone/.test(navigator.userAgent) ||
       /iPad/.test(navigator.userAgent) || /iPod/.test(navigator.userAgent);
-// XXX FUTURE TBD RENAME to hasWKWebView
-// (here and in actual test scripts):
-var isWKWebView = isAppleMobileOS && !!window.webkit && !!window.webkit.messageHandlers;
+var hasMobileWKWebView = isAppleMobileOS && !!window.webkit && !!window.webkit.messageHandlers;
 
 window.hasBrowser = true;
 window.hasWebKitWebSQL = isAndroid || (isAppleMobileOS && !isWKWebView);

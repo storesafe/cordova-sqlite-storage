@@ -9,7 +9,7 @@ var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 var isMac = /Macintosh/.test(navigator.userAgent);
 var isAppleMobileOS = /iPhone/.test(navigator.userAgent) ||
       /iPad/.test(navigator.userAgent) || /iPod/.test(navigator.userAgent);
-var isWKWebView = isAppleMobileOS && !!window.webkit && !!window.webkit.messageHandlers;
+var hasMobileWKWebView = isAppleMobileOS && !!window.webkit && !!window.webkit.messageHandlers;
 
 // NOTE: While in certain version branches there is no difference between
 // the default Android implementation and implementation #2,
@@ -330,7 +330,7 @@ var mytests = function() {
                   expect(row.data3).toBe(42);
                   expect(row.data4).toBe(42);
 
-                  if (isWebSql || isMac || isWKWebView)
+                  if (isWebSql || isMac || hasMobileWKWebView)
                     expect(row.data5).toBe('42.0');
                   else
                     expect(row.data5).toBe('42');
@@ -341,7 +341,7 @@ var mytests = function() {
                     expect(rs3.rows.length).toBe(1);
 
                     var row = rs3.rows.item(0);
-                    if (isWebSql || isMac || isWKWebView)
+                    if (isWebSql || isMac || hasMobileWKWebView)
                       expect(row.t1).toBe('real');
                     else
                       expect(row.t1).toBe('integer');
@@ -654,7 +654,7 @@ var mytests = function() {
 
                   // NOTE: big number stored in field with TEXT affinity with different conversion
                   // in case of plugin (certain platforms) vs. Android/iOS WebKit Web SQL
-                  if (isWebSql || isMac || isWKWebView)
+                  if (isWebSql || isMac || hasMobileWKWebView)
                     expect(row.test_text).toBe("1424174959894.0"); // ([Big] number inserted as string ok)
                   else
                     expect(row.test_text).toBe("1424174959894"); // (Big integer number inserted as string ok)
@@ -665,7 +665,7 @@ var mytests = function() {
                     expect(rs3.rows.length).toBe(1);
 
                     var row = rs3.rows.item(0);
-                    if (isWebSql || isMac || isWKWebView)
+                    if (isWebSql || isMac || hasMobileWKWebView)
                       expect(row.t1).toBe('real');
                     else
                       expect(row.t1).toBe('integer');
