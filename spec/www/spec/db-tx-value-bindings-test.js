@@ -1432,12 +1432,11 @@ var mytests = function() {
 
       describe(scenarioList[i] + ': special UNICODE column value binding test(s)', function() {
 
-        it(suiteName + ' stores [Unicode] string with \\u0000 (same as \\0) correctly [default sqlite HEX encoding: UTF-6le on XXX TBD Android 4.1-4.3 (WebKit) Web SQL ...]', function (done) {
-          if (isWindows) pending('BROKEN on Windows'); // TBD (truncates on Windows)
-          // XXX TBD ???:
-          if (!isWebSql && !isWindows && isAndroid && !isImpl2) pending('BROKEN on Android-sqlite-connector implementation)');
+        it(suiteName + 'store multiple strings with U+0000 (same as \\0) and check ordering [default sqlite HEX encoding: UTF-6le on Windows plugin (TBD currently not tested here) & Android 4.1-4.3 (WebKit) Web SQL; UTF-8 otherwise]', function (done) {
+          if (isWindows) pending('SKIP on Windows (nonsense ordering due to known truncation issue)');
+          if (!isWebSql && isAndroid && !isImpl2) pending('SKIP on default Android (NDK) implementation (nonsense ordering due to known truncation issue)');
 
-          var db = openDatabase('UNICODE-store-u0000-test.db');
+          var db = openDatabase('Store-multiple-U+0000-strings-and-check-ordering.db');
 
           db.transaction(function (tx) {
             tx.executeSql('DROP TABLE IF EXISTS test', [], function () {
@@ -1455,6 +1454,7 @@ var mytests = function() {
                       expect(hexValue.length).toBe(16);
                     else
                       expect(hexValue.length).toBe(8);
+
                     if (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent))
                       expect(hexValue).toBe('6100000063006400'); // (UTF-16le)
                     else
@@ -1494,16 +1494,25 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + ' returns [Unicode] string with \\u0000 (same as \\0) correctly [TRUNCATION BUG on iOS (WebKit) Web SQL, older versions of Android (WebKit) Web SQL, and Windows plugin]', function (done) {
-          if (isWebSql && /Android 5.1/.test(navigator.userAgent)) pending('SKIP on (WebKit) Web SQL on Android 5.1'); // XXX TBD INCONSISTENT RESULT on (WebKit) Web SQL on Android 5.1(.1) x86 emulator vs Samsung test device
-          if (isWebSql && /Android 6/.test(navigator.userAgent)) pending('SKIP on (WebKit) Web SQL on Android 6'); // XXX TBD
-
-          var db = openDatabase('UNICODE-retrieve-u0000-test.db');
+        it(suiteName + 'store and retrieve string with U+0000 (same as \\0) correctly [XXX HEX ENCODING ISSUE REPRODUCED on default Android NDK access implementation (Android-sqlite-connector with Android-sqlite-native-driver); TRUNCATION ISSUE REPRODUCED on iOS (WebKit) Web SQL, older versions of Android (WebKit) Web SQL, and Windows plugin; default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function (done) {
+          var db = openDatabase('Store-and-retrieve-U+0000-string-test.db');
 
           db.transaction(function (tx) {
-            tx.executeSql('DROP TABLE IF EXISTS test', [], function () {
-              tx.executeSql('CREATE TABLE test (name, id)', [], function() {
-                tx.executeSql('INSERT INTO test VALUES (?, "id1")', ['a\u0000cd'], function () {
+            tx.executeSql('DROP TABLE IF EXISTS test');
+            tx.executeSql('CREATE TABLE test (name, id)', [], function() {
+              tx.executeSql('INSERT INTO test VALUES (?, "id1")', ['a\u0000cd'], function () {
+                tx.executeSql('SELECT HEX(name) AS hexValue FROM test', [], function (tx_ignored, rs1) {
+                  var hexValue = rs1.rows.item(0).hexValue;
+
+                  if (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent))
+                    expect(hexValue).toBe('6100000063006400'); // (UTF-16le)
+                  else if (isWindows)
+                    expect(hexValue).toBe('6100'); // (UTF-16le with ENCODING ISSUE REPRODUCED)
+                  else if (!isWebSql && isAndroid && !isImpl2)
+                    expect(hexValue).toBe('61C0806364'); // XXX ENCODING ISSUE REPRODUCED on default Android NDK implementation
+                  else
+                    expect(hexValue).toBe('61006364'); // (UTF-8)
+
                   tx.executeSql('SELECT name FROM test', [], function (tx_ignored, rs) {
                     var name = rs.rows.item(0).name;
 
@@ -1527,8 +1536,11 @@ var mytests = function() {
                     //
                     // TRUNCATION BUG REPRODUCED on Windows
 
-                    if ((isWebSql && isAndroid && (/Android 4/.test(navigator.userAgent))) ||
-                        (isWebSql && isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
+                    if ((isWebSql && isAndroid &&
+                         ((/Android 4/.test(navigator.userAgent)) ||
+                          (/Android 5.0/.test(navigator.userAgent)) ||
+                          (/Android 5.1/.test(navigator.userAgent) && !(/Chrome.6/.test(navigator.userAgent))) ||
+                          (/Android 6/.test(navigator.userAgent) && (/Chrome.[3-4]/.test(navigator.userAgent))))) ||
                         (isWebSql && !isAndroid) ||
                         (!isWebSql && isWindows)) {
                       expect(name.length).toBe(1);

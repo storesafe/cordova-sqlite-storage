@@ -298,7 +298,7 @@ var mytests = function() {
       describe(suiteName + 'U+0000 character tests', function() {
 
         it(suiteName + 'String HEX encoding test with U+0000 character (same as \\0 [null]) [XXX HEX ENCODING BUG REPRODUCED on default Android NDK access implementation (Android-sqlite-connector with Android-sqlite-native-driver), TRUNCATION ISSUE REPRODUCED on Windows; default sqlite encoding: UTF-16le on Windows & Android 4.1-4.4 (WebKit) Web SQL, UTF-8 otherwise]', function (done) {
-          var db = openDatabase('U-0000-hex-test.db');
+          var db = openDatabase('U+0000-hex-test.db');
 
           db.transaction(function (tx) {
             tx.executeSql('SELECT HEX(?) AS hexvalue', ['abcd'], function (tx_ignored, rs1) {
@@ -364,7 +364,7 @@ var mytests = function() {
                     expect(resultRow3.hexvalue).toBe('6500');       // (UTF-16le with TRUNCATION ISSUE REPRODUCED on Windows)
                   else if ((isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
                     expect(resultRow3.hexvalue).toBe('6500000067006800'); // (UTF-16le)
-                  else if (!isWebSql && !isWindows && isAndroid && !isImpl2)
+                  else if (!isWebSql && isAndroid && !isImpl2)
                     expect(resultRow3.hexvalue).toBe('65C0806768'); // (XXX UTF-8 with ENCODING BUG REPRODUCED on Android)
                   else
                     expect(resultRow3.hexvalue).toBe('65006768');   // (UTF-8)
@@ -387,7 +387,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'INLINE HEX encoding test with U+0000 (\\0) [XXX HEX ENCODING BUG REPRODUCED on default Android NDK access implementation (Android-sqlite-connector with Android-sqlite-native-driver), SQL ERROR reported otherwise; default sqlite encoding: UTF-16le on TBD, UTF-8 otherwise]', function (done) {
-          var db = openDatabase('INLINE-UNICODE-0000-hex-test.db');
+          var db = openDatabase('INLINE-U+0000-hex-test.db');
 
           db.transaction(function (tx) {
             tx.executeSql('SELECT HEX("efgh") AS hexvalue', [], function (tx_ignored, rs1) {
@@ -414,7 +414,7 @@ var mytests = function() {
               tx.executeSql("SELECT HEX('e\u0000gh') AS hexvalue", [], function (tx_ignored, rs2) {
                 if (isWebSql) expect('UNEXPECTED SUCCESS on (WebKit) Web SQL PLEASE UPDATE THIS TEST').toBe('--');
                 if (!isWebSql && isWindows) expect('UNEXPECTED SUCCESS on Windows PLUGIN PLEASE UPDATE THIS TEST').toBe('--');
-                if (!isWebSql && !isWindows && isAndroid && isImpl2) expect('UNEXPECTED SUCCESS on BUILTIN android.database PLEASE UPDATE THIS TEST').toBe('--');
+                if (!isWebSql && isAndroid && isImpl2) expect('UNEXPECTED SUCCESS on BUILTIN android.database PLEASE UPDATE THIS TEST').toBe('--');
                 if (!isWebSql && (isAppleMobileOS || isMac)) expect('UNEXPECTED SUCCESS on iOS/macOS PLUGIN PLEASE UPDATE THIS TEST').toBe('--');
                 expect(rs2).toBeDefined();
                 expect(rs2.rows).toBeDefined();
@@ -458,10 +458,8 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'U+0000 string parameter manipulation test [TBD TRUNCATION ISSUE REPRODUCED on (WebKit) Web SQL & plugin on multiple platforms]', function(done) {
-          if (isWebSql && /Android 6/.test(navigator.userAgent)) pending('SKIP on (WebKit) Web SQL on Android 6'); // XXX TBD
-
-          var db = openDatabase('U-0000-string-parameter-upper-test');
+        it(suiteName + 'U+0000 string parameter manipulation test [TRUNCATION ISSUE REPRODUCED on (WebKit) Web SQL (iOS & older Android versions) and plugin on multiple platforms]', function(done) {
+          var db = openDatabase('U+0000-string-parameter-upper-test');
 
           db.transaction(function(tx) {
             tx.executeSql('SELECT UPPER(?) AS uppertext', ['a\u0000cd'], function(tx_ignored, rs) {
@@ -469,11 +467,15 @@ var mytests = function() {
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
 
-              // TRUNCATION ISSUE REPRODUCED on (WebKit) Web SQL & plugin
-              // on multiple platforms
+              // TRUNCATION ISSUE REPRODUCED on:
+              // - (WebKit) Web SQL (iOS & older Android versions)
+              // - plugin on multiple platforms
 
-              if ((isWebSql && isAndroid && (/Android 4/.test(navigator.userAgent))) ||
-                  (isWebSql && isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
+              if ((isWebSql && isAndroid &&
+                   ((/Android 4/.test(navigator.userAgent)) ||
+                    (/Android 5.0/.test(navigator.userAgent)) ||
+                    (/Android 5.1/.test(navigator.userAgent) && !(/Chrome.6/.test(navigator.userAgent))) ||
+                    (/Android 6/.test(navigator.userAgent) && (/Chrome.[3-4]/.test(navigator.userAgent))))) ||
                   (isWebSql && !isAndroid) ||
                   (!isWebSql && isWindows) ||
                   (!isWebSql && !isWindows && isAndroid && isImpl2 &&
