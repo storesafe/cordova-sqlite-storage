@@ -1097,7 +1097,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "INSERT inline BLOB value (X'FFD1FFD2') and check stored data [Plugin BROKEN: missing result column data; SELECT BLOB value ISSUE with Android/Windows/WP8]", function(done) {
+        it(suiteName + "INSERT inline BLOB value (X'FFD1FFD2') and check stored data [XXX SKIP FINAL CHECK on default Android NDK access implementation due to CRASH ISSUE; OTHER PLUGIN ISSUES REPRODUCED: missing result column data; SELECT BLOB VALUE ERROR on Android & Windows; missing result column data on iOS/macOS]", function(done) {
           var db = openDatabase('INSERT-inline-BLOB-value-FFD1FFD2-and-check-stored-data.db', '1.0', 'Demo', DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -1118,11 +1118,12 @@ var mytests = function() {
                   expect(item).toBeDefined();
                   expect(item.hexValue).toBe('FFD1FFD2');
 
-                  // STOP here in case of Android:
-                  if (!isWindows && isAndroid) return done();
+                  // STOP HERE to avoid CRASH on default Android NDK access implementation:
+                  if (!isWebSql && !isWindows && isAndroid && !isImpl2) return done();
 
                   tx.executeSql('SELECT * FROM test_table', [], function(ignored, rs3) {
-                    if (!isWebSql && isAndroid && isImpl2) expect('Behavior changed please update this test').toBe('--');
+                    if (!isWebSql && isWindows) expect('PLUGIN BEHAVIOR CHANGED: UNEXPECTED SUCCESS on Windows').toBe('--');
+                    if (!isWebSql && isAndroid && isImpl2) expect('PLUGIN BEHAVIOR CHANGED: UNEXPECTED SUCCESS on Android with androidDatabaseImplementation: 2 setting').toBe('--');
                     expect(rs3).toBeDefined();
                     expect(rs3.rows).toBeDefined();
                     expect(rs3.rows.length).toBeDefined();
@@ -1138,28 +1139,27 @@ var mytests = function() {
                       return done();
                     } else {
                       expect(mydata).toBeDefined();
-                      expect(mydata.length).toBe(4);
+                      expect(mydata.length).toBeDefined();
+                      if (!(/Android 4.[1-3]/.test(navigator.userAgent)))
+                        expect(mydata.length).toBe(4);
                     }
 
                     // Close (plugin only) & finish:
                     (isWebSql) ? done() : db.close(done, done);
                   }, function(ignored, error) {
-                    if (!isWebSql && (isWindows || (isAndroid && isImpl2))) {
-                      expect(error).toBeDefined();
-                      expect(error.code).toBeDefined();
-                      expect(error.message).toBeDefined();
+                    if (isWebSql) expect('UNEXPECTED ERROR ON (WebKit) Web SQL PLEASE UPDATE THIS TEST').toBe('--');
+                    if (!isWebSql && !(isWindows || (isAndroid && isImpl2)))
+                      expect('PLUGIN ERROR NOT EXPECTED ON THIS PLATFORM: ' + error.message).toBe('--');
+                    expect(error).toBeDefined();
+                    expect(error.code).toBeDefined();
+                    expect(error.message).toBeDefined();
 
-                      expect(error.code).toBe(0);
+                    expect(error.code).toBe(0);
 
-                      if (isWindows)
-                        expect(error.message).toMatch(/Unsupported column type in column 0/);
-                      else
-                        expect(error.message).toMatch(/unknown error.*code 0.*Unable to convert BLOB to string/);
-                    } else {
-                      // NOT EXPECTED:
-                      expect(false).toBe(true);
-                      expect(error.message).toBe('---');
-                    }
+                    if (isWindows)
+                      expect(error.message).toMatch(/Unsupported column type in column 0/);
+                    else
+                      expect(error.message).toMatch(/unknown error.*code 0.*Unable to convert BLOB to string/);
 
                     // Close (plugin only) & finish:
                     (isWebSql) ? done() : db.close(done, done);
