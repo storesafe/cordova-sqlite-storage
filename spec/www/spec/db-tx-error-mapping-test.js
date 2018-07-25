@@ -192,7 +192,7 @@ var mytests = function() {
               else
                 expect(error.code).toBe(5);
 
-              if (isWebSql && (/Android [8-9]/.test(navigator.userAgent)))
+              if (isWebSql && (/Android [7-9]/.test(navigator.userAgent)))
                 expect(error.message).toMatch(/could not prepare statement.*/); // XXX TBD incomplete input vs syntax error message on Android 8(+)
               else if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
                 expect(error.message).toMatch(/could not prepare statement.*1 near \"VALUES\": syntax error/);
