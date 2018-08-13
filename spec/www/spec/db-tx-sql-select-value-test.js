@@ -1818,7 +1818,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "SELECT X'FFD1FFD2' [TBD BROKEN androidDatabaseImplementation: 2 & Windows; missing result value iOS/macOS]", function(done) {
+        it(suiteName + "SELECT X'FFD1FFD2' [TBD BROKEN androidDatabaseImplementation: 2 & Windows; missing result value iOS/macOS; actual value IGNORED]", function(done) {
           if (!isWebSql && !isWindows && isAndroid && !isImpl2) pending('BROKEN: CRASH on Android 5.x (default sqlite-connector version)');
 
           var db = openDatabase("Inline-SELECT-BLOB-FFD1FFD2-result-test.db", "1.0", "Demo", DEFAULT_SIZE);
@@ -1834,7 +1834,6 @@ var mytests = function() {
                 expect(rs.rows.item(0).myresult).not.toBeDefined(); // not defined iOS/macOS plugin
               else
                 expect(rs.rows.item(0).myresult).toBeDefined();
-              // TBD actual value (???)
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
@@ -1846,15 +1845,13 @@ var mytests = function() {
 
                 // TBD wrong error code
                 expect(error.code).toBe(0);
-                // TBD error message
+                // FUTURE TBD check error message
+                done();
               } else {
                 // NOT EXPECTED:
-                expect(false).toBe(true);
                 expect(error.message).toBe('---');
+                done.fail();
               }
-
-              // Close (plugin only) & finish:
-              (isWebSql) ? done() : db.close(done, done);
             });
           });
         }, MYTIMEOUT);
