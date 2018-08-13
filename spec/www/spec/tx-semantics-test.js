@@ -4,32 +4,6 @@ var MYTIMEOUT = 12000;
 
 var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
 
-// FUTURE TODO replace in test(s):
-function ok(test, desc) { expect(test).toBe(true); }
-function equal(a, b, desc) { expect(a).toEqual(b); } // '=='
-function strictEqual(a, b, desc) { expect(a).toBe(b); } // '==='
-
-// XXX TODO REFACTOR OUT OF OLD TESTS:
-var wait = 0;
-var test_it_done = null;
-function xtest_it(desc, fun) { xit(desc, fun); }
-function test_it(desc, fun) {
-  wait = 0;
-  it(desc, function(done) {
-    test_it_done = done;
-    fun();
-  }, MYTIMEOUT);
-}
-function stop(n) {
-  if (!!n) wait += n
-  else ++wait;
-}
-function start(n) {
-  if (!!n) wait -= n;
-  else --wait;
-  if (wait == 0) test_it_done();
-}
-
 var isWindows = /MSAppHost/.test(navigator.userAgent);
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 
@@ -44,6 +18,9 @@ var scenarioList = [
 ];
 
 var scenarioCount = (!!window.hasWebKitWebSQL) ? (isAndroid ? 3 : 2) : 1;
+
+function logSuccess(message) { console.log('OK - ' + message); }
+function logFailure(message) { console.log('FAILED - ' + message); }
 
 var mytests = function() {
 
@@ -134,8 +111,6 @@ var mytests = function() {
               expect(res.rowsAffected).toBe(1);
 
               tx.executeSql('INSERT INTO tt VALUES (?)', [2]);
-
-              //done();
             });
 
             // syntax error:
@@ -170,22 +145,20 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        test_it(suiteName + 'transaction test: check rowsAffected [intermediate]', function () {
+        it(suiteName + 'transaction test: check rowsAffected [intermediate]', function (done) {
           var db = openDatabase("RowsAffected", "1.0", "Demo", DEFAULT_SIZE);
-
-          stop();
 
           function test1(tx) {
             tx.executeSql('DROP TABLE IF EXISTS characters');
             tx.executeSql('CREATE TABLE IF NOT EXISTS characters (name, creator, fav tinyint(1))');
             tx.executeSql('UPDATE characters SET name = ?', ['foo'], function (tx, res) {
-              equal(res.rowsAffected, 0, 'nothing updated');
+              expect(res.rowsAffected).toBe(0); // nothing updated
               tx.executeSql('DELETE from characters WHERE name = ?', ['foo'], function (tx, res) {
-                equal(res.rowsAffected, 0, 'nothing deleted');
+                expect(res.rowsAffected).toBe(0); // nothing deleted
                 tx.executeSql('UPDATE characters SET name = ?', ['foo'], function (tx, res) {
-                  equal(res.rowsAffected, 0, 'nothing updated');
+                  expect(res.rowsAffected).toBe(0); // nothing updated
                   tx.executeSql('DELETE from characters', [], function (tx, res) {
-                    equal(res.rowsAffected, 0, 'nothing deleted');
+                    expect(res.rowsAffected).toBe(0); // nothing deleted
                     test2(tx);
                   });
                 });
@@ -195,17 +168,17 @@ var mytests = function() {
 
           function test2(tx) {
             tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Sonic', 'Sega', 0], function (tx, res) {
-              equal(res.rowsAffected, 1);
+              expect(res.rowsAffected).toBe(1);
               tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Mario', 'Nintendo', 0], function (tx, res) {
-                equal(res.rowsAffected, 1);
+                expect(res.rowsAffected).toBe(1);
                 tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Samus', 'Nintendo', 0], function (tx, res) {
-                  equal(res.rowsAffected, 1);
+                  expect(res.rowsAffected).toBe(1);
                   tx.executeSql('UPDATE characters SET fav=1 WHERE creator=?', ['Nintendo'], function (tx, res) {
-                    equal(res.rowsAffected, 2);
+                    expect(res.rowsAffected).toBe(2);
                     tx.executeSql('UPDATE characters SET fav=1 WHERE creator=?', ['Konami'], function (tx, res) {
-                      equal(res.rowsAffected, 0);
+                      expect(res.rowsAffected).toBe(0);
                       tx.executeSql('UPDATE characters SET fav=1', [], function (tx, res) {
-                        equal(res.rowsAffected, 3);
+                        expect(res.rowsAffected).toBe(3);
                         test3(tx);
                       });
                     });
@@ -217,19 +190,19 @@ var mytests = function() {
 
           function test3(tx) {
             tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Mega Man', 'Capcom', 0], function (tx, res) {
-              equal(res.rowsAffected, 1);
+              expect(res.rowsAffected).toBe(1);
               tx.executeSql('UPDATE characters SET fav=?, name=? WHERE creator=?;', [1, 'X', 'Capcom'], function (tx, res) {
-                equal(res.rowsAffected, 1);
+                expect(res.rowsAffected).toBe(1);
                 tx.executeSql('UPDATE characters SET fav=? WHERE (creator=? OR creator=?)', [1, 'Capcom', 'Nintendo'], function (tx, res) {
-                  equal(res.rowsAffected, 3);
+                  expect(res.rowsAffected).toBe(3);
                   tx.executeSql('DELETE FROM characters WHERE name="Samus";', [], function (tx, res) {
-                    equal(res.rowsAffected, 1);
+                    expect(res.rowsAffected).toBe(1);
                     tx.executeSql('UPDATE characters SET fav=0,name=?', ["foo"], function (tx, res) {
-                      equal(res.rowsAffected, 3);
+                      expect(res.rowsAffected).toBe(3);
                       tx.executeSql('DELETE FROM characters', [], function (tx, res) {
-                        equal(res.rowsAffected, 3);
+                        expect(res.rowsAffected).toBe(3);
 
-                        start();
+                        done();
                       });
                     });
                   });
@@ -243,10 +216,8 @@ var mytests = function() {
           })
         });
 
-        test_it(suiteName + 'test rowsAffected [advanced]', function () {
+        it(suiteName + 'test rowsAffected [advanced]', function (done) {
           var db = openDatabase("RowsAffectedAdvanced", "1.0", "Demo", DEFAULT_SIZE);
-
-          stop();
 
           db.transaction(function (tx) {
             tx.executeSql('DROP TABLE IF EXISTS characters');
@@ -265,23 +236,26 @@ var mytests = function() {
                       ' SET fav=(SELECT fav FROM companies WHERE name=?)' +
                       ' WHERE creator=?';
                   tx.executeSql(sql, ['Sega', 'Sega'], function (tx, res) {
-                    equal(res.rowsAffected, 2);
+                    expect(res.rowsAffected).toBe(2);
                     // query with 2 subqueries
                     var sql = 'UPDATE characters ' +
                         ' SET fav=(SELECT fav FROM companies WHERE name=?),' +
                         ' creator=(SELECT name FROM companies WHERE name=?)' +
                         ' WHERE creator=?';
                     tx.executeSql(sql, ['Sega', 'Sega', 'Sega'], function (tx, res) {
-                      equal(res.rowsAffected, 2);
+                      expect(res.rowsAffected).toBe(2);
                       // knockoffs shall be ignored:
                       tx.executeSql('INSERT or IGNORE INTO characters VALUES (?,?,?)', ['Sonic', 'knockoffs4you', 0], function (tx, res) {
-                        equal(res.rowsAffected, 0);
+                        // EXPECTED RESULT:
+                        expect(res.rowsAffected).toBe(0);
 
-                        start();
-                      }, function(tx, err) {
-                        ok(false, 'knockoff should have been ignored');
+                        done();
+                      }, function(tx, error) {
+                        // ERROR NOT EXPECTED here:
+                        logError('knockoff should have been ignored');
+                        expect(error.message).toBe('--');
 
-                        start();
+                        done.fail();
                       });
                     });
                   });
@@ -293,16 +267,13 @@ var mytests = function() {
 
         // FUTURE TODO: fix these tests to follow the Jasmine style and move into a separate spec file:
 
-        test_it(suiteName + "nested transaction test", function() {
-
+        it(suiteName + "nested transaction test", function(done) {
           var db = openDatabase("Database2", "1.0", "Demo", DEFAULT_SIZE);
 
-          ok(!!db, "db object");
-
-          stop();
+          expect(db).toBeTruthy(); // db object
 
           db.transaction(function(tx) {
-            ok(!!tx, "tx object");
+            expect(tx).toBeTruthy(); // tx object
 
             tx.executeSql('DROP TABLE IF EXISTS test_table');
             tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (id integer primary key, data text, data_num integer)');
@@ -319,10 +290,10 @@ var mytests = function() {
                 console.log("res.rows.length: " + res.rows.length + " -- should be 1");
                 console.log("res.rows.item(0).cnt: " + res.rows.item(0).cnt + " -- should be 1");
 
-                equal(res.rows.length, 1, "res rows length");
-                equal(res.rows.item(0).cnt, 1, "select count");
+                expect(res.rows.length).toBe(1); // res rows length
+                expect(res.rows.item(0).cnt).toBe(1); // select count
 
-                start();
+                done();
               });
 
             });
@@ -334,7 +305,6 @@ var mytests = function() {
       describe(suiteName + 'transaction callback semantics test(s)', function() {
 
         function withTestTable(func) {
-          //stop();
           var db = openDatabase("Database", "1.0", "Demo", DEFAULT_SIZE);
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
@@ -345,9 +315,7 @@ var mytests = function() {
           });
         };
 
-        test_it(suiteName + "transaction encompasses all callbacks", function() {
-          stop(); // wait until callback with the final count before signalling end of test
-
+        it(suiteName + "transaction encompasses all callbacks", function(done) {
           var db = openDatabase("tx-all-callbacks.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -358,21 +326,24 @@ var mytests = function() {
             db.transaction(function(tx) {
               tx.executeSql('INSERT INTO test_table (data, data_num) VALUES (?,?)', ['test', 100], function(tx, res) {
                 tx.executeSql("SELECT count(*) as cnt from test_table", [], function(tx, res) {
-                  equal(res.rows.item(0).cnt, 1, "did insert row");
+                  expect(res.rows.item(0).cnt).toBe(1); // did insert row
                   throw new Error("deliberately aborting transaction");
                 });
               });
             }, function(error) {
-              if (!isWebSql) equal(error.message, "deliberately aborting transaction");
+              if (!isWebSql) expect(error.message).toBe("deliberately aborting transaction");
               db.transaction(function(tx) {
                 tx.executeSql("select count(*) as cnt from test_table", [], function(tx, res) {
-                  equal(res.rows.item(0).cnt, 0, "final count shows we rolled back");
+                  // EXPECTED RESULT:
+                  expect(res.rows.item(0).cnt).toBe(0); // final count shows we rolled back
 
-                  start();
+                  done();
                 });
               });
             }, function() {
-              ok(false, "transaction succeeded but wasn't supposed to");
+              // ERROR NOT EXPECTED here:
+              logError("transaction succeeded but wasn't supposed to");done.fail();
+              expect(error.message).toBe('--');
 
               start();
             });
@@ -408,7 +379,7 @@ var mytests = function() {
               expect(false).toBe(true);
               done();
             });
-            ok(true, "db.transaction() did not throw an error");
+            logSuccess("db.transaction() did not throw an error");
           } catch(ex) {
             // exception not expected here
             expect(false).toBe(true);
@@ -452,9 +423,7 @@ var mytests = function() {
           }
         });
 
-        test_it(suiteName + "error handler returning true causes rollback", function() {
-          stop();
-
+        it(suiteName + "error handler returning true causes rollback", function(done) {
           withTestTable(function(db) {
             db.transaction(function(tx) {
               tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ['test', null], function(tx, res) {
@@ -462,25 +431,31 @@ var mytests = function() {
                 expect(res.rowsAffected).toBe(1);
 
                 tx.executeSql("select * from bogustable", [], function(tx, res) {
-                  expect(false).toBe(true);
+                  // NOT EXPECTED:
+                  done.fail();
                 }, function(tx, err) {
+                  // EXPECTED RESULT:
                   expect(err.message).toBeDefined();
                   return true;
                 });
               });
             }, function(err) {
-              ok(!!err.message, "should report error message");
+              // EXPECTED RESULT:
+              expect(err.message).toBeTruthy(); // should report error message
 
               db.transaction(function(tx) {
                 tx.executeSql("select count(*) as cnt from test_table", [], function(tx, res) {
-                  equal(res.rows.item(0).cnt, 0, "should have rolled back");
+                  // EXPECTED RESULT:
+                  expect(res.rows.item(0).cnt).toBe(0); // should have rolled back
 
-                  start();
+                  done();
                 });
               });
             }, function() {
-              ok(false, "not supposed to succeed");
-              start();
+              // NOT EXPECTED - not supposed to succeed:
+              logError('not supposed to succeed');
+              expect(error.message).toBe('--');
+              done.fail();
             });
           });
         });
@@ -488,94 +463,103 @@ var mytests = function() {
         // NOTE: conclusion reached with @aarononeal and @nolanlawson in litehelpers/Cordova-sqlite-storage#232
         // that the according to the spec at http://www.w3.org/TR/webdatabase/ the transaction should be
         // recovered *only* if the sql error handler returns false.
-        test_it(suiteName + "error handler returning false lets transaction continue", function() {
+        it(suiteName + 'error handler returning false lets transaction continue', function(done) {
+          var check1 = false;
           withTestTable(function(db) {
-            stop(2);
             db.transaction(function(tx) {
               tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ['test', null], function(tx, res) {
-                start();
                 expect(res).toBeDefined();
                 expect(res.rowsAffected).toBe(1);
-                stop();
                 tx.executeSql("select * from bogustable", [], function(tx, res) {
-                  start();
-                  ok(false, "select statement not supposed to succeed");
+                  // NOT EXPECTED:
+                  logError("select statement not supposed to succeed");
+                  done.fail();
                 }, function(tx, err) {
-                  start();
-                  ok(!!err.message, "should report a valid error message");
+                  // EXPECTED RESULT:
+                  check1 = true;
+                  expect(err.message).toBeTruthy(); // should report a valid error message
                   return false;
                 });
               });
-            }, function(err) {
-              ok(false, "transaction was supposed to succeed: " + err.message);
-              start();
+            }, function(error) {
+              // ERROR NOT EXPECTED here:
+              logError('transaction was supposed to succeed: ' + error.message);
+              expect(error.message).toBe('--');
+              done.fail();
             }, function() {
               db.transaction(function(tx) {
                 tx.executeSql("select count(*) as cnt from test_table", [], function(tx, res) {
-                  equal(res.rows.item(0).cnt, 1, "should have commited");
+                  expect(check1).toBe(true);
+                  expect(res.rows.item(0).cnt).toBe(1); // should have commited
 
-                  start();
+                  done();
                 });
               });
             });
           });
         });
 
-        test_it(suiteName + "missing error handler causes rollback", function() {
+        it(suiteName + "missing error handler causes rollback", function(done) {
           withTestTable(function(db) {
-            stop();
             db.transaction(function(tx) {
               tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ['test', null], function(tx, res) {
                 expect(res).toBeDefined();
                 expect(res.rowsAffected).toEqual(1);
                 tx.executeSql("select * from bogustable", [], function(tx, res) {
-                  ok(false, "select statement not supposed to succeed");
+                  // NOT EXPECTED:
+                  logError("select statement not supposed to succeed");
+                  done.fail();
                 });
               });
             }, function(err) {
-              ok(!!err.message, "should report a valid error message");
+              // EXPECTED RESULT:
+              expect(err.message).toBeTruthy(); // should report a valid error message
               db.transaction(function(tx) {
                 tx.executeSql("select count(*) as cnt from test_table", [], function(tx, res) {
-                  equal(res.rows.item(0).cnt, 0, "should have rolled back");
+                  expect(res.rows.item(0).cnt).toBe(0); // should have rolled back
 
-                  start();
+                  done();
                 });
               });
             }, function() {
-              ok(false, "transaction was supposed to fail");
-
-              start();
+              // ERROR NOT EXPECTED here:
+              logError("transaction was supposed to fail");done.fail();
+              expect(error.message).toBe('--');
+              done.fail();
             });
           });
         });
 
-        test_it(suiteName + "executeSql fails outside transaction", function() {
+        it(suiteName + "executeSql fails outside transaction", function(done) {
+          var check1 = false;
           withTestTable(function(db) {
-            expect(4);
-            ok(!!db, "db ok");
+            expect(db).toBeTruthy(); // db ok
             var txg;
-            stop(2);
             db.transaction(function(tx) {
-              ok(!!tx, "tx ok");
+              expect(tx).toBeTruthy(); // tx ok
               txg = tx;
               tx.executeSql("insert into test_table (data, data_num) VALUES (?,?)", ['test', null], function(tx, res) {
                 expect(res).toBeDefined();
                 expect(res.rowsAffected).toEqual(1);
+                check1 = true;
               });
-              start(1);
-            }, function(err) {
-              ok(false, err);
-              start(1);
+            }, function(error) {
+              // ERROR NOT EXPECTED here:
+              logError('unexpected error callback with message: ' + error.message);
+              expect(error.message).toBe('--');
+              done.fail();
             }, function() {
               // this simulates what would happen if a Promise ran on the next tick
               // and invoked an execute on the transaction
               try {
                 txg.executeSql("select count(*) as cnt from test_table", [], null, null);
-                ok(false, "executeSql should have thrown but continued instead");
+                // NOT EXPECTED to get here:
+                logError("executeSql should have thrown but continued instead");
+                done.fail();
               } catch(err) {
-                ok(!!err.message, "error had valid message");
+                expect(err.message).toBeTruthy(); // error had valid message
               }
-              start(1);
+              done();
             });
           });
         });
@@ -602,8 +586,8 @@ var mytests = function() {
           }, function () {}, function () {
             db.readTransaction(function (tx) {
               tx.executeSql('SELECT * from test_table', [], function (tx, res) {
-                equal(res.rows.length, 1);
-                equal(res.rows.item(0).data, 'first');
+                expect(res.rows.length).toBe(1);
+                expect(res.rows.item(0).data).toBe('first');
               });
             }, function () {}, function () {
               var numDone = 0;
@@ -724,20 +708,22 @@ var mytests = function() {
           });
         });
 
-        test_it(suiteName + ' test callback order', function () {
-          stop();
+        it(suiteName + ' test callback order', function (done) {
           var db = openDatabase("Database-Callback-Order", "1.0", "Demo", DEFAULT_SIZE);
           var blocked = true;
 
           db.transaction(function(tx) {
-            ok(!blocked, 'callback to the transaction shouldn\'t block (1)');
+            // callback to the transaction shouldn't block (1)
+            expect(blocked).toBe(false);
             tx.executeSql('SELECT 1', [], function () {
-              ok(!blocked, 'callback to the transaction shouldn\'t block (2)');
+              // callback to the transaction shouldn't block (2)
+              expect(blocked).toBe(false);
             });
           }, function(err) { ok(false, err.message) }, function() {
-            ok(!blocked, 'callback to the transaction shouldn\'t block (3)');
+            // callback to the transaction shouldn't block (3)
+            expect(blocked).toBe(false);
 
-            start();
+            done();
           });
           blocked = false;
         });
