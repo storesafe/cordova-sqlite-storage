@@ -216,52 +216,117 @@ var mytests = function() {
           })
         });
 
-        it(suiteName + 'test rowsAffected [advanced]', function (done) {
-          var db = openDatabase("RowsAffectedAdvanced", "1.0", "Demo", DEFAULT_SIZE);
+        it(suiteName + 'test insertId & rowsAffected [advanced] - plugin vs (WebKit) Web SQL', function (done) {
+          var db = openDatabase('test-rowsAffected-advanced.db');
 
           db.transaction(function (tx) {
             tx.executeSql('DROP TABLE IF EXISTS characters');
             tx.executeSql('CREATE TABLE IF NOT EXISTS characters (name unique, creator, fav tinyint(1))');
             tx.executeSql('DROP TABLE IF EXISTS companies');
             tx.executeSql('CREATE TABLE IF NOT EXISTS companies (name unique, fav tinyint(1))');
+
             // INSERT or IGNORE with the real thing:
-            tx.executeSql('INSERT or IGNORE INTO characters VALUES (?,?,?)', ['Sonic', 'Sega', 0], function (tx, res) {
-              expect(res.rowsAffected).toBe(1);
-              tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Tails', 'Sega', 0], function (tx, res) {
-                expect(res.rowsAffected).toBe(1);
-                tx.executeSql('INSERT INTO companies VALUES (?,?)', ['Sega', 1], function (tx, res) {
-                  expect(res.rowsAffected).toBe(1);
+            tx.executeSql('INSERT or IGNORE INTO characters VALUES (?,?,?)', ['Sonic', 'Sega', 0], function (txIgnored, rs1) {
+              expect(rs1.rowsAffected).toBe(1);
+              expect(rs1.insertId).toBe(1);
+
+              tx.executeSql('INSERT INTO characters VALUES (?,?,?)', ['Tails', 'Sega', 0], function (txIgnored, rs2) {
+                expect(rs2.rowsAffected).toBe(1);
+                expect(rs2.insertId).toBe(2);
+
+                tx.executeSql('INSERT INTO companies VALUES (?,?)', ['Sega', 1], function (txIgnored, rs3) {
+                  expect(rs3.rowsAffected).toBe(1);
+                  expect(rs3.insertId).toBe(1);
+
                   // query with subquery
                   var sql = 'UPDATE characters ' +
                       ' SET fav=(SELECT fav FROM companies WHERE name=?)' +
                       ' WHERE creator=?';
-                  tx.executeSql(sql, ['Sega', 'Sega'], function (tx, res) {
-                    expect(res.rowsAffected).toBe(2);
+                  tx.executeSql(sql, ['Sega', 'Sega'], function (txIgnored, rs4) {
+                    expect(rs4.rowsAffected).toBe(2);
+                    try {
+                      // defined on plugin (except for Android with androidDatabaseImplementation: 2);
+                      // throws on (WebKit) Web SQL:
+                      if (!isWebSql && isAndroid && isImpl2)
+                        expect(rs4.insertId).not.toBeDefined();
+                      else
+                        expect(rs4.insertId).toBeDefined();
+
+                      // NOT EXPECTED to get here on (WebKit) Web SQL:
+                      if (isWebSql) expect('(WebKit) Web SQL behavior changed').toBe('--');
+
+                      if (!(isAndroid && isImpl2))
+                        expect(rs4.insertId).toBe(1);
+                    } catch(ex) {
+                      // SHOULD NOT CATCH EXCEPTION on plugin:
+                      if (!isWebSql) expect('EXCEPTION NOT EXPECTED on plugin with message: ' + e.message).toBe('--');
+                      expect(ex).toBeDefined();
+                      expect(ex.message).toBeDefined();
+                      // FUTURE TBD check message
+                    }
+
                     // query with 2 subqueries
                     var sql = 'UPDATE characters ' +
                         ' SET fav=(SELECT fav FROM companies WHERE name=?),' +
                         ' creator=(SELECT name FROM companies WHERE name=?)' +
                         ' WHERE creator=?';
-                    tx.executeSql(sql, ['Sega', 'Sega', 'Sega'], function (tx, res) {
-                      expect(res.rowsAffected).toBe(2);
+                    tx.executeSql(sql, ['Sega', 'Sega', 'Sega'], function (txIgnored, rs5) {
+                      expect(rs5.rowsAffected).toBe(2);
+                      try {
+                        // defined on plugin (except for Android with androidDatabaseImplementation: 2);
+                        // throws on (WebKit) Web SQL:
+                        if (!isWebSql && isAndroid && isImpl2)
+                          expect(rs5.insertId).not.toBeDefined();
+                        else
+                          expect(rs5.insertId).toBeDefined();
+
+                        // EXPECTED to get here on plugin only:
+                        if (isWebSql) expect('(WebKit) Web SQL behavior changed').toBe('--');
+
+                        if (!(isAndroid && isImpl2))
+                          expect(rs5.insertId).toBe(1);
+                      } catch(e) {
+                        // SHOULD NOT CATCH EXCEPTION on plugin:
+                        if (!isWebSql) expect('EXCEPTION NOT EXPECTED on plugin').toBe('--');
+                        // XXX TODO CHECK message, etc.
+                      }
+
                       // knockoffs shall be ignored:
-                      tx.executeSql('INSERT or IGNORE INTO characters VALUES (?,?,?)', ['Sonic', 'knockoffs4you', 0], function (tx, res) {
+                      tx.executeSql('INSERT or IGNORE INTO characters VALUES (?,?,?)', ['Sonic', 'knockoffs4you', 0], function (txIgnored, rs6) {
                         // EXPECTED RESULT:
-                        expect(res.rowsAffected).toBe(0);
+                        expect(rs6.rowsAffected).toBe(0);
+
+                        // insertId plugin vs (WebKit) Web SQL:
+                        if (isWebSql)
+                          expect(rs6.insertId).toBe(1);
+                        else
+                          expect(rs6.insertId).not.toBeDefined();
 
                         done();
-                      }, function(tx, error) {
-                        // ERROR NOT EXPECTED here:
+                      }, function(txIgnored, error) {
+                        // ERROR NOT EXPECTED here - knockoff should have been ignored:
                         logError('knockoff should have been ignored');
                         expect(error.message).toBe('--');
 
                         done.fail();
                       });
+
                     });
+
                   });
+
                 });
+
               });
+
             });
+
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
           });
         });
 
