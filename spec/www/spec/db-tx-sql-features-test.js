@@ -2,13 +2,23 @@
 
 var MYTIMEOUT = 20000;
 
-var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
+// NOTE: DEFAULT_SIZE wanted depends on type of browser
 
 var isWindows = /MSAppHost/.test(navigator.userAgent);
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
-var isMac = /Macintosh/.test(navigator.userAgent);
+var isFirefox = /Firefox/.test(navigator.userAgent);
+var isWebKitBrowser = !isWindows && !isAndroid && /Safari/.test(navigator.userAgent);
+var isBrowser = isWebKitBrowser || isFirefox;
+var isEdgeBrowser = isBrowser && (/Edge/.test(navigator.userAgent));
+var isChromeBrowser = isBrowser && !isEdgeBrowser && (/Chrome/.test(navigator.userAgent));
+var isSafariBrowser = isWebKitBrowser && !isEdgeBrowser && !isChromeBrowser;
+var isMac = !isBrowser && /Macintosh/.test(navigator.userAgent);
 var isAppleMobileOS = /iPhone/.test(navigator.userAgent) ||
       /iPad/.test(navigator.userAgent) || /iPod/.test(navigator.userAgent);
+
+// should avoid popups (Safari seems to count 2x)
+var DEFAULT_SIZE = isSafariBrowser ? 2000000 : 5000000;
+// FUTURE TBD: 50MB should be OK on Chrome and some other test browsers.
 
 // NOTE: While in certain version branches there is no difference between
 // the default Android implementation and implementation #2,
@@ -25,6 +35,9 @@ var scenarioCount = (!!window.hasWebKitWebSQL) ? (isAndroid ? 3 : 2) : 1;
 var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
+    // TBD skip plugin test on browser platform (not yet supported):
+    if (isBrowser && (i === 0)) continue;
+
     describe(scenarioList[i] + ': db tx sql features test(s)', function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
@@ -54,7 +67,7 @@ var mytests = function() {
         // - Android (default Android-sqlite-connector implementation)
         // - iOS & Windows (with newer sqlite3 build)
         it(suiteName + 'db readTransaction with a WITH clause', function(done) {
-          if (isWebSql) pending('SKIP for Web SQL'); // NOT WORKING on all versions (Android/iOS)
+          if (isWebSql && !isBrowser) pending('SKIP for Android/iOS (WebKit) Web SQL'); // XXX TBD NOT WORKING on all Android/iOS versions
           if (isAndroid && isImpl2) pending('SKIP for android.database implementation'); // NOT WORKING on all versions
 
           var db = openDatabase('tx-with-a-with-clause-test.db', '1.0', 'Test', DEFAULT_SIZE);
@@ -80,6 +93,7 @@ var mytests = function() {
 
         /* THANKS to @calebeaires: */
         it(suiteName + 'create virtual table using FTS3', function(done) {
+          if (isBrowser && !(/Chrome/.test(navigator.userAgent))) pending('SKIP for (WebKit) Web SQL on Safari browser');
           if (isWebSql && isAndroid) pending('SKIP for Android Web SQL');
           if (isWebSql && isAppleMobileOS && (/OS 1[1-9]/.test(navigator.userAgent))) pending('SKIP (WebKit) Web SQL on iOS 11(+)');
 

@@ -2,10 +2,20 @@
 
 var MYTIMEOUT = 12000;
 
-var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
+// NOTE: DEFAULT_SIZE wanted depends on type of browser
 
 var isWindows = /MSAppHost/.test(navigator.userAgent);
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
+var isFirefox = /Firefox/.test(navigator.userAgent);
+var isWebKitBrowser = !isWindows && !isAndroid && /Safari/.test(navigator.userAgent);
+var isBrowser = isWebKitBrowser || isFirefox;
+var isEdgeBrowser = isBrowser && (/Edge/.test(navigator.userAgent));
+var isChromeBrowser = isBrowser && !isEdgeBrowser && (/Chrome/.test(navigator.userAgent));
+var isSafariBrowser = isWebKitBrowser && !isEdgeBrowser && !isChromeBrowser;
+
+// should avoid popups (Safari seems to count 2x)
+var DEFAULT_SIZE = isSafariBrowser ? 2000000 : 5000000;
+// FUTURE TBD: 50MB should be OK on Chrome and some other test browsers.
 
 // NOTE: While in certain version branches there is no difference between
 // the default Android implementation and implementation #2,
@@ -22,6 +32,8 @@ var scenarioCount = (!!window.hasWebKitWebSQL) ? (isAndroid ? 3 : 2) : 1;
 var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
+    // TBD skip plugin test on browser platform (not yet supported):
+    if (isBrowser && (i === 0)) continue;
 
     // GENERAL: SKIP ALL on WP8 for now
     describe(scenarioList[i] + ': db tx error mapping test(s)' +
@@ -32,9 +44,13 @@ var mytests = function() {
       var suiteName = scenarioName + ': ';
       var isWebSql = (i === 1);
       var isImpl2 = (i === 2);
+      // XXX TBD WORKAROUND SOLUTION for (WebKit) Web SQL on Safari browser (TEST DB NAME IGNORED):
+      var recycleWebDatabase = null;
 
       // NOTE: MUST be defined in function scope, NOT outer scope:
       var openDatabase = function(name, ignored1, ignored2, ignored3) {
+        if (isWebSql && isSafariBrowser && !!recycleWebDatabase)
+          return recycleWebDatabase;
         if (isImpl2) {
           return window.sqlitePlugin.openDatabase({
             // prevent reuse of database from default db implementation:
@@ -45,7 +61,8 @@ var mytests = function() {
           });
         }
         if (isWebSql) {
-          return window.openDatabase(name, "1.0", "Demo", DEFAULT_SIZE);
+          return recycleWebDatabase =
+            window.openDatabase(name, '1.0', 'Test', DEFAULT_SIZE);
         } else {
           return window.sqlitePlugin.openDatabase({name: name, location: 0});
         }
@@ -189,8 +206,10 @@ var mytests = function() {
 
               if (isWebSql && (/Android [7-9]/.test(navigator.userAgent)))
                 expect(error.message).toMatch(/could not prepare statement.*/); // XXX TBD incomplete input vs syntax error message on Android 8(+)
-              else if (isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent)))
+              else if (isWebSql && !isChromeBrowser && !(/Android 4.[1-3]/.test(navigator.userAgent)))
                 expect(error.message).toMatch(/could not prepare statement.*1 near \"VALUES\": syntax error/);
+              else if (isWebSql && isBrowser)
+                expect(error.message).toMatch(/could not prepare statement.*1 incomplete input/);
               else if (isWebSql)
                 expect(error.message).toMatch(/near \"VALUES\": syntax error/);
               else if (isWindows)
@@ -670,6 +689,8 @@ var mytests = function() {
                 expect(error.message).toMatch(/could not prepare statement.*not authorized/);
               else if (isWebSql && isAndroid)
                 expect(error.message).toMatch(/not authorized/);
+              else if (isWebSql && (isBrowser && (/Chrome/.test(navigator.userAgent))))
+                expect(error.message).toMatch(/could not prepare statement.*23 not authorized/);
               else if (isWebSql) // [iOS (WebKit) Web SQL]
                 expect(error.message).toMatch(/could not prepare statement.*1 not authorized/);
               else if (isWindows)

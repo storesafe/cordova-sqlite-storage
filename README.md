@@ -351,6 +351,8 @@ and limit database access to DRAFT standard transactions, no plugin-specific API
 - no `echoTest` or `selfTest` possible
 - no `deleteDatabase` calls
 
+This kind of usage on Safari and Chrome desktop browser (with (WebKit) Web SQL) is now covered by the `spec` test suite.
+
 It would be ideal for the application code to abstract the openDatabase part away from the rest of the database access code.
 
 ### Windows platform notes

@@ -2,10 +2,20 @@
 
 var MYTIMEOUT = 20000;
 
-var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
+// NOTE: DEFAULT_SIZE wanted depends on type of browser
 
 var isWindows = /MSAppHost/.test(navigator.userAgent);
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
+var isFirefox = /Firefox/.test(navigator.userAgent);
+var isWebKitBrowser = !isWindows && !isAndroid && /Safari/.test(navigator.userAgent);
+var isBrowser = isWebKitBrowser || isFirefox;
+var isEdgeBrowser = isBrowser && (/Edge/.test(navigator.userAgent));
+var isChromeBrowser = isBrowser && !isEdgeBrowser && (/Chrome/.test(navigator.userAgent));
+var isSafariBrowser = isWebKitBrowser && !isEdgeBrowser && !isChromeBrowser;
+
+// should avoid popups (Safari seems to count 2x)
+var DEFAULT_SIZE = isSafariBrowser ? 2000000 : 5000000;
+// FUTURE TBD: 50MB should be OK on Chrome and some other test browsers.
 
 // NOTE: While in certain version branches there is no difference between
 // the default Android implementation and implementation #2,
@@ -22,15 +32,21 @@ var scenarioCount = (!!window.hasWebKitWebSQL) ? (isAndroid ? 3 : 2) : 1;
 var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
+    // TBD skip plugin test on browser platform (not yet supported):
+    if (isBrowser && (i === 0)) continue;
 
     describe(scenarioList[i] + ': tx error handling (detailed tx error handling) test(s)', function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
       var isWebSql = (i === 1);
       var isImpl2 = (i === 2);
+      // XXX TBD WORKAROUND SOLUTION for (WebKit) Web SQL on Safari browser (TEST DB NAME IGNORED):
+      var recycleWebDatabase = null;
 
       // NOTE: MUST be defined in function scope, NOT outer scope:
       var openDatabase = function(name, ignored1, ignored2, ignored3) {
+        if (isWebSql && isSafariBrowser && !!recycleWebDatabase)
+          return recycleWebDatabase;
         if (isImpl2) {
           return window.sqlitePlugin.openDatabase({
             // prevent reuse of database from default db implementation:
@@ -41,7 +57,8 @@ var mytests = function() {
           });
         }
         if (isWebSql) {
-          return window.openDatabase(name, '1.0', 'Test', DEFAULT_SIZE);
+          return recycleWebDatabase =
+            window.openDatabase(name, '1.0', 'Test', DEFAULT_SIZE);
         } else {
           return window.sqlitePlugin.openDatabase({name: name, location: 0});
         }
@@ -526,6 +543,8 @@ var mytests = function() {
               expect(ex.message).toMatch(/transaction expected a function/);
             else if (isAndroid)
               expect(true).toBe(true); // SKIP (for now)
+            else if (isChromeBrowser)
+              expect(ex.message).toMatch(/1 argument required.*but only 0 present/);
             else
               expect(ex.message).toMatch(/Not enough arguments/);
           }
@@ -581,6 +600,8 @@ var mytests = function() {
               expect(ex.message).toMatch(/transaction expected a function/);
             else if (isAndroid)
               expect(true).toBe(true); // SKIP (for now)
+            else if (isChromeBrowser)
+              expect(ex.message).toMatch(/1 argument required.*but only 0 present/);
             else
               expect(ex.message).toMatch(/Not enough arguments/);
           }
@@ -635,6 +656,8 @@ var mytests = function() {
               expect(ex.message).toMatch(/transaction expected a function/);
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
+            else if (isChromeBrowser)
+              expect(ex.message).toMatch(/callback provided as parameter 1 is not an object/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.transaction must be a function/);
           }
@@ -685,6 +708,8 @@ var mytests = function() {
               expect(ex.message).toMatch(/transaction expected a function/);
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
+            else if (isChromeBrowser)
+              expect(ex.message).toMatch(/callback provided as parameter 1 is not an object/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.readTransaction must be a function/);
           }
@@ -735,6 +760,8 @@ var mytests = function() {
               expect(ex.message).toMatch(/transaction expected a function/);
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
+            else if (isChromeBrowser)
+              expect(ex.message).toMatch(/callback provided as parameter 1 is not an object/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.transaction must be a function/);
           }
@@ -785,6 +812,8 @@ var mytests = function() {
               expect(ex.message).toMatch(/transaction expected a function/);
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
+            else if (isChromeBrowser)
+              expect(ex.message).toMatch(/callback provided as parameter 1 is not an object/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.readTransaction must be a function/);
           }
@@ -835,6 +864,8 @@ var mytests = function() {
               expect(ex.message).toMatch(/transaction expected a function/);
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
+            else if (isWebSql && isChromeBrowser)
+              expect(ex.message).toMatch(/Failed to execute.*transaction.*callback provided as parameter 1 is not an object/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.transaction must be a function/);
           }
@@ -885,6 +916,8 @@ var mytests = function() {
               expect(ex.message).toMatch(/transaction expected a function/);
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
+            else if (isWebSql && isChromeBrowser)
+              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*callback provided as parameter 1 is not an object/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.readTransaction must be a function/);
           }
@@ -935,6 +968,8 @@ var mytests = function() {
               expect(ex.message).toMatch(/transaction expected a function/);
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
+            else if (isWebSql && isChromeBrowser)
+              expect(ex.message).toMatch(/Failed to execute.*transaction.*callback provided as parameter 1 is not an object/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.transaction must be a function/);
           }
@@ -985,6 +1020,8 @@ var mytests = function() {
               expect(ex.message).toMatch(/transaction expected a function/);
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
+            else if (isWebSql && isChromeBrowser)
+              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*callback provided as parameter 1 is not an object/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.readTransaction must be a function/);
           }
@@ -1035,6 +1072,8 @@ var mytests = function() {
               expect(ex.message).toMatch(/transaction expected a function/);
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
+            else if (isWebSql && isChromeBrowser)
+              expect(ex.message).toMatch(/Failed to execute.*transaction.*callback provided as parameter 1 is not an object/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.transaction must be a function/);
           }
@@ -1085,6 +1124,8 @@ var mytests = function() {
               expect(ex.message).toMatch(/transaction expected a function/);
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
+            else if (isWebSql && isChromeBrowser)
+              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*callback provided as parameter 1 is not an object/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.readTransaction must be a function/);
           }
@@ -1135,6 +1176,8 @@ var mytests = function() {
               expect(ex.message).toMatch(/transaction expected a function/);
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
+            else if (isWebSql && isChromeBrowser)
+              expect(ex.message).toMatch(/Failed to execute.*transaction.*callback provided as parameter 1 is not an object/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.transaction must be a function/);
           }
@@ -1185,6 +1228,8 @@ var mytests = function() {
               expect(ex.message).toMatch(/transaction expected a function/);
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
+            else if (isWebSql && isChromeBrowser)
+              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*callback provided as parameter 1 is not an object/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.readTransaction must be a function/);
           }
@@ -1233,6 +1278,8 @@ var mytests = function() {
 
             if (isAndroid)
               expect(true).toBe(true); // SKIP for now
+            else if (isWebSql && isChromeBrowser)
+              expect(ex.message).toMatch(/Failed to execute.*transaction.*callback provided as parameter 3 is not an object/);
             else
               expect(ex.message).toMatch(/Argument 3 \('successCallback'\) to Database\.transaction must be a function/);
           }
@@ -1281,6 +1328,8 @@ var mytests = function() {
 
             if (isAndroid)
               expect(true).toBe(true); // SKIP for now
+            else if (isWebSql && isChromeBrowser)
+              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*callback provided as parameter 3 is not an object/);
             else
               expect(ex.message).toMatch(/Argument 3 \('successCallback'\) to Database\.readTransaction must be a function/);
           }
@@ -1329,6 +1378,8 @@ var mytests = function() {
 
             if (isAndroid)
               expect(true).toBe(true); // SKIP for now
+            else if (isWebSql && isChromeBrowser)
+              expect(ex.message).toMatch(/Failed to execute.*transaction.*callback provided as parameter 2 is not an object/);
             else
               expect(ex.message).toMatch(/Argument 2 \('errorCallback'\) to Database\.transaction must be a function/);
           }
@@ -1377,6 +1428,8 @@ var mytests = function() {
 
             if (isAndroid)
               expect(true).toBe(true); // SKIP for now
+            else if (isWebSql && isChromeBrowser)
+              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*callback provided as parameter 2 is not an object/);
             else
               expect(ex.message).toMatch(/Argument 2 \('errorCallback'\) to Database\.readTransaction must be a function/);
           }
@@ -1425,6 +1478,8 @@ var mytests = function() {
 
             if (isAndroid)
               expect(true).toBe(true); // SKIP for now
+            else if (isWebSql && isChromeBrowser)
+              expect(ex.message).toMatch(/Failed to execute.*transaction.*callback provided as parameter 3 is not an object/);
             else
               expect(ex.message).toMatch(/Argument 3 \('successCallback'\) to Database\.transaction must be a function/);
           }
@@ -1473,6 +1528,8 @@ var mytests = function() {
 
             if (isAndroid)
               expect(true).toBe(true); // SKIP for now
+            else if (isWebSql && isChromeBrowser)
+              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*parameter 3 is not an object/);
             else
               expect(ex.message).toMatch(/Argument 3 \('successCallback'\) to Database\.readTransaction must be a function/);
           }
@@ -1521,6 +1578,8 @@ var mytests = function() {
 
             if (isAndroid)
               expect(true).toBe(true); // SKIP for now
+            else if (isWebSql && isChromeBrowser)
+              expect(ex.message).toMatch(/Failed to execute.*transaction.*callback provided as parameter 2 is not an object/);
             else
               expect(ex.message).toMatch(/Argument 2 \('errorCallback'\) to Database\.transaction must be a function/);
           }
@@ -1569,6 +1628,8 @@ var mytests = function() {
 
             if (isAndroid)
               expect(true).toBe(true); // SKIP for now
+            else if (isWebSql && isChromeBrowser)
+              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*parameter 2 is not an object/);
             else
               expect(ex.message).toMatch(/Argument 2 \('errorCallback'\) to Database\.readTransaction must be a function/);
           }
@@ -2857,6 +2918,7 @@ var mytests = function() {
               expect(ex).toBeDefined();
 
               if (isWebSql &&
+                  !isBrowser &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
                    (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
@@ -2938,6 +3000,7 @@ var mytests = function() {
               expect(ex).toBeDefined();
 
               if (isWebSql &&
+                  !isBrowser &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
                    (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
@@ -3028,6 +3091,7 @@ var mytests = function() {
               if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
               expect(ex).toBeDefined();
               if (isWebSql &&
+                  !isBrowser &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
                    (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
@@ -3077,6 +3141,7 @@ var mytests = function() {
               if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
               expect(ex).toBeDefined();
               if (isWebSql &&
+                  !isBrowser &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
                    (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
@@ -3126,6 +3191,7 @@ var mytests = function() {
               if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
               expect(ex).toBeDefined();
               if (isWebSql &&
+                  !isBrowser &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
                    (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
@@ -3175,6 +3241,7 @@ var mytests = function() {
               if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
               expect(ex).toBeDefined();
               if (isWebSql &&
+                  !isBrowser &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
                    (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
@@ -3433,6 +3500,7 @@ var mytests = function() {
               if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
               expect(ex).toBeDefined();
               if (isWebSql &&
+                  !isBrowser &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
                    (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
@@ -3483,6 +3551,7 @@ var mytests = function() {
               if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
               expect(ex).toBeDefined();
               if (isWebSql &&
+                  !isBrowser &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
                    (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
@@ -3533,6 +3602,7 @@ var mytests = function() {
               if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
               expect(ex).toBeDefined();
               if (isWebSql &&
+                  !isBrowser &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
                    (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
@@ -3586,6 +3656,7 @@ var mytests = function() {
               if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
               expect(ex).toBeDefined();
               if (isWebSql &&
+                  !isBrowser &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
                    (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
@@ -3641,6 +3712,7 @@ var mytests = function() {
               if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
               expect(ex).toBeDefined();
               if (isWebSql &&
+                  !isBrowser &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
                    (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
@@ -3691,6 +3763,7 @@ var mytests = function() {
               if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
               expect(ex).toBeDefined();
               if (isWebSql &&
+                  !isBrowser &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
                    (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
@@ -3739,6 +3812,7 @@ var mytests = function() {
               if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
               expect(ex).toBeDefined();
               if (isWebSql &&
+                  !isBrowser &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
                    (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))
@@ -3788,6 +3862,7 @@ var mytests = function() {
               if (!isWebSql) expect('Plugin behavior changed please update this test').toBe('--');
               expect(ex).toBeDefined();
               if (isWebSql &&
+                  !isBrowser &&
                   ((isAndroid && (/Android 4/.test(navigator.userAgent))) ||
                    (isAndroid && (/Android 5.0/.test(navigator.userAgent))) ||
                    (!isAndroid && !(/OS 1[1-9]/.test(navigator.userAgent)))))

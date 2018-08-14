@@ -2,14 +2,24 @@
 
 var MYTIMEOUT = 12000;
 
-var DEFAULT_SIZE = 5000000; // max to avoid popup in safari/ios
+// NOTE: DEFAULT_SIZE wanted depends on type of browser
 
 var isWindows = /MSAppHost/.test(navigator.userAgent);
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
-var isMac = /Macintosh/.test(navigator.userAgent);
+var isFirefox = /Firefox/.test(navigator.userAgent);
+var isWebKitBrowser = !isWindows && !isAndroid && /Safari/.test(navigator.userAgent);
+var isBrowser = isWebKitBrowser || isFirefox;
+var isEdgeBrowser = isBrowser && (/Edge/.test(navigator.userAgent));
+var isChromeBrowser = isBrowser && !isEdgeBrowser && (/Chrome/.test(navigator.userAgent));
+var isSafariBrowser = isWebKitBrowser && !isEdgeBrowser && !isChromeBrowser;
+var isMac = !isBrowser && /Macintosh/.test(navigator.userAgent);
 var isAppleMobileOS = /iPhone/.test(navigator.userAgent) ||
       /iPad/.test(navigator.userAgent) || /iPod/.test(navigator.userAgent);
 var hasMobileWKWebView = isAppleMobileOS && !!window.webkit && !!window.webkit.messageHandlers;
+
+// should avoid popups (Safari seems to count 2x)
+var DEFAULT_SIZE = isSafariBrowser ? 2000000 : 5000000;
+// FUTURE TBD: 50MB should be OK on Chrome and some other test browsers.
 
 // NOTE: While in certain version branches there is no difference between
 // the default Android implementation and implementation #2,
@@ -30,6 +40,8 @@ var scenarioCount = (!!window.hasWebKitWebSQL) ? (isAndroid ? 3 : 2) : 1;
 var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
+    // TBD skip plugin test on browser platform (not yet supported):
+    if (isBrowser && (i === 0)) continue;
 
     describe(scenarioList[i] + ': tx value bindings (stored value bindings) test(s)', function() {
       var scenarioName = scenarioList[i];
@@ -238,7 +250,7 @@ var mytests = function() {
                 tx.executeSql('SELECT * FROM test_table', [], function(ignored, rs2) {
                   var row = rs2.rows.item(0);
 
-                  if (isWebSql && isAndroid)
+                  if (isWebSql && (isAndroid || isChromeBrowser))
                     expect(row.data1).toBe('undefined');
                   else
                     expect(row.data1).toBeNull();
@@ -248,7 +260,7 @@ var mytests = function() {
                     expect(rs3).toBeDefined();
                     expect(rs3.rows).toBeDefined();
                     expect(rs3.rows.length).toBe(1);
-                    if (isWebSql && isAndroid)
+                    if (isWebSql && (isAndroid || isChromeBrowser))
                       expect(rs3.rows.item(0).t1).toBe('text');
                     else
                       expect(rs3.rows.item(0).t1).toBe('null');
@@ -388,7 +400,7 @@ var mytests = function() {
                   var row = rs.rows.item(0);
                   expect(row).toBeDefined();
 
-                  if (!isWebSql && !isWindows) {
+                  if (!isWebSql && !isBrowser && !isWindows) {
                     // Android/iOS plugin issue
                     expect(row.data).toBe(null);
                     expect(row.data_num).toBe(null);
@@ -442,7 +454,7 @@ var mytests = function() {
                   var row = rs.rows.item(0);
                   expect(row).toBeDefined();
 
-                  if (!isWebSql && !isWindows) {
+                  if (!isWebSql && !isBrowser && !isWindows) {
                     // Android/iOS plugin issue
                     expect(row.data).toBe(null);
                     expect(row.data_num).toBe(null);
@@ -654,7 +666,7 @@ var mytests = function() {
 
                   // NOTE: big number stored in field with TEXT affinity with different conversion
                   // in case of plugin (certain platforms) vs. Android/iOS WebKit Web SQL
-                  if (isWebSql || isMac || hasMobileWKWebView)
+                  if (isWebSql || isBrowser || isMac || hasMobileWKWebView)
                     expect(row.test_text).toBe("1424174959894.0"); // ([Big] number inserted as string ok)
                   else
                     expect(row.test_text).toBe("1424174959894"); // (Big integer number inserted as string ok)
@@ -665,7 +677,7 @@ var mytests = function() {
                     expect(rs3.rows.length).toBe(1);
 
                     var row = rs3.rows.item(0);
-                    if (isWebSql || isMac || hasMobileWKWebView)
+                    if (isWebSql || isBrowser || isMac || hasMobileWKWebView)
                       expect(row.t1).toBe('real');
                     else
                       expect(row.t1).toBe('integer');
@@ -1062,6 +1074,8 @@ var mytests = function() {
                     expect(item).toBeDefined();
                     if (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent))
                       expect(item.data).toBe('䅀䍂'); // (UTF-16le)
+                    else if (!isWebSql && isBrowser)
+                      expect(item.data).toBeDefined(); // XXX
                     else
                       expect(item.data).toBe('@ABC'); // (UTF-8)
 
@@ -1133,7 +1147,12 @@ var mytests = function() {
 
                     var mydata = item.data;
 
-                    if (!isWebSql) {
+                    if (!isWebSql && isBrowser) {
+                      // XXX TBD
+                      // PLUGIN - browser:
+                      expect(mydata).toBeDefined();
+                      return done();
+                    } else if (!isWebSql) {
                       // PLUGIN (iOS/macOS):
                       expect(mydata).not.toBeDefined();
                       return done();
@@ -1541,7 +1560,8 @@ var mytests = function() {
                           (/Android 5.0/.test(navigator.userAgent)) ||
                           (/Android 5.1/.test(navigator.userAgent) && !(/Chrome.6/.test(navigator.userAgent))) ||
                           (/Android 6/.test(navigator.userAgent) && (/Chrome.[3-4]/.test(navigator.userAgent))))) ||
-                        (isWebSql && !isAndroid) ||
+                        (isWebSql && !isAndroid && !isChromeBrowser) ||
+                        (!isWebSql && isBrowser) ||
                         (!isWebSql && isWindows)) {
                       expect(name.length).toBe(1);
                       expect(name).toBe('a');
