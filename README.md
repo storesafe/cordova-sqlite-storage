@@ -6,7 +6,7 @@ Native SQLite component with API based on HTML5/[Web SQL (DRAFT) API](http://www
 - macOS ("osx" platform)
 - Windows 10 (UWP) DESKTOP and MOBILE (see below for major limitations)
 
-Browser platform is currently supported with some limitations as described in [browser platform usage notes](#browser-platform-usage-notes) section below, will be supported with more features such as numbered parameters in upcoming major release for July 2018 (see below).
+Browser platform is currently supported with some limitations as described in [browser platform usage notes](#browser-platform-usage-notes) section below, will be supported with more features such as numbered parameters in upcoming major release for September 2018 (see below).
 
 **LICENSE:** MIT, with Apache 2.0 option for Android and Windows platforms (see [LICENSE.md](./LICENSE.md) for details, including third-party components used by this plugin)
 
@@ -14,9 +14,9 @@ Browser platform is currently supported with some limitations as described in [b
 
 with possible corruption risk in case of sqlite access from multiple plugins (see below)
 
-## NEW MAJOR RELEASE in July 2018 with BREAKING CHANGES
+## NEW MAJOR RELEASE in September 2018 with BREAKING CHANGES
 
-New release in July 2018 will include the following major enhancements ([litehelpers/Cordova-sqlite-storage#773](https://github.com/litehelpers/Cordova-sqlite-storage/issues/773)):
+New release in September 2018 will include the following major enhancements ([litehelpers/Cordova-sqlite-storage#773](https://github.com/litehelpers/Cordova-sqlite-storage/issues/773)):
 
 - browser platform support using [kripken / sql.js](https://github.com/kripken/sql.js) ([litehelpers/Cordova-sqlite-storage#576](https://github.com/litehelpers/Cordova-sqlite-storage/pull/576))
 - `cordova-sqlite-storage` and `cordova-sqlite-ext` plugin versions will be combined, no more separate plugin version needed for pre-populated databases ([litehelpers/Cordova-sqlite-storage#529](https://github.com/litehelpers/Cordova-sqlite-storage/issues/529))
@@ -838,7 +838,7 @@ where the `iosDatabaseLocation` option may be set to one of the following choice
 
 **WARNING:** Again, the new "default" iosDatabaseLocation value is *NOT* the same as the old default location and would break an upgrade for an app using the old default value (0) on iOS.
 
-DEPRECATED ALTERNATIVE to be removed in July 2018:
+DEPRECATED ALTERNATIVE to be removed in September 2018:
 - `var db = window.sqlitePlugin.openDatabase({name: "my.db", location: 1}, successcb, errorcb);`
 
 with the `location` option set to one the following choices (affects iOS *only*):
@@ -1777,7 +1777,7 @@ function closeDB() {
 - `src`: platform-specific source code
 - `node_modules`: placeholder for external dependencies
 - `scripts`: installation hook script to fetch the external dependencies via `npm`
-- `spec`: test suite using Jasmine (`2.5.2`)
+- `spec`: test suite using Jasmine (`2.5.2`), also passes on (WebKit) Web SQL on Android, iOS, Safari desktop browser, and Chrome desktop browser
 - `tests`: very simple Jasmine test suite that is run on Circle CI (Android platform) and Travis CI (iOS platform) (used as a placeholder)
 
 <!-- END Source tree -->

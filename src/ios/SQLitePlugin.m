@@ -117,10 +117,11 @@
     NSString *dbname = [self getDBPath:dbfilename at:dblocation];
 
     if (dbname == NULL) {
-        // XXX INTERNAL PLUGIN ERROR NOT expected
-        // XXX TODO: SIGNAL ERROR STATUS
-        NSLog(@"INTERNAL PLUGIN ERROR IGNORED (NOT EXPECTED): No db name specified for open");
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"INTERNAL PLUGIN ERROR: You must specify database name"];
+        // INTERNAL PLUGIN ERROR - NOT EXPECTED:
+        NSLog(@"INTERNAL PLUGIN ERROR (NOT EXPECTED): open with database name missing");
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString: @"INTERNAL PLUGIN ERROR: open with database name missing"];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
+        return;
     }
     else {
         NSValue *dbPointer = [openDBs objectForKey:dbfilename];
