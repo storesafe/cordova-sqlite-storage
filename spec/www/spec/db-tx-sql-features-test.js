@@ -93,7 +93,7 @@ var mytests = function() {
 
         /* THANKS to @calebeaires: */
         it(suiteName + 'create virtual table using FTS3', function(done) {
-          if (isBrowser && !(/Chrome/.test(navigator.userAgent))) pending('SKIP for (WebKit) Web SQL on Safari browser');
+          if (isWebSql && isSafariBrowser) pending('SKIP for (WebKit) Web SQL on Safari browser');
           if (isWebSql && isAndroid) pending('SKIP for Android Web SQL');
           if (isWebSql && isAppleMobileOS && (/OS 1[1-9]/.test(navigator.userAgent))) pending('SKIP (WebKit) Web SQL on iOS 11(+)');
 
