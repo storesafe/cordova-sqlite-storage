@@ -2,7 +2,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-sqlite-storage"
-    version="2.4.0">
+    version="3.0.0-0.00-01">
 
     <name>Cordova sqlite storage plugin</name>
 
@@ -19,6 +19,17 @@
     <js-module src="www/SQLitePlugin.js" name="SQLitePlugin">
         <clobbers target="SQLitePlugin" />
     </js-module>
+
+    <platform name="browser">
+        <!-- ... -->
+        <js-module src="src/browser/SQLiteProxy.js" name="SQLiteProxy">
+          <runs />
+        </js-module>
+
+        <js-module src="node_modules/cordova-sqlite-storage-dependencies/sql-memory-growth.js" name="sql">
+          <runs />
+        </js-module>
+    </platform>
 
     <!-- android -->
     <platform name="android">

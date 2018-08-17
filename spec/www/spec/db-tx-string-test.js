@@ -39,8 +39,6 @@ var scenarioCount = (!!window.hasWebKitWebSQL) ? (isAndroid ? 3 : 2) : 1;
 var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
-    // TBD skip plugin test on browser platform (not yet supported):
-    if (isBrowser && (i === 0)) continue;
 
     describe(scenarioList[i] + ': tx string test(s)', function() {
       var scenarioName = scenarioList[i];
@@ -494,6 +492,7 @@ var mytests = function() {
                     (/Android 5.1/.test(navigator.userAgent) && !(/Chrome.6/.test(navigator.userAgent))) ||
                     (/Android 6/.test(navigator.userAgent) && (/Chrome.[3-4]/.test(navigator.userAgent))))) ||
                   (isWebSql && !isAndroid && !isChromeBrowser) ||
+                  (!isWebSql && isBrowser) ||
                   (!isWebSql && isWindows) ||
                   (!isWebSql && !isWindows && isAndroid && isImpl2 &&
                     !(/Android 4/.test(navigator.userAgent)) &&

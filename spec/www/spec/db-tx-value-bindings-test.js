@@ -40,8 +40,6 @@ var scenarioCount = (!!window.hasWebKitWebSQL) ? (isAndroid ? 3 : 2) : 1;
 var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
-    // TBD skip plugin test on browser platform (not yet supported):
-    if (isBrowser && (i === 0)) continue;
 
     describe(scenarioList[i] + ': tx value bindings (stored value bindings) test(s)', function() {
       var scenarioName = scenarioList[i];
@@ -1395,7 +1393,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'executeSql with too many parameters [extra NULL value]', function(done) {
+        it(suiteName + 'executeSql with too many parameters [extra NULL value] (XXX excess parameters IGNORED by plugin on browser platform)', function(done) {
           var db = openDatabase("too-many-parameters-extra-null-value.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -1411,14 +1409,17 @@ var mytests = function() {
 
           }, function() {
             db.transaction(function(tx) {
-              tx.executeSql("INSERT INTO test_table (data1, data2) VALUES (?,?)", ['first', 'second', null], function(ignored1, ignored2) {
-                // NOT EXPECTED:
-                expect(false).toBe(true);
+              tx.executeSql("INSERT INTO test_table (data1, data2) VALUES (?,?)", ['first', 'second', null], function(ignored1, rs) {
+                // NOT EXPECTED, except on browser plugin:
+                if (isWebSql || !isBrowser) done.fail();
+                // CHECK result set on browser:
+                expect(rs).toBeDefined();
                 // Close (plugin only) & finish:
                 (isWebSql) ? done() : db.close(done, done);
 
               }, function(ignored, error) {
-                // EXPECTED RESULT:
+                // EXPECTED RESULT (except for browser platform where the plugin still does not check for too many parameters):
+                if (!isWebSql && isBrowser) expect('PLUGIN ISSUE RESOLVED on browser platform please update this test').toBe('--');
                 expect(error).toBeDefined();
                 expect(error.code).toBeDefined();
                 expect(error.message).toBeDefined();

@@ -28,8 +28,6 @@ var scenarioCount = (!!window.hasWebKitWebSQL) ? (isAndroid ? 3 : 2) : 1;
 var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
-    // TBD skip plugin test on browser platform (not yet supported):
-    if (isBrowser && (i === 0)) continue;
 
     describe(scenarioList[i] + ': REGEX test(s)', function() {
       var scenarioName = scenarioList[i];
@@ -56,6 +54,7 @@ var mytests = function() {
           // TBD Test for Android Web SQL ONLY in this version branch:
           if (isWebSql && isBrowser && !isChromeBrowser) pending('SKIP for (WebKit) Web SQL on non-Chrome desktop browser');
           if (isWindows) pending('NOT IMPLEMENTED for Windows (plugin)');
+          if (!isWebSql && isBrowser) pending('NOT IMPLEMENTED for browser plugin');
           if (!isWebSql && !isWindows && isAndroid) pending('SKIP for Android plugin'); // TBD SKIP for Android plugin (for now)
           if (isWebSql && /Android 4.[1-3]/.test(navigator.userAgent)) pending('SKIP for Android 4.1-4.3 (WebKit) Web SQL');
           if (isWebSql && isAppleMobileOS) pending('SKIP for iOS (WebKit) Web SQL');

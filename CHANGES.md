@@ -1,5 +1,9 @@
 # Changes
 
+### cordova-sqlite-storage 3.0.0-0.00-01
+
+- Initial browser platform support using sql-memory-growth.js from SQL.js, with some limitations as documented
+
 ### cordova-sqlite-storage 2.4.0
 
 - Report internal plugin error in case of attempt to open database with no database name on iOS or macOS

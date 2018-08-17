@@ -32,8 +32,6 @@ var scenarioCount = (!!window.hasWebKitWebSQL) ? (isAndroid ? 3 : 2) : 1;
 var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
-    // TBD skip plugin test on browser platform (not yet supported):
-    if (isBrowser && (i === 0)) continue;
 
     describe(scenarioList[i] + ': sqlite version test(s)', function() {
       var scenarioName = scenarioList[i];
@@ -137,7 +135,7 @@ var mytests = function() {
             expect(rs).toBeDefined();
             expect(rs.rows).toBeDefined();
             expect(rs.rows.length).toBe(1);
-            if (!isWebSql && !isWindows && isAndroid && isImpl2)
+            if (!isWebSql && (isBrowser || (!isWindows && isAndroid && isImpl2)))
               expect(rs.rows.item(0).page_size).toBe(4096); // CORRECT [androidDatabaseImplementation: 2]
             else
               expect(rs.rows.item(0).page_size).toBe(1024); // XXX TBD OLD VALUE USED IN THIS PLUGIN VERSION ref: litehelpers/Cordova-sqlite-storage#781
@@ -166,8 +164,8 @@ var mytests = function() {
             var resultRow = rs.rows.item(0);
             expect(resultRow).toBeDefined();
             expect(resultRow.cache_size).toBeDefined();
-            if (!isWebSql && !isWindows && isAndroid && isImpl2 &&
-                (/Android 8/.test(navigator.userAgent)))
+            if (!isWebSql && (isBrowser || (!isWindows && isAndroid && isImpl2 &&
+                (/Android 8/.test(navigator.userAgent)))))
               expect(resultRow.cache_size).toBe(-2000); // NEW VALUE for androidDatabaseImplementation: 2, Android 8.x
             else
               expect(resultRow.cache_size).toBe(2000); // XXX TBD OLD VALUE USED IN THIS PLUGIN VERSION & androidDatabaseImplementation: 2 for Android 4.x-7.x
