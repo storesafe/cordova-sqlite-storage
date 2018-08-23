@@ -14,7 +14,7 @@ var isAppleMobileOS = /iPhone/.test(navigator.userAgent) ||
 var hasMobileWKWebView = isAppleMobileOS && !!window.webkit && !!window.webkit.messageHandlers;
 
 window.hasBrowser = true;
-window.hasWebKitWebSQL = isAndroid || (isAppleMobileOS && !isWKWebView) || (isWebKitBrowser && !isEdgeBrowser);
+window.hasWebKitWebSQL = isAndroid || (isAppleMobileOS && !hasMobileWKWebView) || (isWebKitBrowser && !isEdgeBrowser);
 
 describe('Check startup for navigator.userAgent: ' + navigator.userAgent, function() {
   it('receives deviceready event', function(done) {
