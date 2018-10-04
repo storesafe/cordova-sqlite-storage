@@ -987,8 +987,6 @@ var mytests = function() {
               addColumnTest();
             } else {
               createdb.close(addColumnTest, function(e) {
-                // XXX TBD IGNORE close error on Windows:
-                if (isWindows) return addColumnTest();
                 // ERROR RESULT (NOT EXPECTED):
                 expect(false).toBe(true);
                 expect(e).toBeDefined();
@@ -1047,8 +1045,6 @@ var mytests = function() {
               tableRenameTest();
             } else {
               createdb.close(tableRenameTest, function(e) {
-                // XXX TBD IGNORE close error on Windows:
-                if (isWindows) return tableRenameTest();
                 // ERROR RESULT (NOT EXPECTED):
                 expect(false).toBe(true);
                 expect(e).toBeDefined();
