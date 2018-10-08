@@ -35,10 +35,7 @@ var mytests = function() {
     // TBD skip plugin test on browser platform (not yet supported):
     if (isBrowser && (i === 0)) continue;
 
-    describe(scenarioList[i] + ': db tx error mapping test(s)' +
-             (isWindows ?
-              ' [Windows version with INCORRECT error code (0) & INCONSISTENT error message (missing actual error info)]' :
-               ''), function() {
+    describe(scenarioList[i] + ': db tx error mapping test(s) [TBD INCORRECT & INCONSISTENT error message on Windows - missing actual error info ref: litehelpers/Cordova-sqlite-storage#539]', function() {
       var scenarioName = scenarioList[i];
       var suiteName = scenarioName + ': ';
       var isWebSql = (i === 1);
