@@ -1509,7 +1509,7 @@ var mytests = function() {
             // and finish this test:
             db.close(done, done);
           });
-        });
+        }, MYTIMEOUT);
 
       });
 
@@ -1601,7 +1601,7 @@ var mytests = function() {
               if (checkCount === expectedCheckCount) db.close(done, done);
             });
           });
-        });
+        }, MYTIMEOUT);
 
       });
 

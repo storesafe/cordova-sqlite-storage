@@ -1069,7 +1069,7 @@ var mytests = function() {
         // - Android version returns result with missing row
         it(suiteName + "SELECT ABS(?) with '9e999' (Infinity) parameter argument" +
            ((!isWebSql && isAndroid) ? ' [Android PLUGIN BROKEN: result with missing row]' : ''), function(done) {
-          if (!isWebSql && !isAndroid && !isWindows) pending('SKIP for iOS/macOS plugin due to CRASH');
+          if (!isWebSql && (isAppleMobileOS || isMac)) pending('KNOWN CRASH on iOS/macOS'); // XXX (litehelpers/Cordova-sqlite-storage#405)
 
           var db = openDatabase('SELECT-ABS-Infinite-parameter-results-test.db', '1.0', 'Test', DEFAULT_SIZE);
 

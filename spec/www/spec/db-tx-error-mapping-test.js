@@ -35,7 +35,6 @@ var mytests = function() {
     // TBD skip plugin test on browser platform (not yet supported):
     if (isBrowser && (i === 0)) continue;
 
-    // GENERAL: SKIP ALL on WP8 for now
     describe(scenarioList[i] + ': db tx error mapping test(s)' +
              (isWindows ?
               ' [Windows version with INCORRECT error code (0) & INCONSISTENT error message (missing actual error info)]' :
@@ -244,8 +243,10 @@ var mytests = function() {
               expect(error.message).toMatch(/callback raised an exception.*or.*error callback did not return false/);
             else if (isWindows)
               expect(error.message).toMatch(/error callback did not return false.*Error preparing an SQLite statement/);
-            //* else //* XXX TBD
-            //*   expect(error.message).toMatch(/error callback did not return false.*syntax error/);
+            else if (isAndroid && isImpl2)
+              expect(error.message).toMatch(/error callback did not return false.*syntax error/);
+            else
+              expect(error.message).toMatch(/error callback did not return false.*incomplete input/);
 
             isWebSql ? done() : db.close(done, done);
           }, function() {

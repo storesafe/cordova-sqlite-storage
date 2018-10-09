@@ -1111,7 +1111,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "INSERT inline BLOB value (X'FFD1FFD2') and check stored data [XXX SKIP FINAL CHECK on default Android NDK access implementation due to CRASH ISSUE; OTHER PLUGIN ISSUES REPRODUCED: missing result column data; SELECT BLOB VALUE ERROR on Android & Windows; missing result column data on iOS/macOS]", function(done) {
+        it(suiteName + "INSERT inline BLOB value (X'FFD1FFD2') and check stored data [XXX SKIP FINAL SELECT CHECK on default Android NDK access implementation due to CRASH ISSUE; OTHER PLUGIN ISSUES REPRODUCED: missing result column data; SELECT BLOB VALUE ERROR on Android & Windows; missing result column data on iOS/macOS]", function(done) {
           var db = openDatabase('INSERT-inline-BLOB-value-FFD1FFD2-and-check-stored-data.db', '1.0', 'Demo', DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -1593,7 +1593,7 @@ var mytests = function() {
         it(suiteName +
             ' handles UNICODE \\u2028 line separator correctly in database', function (done) {
           if (!isWebSql && !isWindows && isAndroid) pending('SKIP for Android plugin (cordova-android 6.x BUG: cordova/cordova-discuss#57)');
-          if (!isWebSql && !isWindows && !isAndroid) pending('SKIP for iOS/macOS plugin (Cordova BUG: CB-9435)');
+          if (!isWebSql && (isAppleMobileOS || isMac)) pending('SKIP for iOS/macOS plugin (Cordova BUG: CB-9435)');
 
           var db = openDatabase('UNICODE-line-separator-INSERT-test.db');
 

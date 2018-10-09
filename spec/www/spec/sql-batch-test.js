@@ -321,7 +321,7 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'sql batch with changing argument value [TBD POSSIBLY INCONSISTENT BEHAVIOR]', function(done) {
-          var db = openDatabase('sql-batch-with-changing-sql-test.db');
+          var db = openDatabase('sql-batch-with-changing-argument-value-test.db');
 
           var mybatch = [
             'DROP TABLE IF EXISTS MyTable',

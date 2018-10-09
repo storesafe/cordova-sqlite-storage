@@ -271,7 +271,7 @@ var mytests = function() {
                         expect(rs4.insertId).toBe(1);
                     } catch(ex) {
                       // SHOULD NOT CATCH EXCEPTION on plugin:
-                      if (!isWebSql) expect('EXCEPTION NOT EXPECTED on plugin with message: ' + e.message).toBe('--');
+                      if (!isWebSql) expect('EXCEPTION NOT EXPECTED on plugin with message: ' + ex.message).toBe('--');
                       expect(ex).toBeDefined();
                       expect(ex.message).toBeDefined();
                       // FUTURE TBD check message
@@ -297,9 +297,9 @@ var mytests = function() {
 
                         if (!(isAndroid && isImpl2))
                           expect(rs5.insertId).toBe(1);
-                      } catch(e) {
+                      } catch(ex) {
                         // SHOULD NOT CATCH EXCEPTION on plugin:
-                        if (!isWebSql) expect('EXCEPTION NOT EXPECTED on plugin').toBe('--');
+                        if (!isWebSql) expect('EXCEPTION NOT EXPECTED on plugin with message: ' + ex.message).toBe('--');
                         // XXX TODO CHECK message, etc.
                       }
 
