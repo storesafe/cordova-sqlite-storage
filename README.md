@@ -6,7 +6,7 @@ Native SQLite component with API based on HTML5/[Web SQL (DRAFT) API](http://www
 - macOS ("osx" platform)
 - Windows 10 (UWP) DESKTOP and MOBILE (see below for major limitations)
 
-Browser platform is currently supported with some limitations as described in [browser platform usage notes](#browser-platform-usage-notes) section below, will be supported with more features such as numbered parameters in upcoming major release for September 2018 (see below).
+Browser platform is currently supported with some limitations as described in [browser platform usage notes](#browser-platform-usage-notes) section below, will be supported with more features such as numbered parameters and SQL batch API in the near future.
 
 **LICENSE:** MIT, with Apache 2.0 option for Android and Windows platforms (see [LICENSE.md](./LICENSE.md) for details, including third-party components used by this plugin)
 
@@ -14,17 +14,18 @@ Browser platform is currently supported with some limitations as described in [b
 
 with possible corruption risk in case of sqlite access from multiple plugins (see below)
 
-## NEW MAJOR RELEASE in September 2018 with BREAKING CHANGES
+## NEW MAJOR RELEASE in December 2018 with BREAKING CHANGES
 
-New release in September 2018 will include the following major enhancements ([litehelpers/Cordova-sqlite-storage#773](https://github.com/litehelpers/Cordova-sqlite-storage/issues/773)):
+New release in December 2018 will include the following major enhancements ([litehelpers/Cordova-sqlite-storage#773](https://github.com/litehelpers/Cordova-sqlite-storage/issues/773)):
 
-- browser platform support using [kripken / sql.js](https://github.com/kripken/sql.js) ([litehelpers/Cordova-sqlite-storage#576](https://github.com/litehelpers/Cordova-sqlite-storage/pull/576))
+- browser platform support (planned for October 2018)
 - `cordova-sqlite-storage` and `cordova-sqlite-ext` plugin versions will be combined, no more separate plugin version needed for pre-populated databases ([litehelpers/Cordova-sqlite-storage#529](https://github.com/litehelpers/Cordova-sqlite-storage/issues/529))
-- include typings from DefinitelyTyped ([litehelpers/Cordova-sqlite-storage#768](https://github.com/litehelpers/Cordova-sqlite-storage/pull/768))
 
 **BREAKING CHANGES expected:**
 
-- drop support for Android pre-4.4 (Android 4.4 with old `armeabi` CPU to be deprecatd with limited updates in the future) ref: [litehelpers/Cordova-sqlite-storage#771](https://github.com/litehelpers/Cordova-sqlite-storage/issues/771)
+- drop support for Android pre-4.4 (Android 4.4 with old `armeabi` CPU to be deprecatd with limited updates in the future) ([litehelpers/Cordova-sqlite-storage#771](https://github.com/litehelpers/Cordova-sqlite-storage/issues/771))
+- error `code` will always be `0` (which is already the case on Windows); actual SQLite3 error code will be part of the error `message` member whenever possible ([litehelpers/Cordova-sqlite-storage#821](https://github.com/litehelpers/Cordova-sqlite-storage/issues/821))
+- Values with U+0000 (null character) will be truncated on all platforms ([litehelpers/Cordova-sqlite-storage#822](https://github.com/litehelpers/Cordova-sqlite-storage/issues/822))
 - drop support for iOS 8.x (was already dropped by cordova-ios@4.4.0)
 - drop support for location: 0-2 values in openDatabase call (please use `location: 'default'` or `iosDatabaseLocation` setting in openDatabase as documented below)
 
