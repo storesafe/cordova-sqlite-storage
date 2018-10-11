@@ -668,6 +668,18 @@
         if !!openargs.createFromLocation and openargs.createFromLocation == 1
           openargs.createFromResource = "1"
 
+        if !!openargs.androidDatabaseProvider and !!openargs.androidDatabaseImplementation
+          throw newSQLError 'AMBIGUOUS: both androidDatabaseProvider and deprecated androidDatabaseImplementation settings are present in openDatabase call. Please drop androidDatabaseImplementation in favor of androidDatabaseProvider.'
+
+        if openargs.androidDatabaseProvider isnt undefined and
+            openargs.androidDatabaseProvider isnt 'default' and
+            openargs.androidDatabaseProvider isnt 'system'
+          throw newSQLError "Incorrect androidDatabaseProvider value. Valid values are: 'default', 'system'"
+
+        if !!openargs.androidDatabaseProvider and openargs.androidDatabaseProvider is 'system'
+          openargs.androidOldDatabaseImplementation = 1
+
+        # DEPRECATED:
         if !!openargs.androidDatabaseImplementation and openargs.androidDatabaseImplementation == 2
           openargs.androidOldDatabaseImplementation = 1
 

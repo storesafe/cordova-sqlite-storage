@@ -1,5 +1,9 @@
 # Changes
 
+### cordova-sqlite-storage 2.5.0
+
+- androidDatabaseProvider: 'system' setting, to replace androidDatabaseImplementation setting which is now deprecated
+
 ### cordova-sqlite-storage 2.4.0
 
 - Report internal plugin error in case of attempt to open database with no database name on iOS or macOS

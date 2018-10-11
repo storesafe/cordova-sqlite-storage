@@ -901,6 +901,59 @@ var mytests = function() {
           }
         }, MYTIMEOUT);
 
+        it(suiteName + 'open with androidDatabaseProvider: "bogus" - REJECTED with exception', function(done) {
+          try {
+            window.sqlitePlugin.openDatabase({
+              name: 'open-with-androidDatabaseProvider-bogus.db',
+              androidDatabaseProvider: 'bogus',
+              location: 'default'
+            }, function(db) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+
+              // Close (plugin) & finish:
+              db.close(done, done);
+            }, function(error) {
+              // OK but NOT EXPECTED:
+              expect('Behavior changed, please update this test').toBe('--');
+
+              done();
+            });
+          } catch (e) {
+            // EXPECTED RESULT: stopped by the implementation
+            expect(e).toBeDefined();
+
+            done();
+          }
+        }, MYTIMEOUT);
+
+        it(suiteName + 'open with both androidDatabaseProvider and androidDatabaseImplementation - REJECTED with exception', function(done) {
+          try {
+            window.sqlitePlugin.openDatabase({
+              name: 'open-with-androidDatabaseProvider-and-androidDatabaseImplementation.db',
+              androidDatabaseProvider: 'system',
+              androidDatabaseImplementation: 2,
+              location: 'default'
+            }, function(db) {
+              // NOT EXPECTED:
+              expect(false).toBe(true);
+
+              // Close (plugin) & finish:
+              db.close(done, done);
+            }, function(error) {
+              // OK but NOT EXPECTED:
+              expect('Behavior changed, please update this test').toBe('--');
+
+              done();
+            });
+          } catch (e) {
+            // EXPECTED RESULT: stopped by the implementation
+            expect(e).toBeDefined();
+
+            done();
+          }
+        }, MYTIMEOUT);
+
       }
 
     });

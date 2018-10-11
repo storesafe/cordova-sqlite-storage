@@ -583,6 +583,15 @@
       if (!!openargs.createFromLocation && openargs.createFromLocation === 1) {
         openargs.createFromResource = "1";
       }
+      if (!!openargs.androidDatabaseProvider && !!openargs.androidDatabaseImplementation) {
+        throw newSQLError('AMBIGUOUS: both androidDatabaseProvider and deprecated androidDatabaseImplementation settings are present in openDatabase call. Please drop androidDatabaseImplementation in favor of androidDatabaseProvider.');
+      }
+      if (openargs.androidDatabaseProvider !== void 0 && openargs.androidDatabaseProvider !== 'default' && openargs.androidDatabaseProvider !== 'system') {
+        throw newSQLError("Incorrect androidDatabaseProvider value. Valid values are: 'default', 'system'");
+      }
+      if (!!openargs.androidDatabaseProvider && openargs.androidDatabaseProvider === 'system') {
+        openargs.androidOldDatabaseImplementation = 1;
+      }
       if (!!openargs.androidDatabaseImplementation && openargs.androidDatabaseImplementation === 2) {
         openargs.androidOldDatabaseImplementation = 1;
       }

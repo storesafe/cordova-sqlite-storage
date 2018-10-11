@@ -51,13 +51,13 @@ This version branch uses a `before_plugin_install` hook to install sqlite3 libra
 
 This plugin uses a non-standard [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) implementation on Android. In case an application access the SAME database using multiple plugins there is a risk of data corruption ref: [litehelpers/Cordova-sqlite-storage#626](https://github.com/litehelpers/Cordova-sqlite-storage/issues/626)) as described in <http://ericsink.com/entries/multiple_sqlite_problem.html> and <https://www.sqlite.org/howtocorrupt.html>.
 
-The workaround is to use the `androidDatabaseImplementation: 2` setting as described in the **Android sqlite implementation** section below:
+The workaround is to use the `androidDatabaseProvider: 'system'` setting as described in the [Android database provider](android-database-provider) section below:
 
 ```js
 var db = window.sqlitePlugin.openDatabase({
   name: 'my.db',
   location: 'default',
-  androidDatabaseImplementation: 2
+  androidDatabaseProvider: 'system'
 });
 ```
 
@@ -224,7 +224,7 @@ See the [Sample section](#sample) for a sample with a more detailed explanation 
 - The iOS database location is now mandatory, as documented below.
 - This version branch supports the use of two (2) possible Android sqlite database implementations:
   - default: lightweight [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector), using SQLite3 NDK component built from [brodybits / Android-sqlite-ext-native-driver (sqlite-storage-native-driver branch)](https://github.com/brodybits/Android-sqlite-ext-native-driver/tree/sqlite-storage-native-driver)
-  - optional: built-in Android database classes (usage described below)
+  - optional: Android system database implementation, using the `androidDatabaseProvider: 'system'` setting in `sqlitePlugin.openDatabase()` call as described in the [Android database provider](android-database-provider) section below.
 - Support for WP8 along with Windows 8.1/Windows Phone 8.1/Windows 10 using Visual Studio 2015 is available in: [brodybits / cordova-sqlite-legacy-build-support](https://github.com/brodybits/cordova-sqlite-legacy-build-support)
 - The following features are available in [litehelpers / cordova-sqlite-ext](https://github.com/litehelpers/cordova-sqlite-ext):
   - REGEXP (Android/iOS/macOS)
@@ -246,7 +246,7 @@ See the [Sample section](#sample) for a sample with a more detailed explanation 
 - iOS versions supported: 8.x / 9.x / 10.x / 11.x, see [deviations section](#deviations) below for differences in case of WKWebView (using cordova-plugin-wkwebview-engine)
 - FTS3, FTS4, and R-Tree are fully tested and supported for all target platforms in this version branch.
 - Default `PRAGMA journal_mode` setting (*tested*):
-  - Android with builtin android.database implementation (as selected using the `androidDatabaseImplementation` option in `window.sqlitePlugin.openDatabase`): `persist` (pre-8.0) / `truncate` (Android 8.0, 8.1) / `wal` (Android P)
+  - Android use of the `androidDatabaseProvider: 'system'` setting: `persist` (pre-8.0) / `truncate` (Android 8.0, 8.1) / `wal` (Android Pie)
   - otherwise: `delete`
 - AUTO-VACUUM is not enabled by default. If no form of `VACUUM` or `PRAGMA auto_vacuum` is used then sqlite will automatically reuse deleted data space for new data but the database file will never shrink. For reference: <http://www.sqlite.org/pragma.html#pragma_auto_vacuum> and [litehelpers/Cordova-sqlite-storage#646](https://github.com/litehelpers/Cordova-sqlite-storage/issues/646)
 - In case of memory issues please use smaller transactions or use the plugin version at [litehelpers / Cordova-sqlite-evcore-extbuild-free](https://github.com/litehelpers/Cordova-sqlite-evcore-extbuild-free) (GPL or commercial license terms).
@@ -539,12 +539,12 @@ As "strongly recommended" by [Web SQL Database API 8.5 SQL injection](https://ww
 - Known issue(s) with of certain ASCII/UNICODE characters as described below.
 - Boolean `true` and `false` values are handled by converting them to the "true" and "false" TEXT string values, same as WebKit Web SQL on Android and iOS. This does not seem to be 100% correct as discussed in: [litehelpers/Cordova-sqlite-storage#545](https://github.com/litehelpers/Cordova-sqlite-storage/issues/545)
 - A number of uncategorized errors such as CREATE VIRTUAL TABLE USING bogus module are reported with error code 5 (SQLError.SYNTAX_ERR) on Android/iOS/macOS by both (WebKit) Web SQL and this plugin.
-- Error is reported with error code of `0` on Windows as well as Android with the `androidDatabaseImplementation: 2` setting.
+- Error is reported with error code of `0` on Windows as well as Android with the `androidDatabaseProvider: 'system'` setting described below.
 - In case of an issue that causes an API function to throw an exception (Android/iOS WebKit) Web SQL includes includes a code member with value of 0 (SQLError.UNKNOWN_ERR) in the exception while the plugin includes no such code member.
 - This plugin supports some non-standard features as documented below.
-- Results of SELECT with BLOB data such as `SELECT LOWER(X'40414243') AS myresult`, `SELECT X'40414243' AS myresult`, or reading data stored by `INSERT INTO MyTable VALUES (X'40414243')` are not consistent on Android in case the built-in Android database is used (using the `androidDatabaseImplementation: 2` setting in `window.sqlitePlugin.openDatabase`) or Windows. (These work with Android/iOS WebKit Web SQL and have been supported by SQLite for a number of years.)
+- Results of SELECT with BLOB data such as `SELECT LOWER(X'40414243') AS myresult`, `SELECT X'40414243' AS myresult`, or reading data stored by `INSERT INTO MyTable VALUES (X'40414243')` are not consistent on Android with use of `androidDatabaseProvider: 'system'` setting or Windows. (These work with Android/iOS WebKit Web SQL and have been supported by SQLite for a number of years.)
 - Whole number parameter argument values such as `42`, `-101`, or `1234567890123` are handled as INTEGER values by this plugin on Android, iOS (default UIWebView), and Windows while they are handled as REAL values by (WebKit) Web SQL and by this plugin on iOS with WKWebView (using cordova-plugin-wkwebview-engine) or macOS ("osx"). This is evident in certain test operations such as `SELECT ? as myresult` or `SELECT TYPEOF(?) as myresult` and storage in a field with TEXT affinity.
-- INTEGER, REAL, +/- `Infinity`, `NaN`, `null`, `undefined` parameter argument values are handled as TEXT string values on Android in case the built-in Android database (`androidDatabaseImplementation: 2` setting) is used. (This is evident in certain test operations such as `SELECT ? as myresult` or `SELECT TYPEOF(?) as myresult` and storage in a field with TEXT affinity.)
+- INTEGER, REAL, +/- `Infinity`, `NaN`, `null`, `undefined` parameter argument values are handled as TEXT string values on Android with use of the `androidDatabaseProvider: 'system'` setting. (This is evident in certain test operations such as `SELECT ? as myresult` or `SELECT TYPEOF(?) as myresult` and storage in a field with TEXT affinity.)
 - In case of invalid transaction callback arguments such as string values the plugin attempts to execute the transaction while (WebKit) Web SQL would throw an exception.
 - The plugin handles invalid SQL arguments array values such as `false`, `true`, or a string as if there were no arguments while (WebKit) Web SQL would throw an exception. NOTE: In case of a function in place of the SQL arguments array WebKit Web SQL would report a transaction error while the plugin would simply ignore the function.
 - In case of invalid SQL callback arguments such as string values the plugin may execute the SQL and signal transaction success or failure while (WebKit) Web SQL would throw an exception.
@@ -553,7 +553,7 @@ As "strongly recommended" by [Web SQL Database API 8.5 SQL injection](https://ww
 - If the SQL arguments are passed in an `Array` subclass object where the `constructor` does not point to `Array` then the SQL arguments are ignored by the plugin.
 - The results data objects are not immutable as specified/implied by [Web SQL (DRAFT) API section 4.5](https://www.w3.org/TR/webdatabase/#database-query-results).
 - This plugin supports use of numbered parameters (`?1`, `?2`, etc.) as documented in <https://www.sqlite.org/c3ref/bind_blob.html>, not supported by HTML5/[Web SQL (DRAFT) API](http://www.w3.org/TR/webdatabase/) ref: [Web SQL (DRAFT) API section 4.2](https://www.w3.org/TR/webdatabase/#parsing-and-processing-sql-statements).
-- In case of UPDATE this plugin reports `insertId` with the result of `sqlite3_last_insert_rowid()` (except for Android with `androidDatabaseImplementation: 2` setting) while attempt to access `insertId` on the result set database opened by HTML5/[Web SQL (DRAFT) API](http://www.w3.org/TR/webdatabase/) results in an exception.
+- In case of UPDATE this plugin reports `insertId` with the result of `sqlite3_last_insert_rowid()` (except for Android with `androidDatabaseProvider: 'system'` setting) while attempt to access `insertId` on the result set database opened by HTML5/[Web SQL (DRAFT) API](http://www.w3.org/TR/webdatabase/) results in an exception.
 
 ### Security of deleted data
 
@@ -576,7 +576,7 @@ See **Security of sensitive data** in the [Security](#security) section above.
 - The iOS/macOS platform versions do not support certain rapidly repeated open-and-close or open-and-delete test scenarios due to how the implementation handles background processing
 - 4-byte UTF-8 characters including emojis not encoded correctly on Android pre-6.0 on default Android sqlite access implementation ([Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) with [Android-sqlite-ext-native-driver](https://github.com/brodybits/Android-sqlite-ext-native-driver)) ref: [litehelpers/Cordova-sqlite-storage#564](https://github.com/litehelpers/Cordova-sqlite-storage/issues/564).
 - It is possible to request a SQL statement list such as "SELECT 1; SELECT 2" within a single SQL statement string, however the plugin will only execute the first statement and silently ignore the others ref: [litehelpers/Cordova-sqlite-storage#551](https://github.com/litehelpers/Cordova-sqlite-storage/issues/551)
-- Execution of INSERT statement that affects multiple rows (due to SELECT cause or using TRIGGER(s), for example) reports incorrect rowsAffected on Android in case the built-in Android database used (using the `androidDatabaseImplementation` option in `window.sqlitePlugin.openDatabase`)
+- Execution of INSERT statement that affects multiple rows (due to SELECT cause or using TRIGGER(s), for example) reports incorrect rowsAffected on Android with use of the `androidDatabaseProvider: 'system'` setting.
 - Memory issue observed when adding a large number of records due to the JSON implementation which is improved in [litehelpers / Cordova-sqlite-evcore-extbuild-free](https://github.com/litehelpers/Cordova-sqlite-evcore-extbuild-free) (GPL or commercial license terms)
 - Infinity (positive or negative) values are not supported on Android/iOS/macOS due to issues described above including a possible crash on iOS/macOS ref: [litehelpers/Cordova-sqlite-storage#405](https://github.com/litehelpers/Cordova-sqlite-storage/issues/405)
 - A stability issue was reported on the iOS platform version when in use together with [SockJS](http://sockjs.org/) client such as [pusher-js](https://github.com/pusher/pusher-js) at the same time (see [litehelpers/Cordova-sqlite-storage#196](https://github.com/litehelpers/Cordova-sqlite-storage/issues/196)). The workaround is to call sqlite functions and [SockJS](http://sockjs.org/) client functions in separate ticks (using setTimeout with 0 timeout).
@@ -605,13 +605,13 @@ Some additional issues are tracked in [open Cordova-sqlite-storage bug-general i
 - Issues with UNICODE `\u0000` character (same as `\0`):
   - Encoding issue reproduced on Android (default [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) implementation with [Android-sqlite-ext-native-driver](https://github.com/brodybits/Android-sqlite-ext-native-driver), using Android NDK)
   - Truncation in case of argument value with UNICODE `\u0000` character reproduced on (WebKit) Web SQL as well as plugin on Android (default [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) implementation with [Android-sqlite-ext-native-driver](https://github.com/brodybits/Android-sqlite-ext-native-driver), using Android NDK) and Windows
-  - SQL error reported in case of inline value string with with UNICODE `\u0000` character on (WebKit) Web SQL, plugin on Android with `androidDatabaseImplementation: 2` (built-in android.database implementation) option, and plugin on other platforms
+  - SQL error reported in case of inline value string with with UNICODE `\u0000` character on (WebKit) Web SQL, plugin on Android with use of the `androidDatabaseProvider: 'system'` setting, and plugin on _some_ other platforms
 - Case-insensitive matching and other string manipulations on Unicode characters, which is provided by optional ICU integration in the sqlite source and working with recent versions of Android, is not supported for any target platforms.
 - The iOS/macOS platform version uses a thread pool but with only one thread working at a time due to "synchronized" database access.
 - Some large query results may be slow, also due to the JSON implementation.
 - ATTACH to another database file is not supported by this version branch. Attach/detach is supported (along with the memory and iOS UNICODE `\u2028` line separator / `\u2029` paragraph separator fixes) in [litehelpers / Cordova-sqlite-evplus-legacy-attach-detach-free](https://github.com/litehelpers/Cordova-sqlite-evplus-legacy-attach-detach-free) (GPL or special commercial license terms).
 - UPDATE/DELETE with LIMIT or ORDER BY is not supported.
-- WITH clause is not supported on some older Android platform versions in case the `androidDatabaseImplementation: 2` (built-in android.database implementation) option is used.
+- WITH clause is not supported on some older Android platform versions in case the `androidDatabaseProvider: 'system'` setting is used.
 - User-defined savepoints are not supported and not expected to be compatible with the transaction locking mechanism used by this plugin. In addition, the use of BEGIN/COMMIT/ROLLBACK statements is not supported.
 - Issues have been reported with using this plugin together with Crosswalk for Android, especially on `x86_64` CPU ([litehelpers/Cordova-sqlite-storage#336](https://github.com/litehelpers/Cordova-sqlite-storage/issues/336)). Please see [litehelpers/Cordova-sqlite-storage#336 (comment)](https://github.com/litehelpers/Cordova-sqlite-storage/issues/336#issuecomment-364752652) for workaround on x64 CPU. In addition it may be helpful to install Crosswalk as a plugin instead of using Crosswalk to create a project that will use this plugin.
 - Does not work with [axemclion / react-native-cordova-plugin](https://github.com/axemclion/react-native-cordova-plugin) since the `window.sqlitePlugin` object is NOT properly exported (ES5 feature). It is recommended to use [andpor / react-native-sqlite-storage](https://github.com/andpor/react-native-sqlite-storage) for SQLite database access with React Native Android/iOS instead.
@@ -828,7 +828,7 @@ var db = window.sqlitePlugin.openDatabase({name: 'my.db', location: 'default'}, 
 
 **WARNING:** The new "default" location value is different from the old default location used until March 2016 and would break an upgrade for an app that was using the old default setting (`location: 0`, same as using `iosDatabaseLocation: 'Documents'`) on iOS. The recommended solution is to continue to open the database from the same location, using `iosDatabaseLocation: 'Documents'`.
 
-**WARNING 2:** As described above: by default this plugin uses a non-standard [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) implementation on Android. In case an application access the **same** database using multiple plugins there is a risk of data corruption ref: [litehelpers/Cordova-sqlite-storage#626](https://github.com/litehelpers/Cordova-sqlite-storage/issues/626)) as described in <http://ericsink.com/entries/multiple_sqlite_problem.html> and <https://www.sqlite.org/howtocorrupt.html>. The workaround is to use the `androidDatabaseImplementation: 2` setting as described in the **Android sqlite implementation** section below.
+**WARNING 2:** As described above: by default this plugin uses a non-standard [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) implementation on Android. In case an application access the **same** database using multiple plugins there is a risk of data corruption ref: [litehelpers/Cordova-sqlite-storage#626](https://github.com/litehelpers/Cordova-sqlite-storage/issues/626)) as described in <http://ericsink.com/entries/multiple_sqlite_problem.html> and <https://www.sqlite.org/howtocorrupt.html>. The workaround is to use the `androidDatabaseProvider: 'system'` setting as described in the **Android sqlite implementation** section below.
 
 To specify a different location (affects iOS/macOS *only*):
 
@@ -934,33 +934,35 @@ Use the `location` or `iosDatabaseLocation` option in `sqlitePlugin.openDatabase
 
 <!-- END iCloud backup notes -->
 
-### Android sqlite implementation
+### Android database provider
 
-By default, this plugin uses [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector), which is lightweight and should be more efficient than the built-in Android database classes. To use the built-in Android database classes instead:
+By default, this plugin uses [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector), which is lightweight and should be more efficient than the Android system database provider. To use the built-in Android system database provider implementation instead:
 
 ```js
 var db = window.sqlitePlugin.openDatabase({
   name: 'my.db',
   location: 'default',
-  androidDatabaseImplementation: 2
+  androidDatabaseProvider: 'system'
 });
 ```
 
-**IMPORTANT:**
-- As described above: by default this plugin uses a non-standard [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) implementation on Android. In case an application access the **same** database using multiple plugins there is a risk of data corruption ref: [litehelpers/Cordova-sqlite-storage#626](https://github.com/litehelpers/Cordova-sqlite-storage/issues/626)) as described in <http://ericsink.com/entries/multiple_sqlite_problem.html> and <https://www.sqlite.org/howtocorrupt.html>. The workaround is to use the `androidDatabaseImplementation: 2` setting as described here.
-- In case of the `androidDatabaseImplementation: 2` setting, [litehelpers/Cordova-sqlite-storage#193](https://github.com/litehelpers/Cordova-sqlite-storage/issues/193) reported (as observed by a number of app developers in the past) that in certain Android versions, if the app is stopped or aborted without closing the database then there is an unexpected database lock and the data that was inserted is lost. The workaround is described below.
+(Use of the `androidDatabaseImplementation: 2` setting which is now replaced by `androidDatabaseProvider: 'system'` is now deprecated and may be removed in the near future.)
 
-<!-- END Android sqlite implementation -->
+**IMPORTANT:**
+- As described above: by default this plugin uses a non-standard [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) implementation on Android. In case an application access the **same** database using multiple plugins there is a risk of data corruption ref: [litehelpers/Cordova-sqlite-storage#626](https://github.com/litehelpers/Cordova-sqlite-storage/issues/626)) as described in <http://ericsink.com/entries/multiple_sqlite_problem.html> and <https://www.sqlite.org/howtocorrupt.html>. The workaround is to use the `androidDatabaseProvider: 'system'` setting as described here.
+- In case of the `androidDatabaseProvider: 'system'` setting, [litehelpers/Cordova-sqlite-storage#193](https://github.com/litehelpers/Cordova-sqlite-storage/issues/193) reported (as observed by a number of app developers in the past) that in certain Android versions, if the app is stopped or aborted without closing the database then there is an unexpected database lock and the data that was inserted is lost. The workaround is described below.
+
+<!-- END Android database provider -->
 
 ### Workaround for Android db locking issue
 
-[litehelpers/Cordova-sqlite-storage#193](https://github.com/litehelpers/Cordova-sqlite-storage/issues/193) reported (as observed by a number of app developers in the past) that when using the `androidDatabaseImplementation: 2` setting on certain Android versions and if the app is stopped or aborted without closing the database then:
+[litehelpers/Cordova-sqlite-storage#193](https://github.com/litehelpers/Cordova-sqlite-storage/issues/193) reported (as observed by a number of app developers in the past) that when using the Android system database provider (using the `androidDatabaseProvider: 'system'` setting) on certain Android versions and if the app is stopped or aborted without closing the database then:
 - (sometimes) there is an unexpected database lock
 - the data that was inserted is lost.
 
 The cause of this issue remains unknown. Of interest: [android / platform_external_sqlite commit d4f30d0d15](https://github.com/android/platform_external_sqlite/commit/d4f30d0d1544f8967ee5763c4a1680cb0553039f) which references and includes the sqlite commit at: http://www.sqlite.org/src/info/6c4c2b7dba
 
-This is *not* an issue when the default [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) database implementation is used, which is the case when no `androidDatabaseImplementation` setting is used.
+This is *not* an issue when the default [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector) database implementation is used, which is the case when no `androidDatabaseProvider` or `androidDatabaseImplementation` setting is used.
 
 There is an optional workaround that simply closes and reopens the database file at the end of every transaction that is committed. The workaround is enabled by opening the database with options as follows:
 
@@ -968,7 +970,7 @@ There is an optional workaround that simply closes and reopens the database file
 var db = window.sqlitePlugin.openDatabase({
   name: 'my.db',
   location: 'default',
-  androidDatabaseImplementation: 2,
+  androidDatabaseProvider: 'system'
   androidLockWorkaround: 1
 });
 ```
