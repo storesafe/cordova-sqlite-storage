@@ -117,8 +117,11 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'INSERT TEXT string with é (UTF-8 2 octets), SELECT the data, check, and check HEX value [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
-          var db = openDatabase('INSERT-UTF8-2-octets-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
+        // ref:
+        // - litehelpers/Cordova-sqlite-evcore-extbuild-free#19
+        // - litehelpers/Android-sqlite-evcore-native-driver-free#1
+        it(suiteName + 'INSERT TEXT string with é (2-byte UTF-8 character), SELECT the data, check, and check HEX value [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
+          var db = openDatabase('INSERT-UTF8-2-bytes-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
 
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
@@ -156,8 +159,11 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'INSERT TEXT string with € (UTF-8 3 octets), SELECT the data, check, and check HEX value [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
-          var db = openDatabase('INSERT-UTF8-3-octets-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
+        // ref:
+        // - litehelpers/Cordova-sqlite-evcore-extbuild-free#19
+        // - litehelpers/Android-sqlite-evcore-native-driver-free#1
+        it(suiteName + 'INSERT TEXT string with € (3-byte UTF-8 character), SELECT the data, check, and check HEX value [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
+          var db = openDatabase('INSERT-UTF8-3-bytes-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
 
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
@@ -529,10 +535,12 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        // NOTE: emojis and other 4-octet UTF-8 characters are evidently
-        // not stored properly by Android-sqlite-connector
-        // ref: litehelpers/Cordova-sqlite-storage#564
-        it(suiteName + 'INSERT TEXT string with emoji [\\u1F603 SMILING FACE (MOUTH OPEN)], SELECT the data, check, and check HEX [XXX HEX encoding BUG IGNORED on default Android NDK access implementation (Android-sqlite-connector with Android-sqlite-native-driver), TBD TRUNCATION BUG REPRODUCED on Windows; default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]' , function(done) {
+        // TBD POSSIBLE ENCODING ISSUE reproduced for 4-byte UTF-8 characters
+        // on default Android NDK implementation on Android pre-6.0
+        // ref:
+        // - litehelpers/Cordova-sqlite-storage#564
+        // - litehelpers/Cordova-sqlite-evcore-extbuild-free#7
+        it(suiteName + 'INSERT TEXT string with emoji [\\u1F603 SMILING FACE (MOUTH OPEN)], SELECT the data, check, and check HEX [TBD POSSIBLE ENCODING ISSUE reproduced on default Android SQLite3 NDK access implementation (Android-sqlite-connector with Android-sqlite-native-driver); default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]' , function(done) {
           var db = openDatabase('INSERT-emoji-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -559,15 +567,10 @@ var mytests = function() {
                     expect(rs3.rows).toBeDefined();
                     expect(rs3.rows.length).toBe(1);
 
-                    // XXX TBD HEX encoding BUG IGNORED on default Android NDK access implementation
-                    // STOP HERE [HEX encoding BUG] for Android-sqlite-connector:
-                    if (!isWebSql && !isWindows && isAndroid && !isImpl2) return done();
-
                     if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
                       expect(rs3.rows.item(0).hexvalue).toBe('40003DD803DE2100'); // (UTF-16le)
-                    /* XXX TBD HEX encoding BUG IGNORED on default Android NDK access implementation (...)
-                    else if (!isWebSql && isAndroid && !isImpl2)
-                      expect(rs3.rows.item(0).hexvalue).toBe('--'); // (...) */
+                    else if (!isWebSql && !isWindows && isAndroid && !isImpl2 && /Android [4-5]/.test(navigator.userAgent))
+                      expect(rs3.rows.item(0).hexvalue).toBe('40EDA0BDEDB88321'); // TBD POSSIBLE UTF-8 ENCODING ISSUE on Android 4.x/5.x
                     else
                       expect(rs3.rows.item(0).hexvalue).toBe('40F09F988321'); // (UTF-8)
 
@@ -1483,6 +1486,9 @@ var mytests = function() {
 
       describe(scenarioList[i] + ': special UNICODE column value binding test(s)', function() {
 
+        // ref:
+        // - litehelpers/Cordova-sqlite-storage#822
+        // - litehelpers/Cordova-sqlite-evcore-extbuild-free#27
         it(suiteName + 'store multiple strings with U+0000 (same as \\0) and check ordering [default sqlite HEX encoding: UTF-6le on Windows plugin (TBD currently not tested here) & Android 4.1-4.3 (WebKit) Web SQL; UTF-8 otherwise]', function (done) {
           if (isWindows) pending('SKIP on Windows (nonsense ordering due to known truncation issue)');
           if (!isWebSql && isAndroid && !isImpl2) pending('SKIP on default Android (NDK) implementation (nonsense ordering due to known truncation issue)');
