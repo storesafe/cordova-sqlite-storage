@@ -534,31 +534,31 @@ var mytests = function() {
 
           db.transaction(function(tx) {
 
-            tx.executeSql('SELECT HEX(?) AS myresult', ['"123"'], function(ignored, rs1) {
+            tx.executeSql('SELECT HEX(?) AS hexValue', ['"123"'], function(ignored, rs1) {
               expect(rs1).toBeDefined();
               expect(rs1.rows).toBeDefined();
               expect(rs1.rows.length).toBe(1);
 
               var resultRow1 = rs1.rows.item(0);
               expect(resultRow1).toBeDefined();
-              expect(resultRow1.myresult).toBeDefined();
+              expect(resultRow1.hexValue).toBeDefined();
               if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
-                expect(resultRow1.myresult).toBe('22003100320033002200'); // (UTF-16le)
+                expect(resultRow1.hexValue).toBe('22003100320033002200'); // (UTF-16le)
               else
-                expect(resultRow1.myresult).toBe('2231323322');           // (UTF-8)
+                expect(resultRow1.hexValue).toBe('2231323322');           // (UTF-8)
 
-              tx.executeSql("SELECT HEX('\"45\"') AS myresult", [], function(ignored, rs2) {
+              tx.executeSql("SELECT HEX('\"45\"') AS hexValue", [], function(ignored, rs2) {
                 expect(rs2).toBeDefined();
                 expect(rs2.rows).toBeDefined();
                 expect(rs2.rows.length).toBe(1);
 
                 var resultRow2 = rs2.rows.item(0);
                 expect(resultRow2).toBeDefined();
-                expect(resultRow2.myresult).toBeDefined();
+                expect(resultRow2.hexValue).toBeDefined();
                 if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
-                  expect(resultRow2.myresult).toBe('2200340035002200'); // (UTF-16le)
+                  expect(resultRow2.hexValue).toBe('2200340035002200'); // (UTF-16le)
                 else
-                  expect(resultRow2.myresult).toBe('22343522');         // (UTF-8)
+                  expect(resultRow2.hexValue).toBe('22343522');         // (UTF-8)
 
                 // Close (plugin only) & finish:
                 (isWebSql) ? done() : db.close(done, done);
@@ -578,25 +578,25 @@ var mytests = function() {
           db.transaction(function(tx) {
             expect(tx).toBeDefined();
 
-            tx.executeSql('SELECT UPPER(?) AS myresult', ['"abc"'], function(ignored, rs1) {
+            tx.executeSql('SELECT UPPER(?) AS upperText', ['"abc"'], function(ignored, rs1) {
               expect(rs1).toBeDefined();
               expect(rs1.rows).toBeDefined();
               expect(rs1.rows.length).toBe(1);
 
               var resultRow1 = rs1.rows.item(0);
               expect(resultRow1).toBeDefined();
-              expect(resultRow1.myresult).toBeDefined();
-              expect(resultRow1.myresult).toBe('"ABC"');
+              expect(resultRow1.upperText).toBeDefined();
+              expect(resultRow1.upperText).toBe('"ABC"');
 
-              tx.executeSql("SELECT UPPER('\"de\"') AS myresult", [], function(ignored, rs2) {
+              tx.executeSql("SELECT UPPER('\"de\"') AS upperText", [], function(ignored, rs2) {
                 expect(rs2).toBeDefined();
                 expect(rs2.rows).toBeDefined();
                 expect(rs2.rows.length).toBe(1);
 
                 var resultRow2 = rs2.rows.item(0);
                 expect(resultRow2).toBeDefined();
-                expect(resultRow2.myresult).toBeDefined();
-                expect(resultRow2.myresult).toBe('"DE"');
+                expect(resultRow2.upperText).toBeDefined();
+                expect(resultRow2.upperText).toBe('"DE"');
 
                 // Close (plugin only) & finish:
                 (isWebSql) ? done() : db.close(done, done);
@@ -615,32 +615,32 @@ var mytests = function() {
 
           db.transaction(function(tx) {
 
-            tx.executeSql('SELECT HEX(?) AS myresult', ['1\\2'], function(ignored, rs1) {
+            tx.executeSql('SELECT HEX(?) AS hexValue', ['1\\2'], function(ignored, rs1) {
               expect(rs1).toBeDefined();
               expect(rs1.rows).toBeDefined();
               expect(rs1.rows.length).toBe(1);
 
               var resultRow1 = rs1.rows.item(0);
               expect(resultRow1).toBeDefined();
-              expect(resultRow1.myresult).toBeDefined();
+              expect(resultRow1.hexValue).toBeDefined();
               if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
-                expect(resultRow1.myresult).toBe('31005C003200'); // (UTF-16le)
+                expect(resultRow1.hexValue).toBe('31005C003200'); // (UTF-16le)
               else
-                expect(resultRow1.myresult).toBe('315C32');       // (UTF-8)
+                expect(resultRow1.hexValue).toBe('315C32');       // (UTF-8)
 
-              tx.executeSql("SELECT HEX('3\\4') AS myresult", [], function(ignored, rs2) {
+              tx.executeSql("SELECT HEX('3\\4') AS hexValue", [], function(ignored, rs2) {
                 expect(rs2).toBeDefined();
                 expect(rs2.rows).toBeDefined();
                 expect(rs2.rows.length).toBe(1);
 
                 var resultRow2 = rs2.rows.item(0);
                 expect(resultRow2).toBeDefined();
-                expect(resultRow2.myresult).toBeDefined();
+                expect(resultRow2.hexValue).toBeDefined();
 
                 if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
-                  expect(resultRow2.myresult).toBe('33005C003400'); // (UTF-16le)
+                  expect(resultRow2.hexValue).toBe('33005C003400'); // (UTF-16le)
                 else
-                  expect(resultRow2.myresult).toBe('335C34');       // (UTF-8)
+                  expect(resultRow2.hexValue).toBe('335C34');       // (UTF-8)
 
                 // Close (plugin only) & finish:
                 (isWebSql) ? done() : db.close(done, done);
@@ -660,25 +660,25 @@ var mytests = function() {
           db.transaction(function(tx) {
             expect(tx).toBeDefined();
 
-            tx.executeSql('SELECT UPPER(?) AS myresult', ['a\\b'], function(ignored, rs1) {
+            tx.executeSql('SELECT UPPER(?) AS upperText', ['a\\b'], function(ignored, rs1) {
               expect(rs1).toBeDefined();
               expect(rs1.rows).toBeDefined();
               expect(rs1.rows.length).toBe(1);
 
               var resultRow1 = rs1.rows.item(0);
               expect(resultRow1).toBeDefined();
-              expect(resultRow1.myresult).toBeDefined();
-              expect(resultRow1.myresult).toBe('A\\B');
+              expect(resultRow1.upperText).toBeDefined();
+              expect(resultRow1.upperText).toBe('A\\B');
 
-              tx.executeSql("SELECT UPPER('c\\d') AS myresult", [], function(ignored, rs2) {
+              tx.executeSql("SELECT UPPER('c\\d') AS upperText", [], function(ignored, rs2) {
                 expect(rs2).toBeDefined();
                 expect(rs2.rows).toBeDefined();
                 expect(rs2.rows.length).toBe(1);
 
                 var resultRow2 = rs2.rows.item(0);
                 expect(resultRow2).toBeDefined();
-                expect(resultRow2.myresult).toBeDefined();
-                expect(resultRow2.myresult).toBe('C\\D');
+                expect(resultRow2.upperText).toBeDefined();
+                expect(resultRow2.upperText).toBe('C\\D');
 
                 // Close (plugin only) & finish:
                 (isWebSql) ? done() : db.close(done, done);
@@ -699,37 +699,39 @@ var mytests = function() {
           db.transaction(function(tx) {
             expect(tx).toBeDefined();
 
-            tx.executeSql("SELECT UPPER('cr\r\nlf') AS uppertext", [], function(tx_ignored, rs1) {
+            tx.executeSql("SELECT UPPER('cr\r\nlf') AS upperText", [], function(tx_ignored, rs1) {
               // Check INLINE string result:
               expect(rs1).toBeDefined();
               expect(rs1.rows).toBeDefined();
               expect(rs1.rows.length).toBe(1);
-              expect(rs1.rows.item(0).uppertext).not.toBe("CR\nLF"); // CR-LF should not be converted to \\n
-              expect(rs1.rows.item(0).uppertext).toBe("CR\r\nLF"); // Check CR-LF OK
+              // Possible mistake:
+              expect(rs1.rows.item(0).upperText).not.toBe("CR\nLF");
+              // CORRECT:
+              expect(rs1.rows.item(0).upperText).toBe("CR\r\nLF");
 
-              tx.executeSql("SELECT UPPER('Carriage\rReturn') AS uppertext", [], function(tx_ignored, rs2) {
+              tx.executeSql("SELECT UPPER('Carriage\rReturn') AS upperText", [], function(tx_ignored, rs2) {
                 // Check INLINE string result:
                 expect(rs2).toBeDefined();
                 expect(rs2.rows).toBeDefined();
                 expect(rs2.rows.length).toBe(1);
-                expect(rs2.rows.item(0).uppertext).toBe("CARRIAGE\rRETURN"); // Check CR OK
+                expect(rs2.rows.item(0).upperText).toBe("CARRIAGE\rRETURN"); // Check CR OK
 
-                tx.executeSql("SELECT UPPER('New\nLine') AS uppertext", [], function(tx_ignored, rs3) {
+                tx.executeSql("SELECT UPPER('New\nLine') AS upperText", [], function(tx_ignored, rs3) {
                   // Check INLINE string result:
                   expect(rs3).toBeDefined();
                   expect(rs3.rows).toBeDefined();
                   expect(rs3.rows.length).toBe(1);
-                  expect(rs3.rows.item(0).uppertext).toBe("NEW\nLINE"); // CHECK newline OK
+                  expect(rs3.rows.item(0).upperText).toBe("NEW\nLINE"); // CHECK newline OK
 
                   // Check value binding & HEX result:
-                  tx.executeSql("SELECT HEX(?) AS myResult", ['1\r2\n3\r\n4'], function(tx_ignored, rs4) {
+                  tx.executeSql("SELECT HEX(?) AS hexValue", ['1\r2\n3\r\n4'], function(tx_ignored, rs4) {
                     expect(rs4).toBeDefined();
                     expect(rs4.rows).toBeDefined();
                     expect(rs4.rows.length).toBe(1);
                     if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
-                      expect(rs4.rows.item(0).myResult).toBe('31000D0032000A0033000D000A003400'); // (UTF-16le)
+                      expect(rs4.rows.item(0).hexValue).toBe('31000D0032000A0033000D000A003400'); // (UTF-16le)
                     else
-                      expect(rs4.rows.item(0).myResult).toBe('310D320A330D0A34');
+                      expect(rs4.rows.item(0).hexValue).toBe('310D320A330D0A34');
 
                     // Close (plugin only) & finish:
                     (isWebSql) ? done() : db.close(done, done);
@@ -751,22 +753,30 @@ var mytests = function() {
           db.transaction(function(tx) {
             expect(tx).toBeDefined();
 
-            tx.executeSql("SELECT UPPER('first\tsecond') AS uppertext", [], function(tx_ignored, rs1) {
+            tx.executeSql("SELECT UPPER('first\tsecond') AS upperText", [], function(tx_ignored, rs1) {
               // Check INLINE string result:
               expect(rs1).toBeDefined();
               expect(rs1.rows).toBeDefined();
               expect(rs1.rows.length).toBe(1);
-              expect(rs1.rows.item(0).uppertext).toBe('FIRST\tSECOND');
+
+              var resultRow1 = rs1.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.upperText).toBeDefined();
+              expect(resultRow1.upperText).toBe('FIRST\tSECOND');
 
               // Check value binding & HEX result:
-              tx.executeSql("SELECT HEX(?) AS myResult", ['A\t1'], function(tx_ignored, rs2) {
+              tx.executeSql("SELECT HEX(?) AS hexValue", ['A\t1'], function(tx_ignored, rs2) {
                 expect(rs2).toBeDefined();
                 expect(rs2.rows).toBeDefined();
                 expect(rs2.rows.length).toBe(1);
+
+                var resultRow2 = rs2.rows.item(0);
+                expect(resultRow2).toBeDefined();
+                expect(resultRow2.hexValue).toBeDefined();
                 if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
-                  expect(rs2.rows.item(0).myResult).toBe('410009003100'); // (UTF-16le)
+                  expect(resultRow2.hexValue).toBe('410009003100'); // (UTF-16le)
                 else
-                  expect(rs2.rows.item(0).myResult).toBe('410931');
+                  expect(resultRow2.hexValue).toBe('410931'); // (UTF-8)
 
                 // Close (plugin only) & finish:
                 (isWebSql) ? done() : db.close(done, done);
@@ -775,13 +785,12 @@ var mytests = function() {
             });
           }, function(error) {
             // NOT EXPECTED:
-            expect(false).toBe(true);
             expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
+            done.fail();
           });
         }, MYTIMEOUT);
 
+        // ref: litehelpers/Cordova-sqlite-evcore-extbuild-free#28
         it(suiteName + 'string vertical tab test (inline vs argument parameter value) [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           var db = openDatabase('String-vertical-tab-test.db');
           expect(db).toBeDefined();
@@ -789,22 +798,30 @@ var mytests = function() {
           db.transaction(function(tx) {
             expect(tx).toBeDefined();
 
-            tx.executeSql("SELECT UPPER('first\vsecond') AS uppertext", [], function(tx_ignored, rs1) {
+            tx.executeSql("SELECT UPPER('first\vsecond') AS upperText", [], function(tx_ignored, rs1) {
               // Check INLINE string result:
               expect(rs1).toBeDefined();
               expect(rs1.rows).toBeDefined();
               expect(rs1.rows.length).toBe(1);
-              expect(rs1.rows.item(0).uppertext).toBe('FIRST\vSECOND');
+
+              var resultRow1 = rs1.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.upperText).toBeDefined();
+              expect(resultRow1.upperText).toBe('FIRST\vSECOND');
 
               // Check value binding & HEX result:
-              tx.executeSql("SELECT HEX(?) AS myResult", ['A\v1'], function(tx_ignored, rs2) {
+              tx.executeSql("SELECT HEX(?) AS hexValue", ['A\v1'], function(tx_ignored, rs2) {
                 expect(rs2).toBeDefined();
                 expect(rs2.rows).toBeDefined();
                 expect(rs2.rows.length).toBe(1);
+
+                var resultRow2 = rs2.rows.item(0);
+                expect(resultRow2).toBeDefined();
+                expect(resultRow2.hexValue).toBeDefined();
                 if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
-                  expect(rs2.rows.item(0).myResult).toBe('41000B003100'); // (UTF-16le)
+                  expect(resultRow2.hexValue).toBe('41000B003100'); // (UTF-16le)
                 else
-                  expect(rs2.rows.item(0).myResult).toBe('410B31');
+                  expect(resultRow2.hexValue).toBe('410B31');
 
                 // Close (plugin only) & finish:
                 (isWebSql) ? done() : db.close(done, done);
@@ -813,13 +830,12 @@ var mytests = function() {
             });
           }, function(error) {
             // NOT EXPECTED:
-            expect(false).toBe(true);
             expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
+            done.fail();
           });
         }, MYTIMEOUT);
 
+        // ref: litehelpers/Cordova-sqlite-evcore-extbuild-free#28
         it(suiteName + 'string form feed test (inline vs argument parameter value) [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           var db = openDatabase('String-form-feed-test.db');
           expect(db).toBeDefined();
@@ -827,22 +843,30 @@ var mytests = function() {
           db.transaction(function(tx) {
             expect(tx).toBeDefined();
 
-            tx.executeSql("SELECT UPPER('first\fsecond') AS uppertext", [], function(tx_ignored, rs1) {
+            tx.executeSql("SELECT UPPER('first\fsecond') AS upperText", [], function(tx_ignored, rs1) {
               // Check INLINE string result:
               expect(rs1).toBeDefined();
               expect(rs1.rows).toBeDefined();
               expect(rs1.rows.length).toBe(1);
-              expect(rs1.rows.item(0).uppertext).toBe('FIRST\fSECOND');
+
+              var resultRow1 = rs1.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.upperText).toBeDefined();
+              expect(resultRow1.upperText).toBe('FIRST\fSECOND');
 
               // Check value binding & HEX result:
-              tx.executeSql("SELECT HEX(?) AS myResult", ['A\f1'], function(tx_ignored, rs2) {
+              tx.executeSql("SELECT HEX(?) AS hexValue", ['A\f1'], function(tx_ignored, rs2) {
                 expect(rs2).toBeDefined();
                 expect(rs2.rows).toBeDefined();
                 expect(rs2.rows.length).toBe(1);
+
+                var resultRow2 = rs2.rows.item(0);
+                expect(resultRow2).toBeDefined();
+                expect(resultRow2.hexValue).toBeDefined();
                 if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
-                  expect(rs2.rows.item(0).myResult).toBe('41000C003100'); // (UTF-16le)
+                  expect(resultRow2.hexValue).toBe('41000C003100'); // (UTF-16le)
                 else
-                  expect(rs2.rows.item(0).myResult).toBe('410C31');
+                  expect(resultRow2.hexValue).toBe('410C31'); // (UTF-8)
 
                 // Close (plugin only) & finish:
                 (isWebSql) ? done() : db.close(done, done);
@@ -851,13 +875,12 @@ var mytests = function() {
             });
           }, function(error) {
             // NOT EXPECTED:
-            expect(false).toBe(true);
             expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
+            done.fail();
           });
         }, MYTIMEOUT);
 
+        // ref: litehelpers/Cordova-sqlite-evcore-extbuild-free#28
         it(suiteName + 'string backspace test (inline vs argument parameter value) [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           var db = openDatabase('String-backspace-test.db');
           expect(db).toBeDefined();
@@ -865,22 +888,30 @@ var mytests = function() {
           db.transaction(function(tx) {
             expect(tx).toBeDefined();
 
-            tx.executeSql("SELECT UPPER('first\bsecond') AS uppertext", [], function(tx_ignored, rs1) {
+            tx.executeSql("SELECT UPPER('first\bsecond') AS upperText", [], function(tx_ignored, rs1) {
               // Check INLINE string result:
               expect(rs1).toBeDefined();
               expect(rs1.rows).toBeDefined();
               expect(rs1.rows.length).toBe(1);
-              expect(rs1.rows.item(0).uppertext).toBe('FIRST\bSECOND');
+
+              var resultRow1 = rs1.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.upperText).toBeDefined();
+              expect(resultRow1.upperText).toBe('FIRST\bSECOND');
 
               // Check value binding & HEX result:
-              tx.executeSql("SELECT HEX(?) AS myResult", ['A\b1'], function(tx_ignored, rs2) {
+              tx.executeSql("SELECT HEX(?) AS hexValue", ['A\b1'], function(tx_ignored, rs2) {
                 expect(rs2).toBeDefined();
                 expect(rs2.rows).toBeDefined();
                 expect(rs2.rows.length).toBe(1);
+
+                var resultRow2 = rs2.rows.item(0);
+                expect(resultRow2).toBeDefined();
+                expect(resultRow2.hexValue).toBeDefined();
                 if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
-                  expect(rs2.rows.item(0).myResult).toBe('410008003100'); // (UTF-16le)
+                  expect(resultRow2.hexValue).toBe('410008003100'); // (UTF-16le)
                 else
-                  expect(rs2.rows.item(0).myResult).toBe('410831');
+                  expect(resultRow2.hexValue).toBe('410831'); // (UTF-8)
 
                 // Close (plugin only) & finish:
                 (isWebSql) ? done() : db.close(done, done);
@@ -888,10 +919,8 @@ var mytests = function() {
             });
           }, function(error) {
             // NOT EXPECTED:
-            expect(false).toBe(true);
             expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
+            done.fail();
           });
         }, MYTIMEOUT);
 
