@@ -1820,57 +1820,67 @@ var mytests = function() {
 
       describe(suiteName + 'additional (extra) multi-byte UTF-8 character string binding & manipulation tests', function() {
 
-        it(suiteName + 'Inline string manipulation test with a combination of UTF-8 2-byte & 3-byte characters', function(done) {
-          var db = openDatabase('Inline-UTF8-combo-string-manipulation-test.db');
+        // ref:
+        // - litehelpers/Cordova-sqlite-evcore-extbuild-free#19
+        // - litehelpers/Android-sqlite-evcore-native-driver-free#1
+        it(suiteName + 'INLINE string manipulation test with a combination of UTF-8 2-byte & 3-byte characters', function(done) {
+          var db = openDatabase('INLINE-UTF8-combo-string-manipulation-test.db');
 
           db.transaction(function(tx) {
 
-            tx.executeSql("SELECT UPPER('Test ¢ é €') AS upper_result", [], function(ignored, rs) {
+            tx.executeSql("SELECT UPPER('Test ¢ é €') AS upperText", [], function(ignored, rs) {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
+
+              var resultRow = rs.rows.item(0);
+              expect(resultRow).toBeDefined();
+              expect(resultRow.upperText).toBeDefined();
               if ((isWebSql && isChromeBrowser) ||
                   (isAndroid && ((isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
-                expect(rs.rows.item(0).upper_result).toBe('TEST ¢ É €');
+                expect(resultRow.upperText).toBe('TEST ¢ É €');
               else
-                expect(rs.rows.item(0).upper_result).toBe('TEST ¢ é €');
+                expect(resultRow.upperText).toBe('TEST ¢ é €');
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             });
           }, function(error) {
             // NOT EXPECTED:
-            expect(false).toBe(true);
             expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
+            done.fail();
           });
         }, MYTIMEOUT);
 
+        // ref:
+        // - litehelpers/Cordova-sqlite-evcore-extbuild-free#19
+        // - litehelpers/Android-sqlite-evcore-native-driver-free#1
         it(suiteName + 'string parameter manipulation test with a combination of UTF-8 2-byte & 3-byte characters', function(done) {
-          var db = openDatabase('UTF8-combo-select-upper-test.db');
+          var db = openDatabase('UTF8-combo-SELECT-UPPER-test.db');
 
           db.transaction(function(tx) {
 
-            tx.executeSql('SELECT UPPER(?) AS upper_result', ['Test ¢ é €'], function(ignored, rs) {
+            tx.executeSql('SELECT UPPER(?) AS upperText', ['Test ¢ é €'], function(ignored, rs) {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
+
+              var resultRow = rs.rows.item(0);
+              expect(resultRow).toBeDefined();
+              expect(resultRow.upperText).toBeDefined();
               if ((isWebSql && isChromeBrowser) ||
                   (isAndroid && ((isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
-                expect(rs.rows.item(0).upper_result).toBe('TEST ¢ É €');
+                expect(resultRow.upperText).toBe('TEST ¢ É €');
               else
-                expect(rs.rows.item(0).upper_result).toBe('TEST ¢ é €');
+                expect(resultRow.upperText).toBe('TEST ¢ é €');
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             });
           }, function(error) {
             // NOT EXPECTED:
-            expect(false).toBe(true);
             expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
+            done.fail();
           });
         }, MYTIMEOUT);
 
