@@ -87,21 +87,23 @@ var mytests = function() {
           db.transaction(function(tx) {
             expect(tx).toBeDefined();
 
-            tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", [], function(tx_ignored, rs) {
+            tx.executeSql("SELECT UPPER('Some US-ASCII text') AS upperText", [], function(tx_ignored, rs) {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              expect(rs.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
+
+              var resultRow = rs.rows.item(0);
+              expect(resultRow).toBeDefined();
+              expect(resultRow.upperText).toBeDefined();
+              expect(resultRow.upperText).toBe("SOME US-ASCII TEXT");
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             });
           }, function(error) {
             // NOT EXPECTED:
-            expect(false).toBe(true);
             expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
+            done.fail();
           });
         }, MYTIMEOUT);
 
@@ -113,21 +115,23 @@ var mytests = function() {
           db.transaction(function(tx) {
             expect(tx).toBeDefined();
 
-            tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", null, function(tx_ignored, rs) {
+            tx.executeSql("SELECT UPPER('Some US-ASCII text') AS upperText", null, function(tx_ignored, rs) {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              expect(rs.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
+
+              var resultRow = rs.rows.item(0);
+              expect(resultRow).toBeDefined();
+              expect(resultRow.upperText).toBeDefined();
+              expect(resultRow.upperText).toBe("SOME US-ASCII TEXT");
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             });
           }, function(error) {
             // NOT EXPECTED:
-            expect(false).toBe(true);
             expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
+            done.fail();
           });
         }, MYTIMEOUT);
 
@@ -139,21 +143,23 @@ var mytests = function() {
           db.transaction(function(tx) {
             expect(tx).toBeDefined();
 
-            tx.executeSql("SELECT UPPER('Some US-ASCII text') AS uppertext", undefined, function(tx_ignored, rs) {
+            tx.executeSql("SELECT UPPER('Some US-ASCII text') AS upperText", undefined, function(tx_ignored, rs) {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              expect(rs.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
+
+              var resultRow = rs.rows.item(0);
+              expect(resultRow).toBeDefined();
+              expect(resultRow.upperText).toBeDefined();
+              expect(resultRow.upperText).toBe("SOME US-ASCII TEXT");
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             });
           }, function(error) {
             // NOT EXPECTED:
-            expect(false).toBe(true);
             expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
+            done.fail();
           });
         }, MYTIMEOUT);
 
@@ -161,21 +167,23 @@ var mytests = function() {
           var db = openDatabase('ASCII-string-binding-test.db');
 
           db.transaction(function(tx) {
-            tx.executeSql('SELECT UPPER(?) AS uppertext', ['Some US-ASCII text'], function(tx_ignored, rs) {
+            tx.executeSql('SELECT UPPER(?) AS upperText', ['Some US-ASCII text'], function(tx_ignored, rs) {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              expect(rs.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
+
+              var resultRow = rs.rows.item(0);
+              expect(resultRow).toBeDefined();
+              expect(resultRow.upperText).toBeDefined();
+              expect(resultRow.upperText).toBe("SOME US-ASCII TEXT");
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             });
           }, function(error) {
             // NOT EXPECTED:
-            expect(false).toBe(true);
             expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
+            done.fail();
           });
         }, MYTIMEOUT);
 
@@ -184,24 +192,26 @@ var mytests = function() {
 
           db.transaction(function(tx) {
 
-            tx.executeSql('SELECT HEX(?) AS myresult', ['Test 123'], function(ignored, rs) {
+            tx.executeSql('SELECT HEX(?) AS hexValue', ['Test 123'], function(ignored, rs) {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
+
+              var resultRow = rs.rows.item(0);
+              expect(resultRow).toBeDefined();
+              expect(resultRow.hexValue).toBeDefined();
               if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
-                expect(rs.rows.item(0).myresult).toBe('54006500730074002000310032003300'); // (UTF-16le)
+                expect(resultRow.hexValue).toBe('54006500730074002000310032003300'); // (UTF-16le)
               else
-                expect(rs.rows.item(0).myresult).toBe('5465737420313233'); // (UTF-8)
+                expect(resultRow.hexValue).toBe('5465737420313233'); // (UTF-8)
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             });
           }, function(error) {
             // NOT EXPECTED:
-            expect(false).toBe(true);
             expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
+            done.fail();
           });
         }, MYTIMEOUT);
 
@@ -225,10 +235,8 @@ var mytests = function() {
             });
           }, function(error) {
             // NOT EXPECTED:
-            expect(false).toBe(true);
             expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
+            done.fail();
           });
         }, MYTIMEOUT);
 
@@ -252,10 +260,8 @@ var mytests = function() {
             });
           }, function(error) {
             // NOT EXPECTED:
-            expect(false).toBe(true);
             expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
+            done.fail();
           });
         }, MYTIMEOUT);
 
@@ -279,10 +285,8 @@ var mytests = function() {
             });
           }, function(error) {
             // NOT EXPECTED:
-            expect(false).toBe(true);
             expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
+            done.fail();
           });
         }, MYTIMEOUT);
 
@@ -292,21 +296,23 @@ var mytests = function() {
           db.transaction(function(tx) {
             expect(tx).toBeDefined();
 
-            tx.executeSql(new String("SELECT UPPER('Some US-ASCII text') AS uppertext"), [], function(tx_ignored, rs) {
+            tx.executeSql(new String("SELECT UPPER('Some US-ASCII text') AS upperText"), [], function(tx_ignored, rs) {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              expect(rs.rows.item(0).uppertext).toBe("SOME US-ASCII TEXT");
+
+              var resultRow = rs.rows.item(0);
+              expect(resultRow).toBeDefined();
+              expect(resultRow.upperText).toBeDefined();
+              expect(resultRow.upperText).toBe("SOME US-ASCII TEXT");
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             });
           }, function(error) {
             // NOT EXPECTED:
-            expect(false).toBe(true);
             expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
+            done.fail();
           });
         }, MYTIMEOUT);
 
@@ -527,6 +533,7 @@ var mytests = function() {
               expect(rs1).toBeDefined();
               expect(rs1.rows).toBeDefined();
               expect(rs1.rows.length).toBe(1);
+
               var resultRow1 = rs1.rows.item(0);
               expect(resultRow1).toBeDefined();
               expect(resultRow1.myresult).toBeDefined();
@@ -539,6 +546,7 @@ var mytests = function() {
                 expect(rs2).toBeDefined();
                 expect(rs2.rows).toBeDefined();
                 expect(rs2.rows.length).toBe(1);
+
                 var resultRow2 = rs2.rows.item(0);
                 expect(resultRow2).toBeDefined();
                 expect(resultRow2.myresult).toBeDefined();
@@ -552,13 +560,10 @@ var mytests = function() {
               });
 
             });
-
           }, function(error) {
             // NOT EXPECTED:
-            expect(false).toBe(true);
             expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
+            done.fail();
           });
         }, MYTIMEOUT);
 
@@ -572,6 +577,7 @@ var mytests = function() {
               expect(rs1).toBeDefined();
               expect(rs1.rows).toBeDefined();
               expect(rs1.rows.length).toBe(1);
+
               var resultRow1 = rs1.rows.item(0);
               expect(resultRow1).toBeDefined();
               expect(resultRow1.myresult).toBeDefined();
@@ -581,6 +587,7 @@ var mytests = function() {
                 expect(rs2).toBeDefined();
                 expect(rs2.rows).toBeDefined();
                 expect(rs2.rows.length).toBe(1);
+
                 var resultRow2 = rs2.rows.item(0);
                 expect(resultRow2).toBeDefined();
                 expect(resultRow2.myresult).toBeDefined();
@@ -593,10 +600,8 @@ var mytests = function() {
             });
           }, function(error) {
             // NOT EXPECTED:
-            expect(false).toBe(true);
             expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
+            done.fail();
           });
         }, MYTIMEOUT);
 
@@ -609,6 +614,7 @@ var mytests = function() {
               expect(rs1).toBeDefined();
               expect(rs1.rows).toBeDefined();
               expect(rs1.rows.length).toBe(1);
+
               var resultRow1 = rs1.rows.item(0);
               expect(resultRow1).toBeDefined();
               expect(resultRow1.myresult).toBeDefined();
@@ -621,6 +627,7 @@ var mytests = function() {
                 expect(rs2).toBeDefined();
                 expect(rs2.rows).toBeDefined();
                 expect(rs2.rows.length).toBe(1);
+
                 var resultRow2 = rs2.rows.item(0);
                 expect(resultRow2).toBeDefined();
                 expect(resultRow2.myresult).toBeDefined();
@@ -635,13 +642,10 @@ var mytests = function() {
               });
 
             });
-
           }, function(error) {
             // NOT EXPECTED:
-            expect(false).toBe(true);
             expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
+            done.fail();
           });
         }, MYTIMEOUT);
 
@@ -655,6 +659,7 @@ var mytests = function() {
               expect(rs1).toBeDefined();
               expect(rs1.rows).toBeDefined();
               expect(rs1.rows.length).toBe(1);
+
               var resultRow1 = rs1.rows.item(0);
               expect(resultRow1).toBeDefined();
               expect(resultRow1.myresult).toBeDefined();
@@ -664,6 +669,7 @@ var mytests = function() {
                 expect(rs2).toBeDefined();
                 expect(rs2.rows).toBeDefined();
                 expect(rs2.rows.length).toBe(1);
+
                 var resultRow2 = rs2.rows.item(0);
                 expect(resultRow2).toBeDefined();
                 expect(resultRow2.myresult).toBeDefined();
@@ -676,10 +682,8 @@ var mytests = function() {
             });
           }, function(error) {
             // NOT EXPECTED:
-            expect(false).toBe(true);
             expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
+            done.fail();
           });
         }, MYTIMEOUT);
 
@@ -730,10 +734,8 @@ var mytests = function() {
             });
           }, function(error) {
             // NOT EXPECTED:
-            expect(false).toBe(true);
             expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
+            done.fail();
           });
         }, MYTIMEOUT);
 
