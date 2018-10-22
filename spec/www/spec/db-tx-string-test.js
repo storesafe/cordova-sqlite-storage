@@ -320,7 +320,10 @@ var mytests = function() {
 
       describe(suiteName + 'U+0000 character tests', function() {
 
-        it(suiteName + 'String HEX encoding test with U+0000 character (same as \\0 [null]) [XXX HEX ENCODING BUG REPRODUCED on default Android NDK access implementation (Android-sqlite-connector with Android-sqlite-native-driver), TRUNCATION ISSUE REPRODUCED on Windows; default sqlite encoding: UTF-16le on Windows & Android 4.1-4.4 (WebKit) Web SQL, UTF-8 otherwise]', function (done) {
+        // ref:
+        // - litehelpers/Cordova-sqlite-storage#822
+        // - litehelpers/Cordova-sqlite-evcore-extbuild-free#27
+        it(suiteName + 'String HEX encoding test with U+0000 / \\0 (null) character - TBD TRUNCATION on Windows (only) [TBD KNOWN ENCODING ISSUE REPRODUCED on default Android NDK access provider (Android-sqlite-connector with Android-sqlite-native-driver); default sqlite encoding: UTF-16le on Windows & Android 4.1-4.4 (WebKit) Web SQL, UTF-8 otherwise]', function (done) {
           var db = openDatabase('U+0000-hex-test.db');
 
           db.transaction(function (tx) {
@@ -356,11 +359,11 @@ var mytests = function() {
                 expect(resultRow2.hexvalue).toBeDefined();
 
                 if (isWindows)
-                  expect(resultRow2.hexvalue).toBe('6100');     // (UTF-16le with TRUNCATION BUG)
+                  expect(resultRow2.hexvalue).toBe('6100');     // (UTF-16le with TRUNCATION on Windows)
                 else if ((isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
                   expect(resultRow2.hexvalue).toBe('6100000063006400'); // (UTF-16le)
                 else if (!isWebSql && isAndroid && !isImpl2)
-                  expect(resultRow2.hexvalue).toBe('61C0806364'); // (XXX UTF-8 with XXX ENCODING BUG REPRODUCED on Android)
+                  expect(resultRow2.hexvalue).toBe('61C0806364'); // (UTF-8 with KNOWN ENCODING ISSUE on Android)
                 else
                   expect(resultRow2.hexvalue).toBe('61006364');   // (UTF-8)
 
@@ -368,9 +371,9 @@ var mytests = function() {
                 // ensure this matches our expectation of that database's
                 // default encoding
                 if (isWindows)
-                  expect(resultRow2.hexvalue.length).toBe(4);   // (UTF-16le with TRUNCATION ISSUE REPRODUCED on Windows)
+                  expect(resultRow2.hexvalue.length).toBe(4);   // (UTF-16le with TRUNCATION on Windows)
                 else if (!isWebSql && !isWindows && isAndroid && !isImpl2)
-                  expect(resultRow2.hexvalue.length).toBe(10);  // (XXX UTF-8 with ENCODING BUG REPRODUCED on Android)
+                  expect(resultRow2.hexvalue.length).toBe(10);  // (UTF-8 with KNOWN ENCODING ISSUE on Android)
                 else
                   expect(resultRow2.hexvalue.length).toBe(expected_hexvalue_length);
 
@@ -384,11 +387,11 @@ var mytests = function() {
                   expect(resultRow3.hexvalue).toBeDefined();
 
                   if (isWindows)
-                    expect(resultRow3.hexvalue).toBe('6500');       // (UTF-16le with TRUNCATION ISSUE REPRODUCED on Windows)
+                    expect(resultRow3.hexvalue).toBe('6500');       // (UTF-16le with TRUNCATION on Windows)
                   else if ((isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
                     expect(resultRow3.hexvalue).toBe('6500000067006800'); // (UTF-16le)
                   else if (!isWebSql && isAndroid && !isImpl2)
-                    expect(resultRow3.hexvalue).toBe('65C0806768'); // (XXX UTF-8 with ENCODING BUG REPRODUCED on Android)
+                    expect(resultRow3.hexvalue).toBe('65C0806768'); // (UTF-8 with KNOWN ENCODING ISSUE on Android)
                   else
                     expect(resultRow3.hexvalue).toBe('65006768');   // (UTF-8)
 
@@ -400,16 +403,17 @@ var mytests = function() {
 
             });
 
-          }, function(err) {
+          }, function(error) {
             // NOT EXPECTED:
-            expect(false).toBe(true);
-            expect(JSON.stringify(err)).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
+            expect(error.message).toBe('--');
+            done.fail();
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'INLINE HEX encoding test with U+0000 (\\0) [XXX HEX ENCODING BUG REPRODUCED on default Android NDK access implementation (Android-sqlite-connector with Android-sqlite-native-driver), SQL ERROR reported otherwise; default sqlite encoding: UTF-16le on TBD, UTF-8 otherwise]', function (done) {
+        // ref:
+        // - litehelpers/Cordova-sqlite-storage#822
+        // - litehelpers/Cordova-sqlite-evcore-extbuild-free#27
+        it(suiteName + 'INLINE HEX encoding test with U+0000 (null) character [TBD KNOWN ENCODING ISSUE REPRODUCED on default Android NDK access implementation (Android-sqlite-connector with Android-sqlite-native-driver), SQL ERROR reported otherwise]', function (done) {
           var db = openDatabase('INLINE-U+0000-hex-test.db');
 
           db.transaction(function (tx) {
@@ -447,7 +451,7 @@ var mytests = function() {
                 expect(resultRow2).toBeDefined();
                 expect(resultRow2.hexvalue).toBeDefined();
                 if (!isWebSql && !isWindows && isAndroid && !isImpl2)
-                  expect(resultRow2.hexvalue).toBe('65C0806768'); // XXX UTF-8 ENCODING BUG REPRODUCED on default Android implementation (NDK)
+                  expect(resultRow2.hexvalue).toBe('65C0806768'); // (UTF-8 with KNOWN ENCODING ISSUE on Android)
                 else
                   expect(resultRow2.hexvalue).toBe('??'); // FUTURE TBD ??
 
@@ -481,16 +485,19 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'U+0000 string parameter manipulation test [TRUNCATION ISSUE REPRODUCED on (WebKit) Web SQL (iOS & older Android versions) and plugin on multiple platforms]', function(done) {
+        // ref:
+        // - litehelpers/Cordova-sqlite-storage#822
+        // - litehelpers/Cordova-sqlite-evcore-extbuild-free#27
+        it(suiteName + 'U+0000 string parameter manipulation test - TRUNCATION on (WebKit) Web SQL (iOS & older Android versions) and plugin on multiple platforms]', function(done) {
           var db = openDatabase('U+0000-string-parameter-upper-test');
 
           db.transaction(function(tx) {
-            tx.executeSql('SELECT UPPER(?) AS uppertext', ['a\u0000cd'], function(tx_ignored, rs) {
+            tx.executeSql('SELECT UPPER(?) AS upperText', ['a\u0000cd'], function(tx_ignored, rs) {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
 
-              // TRUNCATION ISSUE REPRODUCED on:
+              // TRUNCATION REPRODUCED on:
               // - (WebKit) Web SQL (iOS & older Android versions)
               // - plugin on multiple platforms
 
@@ -504,19 +511,17 @@ var mytests = function() {
                   (!isWebSql && !isWindows && isAndroid && isImpl2 &&
                     !(/Android 4/.test(navigator.userAgent)) &&
                     !(/Android 8/.test(navigator.userAgent))))
-                expect(rs.rows.item(0).uppertext).toBe('A');
+                expect(rs.rows.item(0).upperText).toBe('A');
               else
-                expect(rs.rows.item(0).uppertext).toBe('A\0CD');
+                expect(rs.rows.item(0).upperText).toBe('A\0CD');
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             });
           }, function(error) {
             // NOT EXPECTED:
-            expect(false).toBe(true);
             expect(error.message).toBe('--');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
+            done.fail();
           });
         }, MYTIMEOUT);
 
