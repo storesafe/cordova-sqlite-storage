@@ -1810,9 +1810,9 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (!isWebSql && isBrowser)
+              /* if (!isWebSql && isBrowser) // FUTURE TBD ???
                 expect(rs.rows.item(0).myresult).toBeDefined(); // XXX TBD ???
-              else
+              else */
                 expect(rs.rows.item(0).myresult).toBe('@ABC');
 
               // Close (plugin only) & finish:

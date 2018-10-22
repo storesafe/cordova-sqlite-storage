@@ -400,7 +400,7 @@ var mytests = function() {
                   var row = rs.rows.item(0);
                   expect(row).toBeDefined();
 
-                  if (!isWebSql && !isBrowser && !isWindows) {
+                  if (!isWebSql && /* !isBrowser && */ !isWindows) {
                     // Android/iOS plugin issue
                     expect(row.data).toBe(null);
                     expect(row.data_num).toBe(null);
@@ -454,7 +454,7 @@ var mytests = function() {
                   var row = rs.rows.item(0);
                   expect(row).toBeDefined();
 
-                  if (!isWebSql && !isBrowser && !isWindows) {
+                  if (!isWebSql && /* !isBrowser && */ !isWindows) {
                     // Android/iOS plugin issue
                     expect(row.data).toBe(null);
                     expect(row.data_num).toBe(null);
@@ -1074,8 +1074,8 @@ var mytests = function() {
                     expect(item).toBeDefined();
                     if (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent))
                       expect(item.data).toBe('䅀䍂'); // (UTF-16le)
-                    else if (!isWebSql && isBrowser)
-                      expect(item.data).toBeDefined(); // XXX
+                    /** else if (!isWebSql && isBrowser) // FUTURE TBD ??? (plugin on browser platform)
+                      expect(item.data).toBeDefined(); // XXX */
                     else
                       expect(item.data).toBe('@ABC'); // (UTF-8)
 
@@ -1147,12 +1147,12 @@ var mytests = function() {
 
                     var mydata = item.data;
 
-                    if (!isWebSql && isBrowser) {
+                    /* ** if (!isWebSql && isBrowser) { // FUTURE TBD ???
                       // XXX TBD
                       // PLUGIN - browser:
                       expect(mydata).toBeDefined();
                       return done();
-                    } else if (!isWebSql) {
+                    } else */ if (!isWebSql) {
                       // PLUGIN (iOS/macOS):
                       expect(mydata).not.toBeDefined();
                       return done();
@@ -1561,7 +1561,7 @@ var mytests = function() {
                           (/Android 5.1/.test(navigator.userAgent) && !(/Chrome.6/.test(navigator.userAgent))) ||
                           (/Android 6/.test(navigator.userAgent) && (/Chrome.[3-4]/.test(navigator.userAgent))))) ||
                         (isWebSql && !isAndroid && !isChromeBrowser) ||
-                        (!isWebSql && isBrowser) ||
+                        /* (!isWebSql && isBrowser) || // FUTURE TBD ??? */
                         (!isWebSql && isWindows)) {
                       expect(name.length).toBe(1);
                       expect(name).toBe('a');
