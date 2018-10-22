@@ -1111,7 +1111,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "INSERT inline BLOB value (X'FFD1FFD2') and check stored data [XXX SKIP FINAL SELECT CHECK on default Android NDK access implementation due to CRASH ISSUE; OTHER PLUGIN ISSUES REPRODUCED: missing result column data; SELECT BLOB VALUE ERROR on Android & Windows; missing result column data on iOS/macOS]", function(done) {
+        it(suiteName + "INSERT inline BLOB value (X'FFD1FFD2') and check stored data [XXX SKIP FINAL SELECT CHECK on default Android NDK access implementation due to CRASH ISSUE; OTHER PLUGIN ISSUES REPRODUCED: missing result column data; SELECT BLOB VALUE ERROR on Android (androidDatabaseProvider: 'system') & Windows; missing result column data on iOS/macOS]", function(done) {
           var db = openDatabase('INSERT-inline-BLOB-value-FFD1FFD2-and-check-stored-data.db', '1.0', 'Demo', DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -1147,19 +1147,14 @@ var mytests = function() {
 
                     var mydata = item.data;
 
-                    /* ** if (!isWebSql && isBrowser) { // FUTURE TBD ???
-                      // XXX TBD
-                      // PLUGIN - browser:
-                      expect(mydata).toBeDefined();
-                      return done();
-                    } else */ if (!isWebSql) {
-                      // PLUGIN (iOS/macOS):
+                    if (!isWebSql && (isAppleMobileOS || isMac)) {
+                      // MISSING RESULT COLUMN DATA REPRODUCED on iOS/macOS plugin:
                       expect(mydata).not.toBeDefined();
-                      return done();
                     } else {
+                      // EXPECTED RESULT on (WebKit) Web SQL & FUTURE TBD: plugin on browser platform
                       expect(mydata).toBeDefined();
                       expect(mydata.length).toBeDefined();
-                      if (!(/Android 4.[1-3]/.test(navigator.userAgent)))
+                      if (!(isWebSql && /Android 4.[1-3]/.test(navigator.userAgent)))
                         expect(mydata.length).toBe(4);
                     }
 
