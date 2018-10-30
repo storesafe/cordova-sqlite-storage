@@ -1456,6 +1456,48 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        it(suiteName + "SELECT LOWER(X'41EDA0BDEDB88321') - RETURNS '\\uED41\\uBDA0\\uB8ED\\u2183' ('\uED41\uBDA0\uB8ED\u2183') on Android 4.1-4.3 (WebKit) Web SQL & Windows (UTF-16le), 'a\\uD83D\\uDE03!' ('a\uD83D\uDE03!') on Android with default Android NDK provider on all Android versions & androidDatabaseProvider: 'system' on Android 4.x, '\\uED41\\uBDA0\\uB8ED\\u2183' ('\uED41\uBDA0\uB8ED\u2183') on (WebKit) Web SQL & Android with androidDatabaseProvider: 'system' on Android post-4.x; MISSING RESULT VALUE on iOS/macOS plugin", function(done) {
+          // ref: litehelpers/Cordova-sqlite-storage#564
+          var db = openDatabase('SELECT-LOWER-X-41EDA0BDEDB88321-test.db');
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql("SELECT LOWER(X'41EDA0BDEDB88321') AS lowertext", [], function(ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+
+              if (!isWebSql && (isAppleMobileOS || isMac))
+                expect(rs.rows.item(0).lowertext).not.toBeDefined();
+              else
+                expect(rs.rows.item(0).lowertext).toBeDefined();
+
+              // FUTURE TBD add a new case here when adding a new platform:
+              if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
+                expect(rs.rows.item(0).lowertext).toBe('\uED41\uBDA0\uB8ED\u2183'); // (UTF-16le)
+              else if (isWebSql ||
+                       (isAndroid &&
+                        (isImpl2 && !(/Android 4/.test(navigator.userAgent)))))
+                expect(rs.rows.item(0).lowertext).toBe('a\uFFFD\uFFFD!'); // 'a��!'
+              else if (!isWebSql && isAndroid) // (other conditions checked above)
+                expect(rs.rows.item(0).lowertext).toBe('a\uD83D\uDE03!');
+              else if (!isWebSql && (isAppleMobileOS || isMac))
+                expect(rs.rows.item(0).lowertext).not.toBeDefined();
+              else
+                done.fail(); // SHOULD NOT GET HERE
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(error.message).toBe('--');
+            done.fail();
+          });
+        }, MYTIMEOUT);
+
         // NOTE: the next 3 tests show that for iOS/macOS/Android:
         // - UNICODE \u2028 line separator from JavaScript to native (Objective-C/Java) is working OK
         // - UNICODE \u2028 line separator from native (Objective-C/Java) to JavaScript is BROKEN
