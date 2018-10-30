@@ -1425,12 +1425,11 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "Inline BLOB with emoji string manipulation test: SELECT LOWER(X'41F09F9883') [A\uD83D\uDE03] [\\u1F603 SMILING FACE (MOUTH OPEN)]", function(done) {
-          if (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)) pending('SKIP for Android 4.1-4.3 (WebKit) Web SQL'); // TBD ???
-          if (!isWebSql && !isWindows && isAndroid && !isImpl2) pending('XXX CRASH on Android 5.x (default sqlite-connector implementation)');
-          if (isWindows) pending('SKIP for Windows'); // FUTURE TBD
+        it(suiteName + "Inline BLOB with emoji string manipulation test: SELECT LOWER(X'41F09F9883') - RETURNS '\\uF041\\u989F' ('\uF041\u989F') UTF-16le on Android 4.1-4.3 (WebKit) Web SQL & Windows, UTF-8 'a\\uD83D\\uDE03' ('a\uD83D\uDE03') with U+1F603 SMILING FACE (MOUTH OPEN) otherwise", function(done) {
+          // ref: litehelpers/Cordova-sqlite-storage#564
+          if (!isWebSql && isAndroid && !isImpl2 && (/Android [4-5]/.test(navigator.userAgent))) pending('KNOWN CRASH on Android 4.x/5.x (default Android NDK implementation)');
 
-          var db = openDatabase("Inline-emoji-select-lower-result-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('SELECT-LOWER-X-41F09F9883-test.db');
           expect(db).toBeDefined();
 
           db.transaction(function(tx) {
@@ -1440,7 +1439,10 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              expect(rs.rows.item(0).lowertext).toBe('a\uD83D\uDE03');
+              if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
+                expect(rs.rows.item(0).lowertext).toBe('\uF041\u989F'); // (UTF-16le)
+              else
+                expect(rs.rows.item(0).lowertext).toBe('a\uD83D\uDE03');
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
