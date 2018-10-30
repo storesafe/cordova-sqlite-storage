@@ -1744,6 +1744,95 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        it(suiteName + 'HEX value of string with 25 emojis [TBD POSSIBLE ENCODING ISSUE reproduced on default Android SQLite3 NDK build (using Android-sqlite-connector with Android-sqlite-ext-native-driver) on Android 4.x & 5.x; default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
+          // ref:
+          // - litehelpers/Cordova-sqlite-evcore-extbuild-free#43
+          // - litehelpers/Cordova-sqlite-evcore-extbuild-free#7
+          // - litehelpers/Cordova-sqlite-storage#564
+          var db = openDatabase('repeated-emoji-select-hex-value-test.db');
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            var part = '@\uD83D\uDE01\uD83D\uDE02\uD83D\uDE03\uD83D\uDE04\uD83D\uDE05'
+
+            tx.executeSql('SELECT HEX(?) AS hexValue', [part + part + part + part + part], function(tx_ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+
+              var resultRow1 = rs1.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.hexValue).toBeDefined();
+              if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
+                expect(resultRow1.hexValue).toBe(
+                  '40003DD801DE3DD802DE3DD803DE3DD804DE3DD805DE' +
+                  '40003DD801DE3DD802DE3DD803DE3DD804DE3DD805DE' +
+                  '40003DD801DE3DD802DE3DD803DE3DD804DE3DD805DE' +
+                  '40003DD801DE3DD802DE3DD803DE3DD804DE3DD805DE' +
+                  '40003DD801DE3DD802DE3DD803DE3DD804DE3DD805DE');
+              else if (!isWebSql && isAndroid && !isImpl2 && /Android [4-5]/.test(navigator.userAgent))
+                // TBD POSSIBLE UTF-8 ENCODING ISSUE on Android 4.x/5.x
+                // ref: litehelpers/Cordova-sqlite-storage#564
+                expect(resultRow1.hexValue).toBe(
+                  '40EDA0BDEDB881EDA0BDEDB882EDA0BDEDB883EDA0BDEDB884EDA0BDEDB885' +
+                  '40EDA0BDEDB881EDA0BDEDB882EDA0BDEDB883EDA0BDEDB884EDA0BDEDB885' +
+                  '40EDA0BDEDB881EDA0BDEDB882EDA0BDEDB883EDA0BDEDB884EDA0BDEDB885' +
+                  '40EDA0BDEDB881EDA0BDEDB882EDA0BDEDB883EDA0BDEDB884EDA0BDEDB885' +
+                  '40EDA0BDEDB881EDA0BDEDB882EDA0BDEDB883EDA0BDEDB884EDA0BDEDB885');
+              else
+                expect(resultRow1.hexValue).toBe(
+                  '40F09F9881F09F9882F09F9883F09F9884F09F9885' +
+                  '40F09F9881F09F9882F09F9883F09F9884F09F9885' +
+                  '40F09F9881F09F9882F09F9883F09F9884F09F9885' +
+                  '40F09F9881F09F9882F09F9883F09F9884F09F9885' +
+                  '40F09F9881F09F9882F09F9883F09F9884F09F9885');
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(error.message).toBe('--');
+            done.fail();
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'UPPER value of string with 25 emojis', function(done) {
+          // ref: litehelpers/Cordova-sqlite-evcore-extbuild-free#43
+          var db = openDatabase('repeated-emoji-select-hex-value-test.db');
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            var part = 'a\uD83D\uDE01\uD83D\uDE02\uD83D\uDE03\uD83D\uDE04\uD83D\uDE05'
+            tx.executeSql('SELECT UPPER(?) AS upperText', [part + part + part + part + part], function(tx_ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+
+              var resultRow1 = rs1.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.upperText).toBeDefined();
+              expect(resultRow1.upperText).toBe(
+                'A\uD83D\uDE01\uD83D\uDE02\uD83D\uDE03\uD83D\uDE04\uD83D\uDE05' +
+                'A\uD83D\uDE01\uD83D\uDE02\uD83D\uDE03\uD83D\uDE04\uD83D\uDE05' +
+                'A\uD83D\uDE01\uD83D\uDE02\uD83D\uDE03\uD83D\uDE04\uD83D\uDE05' +
+                'A\uD83D\uDE01\uD83D\uDE02\uD83D\uDE03\uD83D\uDE04\uD83D\uDE05' +
+                'A\uD83D\uDE01\uD83D\uDE02\uD83D\uDE03\uD83D\uDE04\uD83D\uDE05');
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(error.message).toBe('--');
+            done.fail();
+          });
+        }, MYTIMEOUT);
+
       });
 
       describe(suiteName + 'Extra US-ASCII string binding/manipulation tests', function() {
