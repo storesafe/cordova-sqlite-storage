@@ -4,32 +4,6 @@ var MYTIMEOUT = 12000;
 
 // NOTE: DEFAULT_SIZE wanted depends on type of browser
 
-// FUTURE TODO replace in test(s):
-function ok(test, desc) { expect(test).toBe(true); }
-function equal(a, b, desc) { expect(a).toEqual(b); } // '=='
-function strictEqual(a, b, desc) { expect(a).toBe(b); } // '==='
-
-// XXX TODO REFACTOR OUT OF OLD TESTS:
-var wait = 0;
-var test_it_done = null;
-function xtest_it(desc, fun) { xit(desc, fun); }
-function test_it(desc, fun) {
-  wait = 0;
-  it(desc, function(done) {
-    test_it_done = done;
-    fun();
-  }, MYTIMEOUT);
-}
-function stop(n) {
-  if (!!n) wait += n
-  else ++wait;
-}
-function start(n) {
-  if (!!n) wait -= n;
-  else --wait;
-  if (wait == 0) test_it_done();
-}
-
 var isWindows = /MSAppHost/.test(navigator.userAgent);
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 var isFirefox = /Firefox/.test(navigator.userAgent);
@@ -54,6 +28,9 @@ var scenarioList = [
 ];
 
 var scenarioCount = (!!window.hasWebKitWebSQL) ? (isAndroid ? 3 : 2) : 1;
+
+function logSuccess(message) { console.log('OK - ' + message); }
+function logError(message) { console.log('FAILED - ' + message); }
 
 var mytests = function() {
 
@@ -87,52 +64,64 @@ var mytests = function() {
         }
       }
 
-        test_it(suiteName + ' open same db twice with string test', function () {
+        it(suiteName + ' open same db twice with string test', function (done) {
           var dbName = 'open-same-db-twice-string-test.db';
 
           var db1 = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
           var db2 = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
 
-          ok(!!db1, 'valid db1 database handle object');
-          ok(!!db2, 'valid db2 database handle object');
+          expect(db1).toBeTruthy(); // valid db1 database handle object
+          expect(db2).toBeTruthy(); // valid db2 database handle object
 
-          stop(2);
+          // Replacement for QUnit stop()/start() functions:
+          var checkCount = 0;
+          var expectedCheckCount = 2;
 
           db1.readTransaction(function(tx) {
-            ok(!!tx, 'valid db1 tx object');
+            expect(tx).toBeTruthy(); // valid db1 tx object
             tx.executeSql("select upper('first') as uppertext", [], function(tx, result) {
-              ok(!!result, 'valid db1 read tx result object');
-              equal(result.rows.item(0).uppertext, 'FIRST', 'check db1 read tx result');
-              start(1);
+              expect(result).toBeTruthy(); // valid db1 read tx result object
+              expect(result.rows.item(0).uppertext).toBe('FIRST'); // check db1 read tx result
+              if (++checkCount === expectedCheckCount) done();
             }, function(error) {
-              ok(false, error);
+              // ERROR NOT EXPECTED here:
+              logError(error);
+              expect(error.message).toBe('--');
+              done.fail();
             });
           }, function(error) {
-            ok(false, error);
+            // ERROR NOT EXPECTED here:
+            logError(error);
+            expect(error.message).toBe('--');
+            done.fail();
           });
           db2.readTransaction(function(tx) {
-            ok(!!tx, 'valid db2 tx object');
+            expect(tx).toBeTruthy(); // valid db2 tx object
             tx.executeSql("select upper('second') as uppertext", [], function(tx, result) {
-              ok(!!result, 'valid db2 read tx result object');
-              equal(result.rows.item(0).uppertext, 'SECOND', 'check db2 read tx result');
-              start(1);
+              expect(result).toBeTruthy(); // valid db2 read tx result object
+              expect(result.rows.item(0).uppertext).toBe('SECOND'); // check db2 read tx result
+              if (++checkCount === expectedCheckCount) done();
             }, function(error) {
-              ok(false, error);
+              // ERROR NOT EXPECTED here:
+              logError(error);
+              expect(error.message).toBe('--');
+              done.fail();
             });
           }, function(error) {
-            ok(false, error);
+            // ERROR NOT EXPECTED here:
+            logError(error);
+            expect(error.message).toBe('--');
+            done.fail();
           });
         });
 
-        test_it(suiteName + ' test simultaneous transactions (same db handle)', function () {
-          stop();
-
+        it(suiteName + ' test simultaneous transactions (same db handle)', function (done) {
           var db = openDatabase("Database-Simultaneous-Tx", "1.0", "Demo", DEFAULT_SIZE);
 
           var numDone = 0;
           function checkDone() {
             if (++numDone == 2) {
-              start();
+              done();
             }
           }
 
@@ -141,45 +130,57 @@ var mytests = function() {
               tx.executeSql('CREATE TABLE test (name);');
 
             });
-          }, function(err) { ok(false, err.message) }, function() {
+          }, function(error) {
+            // ERROR NOT EXPECTED here:
+            logError(error);
+            expect(error.message).toBe('--');
+            done.fail();
+          }, function () {
             db.transaction(function(tx) {
               tx.executeSql('INSERT INTO test VALUES ("foo")', [], function () {
                 tx.executeSql('SELECT * FROM test', [], function (tx, res) {
-                  equal(res.rows.length, 1, 'only one row');
-                  equal(res.rows.item(0).name, 'foo');
+                  expect(res.rows.length).toBe(1); // only one row
+                  expect(res.rows.item(0).name).toBe('foo');
 
                   tx.executeSql('SELECT * FROM bogustable'); // force rollback
                 });
               });
-            }, function(err) {
-              ok(true, 'expected error');
+            }, function(error) {
+              // EXPECTED RESULT - expected error:
+              expect(error).toBeDefined();
+              expect(error.message).toBeDefined();
               checkDone();
             }, function () {
-              ok(false, 'should have rolled back');
+              // NOT EXPECTED - should have rolled back:
+              logError('should have rolled back');
+              expect(error.message).toBe('--');
+              done.fail();
             });
 
             db.transaction(function(tx) {
               tx.executeSql('INSERT INTO test VALUES ("bar")', [], function () {
                 tx.executeSql('SELECT * FROM test', [], function (tx, res) {
-                  equal(res.rows.length, 1, 'only one row');
-                  equal(res.rows.item(0).name, 'bar');
+                  expect(res.rows.length).toBe(1); // only one row
+                  expect(res.rows.item(0).name).toBe('bar');
 
                   tx.executeSql('SELECT * FROM bogustable'); // force rollback
                 });
               });
-            }, function(err) {
-              ok(true, 'expected error');
+            }, function(error) {
+              // EXPECTED RESULT - expected error:
+              expect(error).toBeDefined();
+              expect(error.message).toBeDefined();
               checkDone();
             }, function () {
-              ok(false, 'should have rolled back');
+              // NOT EXPECTED - should have rolled back:
+              logError('should have rolled back');
+              done.fail();
             });
           });
 
         });
 
-        test_it(suiteName + ' test simultaneous transactions, different db handles (same db)', function () {
-          stop();
-
+        it(suiteName + ' test simultaneous transactions, different db handles (same db)', function (done) {
           var dbName = "Database-Simultaneous-Tx-Diff-DB-handles";
 
           var db = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
@@ -187,7 +188,7 @@ var mytests = function() {
           var numDone = 0;
           function checkDone() {
             if (++numDone == 2) {
-              start();
+              done();
             }
           }
 
@@ -196,22 +197,31 @@ var mytests = function() {
               tx.executeSql('CREATE TABLE test (name);');
 
             });
-          }, function(err) { ok(false, err.message) }, function() {
+          }, function(error) {
+            // ERROR NOT EXPECTED here:
+            logError(error);
+            expect(error.message).toBe('--');
+            done.fail();
+          }, function () {
             var db1 = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
             db1.transaction(function(tx) {
               tx.executeSql('INSERT INTO test VALUES ("foo")', [], function () {
                 tx.executeSql('SELECT * FROM test', [], function (tx, res) {
-                  equal(res.rows.length, 1, 'only one row');
-                  equal(res.rows.item(0).name, 'foo');
+                  expect(res.rows.length).toBe(1); // only one row
+                  expect(res.rows.item(0).name).toBe('foo');
 
                   tx.executeSql('SELECT * FROM bogustable'); // force rollback
                 });
               });
-            }, function(err) {
-              ok(true, 'expected error');
+            }, function(error) {
+              // EXPECTED RESULT - expected error:
+              expect(error).toBeDefined();
+              expect(error.message).toBeDefined();
               checkDone();
             }, function () {
-              ok(false, 'should have rolled back');
+              // NOT EXPECTED - should have rolled back:
+              logError('should have rolled back');
+              done.fail();
             });
 
             var db2 = openDatabase(dbName, "1.0", "Demo", DEFAULT_SIZE);
@@ -219,23 +229,27 @@ var mytests = function() {
             db2.transaction(function(tx) {
               tx.executeSql('INSERT INTO test VALUES ("bar")', [], function () {
                 tx.executeSql('SELECT * FROM test', [], function (tx, res) {
-                  equal(res.rows.length, 1, 'only one row');
-                  equal(res.rows.item(0).name, 'bar');
+                  expect(res.rows.length).toBe(1); // only one row
+                  expect(res.rows.item(0).name).toBe('bar');
 
                   tx.executeSql('SELECT * FROM bogustable'); // force rollback
                 });
               });
-            }, function(err) {
-              ok(true, 'expected error');
+            }, function(error) {
+              // EXPECTED RESULT - expected error:
+              expect(error).toBeDefined();
+              expect(error.message).toBeDefined();
               checkDone();
             }, function () {
-              ok(false, 'should have rolled back');
+              // NOT EXPECTED - should have rolled back:
+              logError('should have rolled back');
+              done.fail();
             });
           });
 
         });
 
-        test_it(suiteName + ' can open two databases at the same time', function () {
+        it(suiteName + ' can open two databases at the same time', function (done) {
           // create databases and tables
           var db1 = openDatabase("DB1", "1.0", "Demo", DEFAULT_SIZE);
           db1.transaction(function (tx1) {
@@ -248,144 +262,160 @@ var mytests = function() {
           });
 
           // two databases that perform two queries and one commit each, then repeat
-          stop(12);
+
+          // Quick replacement for QUnit stop()/start() functions:
+          var checkCount = 0;
+          var expectedCheckCount = 12;
 
           // create overlapping transactions
           db1.transaction(function (tx1) {
             db2.transaction(function (tx2) {
 
               tx2.executeSql('INSERT INTO test2 VALUES (2)', [], function (tx, result) {
-                ok(true, 'inserted into second database');
-                start(1);
+                logSuccess('inserted into second database');
+                ++checkCount;
               });
               tx2.executeSql('SELECT * from test2', [], function (tx, result) {
-                equal(result.rows.item(0).x, 2, 'selected from second database');
-                start(1);
+                expect(result.rows.item(0).x).toBe(2); // selected from second database
+                ++checkCount;
               });
             }, function (error) {
-              ok(false, 'transaction 2 failed ' + error);
-              start(1);
+              // ERROR NOT EXPECTED here:
+              logError('transaction 2 failed ' + error);
+              expect(error.message).toBe('--');
+              done.fail();
             }, function () {
-              ok(true, 'transaction 2 committed');
-              start(1);
+              logSuccess('transaction 2 committed');
+              ++checkCount;
             });
 
             tx1.executeSql('INSERT INTO test1 VALUES (1)', [], function (tx, result) {
-              ok(true, 'inserted into first database');
-              start(1);
+              logSuccess('inserted into first database');
+              ++checkCount;
             });
 
             tx1.executeSql('SELECT * from test1', [], function (tx, result) {
-              equal(result.rows.item(0).x, 1, 'selected from first database');
-              start(1);
+              expect(result.rows.item(0).x).toBe(1); // selected from first database
+              ++checkCount;
             });
           }, function (error) {
-            ok(false, 'transaction 1 failed ' + error);
-            start(1);
+            // ERROR NOT EXPECTED here:
+            logError('transaction 1 failed ' + error);
+            expect(error.message).toBe('--');
+            done.fail();
           }, function () {
-            ok(true, 'transaction 1 committed');
-            start(1);
+            logSuccess('transaction 1 committed');
+            if (++checkCount === expectedCheckCount) done();
           });
 
           // now that the databases are truly open, do it again!
+          // - should wait for first db1.transaction() call to finish
+          // - must check for - checkCount === expectedCheckCount in both
+          //   db1.transaction() callback & db2.transaction() callback
+          //   since it is not certain which will finish first or last.
           db1.transaction(function (tx1) {
             db2.transaction(function (tx2) {
 
               tx2.executeSql('INSERT INTO test2 VALUES (2)', [], function (tx, result) {
-                ok(true, 'inserted into second database');
-                start(1);
+                logSuccess('inserted into second database');
+                ++checkCount;
               });
               tx2.executeSql('SELECT * from test2', [], function (tx, result) {
-                equal(result.rows.item(0).x, 2, 'selected from second database');
-                start(1);
+                expect(result.rows.item(0).x).toBe(2); // selected from second database
+                ++checkCount;
               });
             }, function (error) {
-              ok(false, 'transaction 2 failed ' + error);
-              start(1);
+              // ERROR NOT EXPECTED here:
+              logError('transaction 2 failed ' + error);
+              expect(error.message).toBe('--');
+              done.fail();
             }, function () {
-              ok(true, 'transaction 2 committed');
-              start(1);
+              logSuccess('transaction 2 committed');
+              if (++checkCount === expectedCheckCount) done();
             });
 
             tx1.executeSql('INSERT INTO test1 VALUES (1)', [], function (tx, result) {
-              ok(true, 'inserted into first database');
-              start(1);
+              logSuccess('inserted into first database');
+              ++checkCount;
             });
 
             tx1.executeSql('SELECT * from test1', [], function (tx, result) {
-              equal(result.rows.item(0).x, 1, 'selected from first database');
-              start(1);
+              expect(result.rows.item(0).x).toBe(1); // selected from first database
+              ++checkCount;
             });
           }, function (error) {
-            ok(false, 'transaction 1 failed ' + error);
-            start(1);
+            // ERROR NOT EXPECTED here:
+            logError('transaction 1 failed ' + error);
+            expect(error.message).toBe('--');
+            done.fail();
           }, function () {
-            ok(true, 'transaction 1 committed');
-            start(1);
+            logSuccess('transaction 1 committed');
+            if (++checkCount === expectedCheckCount) done();
           });
         });
 
-        test_it(suiteName + ' same database file with separate writer/reader db handles', function () {
+        it(suiteName + ' same database file with separate writer/reader db handles', function (done) {
           var dbname = 'writer-reader-test.db';
           var dbw = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
           var dbr = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
-
-          stop(1);
 
           dbw.transaction(function (tx) {
             tx.executeSql('DROP TABLE IF EXISTS tt');
             tx.executeSql('CREATE TABLE IF NOT EXISTS tt (test_data)');
             tx.executeSql('INSERT INTO tt VALUES (?)', ['My-test-data']);
           }, function(error) {
-            console.log("ERROR: " + error.message);
-            ok(false, error.message);
-            start(1);
+            // ERROR NOT EXPECTED here:
+            logError(error.message);
+            expect(error.message).toBe('--');
+            done.fail();
           }, function() {
             dbr.readTransaction(function (tx) {
               tx.executeSql('SELECT test_data from tt', [], function (tx, result) {
-                equal(result.rows.item(0).test_data, 'My-test-data', 'read data from reader handle');
-                start(1);
+                expect(result.rows.item(0).test_data).toBe('My-test-data'); // read data from reader handle
+                done();
               });
             }, function(error) {
-              console.log("ERROR: " + error.message);
-              ok(false, error.message);
-              start(1);
+              // ERROR NOT EXPECTED here:
+              logError(error.message);
+              expect(error.message).toBe('--');
+              done.fail();
             });
           });
         });
 
-        test_it(suiteName + ' same database file with multiple writer db handles', function () {
+        it(suiteName + ' same database file with multiple writer db handles', function (done) {
           var dbname = 'multi-writer-test.db';
           var dbw1 = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
           var dbw2 = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
           var dbr = openDatabase(dbname, "1.0", "Demo", DEFAULT_SIZE);
 
-          stop(1);
-
           dbw1.transaction(function (tx) {
             tx.executeSql('DROP TABLE IF EXISTS tt');
             tx.executeSql('CREATE TABLE IF NOT EXISTS tt (test_data)');
           }, function(error) {
-            console.log("ERROR: " + error.message);
-            ok(false, error.message);
-            start(1);
+            // ERROR NOT EXPECTED here:
+            logError(error.message);
+            expect(error.message).toBe('--');
+            done.fail();
           }, function() {
             dbw2.transaction(function (tx) {
               tx.executeSql('INSERT INTO tt VALUES (?)', ['My-test-data']);
             }, function(error) {
-              console.log("ERROR: " + error.message);
-              ok(false, error.message);
-              start(1);
+              // ERROR NOT EXPECTED here:
+              logError(error.message);
+              expect(error.message).toBe('--');
+              done.fail();
             }, function() {
               dbr.readTransaction(function (tx) {
                 tx.executeSql('SELECT test_data from tt', [], function (tx, result) {
-                  equal(result.rows.item(0).test_data, 'My-test-data', 'read data from reader handle');
-                  start(1);
+                  expect(result.rows.item(0).test_data).toBe('My-test-data'); // read data from reader handle
+                  done();
                 });
               }, function(error) {
-                console.log("ERROR: " + error.message);
-                ok(false, error.message);
-                start(1);
+                // ERROR NOT EXPECTED here:
+                logError(error.message);
+                expect(error.message).toBe('--');
+                done.fail();
               });
             });
           });

@@ -400,7 +400,7 @@ var mytests = function() {
                   var row = rs.rows.item(0);
                   expect(row).toBeDefined();
 
-                  if (!isWebSql && !isBrowser && !isWindows) {
+                  if (!isWebSql && /* !isBrowser && */ !isWindows) {
                     // Android/iOS plugin issue
                     expect(row.data).toBe(null);
                     expect(row.data_num).toBe(null);
@@ -454,7 +454,7 @@ var mytests = function() {
                   var row = rs.rows.item(0);
                   expect(row).toBeDefined();
 
-                  if (!isWebSql && !isBrowser && !isWindows) {
+                  if (!isWebSql && /* !isBrowser && */ !isWindows) {
                     // Android/iOS plugin issue
                     expect(row.data).toBe(null);
                     expect(row.data_num).toBe(null);
@@ -575,6 +575,40 @@ var mytests = function() {
                     (isWebSql) ? done() : db.close(done, done);
                   });
 
+                });
+              });
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'INSERT TEXT string with 25 emojis, SELECT the data, and check' , function(done) {
+          var db = openDatabase('INSERT-emoji-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data)', [], function(ignored1, ignored2) {
+              var part = '@\uD83D\uDE01\uD83D\uDE02\uD83D\uDE03\uD83D\uDE04\uD83D\uDE05'
+
+              tx.executeSql('INSERT INTO test_table VALUES (?)', [part + part + part + part + part], function(tx_ignored, rs1) {
+                expect(rs1).toBeDefined();
+                expect(rs1.rowsAffected).toBe(1);
+
+                tx.executeSql('SELECT * FROM test_table', [], function(tx_ignored, rs2) {
+                  expect(rs2).toBeDefined();
+                  expect(rs2.rows).toBeDefined();
+                  expect(rs2.rows.length).toBe(1);
+
+                  var row = rs2.rows.item(0);
+                  expect(row.data).toBe(part + part + part + part + part);
+
+                  // Close (plugin only) & finish:
+                  (isWebSql) ? done() : db.close(done, done);
                 });
               });
             });
@@ -1074,8 +1108,8 @@ var mytests = function() {
                     expect(item).toBeDefined();
                     if (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent))
                       expect(item.data).toBe('䅀䍂'); // (UTF-16le)
-                    else if (!isWebSql && isBrowser)
-                      expect(item.data).toBeDefined(); // XXX
+                    /** else if (!isWebSql && isBrowser) // FUTURE TBD ??? (plugin on browser platform)
+                      expect(item.data).toBeDefined(); // XXX */
                     else
                       expect(item.data).toBe('@ABC'); // (UTF-8)
 
@@ -1111,7 +1145,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "INSERT inline BLOB value (X'FFD1FFD2') and check stored data [XXX SKIP FINAL SELECT CHECK on default Android NDK access implementation due to CRASH ISSUE; OTHER PLUGIN ISSUES REPRODUCED: missing result column data; SELECT BLOB VALUE ERROR on Android & Windows; missing result column data on iOS/macOS]", function(done) {
+        it(suiteName + "INSERT inline BLOB value (X'FFD1FFD2') and check stored data [XXX SKIP FINAL SELECT CHECK on default Android NDK access implementation due to CRASH ISSUE; OTHER PLUGIN ISSUES REPRODUCED: missing result column data; SELECT BLOB VALUE ERROR on Android (androidDatabaseProvider: 'system') & Windows; missing result column data on iOS/macOS]", function(done) {
           var db = openDatabase('INSERT-inline-BLOB-value-FFD1FFD2-and-check-stored-data.db', '1.0', 'Demo', DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -1147,19 +1181,14 @@ var mytests = function() {
 
                     var mydata = item.data;
 
-                    if (!isWebSql && isBrowser) {
-                      // XXX TBD
-                      // PLUGIN - browser:
-                      expect(mydata).toBeDefined();
-                      return done();
-                    } else if (!isWebSql) {
-                      // PLUGIN (iOS/macOS):
+                    if (!isWebSql && (isAppleMobileOS || isMac)) {
+                      // MISSING RESULT COLUMN DATA REPRODUCED on iOS/macOS plugin:
                       expect(mydata).not.toBeDefined();
-                      return done();
                     } else {
+                      // EXPECTED RESULT on (WebKit) Web SQL & FUTURE TBD: plugin on browser platform
                       expect(mydata).toBeDefined();
                       expect(mydata.length).toBeDefined();
-                      if (!(/Android 4.[1-3]/.test(navigator.userAgent)))
+                      if (!(isWebSql && /Android 4.[1-3]/.test(navigator.userAgent)))
                         expect(mydata.length).toBe(4);
                     }
 
@@ -1561,7 +1590,7 @@ var mytests = function() {
                           (/Android 5.1/.test(navigator.userAgent) && !(/Chrome.6/.test(navigator.userAgent))) ||
                           (/Android 6/.test(navigator.userAgent) && (/Chrome.[3-4]/.test(navigator.userAgent))))) ||
                         (isWebSql && !isAndroid && !isChromeBrowser) ||
-                        (!isWebSql && isBrowser) ||
+                        /* (!isWebSql && isBrowser) || // FUTURE TBD ??? */
                         (!isWebSql && isWindows)) {
                       expect(name.length).toBe(1);
                       expect(name).toBe('a');

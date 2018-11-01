@@ -4,30 +4,6 @@ var MYTIMEOUT = 12000;
 
 // NOTE: DEFAULT_SIZE wanted depends on type of browser
 
-// FUTURE TODO replace in test(s):
-function ok(test, desc) { expect(test).toBe(true); }
-
-// XXX TODO REFACTOR OUT OF OLD TESTS:
-var wait = 0;
-var test_it_done = null;
-function xtest_it(desc, fun) { xit(desc, fun); }
-function test_it(desc, fun) {
-  wait = 0;
-  it(desc, function(done) {
-    test_it_done = done;
-    fun();
-  }, MYTIMEOUT);
-}
-function stop(n) {
-  if (!!n) wait += n
-  else ++wait;
-}
-function start(n) {
-  if (!!n) wait -= n;
-  else --wait;
-  if (wait == 0) test_it_done();
-}
-
 var isWindows = /MSAppHost/.test(navigator.userAgent);
 var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 var isFirefox = /Firefox/.test(navigator.userAgent);
@@ -90,11 +66,11 @@ var mytests = function() {
         // solved the issue for WP8.
         // @brodybits noticed similar issue possible with Android-sqlite-connector
         // if the Android-sqlite-native-driver part is not built correctly.
-        test_it(suiteName + 'Multiple updates with key', function () {
+        it(suiteName + 'Multiple updates with key (evidently needs temporary transaction files to work)', function (done) {
           var db = openDatabase("MultipleUpdatesWithKey", "1.0",
 "Demo", DEFAULT_SIZE);
 
-          stop();
+          var updateSuccessCount = 0;
 
           db.transaction(function (tx) {
             tx.executeSql('DROP TABLE IF EXISTS Task');
@@ -105,21 +81,28 @@ var mytests = function() {
             tx.executeSql('UPDATE Task SET subject="Send reminder", id="928238b3-a227-418f-aa15-12bb1943c1f2" WHERE id = "928238b3-a227-418f-aa15-12bb1943c1f2"', [], function(tx, res) {
               expect(res).toBeDefined();
               expect(res.rowsAffected).toEqual(1);
+              check1 = true;
+              ++updateSuccessCount;
             }, function (error) {
-              ok(false, '1st update failed ' + error);
+              // NOT EXPECTED:
+              expect('1st update failed ' + error.message).toBe(true);
             });
 
             tx.executeSql('UPDATE Task SET subject="Task", id="511e3fb7-5aed-4c1a-b1b7-96bf9c5012e2" WHERE id = "511e3fb7-5aed-4c1a-b1b7-96bf9c5012e2"', [], function(tx, res) {
               expect(res.rowsAffected).toEqual(1);
+              ++updateSuccessCount;
             }, function (error) {
-              ok(false, '2nd update failed ' + error);
+              // NOT EXPECTED:
+              expect('2nd update failed ' + error.message).toBe('--');
             });
           }, function (error) {
-            ok(false, 'transaction failed ' + error);
-            start(1);
+            // NOT EXPECTED:
+            expect('transaction failed: ' + error.message).toBe('--');
+            done.fail();
           }, function () {
-            ok(true, 'transaction committed ok');
-            start(1);
+            // transaction committed ok:
+            expect(updateSuccessCount).toBe(2);
+            done();
           });
         });
 

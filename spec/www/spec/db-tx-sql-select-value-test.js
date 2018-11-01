@@ -1771,47 +1771,41 @@ var mytests = function() {
 
       describe(suiteName + 'Inline BLOB value SELECT result tests', function() {
 
-        it(suiteName + "SELECT LOWER(X'40414243')", function(done) {
-          // XXX TODO UPDATE THIS TEST TO PASS on Android 4.1-4.3 & Windows with UTF-16le encoding:
-          if (isWebSql && /Android 4.[1-3]/.test(navigator.userAgent)) pending('SKIP for (WebKit) Web SQL on Android 4.1-4.3 (TODO)'); // XXX (TODO)
-          if (isWindows) pending('XXX SKIP on Windows DUE TO TEST FAILURE (TODO)'); // XXX (TODO)
-
-          var db = openDatabase("Inline-BLOB-lower-result-test.db", "1.0", "Demo", DEFAULT_SIZE);
+        it(suiteName + "SELECT LOWER(X'40414243') [follows default sqlite encoding: UTF-16le on Android 4.1-4.4 (WebKit) Web SQL, UTF-8 otherwise]", function(done) {
+          var db = openDatabase('INLINE-BLOB-SELECT-LOWER-40414243-test.db');
 
           db.transaction(function(tx) {
-
             tx.executeSql("SELECT LOWER(X'40414243') AS myresult", [], function(ignored, rs) {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              expect(rs.rows.item(0).myresult).toBe('@abc');
+              if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
+                expect(rs.rows.item(0).myresult).toBe('䅀䍂');
+              else
+                expect(rs.rows.item(0).myresult).toBe('@abc');
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
             });
           }, function(error) {
             // NOT EXPECTED:
-            expect(false).toBe(true);
             expect(error.message).toBe('---');
-            // Close (plugin only) & finish:
-            (isWebSql) ? done() : db.close(done, done);
+            done.fail();
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "SELECT X'40414243' [TBD BROKEN on androidDatabaseImplementation: 2 & Windows; nonsensical result on browser plugin]", function(done) {
-          if (isWebSql && /Android 4.[1-3]/.test(navigator.userAgent)) pending('SKIP for (WebKit) Web SQL on Android 4.1-4.3'); // XXX TBD
-
-          var db = openDatabase("Inline-BLOB-SELECT-result-40414243-test.db", "1.0", "Demo", DEFAULT_SIZE);
+        it(suiteName + "SELECT X'40414243' [ERROR REPRODUCED on androidDatabaseProvider: 'system' & Windows; follows default sqlite encoding: UTF-16le on Android 4.1-4.4 (WebKit) Web SQL, UTF-8 otherwise]", function(done) {
+          var db = openDatabase('INLINE-BLOB-SELECT-40414243-test.db');
 
           db.transaction(function(tx) {
-
             tx.executeSql("SELECT X'40414243' AS myresult", [], function(ignored, rs) {
-              if (isWindows || (!isWebSql && isAndroid && isImpl2)) expect('Behavior changed please update this test').toBe('--');
+              if (!isWebSql && isAndroid && isImpl2) expect("BEHAVIOR CHANGED on Android with androidDatabaseProvider: 'system' PLEASE UPDATE THIS TEST").toBe('--');
+              if (isWindows) expect('BEHAVIOR CHANGED on Windows PLEASE UPDATE THIS TEST').toBe('--');
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              if (!isWebSql && isBrowser)
-                expect(rs.rows.item(0).myresult).toBeDefined(); // XXX TBD ???
+              if (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent))
+                expect(rs.rows.item(0).myresult).toBe('䅀䍂');
               else
                 expect(rs.rows.item(0).myresult).toBe('@ABC');
 
@@ -1819,17 +1813,18 @@ var mytests = function() {
               (isWebSql) ? done() : db.close(done, done);
             }, function(ignored, error) {
               if (isWindows || (!isWebSql && isAndroid && isImpl2)) {
+                // ERROR EXPECTED on androidDatabaseProvider: 'system' & Windows only:
                 expect(error).toBeDefined();
                 expect(error.code).toBeDefined();
                 expect(error.message).toBeDefined();
 
-                // TBD wrong error code
+                // TBD non-standard error code
                 expect(error.code).toBe(0);
-                // TBD error message
+                // FUTURE TBD error message
               } else {
-                // NOT EXPECTED:
-                expect(false).toBe(true);
+                // NOT EXPECTED on (WebKit) Web SQL or plugin on other platforms:
                 expect(error.message).toBe('---');
+                done.fail();
               }
 
               // Close (plugin only) & finish:

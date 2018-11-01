@@ -1324,6 +1324,64 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        it(suiteName + "SELECT LOWER(X'41F0908CB1') - RETURNS '\\uF041\\u8C90' ('\uF041\u8C90') UTF-16le on Android 4.1-4.3 (WebKit) Web SQL & Windows, UTF-8 'a\\uD800\\uDF31' ('a\uD800\uDF31') otherwise", function(done) {
+          // ref: litehelpers/Cordova-sqlite-storage#564
+          if (!isWebSql && isAndroid && !isImpl2 && (/Android [4-5]/.test(navigator.userAgent))) pending('KNOWN CRASH on Android 4.x/5.x (default Android NDK implementation)');
+
+          var db = openDatabase('SELECT-LOWER-X-41F0908CB1-test.db');
+
+          db.transaction(function(tx) {
+            tx.executeSql("SELECT LOWER(X'41F0908CB1') AS lowertext", [], function(ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
+                expect(rs.rows.item(0).lowertext).toBe('\uF041\u8C90'); // (UTF-16le)
+              else
+                expect(rs.rows.item(0).lowertext).toBe('a\uD800\uDF31'); // 'a𐌱' (UTF-8)
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "SELECT LOWER(X'41EDA080EDBCB1') - RETURNS '\\uED41\u80A0\\uBCED' ('\uED41\u80A0\uBCED') on Android 4.1-4.3 (WebKit) Web SQL & Windows (UTF-16le), 'a\uD800\uDF31' (non-standard encoding) on Android with default Android NDK provider on all Android versions & androidDatabaseProvider: 'system' on Android 4.x, 'a\\uFFFD\\uFFFD' ('a\uFFFD\uFFFD') on Android with androidDatabaseProvider: 'system' on Android post-4.x & (WebKit) Web SQL (Android/iOS/Browser); MISSING RESULT VALUE on iOS/macOS plugin", function(done) {
+          // ref: litehelpers/Cordova-sqlite-storage#564
+          var db = openDatabase('SELECT-LOWER-X-41EDA080EDBCB1-test.db');
+
+          db.transaction(function(tx) {
+            tx.executeSql("SELECT LOWER(X'41EDA080EDBCB1') AS lowertext", [], function(ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
+                expect(rs.rows.item(0).lowertext).toBe('\uED41\u80A0\uBCED');
+              else if (isMac || (!isWebSql && isAppleMobileOS))
+                expect(rs.rows.item(0).lowertext).not.toBeDefined();
+              else if (!isWebSql && isAndroid && (!isImpl2 || (/Android 4/.test(navigator.userAgent))))
+                expect(rs.rows.item(0).lowertext).toBe('a\uD800\uDF31'); // 'a𐌱' (non-standard encoding)
+              else
+                expect(rs.rows.item(0).lowertext).toBe('a\uFFFD\uFFFD'); // 'a��'
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
         it(suiteName + 'Inline emoji string manipulation test: SELECT UPPER("a\\uD83D\\uDE03.") [\\u1F603 SMILING FACE (MOUTH OPEN)]', function(done) {
           var db = openDatabase('Inline-emoji-select-upper-test.db');
           expect(db).toBeDefined();
@@ -1425,12 +1483,11 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "Inline BLOB with emoji string manipulation test: SELECT LOWER(X'41F09F9883') [A\uD83D\uDE03] [\\u1F603 SMILING FACE (MOUTH OPEN)]", function(done) {
-          if (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)) pending('SKIP for Android 4.1-4.3 (WebKit) Web SQL'); // TBD ???
-          if (!isWebSql && !isWindows && isAndroid && !isImpl2) pending('XXX CRASH on Android 5.x (default sqlite-connector implementation)');
-          if (isWindows) pending('SKIP for Windows'); // FUTURE TBD
+        it(suiteName + "Inline BLOB with emoji string manipulation test: SELECT LOWER(X'41F09F9883') - RETURNS '\\uF041\\u989F' ('\uF041\u989F') UTF-16le on Android 4.1-4.3 (WebKit) Web SQL & Windows, UTF-8 'a\\uD83D\\uDE03' ('a\uD83D\uDE03') with U+1F603 SMILING FACE (MOUTH OPEN) otherwise", function(done) {
+          // ref: litehelpers/Cordova-sqlite-storage#564
+          if (!isWebSql && isAndroid && !isImpl2 && (/Android [4-5]/.test(navigator.userAgent))) pending('KNOWN CRASH on Android 4.x/5.x (default Android NDK implementation)');
 
-          var db = openDatabase("Inline-emoji-select-lower-result-test.db", "1.0", "Demo", DEFAULT_SIZE);
+          var db = openDatabase('SELECT-LOWER-X-41F09F9883-test.db');
           expect(db).toBeDefined();
 
           db.transaction(function(tx) {
@@ -1440,7 +1497,10 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              expect(rs.rows.item(0).lowertext).toBe('a\uD83D\uDE03');
+              if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
+                expect(rs.rows.item(0).lowertext).toBe('\uF041\u989F'); // (UTF-16le)
+              else
+                expect(rs.rows.item(0).lowertext).toBe('a\uD83D\uDE03');
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
@@ -1451,6 +1511,48 @@ var mytests = function() {
             expect(error.message).toBe('--');
             // Close (plugin only) & finish:
             (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + "SELECT LOWER(X'41EDA0BDEDB88321') - RETURNS '\\uED41\\uBDA0\\uB8ED\\u2183' ('\uED41\uBDA0\uB8ED\u2183') on Android 4.1-4.3 (WebKit) Web SQL & Windows (UTF-16le), 'a\\uD83D\\uDE03!' ('a\uD83D\uDE03!') on Android with default Android NDK provider on all Android versions & androidDatabaseProvider: 'system' on Android 4.x, '\\uED41\\uBDA0\\uB8ED\\u2183' ('\uED41\uBDA0\uB8ED\u2183') on (WebKit) Web SQL & Android with androidDatabaseProvider: 'system' on Android post-4.x; MISSING RESULT VALUE on iOS/macOS plugin", function(done) {
+          // ref: litehelpers/Cordova-sqlite-storage#564
+          var db = openDatabase('SELECT-LOWER-X-41EDA0BDEDB88321-test.db');
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql("SELECT LOWER(X'41EDA0BDEDB88321') AS lowertext", [], function(ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+
+              if (!isWebSql && (isAppleMobileOS || isMac))
+                expect(rs.rows.item(0).lowertext).not.toBeDefined();
+              else
+                expect(rs.rows.item(0).lowertext).toBeDefined();
+
+              // FUTURE TBD add a new case here when adding a new platform:
+              if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
+                expect(rs.rows.item(0).lowertext).toBe('\uED41\uBDA0\uB8ED\u2183'); // (UTF-16le)
+              else if (isWebSql ||
+                       (isAndroid &&
+                        (isImpl2 && !(/Android 4/.test(navigator.userAgent)))))
+                expect(rs.rows.item(0).lowertext).toBe('a\uFFFD\uFFFD!'); // 'a��!'
+              else if (!isWebSql && isAndroid) // (other conditions checked above)
+                expect(rs.rows.item(0).lowertext).toBe('a\uD83D\uDE03!');
+              else if (!isWebSql && (isAppleMobileOS || isMac))
+                expect(rs.rows.item(0).lowertext).not.toBeDefined();
+              else
+                done.fail(); // SHOULD NOT GET HERE
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(error.message).toBe('--');
+            done.fail();
           });
         }, MYTIMEOUT);
 
@@ -1697,6 +1799,95 @@ var mytests = function() {
             expect(error.message).toBe('--');
             // Close (plugin only) & finish:
             (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'HEX value of string with 25 emojis [TBD POSSIBLE ENCODING ISSUE reproduced on default Android SQLite3 NDK build (using Android-sqlite-connector with Android-sqlite-ext-native-driver) on Android 4.x & 5.x; default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
+          // ref:
+          // - litehelpers/Cordova-sqlite-evcore-extbuild-free#43
+          // - litehelpers/Cordova-sqlite-evcore-extbuild-free#7
+          // - litehelpers/Cordova-sqlite-storage#564
+          var db = openDatabase('repeated-emoji-select-hex-value-test.db');
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            var part = '@\uD83D\uDE01\uD83D\uDE02\uD83D\uDE03\uD83D\uDE04\uD83D\uDE05'
+
+            tx.executeSql('SELECT HEX(?) AS hexValue', [part + part + part + part + part], function(tx_ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+
+              var resultRow1 = rs1.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.hexValue).toBeDefined();
+              if (isWindows || (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent)))
+                expect(resultRow1.hexValue).toBe(
+                  '40003DD801DE3DD802DE3DD803DE3DD804DE3DD805DE' +
+                  '40003DD801DE3DD802DE3DD803DE3DD804DE3DD805DE' +
+                  '40003DD801DE3DD802DE3DD803DE3DD804DE3DD805DE' +
+                  '40003DD801DE3DD802DE3DD803DE3DD804DE3DD805DE' +
+                  '40003DD801DE3DD802DE3DD803DE3DD804DE3DD805DE');
+              else if (!isWebSql && isAndroid && !isImpl2 && /Android [4-5]/.test(navigator.userAgent))
+                // TBD POSSIBLE UTF-8 ENCODING ISSUE on Android 4.x/5.x
+                // ref: litehelpers/Cordova-sqlite-storage#564
+                expect(resultRow1.hexValue).toBe(
+                  '40EDA0BDEDB881EDA0BDEDB882EDA0BDEDB883EDA0BDEDB884EDA0BDEDB885' +
+                  '40EDA0BDEDB881EDA0BDEDB882EDA0BDEDB883EDA0BDEDB884EDA0BDEDB885' +
+                  '40EDA0BDEDB881EDA0BDEDB882EDA0BDEDB883EDA0BDEDB884EDA0BDEDB885' +
+                  '40EDA0BDEDB881EDA0BDEDB882EDA0BDEDB883EDA0BDEDB884EDA0BDEDB885' +
+                  '40EDA0BDEDB881EDA0BDEDB882EDA0BDEDB883EDA0BDEDB884EDA0BDEDB885');
+              else
+                expect(resultRow1.hexValue).toBe(
+                  '40F09F9881F09F9882F09F9883F09F9884F09F9885' +
+                  '40F09F9881F09F9882F09F9883F09F9884F09F9885' +
+                  '40F09F9881F09F9882F09F9883F09F9884F09F9885' +
+                  '40F09F9881F09F9882F09F9883F09F9884F09F9885' +
+                  '40F09F9881F09F9882F09F9883F09F9884F09F9885');
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(error.message).toBe('--');
+            done.fail();
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'UPPER value of string with 25 emojis', function(done) {
+          // ref: litehelpers/Cordova-sqlite-evcore-extbuild-free#43
+          var db = openDatabase('repeated-emoji-select-hex-value-test.db');
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            var part = 'a\uD83D\uDE01\uD83D\uDE02\uD83D\uDE03\uD83D\uDE04\uD83D\uDE05'
+            tx.executeSql('SELECT UPPER(?) AS upperText', [part + part + part + part + part], function(tx_ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+
+              var resultRow1 = rs1.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.upperText).toBeDefined();
+              expect(resultRow1.upperText).toBe(
+                'A\uD83D\uDE01\uD83D\uDE02\uD83D\uDE03\uD83D\uDE04\uD83D\uDE05' +
+                'A\uD83D\uDE01\uD83D\uDE02\uD83D\uDE03\uD83D\uDE04\uD83D\uDE05' +
+                'A\uD83D\uDE01\uD83D\uDE02\uD83D\uDE03\uD83D\uDE04\uD83D\uDE05' +
+                'A\uD83D\uDE01\uD83D\uDE02\uD83D\uDE03\uD83D\uDE04\uD83D\uDE05' +
+                'A\uD83D\uDE01\uD83D\uDE02\uD83D\uDE03\uD83D\uDE04\uD83D\uDE05');
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(error.message).toBe('--');
+            done.fail();
           });
         }, MYTIMEOUT);
 
