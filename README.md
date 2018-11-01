@@ -18,7 +18,7 @@ with possible corruption risk in case of sqlite access from multiple plugins (se
 
 New release in December 2018 will include the following major enhancements ([litehelpers/Cordova-sqlite-storage#773](https://github.com/litehelpers/Cordova-sqlite-storage/issues/773)):
 
-- browser platform support (planned for October 2018)
+- browser platform support (planned for November 2018)
 - `cordova-sqlite-storage` and `cordova-sqlite-ext` plugin versions will be combined, no more separate plugin version needed for pre-populated databases ([litehelpers/Cordova-sqlite-storage#529](https://github.com/litehelpers/Cordova-sqlite-storage/issues/529))
 
 **BREAKING CHANGES expected:**
