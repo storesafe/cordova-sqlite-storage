@@ -1,5 +1,9 @@
 # Changes
 
+### cordova-sqlite-storage 2.5.1
+
+- fix internal plugin cleanup error log on Android
+
 ### cordova-sqlite-storage 2.5.0
 
 - androidDatabaseProvider: 'system' setting, to replace androidDatabaseImplementation setting which is now deprecated

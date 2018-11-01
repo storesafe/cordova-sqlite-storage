@@ -171,7 +171,7 @@ public class SQLitePlugin extends CordovaPlugin {
                 // stop the db runner thread:
                 r.q.put(new DBQuery());
             } catch(Exception e) {
-                Log.e(SQLitePlugin.class.getSimpleName(), "couldn't stop db thread", e);
+                Log.e(SQLitePlugin.class.getSimpleName(), "INTERNAL PLUGIN CLEANUP ERROR: could not stop db thread due to exception", e);
             }
             dbrmap.remove(dbname);
         }
