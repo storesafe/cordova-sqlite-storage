@@ -587,8 +587,11 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        // ref:
+        // - litehelpers/Cordova-sqlite-evcore-extbuild-free#43
+        // - litehelpers/Cordova-sqlite-storage#564
         it(suiteName + 'INSERT TEXT string with 25 emojis, SELECT the data, and check' , function(done) {
-          var db = openDatabase('INSERT-emoji-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
+          var db = openDatabase('INSERT-25-emojis-and-check.db');
 
           db.transaction(function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS test_table');
