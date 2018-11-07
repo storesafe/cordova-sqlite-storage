@@ -197,7 +197,7 @@ See the [Sample section](#sample) for a sample with a more detailed explanation 
 
 ## Status
 
-- This plugin is NOT supported by PhoneGap Developer App or PhoneGap Desktop App.
+- This plugin is **not** supported by PhoneGap Developer App or PhoneGap Desktop App.
 - A recent version of the Cordova CLI is recommended. Known issues with older versions of Cordova:
   - Cordova pre-7.0.0 do not automatically save the state of added plugins and platforms (`--save` flag is needed for Cordova pre-7.0.0)
   - It may be needed to use `cordova prepare` in case of cordova-ios pre-4.3.0 (Cordova CLI `6.4.0`).
