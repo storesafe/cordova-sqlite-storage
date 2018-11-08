@@ -1352,7 +1352,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "SELECT LOWER(X'41EDA080EDBCB1') - RETURNS '\\uED41\u80A0\\uBCED' ('\uED41\u80A0\uBCED') on Android 4.1-4.3 (WebKit) Web SQL & Windows (UTF-16le), 'a\uD800\uDF31' (non-standard encoding) on Android with default Android NDK provider on all Android versions & androidDatabaseProvider: 'system' on Android 4.x, 'a\\uFFFD\\uFFFD' ('a\uFFFD\uFFFD') on Android with androidDatabaseProvider: 'system' on Android post-4.x & (WebKit) Web SQL (Android/iOS/Browser); MISSING RESULT VALUE on iOS/macOS plugin", function(done) {
+        it(suiteName + "SELECT LOWER(X'41EDA080EDBCB1') - result column value is '\\uED41\u80A0\\uBCED' ('\uED41\u80A0\uBCED') on Android 4.1-4.3 (WebKit) Web SQL & Windows (UTF-16le), 'a\uD800\uDF31' (non-standard encoding) on Android with default Android NDK provider on all Android versions & androidDatabaseProvider: 'system' on Android 4.x, MISSING on iOS/macOS plugin, 'a\\uFFFD\\uFFFD' ('a\uFFFD\uFFFD') on Android with androidDatabaseProvider: 'system' on Android post-4.x & (WebKit) Web SQL (Android post-4.3/iOS/Browser)", function(done) {
           // ref: litehelpers/Cordova-sqlite-storage#564
           var db = openDatabase('SELECT-LOWER-X-41EDA080EDBCB1-test.db');
 
@@ -1514,7 +1514,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "SELECT LOWER(X'41EDA0BDEDB88321') - RETURNS '\\uED41\\uBDA0\\uB8ED\\u2183' ('\uED41\uBDA0\uB8ED\u2183') on Android 4.1-4.3 (WebKit) Web SQL & Windows (UTF-16le), 'a\\uD83D\\uDE03!' ('a\uD83D\uDE03!') on Android with default Android NDK provider on all Android versions & androidDatabaseProvider: 'system' on Android 4.x, '\\uED41\\uBDA0\\uB8ED\\u2183' ('\uED41\uBDA0\uB8ED\u2183') on (WebKit) Web SQL & Android with androidDatabaseProvider: 'system' on Android post-4.x; MISSING RESULT VALUE on iOS/macOS plugin", function(done) {
+        it(suiteName + "SELECT LOWER(X'41EDA0BDEDB88321') - result column value is '\\uED41\\uBDA0\\uB8ED\\u2183' ('\uED41\uBDA0\uB8ED\u2183') on Android 4.1-4.3 (WebKit) Web SQL & Windows (UTF-16le), 'a\\uD83D\\uDE03!' ('a\uD83D\uDE03!') [non-standard encoding] on Android with default Android NDK provider on all Android versions & androidDatabaseProvider: 'system' on Android 4.x, MISSING on iOS/macOS plugin, '\\uED41\\uBDA0\\uB8ED\\u2183' ('\uED41\uBDA0\uB8ED\u2183') on Android with androidDatabaseProvider: 'system' on Android post-4.x & (WebKit) Web SQL (Android post-4.3/iOS/Browser)", function(done) {
           // ref: litehelpers/Cordova-sqlite-storage#564
           var db = openDatabase('SELECT-LOWER-X-41EDA0BDEDB88321-test.db');
           expect(db).toBeDefined();

@@ -1148,7 +1148,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "INSERT inline BLOB value (X'FFD1FFD2') and check stored data [XXX SKIP FINAL SELECT CHECK on default Android NDK access implementation due to CRASH ISSUE; OTHER PLUGIN ISSUES REPRODUCED: missing result column data; SELECT BLOB VALUE ERROR on Android (androidDatabaseProvider: 'system') & Windows; missing result column data on iOS/macOS]", function(done) {
+        it(suiteName + "INSERT inline BLOB value (X'FFD1FFD2') and check stored data [SKIP FINAL SELECT CHECK on default Android NDK access implementation due to CRASH ISSUE; OTHER PLUGIN ISSUES REPRODUCED: SELECT BLOB VALUE ERROR on Android (androidDatabaseProvider: 'system') & Windows; MISSING result data column on iOS/macOS; actual result value is IGNORED on (WebKit) Web SQL & plugin on other platforms]", function(done) {
           var db = openDatabase('INSERT-inline-BLOB-value-FFD1FFD2-and-check-stored-data.db', '1.0', 'Demo', DEFAULT_SIZE);
 
           db.transaction(function(tx) {
