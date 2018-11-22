@@ -1,5 +1,9 @@
 # Changes
 
+### cordova-sqlite-storage 2.5.2
+
+- Ignore Android end transaction error when closing for androidDatabaseProvider: 'system' setting, to avoid possible crash during app shutdown (<https://github.com/litehelpers/Cordova-sqlite-storage/issues/833>)
+
 ### cordova-sqlite-storage 2.5.1
 
 - fix internal plugin cleanup error log on Android

@@ -80,7 +80,12 @@ class SQLiteAndroidDatabase
     void closeDatabaseNow() {
         if (mydb != null) {
             if (isTransactionActive) {
-                mydb.endTransaction();
+                try {
+                    mydb.endTransaction();
+                } catch (Exception ex) {
+                    Log.v("closeDatabaseNow", "INTERNAL PLUGIN ERROR IGNORED: Not able to end active transaction before closing database: " + ex.getMessage());
+                    ex.printStackTrace();
+                }
                 isTransactionActive = false;
             }
             mydb.close();
