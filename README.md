@@ -255,6 +255,7 @@ See the [Sample section](#sample) for a sample with a more detailed explanation 
 
 ## Announcements
 
+- _Plugin typings from DefinitelyTyped are available in `types/index.d.ts` (community supported)_
 - Using recent version of SQLite3 (`3.22.0`) with `SQLITE_DEFAULT_SYNCHRONOUS=3` (EXTRA DURABLE) build setting to be extra robust against possible database corruption ref: [litehelpers/Cordova-sqlite-storage#736](https://github.com/litehelpers/Cordova-sqlite-storage/issues/736)
 - Nice overview of alternatives for storing local data in Cordova apps at: <https://www.sitepoint.com/storing-local-data-in-a-cordova-app/>
 - New alternative solution for small data storage: [TheCocoaProject / cordova-plugin-nativestorage](https://github.com/TheCocoaProject/cordova-plugin-nativestorage) - simpler "native storage of variables" for Android/iOS/Windows
@@ -1786,6 +1787,7 @@ function closeDB() {
 - `scripts`: installation hook script to fetch the external dependencies via `npm`
 - `spec`: test suite using Jasmine (`2.5.2`), also passes on (WebKit) Web SQL on Android, iOS, Safari desktop browser, and Chrome desktop browser
 - `tests`: very simple Jasmine test suite that is run on Circle CI (Android platform) and Travis CI (iOS platform) (used as a placeholder)
+- _`types/index.d.ts` by [@matrosov-nikita (Nikita Matrosov)](https://github.com/matrosov-nikita) (community support)_
 
 <!-- END Source tree -->
 
