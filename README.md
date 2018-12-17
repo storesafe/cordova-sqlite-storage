@@ -25,6 +25,7 @@ New release in December 2018 will include the following major enhancements ([lit
 
 - drop support for Android pre-4.4 (Android 4.4 with old `armeabi` CPU to be deprecatd with limited updates in the future) ([litehelpers/Cordova-sqlite-storage#771](https://github.com/litehelpers/Cordova-sqlite-storage/issues/771))
 - error `code` will always be `0` (which is already the case on Windows); actual SQLite3 error code will be part of the error `message` member whenever possible ([litehelpers/Cordova-sqlite-storage#821](https://github.com/litehelpers/Cordova-sqlite-storage/issues/821))
+- use [`SQLITE_DBCONFIG_DEFENSIVE`](https://www.sqlite.org/c3ref/c_dbconfig_defensive.html#sqlitedbconfigdefensive) build option which disables a few features that "allow ordinary SQL to deliberately corrupt the database file" ([litehelpers/Cordova-sqlite-storage#838](https://github.com/litehelpers/Cordova-sqlite-storage/issues/838))
 - Values with U+0000 (null character) will be truncated on all platforms ([litehelpers/Cordova-sqlite-storage#822](https://github.com/litehelpers/Cordova-sqlite-storage/issues/822))
 - drop support for iOS 8.x (was already dropped by cordova-ios@4.4.0)
 - drop support for location: 0-2 values in openDatabase call (please use `location: 'default'` or `iosDatabaseLocation` setting in openDatabase as documented below)
@@ -204,7 +205,7 @@ See the [Sample section](#sample) for a sample with a more detailed explanation 
   - Cordova versions older than `6.0.0` are missing the `cordova-ios@4.0.0` security fixes.
 - This plugin version uses a `before_plugin_install` hook to install sqlite3 library dependencies from `cordova-sqlite-storage-dependencies` via npm.
 - Use of other systems such as Cordova Plugman, PhoneGap CLI, PhoneGap Build, and Intel XDK is no longer supported by this plugin version since they do not honor the `before_plugin_install` hook. The supported solution is to use [litehelpers / Cordova-sqlite-evcore-extbuild-free](https://github.com/litehelpers/Cordova-sqlite-evcore-extbuild-free) (GPL or commercial license terms); deprecated alternative with permissive license terms is available at: [brodybits / cordova-sqlite-legacy-build-support](https://github.com/brodybits/cordova-sqlite-legacy-build-support) (very limited testing, very limited updates).
-- SQLite `3.22.0` included when building (all platforms), with the following compile-time definitions:
+- SQLite `3.26.0` included when building (all platforms), with the following compile-time definitions:
   - `SQLITE_THREADSAFE=1`
   - `SQLITE_DEFAULT_SYNCHRONOUS=3` (EXTRA DURABLE build setting) ref: [litehelpers/Cordova-sqlite-storage#736](https://github.com/litehelpers/Cordova-sqlite-storage/issues/736)
   - `SQLITE_DEFAULT_MEMSTATUS=0`
@@ -255,7 +256,8 @@ See the [Sample section](#sample) for a sample with a more detailed explanation 
 
 ## Announcements
 
-- Using recent version of SQLite3 (`3.22.0`) with `SQLITE_DEFAULT_SYNCHRONOUS=3` (EXTRA DURABLE) build setting to be extra robust against possible database corruption ref: [litehelpers/Cordova-sqlite-storage#736](https://github.com/litehelpers/Cordova-sqlite-storage/issues/736)
+- Using recent version of SQLite3 (`3.26.0`) with a security update ([litehelpers/Cordova-sqlite-storage#837](https://github.com/litehelpers/Cordova-sqlite-storage/issues/837)) and window functions
+- Using `SQLITE_DEFAULT_SYNCHRONOUS=3` (EXTRA DURABLE) build setting to be extra robust against possible database corruption ref: [litehelpers/Cordova-sqlite-storage#736](https://github.com/litehelpers/Cordova-sqlite-storage/issues/736)
 - Nice overview of alternatives for storing local data in Cordova apps at: <https://www.sitepoint.com/storing-local-data-in-a-cordova-app/>
 - New alternative solution for small data storage: [TheCocoaProject / cordova-plugin-nativestorage](https://github.com/TheCocoaProject/cordova-plugin-nativestorage) - simpler "native storage of variables" for Android/iOS/Windows
 - Resolved Java 6/7/8 concurrent map compatibility issue reported in [litehelpers/Cordova-sqlite-storage#726](https://github.com/litehelpers/Cordova-sqlite-storage/issues/726), THANKS to pointer by [@NeoLSN (Jason Yang/楊朝傑)](https://github.com/NeoLSN) in [litehelpers/Cordova-sqlite-storage#727](https://github.com/litehelpers/Cordova-sqlite-storage/issues/727).
