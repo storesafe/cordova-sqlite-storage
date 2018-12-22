@@ -467,7 +467,16 @@
         }
       }
     };
-    cordova.exec(mycb, null, "SQLitePlugin", "backgroundExecuteSqlBatch", [
+    cordova.exec(mycb, function(message){
+      if(typeof result === "string"){
+	          console.log(result);
+            if (tx.error && typeof tx.error === 'function') {
+                tx.error(newSQLError(result, 0));
+            }
+
+      }
+      console.log('error in running backgroundExecuteSqlBatch');
+    }, "SQLitePlugin", "backgroundExecuteSqlBatch", [
       {
         dbargs: {
           dbname: this.db.dbname
