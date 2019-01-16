@@ -264,13 +264,13 @@
 
   SQLitePlugin.prototype.sqlBatch = function(sqlStatements, success, error) {
     var batchList, j, len1, myfn, st;
-    if (!sqlStatements || sqlStatements.constructor !== Array) {
+    if (!Array.isArray(sqlStatements)) {
       throw newSQLError('sqlBatch expects an array');
     }
     batchList = [];
     for (j = 0, len1 = sqlStatements.length; j < len1; j++) {
       st = sqlStatements[j];
-      if (st.constructor === Array) {
+      if (Array.isArray(st)) {
         if (st.length === 0) {
           throw newSQLError('sqlBatch array element of zero (0) length');
         }
@@ -360,7 +360,7 @@
     var j, len1, params, sqlStatement, t, v;
     sqlStatement = typeof sql === 'string' ? sql : sql.toString();
     params = [];
-    if (!!values && values.constructor === Array) {
+    if (Array.isArray(values)) {
       for (j = 0, len1 = values.length; j < len1; j++) {
         v = values[j];
         t = typeof v;
