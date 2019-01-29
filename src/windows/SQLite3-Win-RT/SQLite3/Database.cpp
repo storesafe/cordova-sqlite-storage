@@ -17,6 +17,8 @@ namespace SQLite3
       HRESULT hresult = MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, ret);
       throw ref new Platform::COMException(hresult);
     }
+
+    sqlite3_db_config(sqlite, SQLITE_DBCONFIG_DEFENSIVE, 1, NULL);
   }
 
   Database::~Database()

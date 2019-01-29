@@ -2,6 +2,7 @@
 
 ###### cordova-sqlite-storage-ext-core-common 1.0.1-dev
 
+- SQLITE_DBCONFIG_DEFENSIVE flag - iOS/macOS/Windows (POTENTIALLY BREAKING CHANGE)
 - remove internal qid usage from JavaScript (not needed)
 - non-static Android database runner map (POTENTIALLY BREAKING CHANGE)
 - Completely remove old Android SuppressLint (android.annotation.SuppressLint) - POSSIBLY BREAKING CHANGE
