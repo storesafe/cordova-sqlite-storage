@@ -2,6 +2,7 @@
 
 ###### cordova-sqlite-storage-ext-core-common 1.0.1-dev
 
+- non-static Android database runner map (POTENTIALLY BREAKING CHANGE)
 - Completely remove old Android SuppressLint (android.annotation.SuppressLint) - POSSIBLY BREAKING CHANGE
 - drop workaround for pre-Honeycomb Android API (BREAKING CHANGE)
 - no extra @synchronized block per batch (iOS/macOS) - should be considered a POSSIBLY BREAKING change
