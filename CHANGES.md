@@ -2,7 +2,7 @@
 
 ###### cordova-sqlite-storage-ext-core-common 1.0.0-dev
 
-TBD
+- Use SQLite 3.26.0 (with a security update and support for window functions) with SQLITE_DEFAULT_SYNCHRONOUS=3 (EXTRA DURABLE) from cordova-sqlite-storage-dependencies 1.2.1 in this plugin version branch
 
 ### cordova-sqlite-storage 2.2.1
 
