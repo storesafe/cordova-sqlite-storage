@@ -8,7 +8,7 @@ License terms for iOS/macOS platform version: MIT only
 
 ## About this plugin version branch
 
-This is the common plugin version branch which supports the most widely used features and serves as the basis for the other versions.
+This is a common plugin version branch which supports the most widely used features and serves as the basis for other plugin versions.
 
 This version branch uses a `before_plugin_install` hook to install sqlite3 library dependencies from `cordova-sqlite-storage-dependencies` via npm.
 
