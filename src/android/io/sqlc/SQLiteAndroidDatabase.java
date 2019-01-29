@@ -6,8 +6,6 @@
 
 package io.sqlc;
 
-import android.annotation.SuppressLint;
-
 import android.database.Cursor;
 import android.database.CursorWindow;
 
@@ -126,7 +124,6 @@ class SQLiteAndroidDatabase
         cbc.success(batchResults);
     }
 
-    @SuppressLint("NewApi")
     private void executeSqlBatchStatement(String query, JSONArray json_params, JSONArray batchResults) {
 
         if (mydb == null) {
@@ -518,7 +515,6 @@ class SQLiteAndroidDatabase
         return rowsResult;
     }
 
-    @SuppressLint("NewApi")
     private void bindPostHoneycomb(JSONObject row, String key, Cursor cur, int i) throws JSONException {
         int curType = cur.getType(i);
 
