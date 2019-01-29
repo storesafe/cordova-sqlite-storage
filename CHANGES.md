@@ -1,5 +1,9 @@
 # Changes
 
+###### cordova-sqlite-storage-ext-core-common 1.0.0-dev
+
+TBD
+
 ### cordova-sqlite-storage 2.2.1
 
 - SQLITE_THREADSAFE=1 compile-time setting for iOS/macOS
