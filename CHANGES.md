@@ -1,5 +1,7 @@
 # Changes
 
+##### cordova-sqlite-ext-common-core 0.1.0-dev
+
 ### cordova-sqlite-storage 2.6.0
 
 - Use cordova-sqlite-storage-dependencies 1.2.1 with SQLite 3.26.0, with a security update and support for window functions
