@@ -10,6 +10,9 @@
 - no extra @synchronized block per batch (iOS/macOS) - should be considered a POSSIBLY BREAKING change
 - remove backgroundExecuteSql method not needed (iOS/macOS)
 - Completely remove iOS/macOS MRC (Manual Reference Counting) support - should be considered a POSSIBLY BREAKING change
+
+###### cordova-sqlite-storage-ext-core-common 1.0.0
+
 - Use SQLite 3.26.0 (with a security update and support for window functions) with SQLITE_DEFAULT_SYNCHRONOUS=3 (EXTRA DURABLE) from cordova-sqlite-storage-dependencies 1.2.1 in this plugin version branch
 
 ### cordova-sqlite-storage 2.2.1
