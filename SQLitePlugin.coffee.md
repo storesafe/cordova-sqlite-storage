@@ -216,6 +216,7 @@
         # (done)
 
       else
+        # openDatabase step 1:
         console.log 'OPEN database: ' + @dbname
 
         opensuccesscb = =>
