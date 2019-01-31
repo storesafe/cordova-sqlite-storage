@@ -6,8 +6,8 @@
 var path = require('path');
 var exec = require('child_process').exec;
 
-// XXX FUTURE TBD auto-detect:
-var package_name = 'cordova-sqlite-storage-ext-core-common';
+// XXX TODO auto-detect:
+var package_name = 'cordova-sqlite-ext-core-common';
 
 module.exports = function (context) {
     var Q = context.requireCordovaModule('q');
