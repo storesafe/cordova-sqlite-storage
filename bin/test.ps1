@@ -42,7 +42,7 @@ try {
   echo "compiled coffeescript to javascript"
 
   # move everything to a temp folder to avoid infinite recursion errors
-  if (test-path ../.plugin) { 
+  if (test-path ../.plugin) {
     rm -force -recurse ../.plugin -ErrorAction ignore
   }
   mkdir  -ErrorAction ignore  ../.plugin | out-null
