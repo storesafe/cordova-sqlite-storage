@@ -53,14 +53,14 @@ var mytests = function() {
 
       it(suiteName + 'Simple REGEXP test',
         function(done) {
-          // TBD Test for Android Web SQL ONLY in this version branch:
-          if (isWebSql && isBrowser && !isChromeBrowser) pending('SKIP for (WebKit) Web SQL on non-Chrome desktop browser');
-          if (isWindows) pending('NOT IMPLEMENTED for Windows (plugin)');
-          if (!isWebSql && !isWindows && isAndroid) pending('SKIP for Android plugin'); // TBD SKIP for Android plugin (for now)
+          if (isWebSql && isBrowser && !isChromeBrowser) pending('SKIP on (WebKit) Web SQL on non-Chrome desktop browser');
           if (isWebSql && /Android 4.[1-3]/.test(navigator.userAgent)) pending('SKIP for Android 4.1-4.3 (WebKit) Web SQL');
-          if (isWebSql && isAppleMobileOS) pending('SKIP for iOS (WebKit) Web SQL');
-          // TBD REMOVE from version branches such as cordova-sqlite-ext:
-          if (!isWebSql && (isAppleMobileOS || isMac)) pending('NOT IMPLEMENTED on iOS/macOS plugin');
+          if (isWebSql && isAppleMobileOS) pending('SKIP on iOS (WebKit) Web SQL');
+          if (!isWebSql && isWindows) pending('SKIP on Windows plugin - NOT IMPLEMENTED');
+          if (!isWebSql && isAndroid && isImpl2 && /Android [2-4]/.test(navigator.userAgent)) pending('TBD SKIP for system android.database provider on Android 2.x-4.x');
+          // TBD REMOVE the following conditions for plugin versions such as cordova-sqlite-ext:
+          if (!isWebSql && isAndroid && !isImpl2) pending('SKIP on Android plugin with default database provider');
+          if (!isWebSql && (isAppleMobileOS || isMac)) pending('SKIP on iOS/macOS plugin');
 
           var db = openDatabase('simple-regexp-test.db', '1.0', 'test', DEFAULT_SIZE);
 
