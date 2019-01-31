@@ -19,6 +19,10 @@
 #   define DLog(...)
 #endif
 
+#if !__has_feature(objc_arc)
+#   error "Missing objc_arc feature"
+#endif
+
 @implementation SQLitePlugin
 
 @synthesize openDBs;
@@ -31,10 +35,6 @@
     {
         openDBs = [PSPDFThreadSafeMutableDictionary dictionaryWithCapacity:0];
         appDBPaths = [NSMutableDictionary dictionaryWithCapacity:0];
-#if !__has_feature(objc_arc)
-        [openDBs retain];
-        [appDBPaths retain];
-#endif
 
         NSString *docs = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];
         DLog(@"Detected docs path: %@", docs);
@@ -146,6 +146,8 @@
                 [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
                 return;
             } else {
+                sqlite3_db_config(db, SQLITE_DBCONFIG_DEFENSIVE, 1, NULL);
+
                 // for SQLCipher version:
                 // NSString *dbkey = [options objectForKey:@"key"];
                 // const char *key = NULL;
@@ -269,7 +271,7 @@
 
     CDVPluginResult* pluginResult;
 
-    @synchronized(self) {
+    {
         for (NSMutableDictionary *dict in executes) {
             CDVPluginResult *result = [self executeSqlWithDict:dict andArgs:dbargs];
             if ([result.status intValue] == CDVCommandStatus_ERROR) {
@@ -294,23 +296,14 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
--(void) backgroundExecuteSql: (CDVInvokedUrlCommand*)command
-{
-    [self.commandDelegate runInBackground:^{
-        [self executeSql:command];
-    }];
-}
-
 -(void) executeSql: (CDVInvokedUrlCommand*)command
 {
     NSMutableDictionary *options = [command.arguments objectAtIndex:0];
     NSMutableDictionary *dbargs = [options objectForKey:@"dbargs"];
     NSMutableDictionary *ex = [options objectForKey:@"ex"];
 
-    CDVPluginResult* pluginResult;
-    @synchronized (self) {
-        pluginResult = [self executeSqlWithDict: ex andArgs: dbargs];
-    }
+    CDVPluginResult * pluginResult = [self executeSqlWithDict: ex andArgs: dbargs];
+
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
@@ -394,9 +387,6 @@
                             columnValue = [[NSString alloc] initWithBytes:(char *)sqlite3_column_text(statement, i)
                                                                    length:sqlite3_column_bytes(statement, i)
                                                                  encoding:NSUTF8StringEncoding];
-#if !__has_feature(objc_arc)
-                            [columnValue autorelease];
-#endif
                             break;
                         case SQLITE_NULL:
                         // just in case (should not happen):
@@ -498,12 +488,6 @@
         db = [pointer pointerValue];
         sqlite3_close (db);
     }
-
-#if !__has_feature(objc_arc)
-    [openDBs release];
-    [appDBPaths release];
-    [super dealloc];
-#endif
 }
 
 +(NSDictionary *)captureSQLiteErrorFromDb:(struct sqlite3 *)db

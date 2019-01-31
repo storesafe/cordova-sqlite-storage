@@ -32,7 +32,7 @@ New release in December 2018 will include the following major enhancements ([lit
 
 ## About this plugin version
 
-This is the common plugin version which supports the most widely used features and serves as the basis for the other versions.
+This is a common plugin version branch which supports the most widely used features and serves as the basis for other plugin versions.
 
 This version branch uses a `before_plugin_install` hook to install sqlite3 library dependencies from `cordova-sqlite-storage-dependencies` via npm.
 
@@ -222,6 +222,9 @@ See the [Sample section](#sample) for a sample with a more detailed explanation 
   - `SQLITE_DEFAULT_PAGE_SIZE=1024` and `SQLITE_DEFAULT_CACHE_SIZE=2000` to avoid "potentially disruptive change(s)" from SQLite 3.12.0 described at: <http://sqlite.org/pgszchng2016.html>
   - `SQLITE_OS_WINRT` (Windows only)
   - `NDEBUG` on Windows (Release build only)
+- `SQLITE_DBCONFIG_DEFENSIVE` flag is used for extra SQL safety on iOS/macOS/Windows (TBD NOT USED on Android in this plugin version branch) ref:
+  - <https://www.sqlite.org/c3ref/c_dbconfig_defensive.html>
+  - <https://www.sqlite.org/releaselog/3_26_0.html>
 - The iOS database location is now mandatory, as documented below.
 - This version branch supports the use of two (2) possible Android sqlite database implementations:
   - default: lightweight [Android-sqlite-connector](https://github.com/liteglue/Android-sqlite-connector), using SQLite3 NDK component built from [brodybits / Android-sqlite-ext-native-driver (sqlite-storage-native-driver branch)](https://github.com/brodybits/Android-sqlite-ext-native-driver/tree/sqlite-storage-native-driver)
@@ -243,8 +246,8 @@ See the [Sample section](#sample) for a sample with a more detailed explanation 
   - Windows platform version uses `UTF-16le` internal database encoding while the other platform versions use `UTF-8` internal encoding. (`UTF-8` internal encoding is preferred ref: [litehelpers/Cordova-sqlite-storage#652](https://github.com/litehelpers/Cordova-sqlite-storage/issues/652))
   - Known issue with database names that contain certain US-ASCII punctuation and control characters (see below)
 - The macOS platform version ("osx" platform) is not tested in a release build and should be considered pre-alpha.
-- Android versions supported: 2.3.3 - 8.1, P (API levels 10 - 27, P), depending on Cordova version ref: <https://cordova.apache.org/docs/en/latest/guide/platforms/android/>
-- iOS versions supported: 8.x / 9.x / 10.x / 11.x, see [deviations section](#deviations) below for differences in case of WKWebView (using cordova-plugin-wkwebview-engine)
+- Android versions supported: 3.0 - 9.0 (API level 11 - 28), depending on Cordova version ref: <https://cordova.apache.org/docs/en/latest/guide/platforms/android/>
+- iOS versions supported: 8.x / 9.x / 10.x / 11.x / 12.x (see [deviations section](#deviations) below for differences in case of WKWebView)
 - FTS3, FTS4, and R-Tree are fully tested and supported for all target platforms in this version branch.
 - Default `PRAGMA journal_mode` setting (*tested*):
   - Android use of the `androidDatabaseProvider: 'system'` setting: `persist` (pre-8.0) / `truncate` (Android 8.0, 8.1) / `wal` (Android Pie)
@@ -258,6 +261,7 @@ See the [Sample section](#sample) for a sample with a more detailed explanation 
 
 - Using recent version of SQLite3 (`3.26.0`) with a security update ([litehelpers/Cordova-sqlite-storage#837](https://github.com/litehelpers/Cordova-sqlite-storage/issues/837)) and window functions
 - Using `SQLITE_DEFAULT_SYNCHRONOUS=3` (EXTRA DURABLE) build setting to be extra robust against possible database corruption ref: [litehelpers/Cordova-sqlite-storage#736](https://github.com/litehelpers/Cordova-sqlite-storage/issues/736)
+- `SQLITE_DBCONFIG_DEFENSIVE` flag is used for extra SQL safety, as described above
 - Nice overview of alternatives for storing local data in Cordova apps at: <https://www.sitepoint.com/storing-local-data-in-a-cordova-app/>
 - New alternative solution for small data storage: [TheCocoaProject / cordova-plugin-nativestorage](https://github.com/TheCocoaProject/cordova-plugin-nativestorage) - simpler "native storage of variables" for Android/iOS/Windows
 - Resolved Java 6/7/8 concurrent map compatibility issue reported in [litehelpers/Cordova-sqlite-storage#726](https://github.com/litehelpers/Cordova-sqlite-storage/issues/726), THANKS to pointer by [@NeoLSN (Jason Yang/楊朝傑)](https://github.com/NeoLSN) in [litehelpers/Cordova-sqlite-storage#727](https://github.com/litehelpers/Cordova-sqlite-storage/issues/727).

@@ -2,6 +2,25 @@
 
 ##### cordova-sqlite-ext-common-core 0.1.0-dev
 
+###### cordova-sqlite-ext-core-common 0.1.0
+
+- beforePluginInstall.js updates
+  - use standard Promise
+  - get the plugin package name from package.json
+  - use const instead of var (this should be considered a POSSIBLY BREAKING CHANGE since const may not work on some really old Node.js versions)
+  - remove hasbang line that is not needed
+
+###### cordova-sqlite-storage-ext-core-common 2.0.0
+
+- SQLITE_DBCONFIG_DEFENSIVE flag - iOS/macOS/Windows (POTENTIALLY BREAKING CHANGE)
+- remove internal qid usage from JavaScript (not needed)
+- non-static Android database runner map (POTENTIALLY BREAKING CHANGE)
+- Completely remove old Android SuppressLint (android.annotation.SuppressLint) - POSSIBLY BREAKING CHANGE
+- drop workaround for pre-Honeycomb Android API (BREAKING CHANGE)
+- no extra @synchronized block per batch (iOS/macOS) - should be considered a POSSIBLY BREAKING change
+- remove backgroundExecuteSql method not needed (iOS/macOS)
+- Completely remove iOS/macOS MRC (Manual Reference Counting) support - should be considered a POSSIBLY BREAKING change
+
 ### cordova-sqlite-storage 2.6.0
 
 - Use cordova-sqlite-storage-dependencies 1.2.1 with SQLite 3.26.0, with a security update and support for window functions
