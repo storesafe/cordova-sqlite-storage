@@ -14,19 +14,17 @@ Browser platform is currently supported with some limitations as described in [b
 
 with possible corruption risk in case of sqlite access from multiple plugins (see below)
 
-## NEW MAJOR RELEASE in December 2018 with BREAKING CHANGES
+## NEW MAJOR RELEASE in 2019 with BREAKING CHANGES
 
-New release in December 2018 will include the following major enhancements ([litehelpers/Cordova-sqlite-storage#773](https://github.com/litehelpers/Cordova-sqlite-storage/issues/773)):
+New major release in 2019 will include the following major enhancements ([litehelpers/Cordova-sqlite-storage#773](https://github.com/litehelpers/Cordova-sqlite-storage/issues/773)):
 
-- browser platform support (planned for November 2018)
+- browser platform support
 - `cordova-sqlite-storage` and `cordova-sqlite-ext` plugin versions will be combined, no more separate plugin version needed for pre-populated databases ([litehelpers/Cordova-sqlite-storage#529](https://github.com/litehelpers/Cordova-sqlite-storage/issues/529))
 
 **BREAKING CHANGES expected:**
 
 - drop support for Android pre-4.4 (Android 4.4 with old `armeabi` CPU to be deprecatd with limited updates in the future) ([litehelpers/Cordova-sqlite-storage#771](https://github.com/litehelpers/Cordova-sqlite-storage/issues/771))
 - error `code` will always be `0` (which is already the case on Windows); actual SQLite3 error code will be part of the error `message` member whenever possible ([litehelpers/Cordova-sqlite-storage#821](https://github.com/litehelpers/Cordova-sqlite-storage/issues/821))
-- use [`SQLITE_DBCONFIG_DEFENSIVE`](https://www.sqlite.org/c3ref/c_dbconfig_defensive.html#sqlitedbconfigdefensive) build option which disables a few features that "allow ordinary SQL to deliberately corrupt the database file" ([litehelpers/Cordova-sqlite-storage#838](https://github.com/litehelpers/Cordova-sqlite-storage/issues/838))
-- Values with U+0000 (null character) will be truncated on all platforms ([litehelpers/Cordova-sqlite-storage#822](https://github.com/litehelpers/Cordova-sqlite-storage/issues/822))
 - drop support for iOS 8.x (was already dropped by cordova-ios@4.4.0)
 - drop support for location: 0-2 values in openDatabase call (please use `location: 'default'` or `iosDatabaseLocation` setting in openDatabase as documented below)
 
