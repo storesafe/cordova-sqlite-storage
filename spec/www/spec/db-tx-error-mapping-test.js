@@ -12,6 +12,8 @@ var isBrowser = isWebKitBrowser || isFirefox;
 var isEdgeBrowser = isBrowser && (/Edge/.test(navigator.userAgent));
 var isChromeBrowser = isBrowser && !isEdgeBrowser && (/Chrome/.test(navigator.userAgent));
 var isSafariBrowser = isWebKitBrowser && !isEdgeBrowser && !isChromeBrowser;
+var isAppleMobileOS = /iPhone/.test(navigator.userAgent) ||
+      /iPad/.test(navigator.userAgent) || /iPod/.test(navigator.userAgent);
 
 // should avoid popups (Safari seems to count 2x)
 var DEFAULT_SIZE = isSafariBrowser ? 2000000 : 5000000;
@@ -168,7 +170,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'INSERT with VALUES in the wrong place (with a trailing space) [XXX TBD "incomplete input" vs "syntax error" message on (WebKit) Web SQL on Android 8.x/XXX]', function(done) {
+        it(suiteName + 'INSERT with VALUES in the wrong place (with a trailing space) [TBD "incomplete input" vs "syntax error" message on (WebKit) Web SQL on Android 8.0(+) & iOS 12.0(+)]', function(done) {
           var db = openDatabase("INSERT-Syntax-error-test.db", "1.0", "Demo", DEFAULT_SIZE);
           expect(db).toBeDefined();
 
@@ -200,18 +202,15 @@ var mytests = function() {
               else
                 expect(error.code).toBe(5);
 
-              /* ** XXX TODO NEEDS TO BE UPDATED:
-              if (isWebSql && (/Android [7-9]/.test(navigator.userAgent)))
-                expect(error.message).toMatch(/could not prepare statement.*.../); // XXX TBD incomplete input vs syntax error message on Android 8(+)/XXX
+              if (isWebSql && (isAppleMobileOS || /Android [7-9]/.test(navigator.userAgent)))
+                // TBD incomplete input vs syntax error message on Android 8.0(+) & iOS 12.0(+)
+                expect(error.message).toMatch(/could not prepare statement.*/);
               else if (isWebSql && !isChromeBrowser && !(/Android 4.[1-3]/.test(navigator.userAgent)))
                 expect(error.message).toMatch(/could not prepare statement.*1 near \"VALUES\": syntax error/);
               else if (isWebSql && isBrowser)
                 expect(error.message).toMatch(/could not prepare statement.*1 incomplete input/);
               else if (isWebSql)
                 expect(error.message).toMatch(/near \"VALUES\": syntax error/);
-              // XXX ... */
-              if (isWebSql)
-                expect(error.message).toMatch(/could not prepare statement.*/); // XXX TBD incomplete input vs syntax error message on Android 8(+) & iOS 12(+)
               else if (isWindows)
                 expect(error.message).toMatch(/Error preparing an SQLite statement/);
               else if (isAndroid && !isImpl2)
@@ -219,8 +218,7 @@ var mytests = function() {
               else if (isAndroid && isImpl2)
                 expect(error.message).toMatch(/near \"VALUES\": syntax error.*code 1.*while compiling: INSERT INTO test_table/);
               else
-                //* XXX ...
-                expect(error.message).toMatch(/incomplete input/); // XXX SQLite 3.22.0
+                expect(error.message).toMatch(/incomplete input/);
 
               // FAIL transaction & check reported transaction error:
               return true;
