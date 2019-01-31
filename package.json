@@ -36,6 +36,6 @@
     "start": "node scripts/prepareSpec.js"
   },
   "devDependencies": {
-    "shelljs": "^0.7.4"
+    "shelljs": "^0.8.3"
   }
 }
