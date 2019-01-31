@@ -2,6 +2,12 @@
 
 ###### cordova-sqlite-ext-core-common 0.1.0-dev
 
+- beforePluginInstall.js updates
+  - use standard Promise
+  - get the plugin package name from package.json
+  - use const instead of var (this should be considered a POSSIBLY BREAKING CHANGE since const may not work on some really old Node.js versions)
+  - remove hasbang line that is not needed
+
 ###### cordova-sqlite-storage-ext-core-common 2.0.0
 
 - SQLITE_DBCONFIG_DEFENSIVE flag - iOS/macOS/Windows (POTENTIALLY BREAKING CHANGE)
