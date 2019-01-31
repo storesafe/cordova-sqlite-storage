@@ -2,6 +2,8 @@
 
 ##### cordova-sqlite-ext-common-core 0.1.1-dev
 
+- move the embedded `SQLite3-WinRT` component to `src/windows/SQLite3-WinRT-sync` and update `plugin.xml`
+
 ##### cordova-sqlite-ext-common-core 0.1.0
 
 ###### cordova-sqlite-ext-core-common 0.1.0
