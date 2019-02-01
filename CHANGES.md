@@ -2,6 +2,7 @@
 
 ###### cordova-sqlite-ext-common-core 0.2.0-dev
 
+- Move SQLite3.UWP.vcxproj out of extra SQLite3.UWP subdirectory
 - Completely remove old Windows 8.1 & Windows Phone 8.1 vcxproj files
 
 ###### cordova-sqlite-extcore 0.1.0

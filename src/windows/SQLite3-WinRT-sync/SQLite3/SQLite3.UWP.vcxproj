@@ -80,7 +80,7 @@
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
 
-  <Import Project="..\SQLite3.Shared.vcxitems" Label="Shared" />
+  <Import Project="SQLite3.Shared.vcxitems" Label="Shared" />
 
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>

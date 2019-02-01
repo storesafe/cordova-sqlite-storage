@@ -93,7 +93,7 @@
         </js-module>
 
         <!-- Thanks to AllJoyn-Cordova / cordova-plugin-alljoyn for guidance: -->
-        <framework src="src/windows/SQLite3-WinRT-sync/SQLite3/SQLite3.UWP/SQLite3.UWP.vcxproj" custom="true" type="projectReference" versions="10.*" />
+        <framework src="src/windows/SQLite3-WinRT-sync/SQLite3/SQLite3.UWP.vcxproj" custom="true" type="projectReference" versions="10.*" />
     </platform>
 
 </plugin>
