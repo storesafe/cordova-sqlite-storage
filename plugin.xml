@@ -94,10 +94,6 @@
 
         <!-- Thanks to AllJoyn-Cordova / cordova-plugin-alljoyn for guidance: -->
         <framework src="src/windows/SQLite3-WinRT-sync/SQLite3/SQLite3.UWP/SQLite3.UWP.vcxproj" custom="true" type="projectReference" versions="10.*" />
-        <!-- Windows 8.1 / Windows Phone 8.1 not tested and not supported in this plugin version:
-        <framework src="src/windows/SQLite3-WinRT-sync/SQLite3/SQLite3.Windows/SQLite3.Windows.vcxproj" custom="true" type="projectReference" target="windows" versions="8.1" />
-        <framework src="src/windows/SQLite3-WinRT-sync/SQLite3/SQLite3.WindowsPhone/SQLite3.WindowsPhone.vcxproj" custom="true" type="projectReference" target="phone" versions="8.1" />
-        - ... -->
     </platform>
 
 </plugin>
