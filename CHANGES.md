@@ -2,6 +2,8 @@
 
 #### cordova-sqlite-storage 3.0.0-dev
 
+- Use cordova-sqlite-storage-dependencies 2.0.0 with SQLITE_DBCONFIG_DEFENSIVE setting used by sqlite-native-driver.jar on Android
+
 ###### cordova-sqlite-ext-common-core 0.2.0
 
 - Move SQLite3.UWP.vcxproj out of extra SQLite3.UWP subdirectory
