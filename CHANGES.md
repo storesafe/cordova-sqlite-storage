@@ -1,5 +1,7 @@
 # Changes
 
+#### cordova-sqlite-storage 3.0.0-dev
+
 ###### cordova-sqlite-ext-common-core 0.2.0
 
 - Move SQLite3.UWP.vcxproj out of extra SQLite3.UWP subdirectory
