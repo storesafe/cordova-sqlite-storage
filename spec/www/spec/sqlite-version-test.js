@@ -190,11 +190,12 @@ var mytests = function() {
             var resultRow = rs.rows.item(0);
             expect(resultRow).toBeDefined();
             expect(resultRow.cache_size).toBeDefined();
-            if (!isWebSql && !isWindows && isAndroid && isImpl2 &&
-                (/Android 8/.test(navigator.userAgent)))
-              expect(resultRow.cache_size).toBe(-2000); // NEW VALUE for androidDatabaseImplementation: 2, Android 8.x
+            if (!isWebSql && isAndroid &&
+                (!isImpl2 ||
+                 (isImpl2 && (/Android [3-7]/.test(navigator.userAgent)))))
+              expect(resultRow.cache_size).toBe(2000); // TBD OLD VALUE on Android (...)
             else
-              expect(resultRow.cache_size).toBe(2000); // XXX TBD OLD VALUE USED IN THIS PLUGIN VERSION & androidDatabaseImplementation: 2 for Android 4.x-7.x
+              expect(resultRow.cache_size).toBe(-2000); // NEW VALUE, otherwise
 
             // Close (plugin only) & finish:
             (isWebSql) ? done() : db.close(done, done);

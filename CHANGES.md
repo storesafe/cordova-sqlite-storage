@@ -2,6 +2,8 @@
 
 #### cordova-sqlite-storage 3.0.1-dev
 
+- no SQLITE_DEFAULT_CACHE_SIZE compile-time setting on iOS/macOS/Windows
+
 #### cordova-sqlite-storage 3.0.0
 
 - Use cordova-sqlite-storage-dependencies 2.0.0 with SQLITE_DBCONFIG_DEFENSIVE setting used by sqlite-native-driver.jar on Android
