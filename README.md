@@ -10,9 +10,11 @@ Browser platform is currently supported with some limitations as described in [b
 
 **LICENSE:** MIT, with Apache 2.0 option for Android and Windows platforms (see [LICENSE.md](./LICENSE.md) for details, including third-party components used by this plugin)
 
-## WARNING: Multiple SQLite problem on all platforms
+__WARNING: Multiple SQLite problem on all platforms__ _with possible corruption risk in case of sqlite access from multiple plugins (see below)_
 
-with possible corruption risk in case of sqlite access from multiple plugins (see below)
+# FREE CONSULTING SPECIAL
+
+The primary author and maintainer [@brodybits (Chris Brody)](https://github.com/brodybits) is happy to offer free consulting for a limited time period - please see <https://xpbrew.consulting> for more information.
 
 ## NEW MAJOR RELEASE Coming with BREAKING CHANGES
 
