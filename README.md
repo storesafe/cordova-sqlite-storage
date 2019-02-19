@@ -79,8 +79,8 @@ Other services available include:
 - Mentoring and training services
 
 For more information:
-- <https://litehelpers.net>
-- <sales@litehelpers.net>
+- <https://xpbrew.consulting>
+- <sales@xpbrew.consulting>
 
 <!-- END Services available -->
 
@@ -461,7 +461,7 @@ It is recommended to read through the [usage](#usage) and [sample](#sample) sect
 
 The new [brodybits / cordova-sqlite-test-app](https://github.com/brodybits/cordova-sqlite-test-app) sample is intended to be a boilerplate to reproduce and demonstrate any issues you may have with this plugin. You may also use it as a starting point to build a new app.
 
-In case you get stuck with something please read through the [support](#support) section and follow the instructions before raising an issue. Professional support is also available by contacting: <sales@litehelpers.net>
+In case you get stuck with something please read through the [support](#support) section and follow the instructions before raising an issue. Professional support is also available by contacting: <sales@xpbrew.consulting>
 
 ### Plugin usage examples and tutorials
 
@@ -1486,9 +1486,9 @@ Free support is provided on a best-effort basis and is only available in public 
 
 ## Professional support
 
-Professional support is available by contacting: <sales@litehelpers.net>
+Professional support is available by contacting: <sales@xpbrew.consulting>
 
-For more information: <https://litehelpers.net>
+For more information: <https://xpbrew.consulting>
 
 ## Before seeking help
 
@@ -1814,4 +1814,4 @@ function closeDB() {
 
 ## Contact
 
-<sales@litehelpers.net>
+<sales@xpbrew.consulting>
