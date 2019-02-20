@@ -1,5 +1,7 @@
 # Changes
 
+#### cordova-sqlite-storage 3.1.1-dev
+
 #### cordova-sqlite-storage 3.1.0
 
 - no SQLITE_DEFAULT_CACHE_SIZE compile-time setting on iOS/macOS/Windows
