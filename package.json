@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/litehelpers/Cordova-sqlite-storage.git"
+    "url": "https://github.com/xpbrew/cordova-sqlite-storage.git"
   },
   "keywords": [
     "sqlite",
@@ -26,9 +26,9 @@
   "author": "various",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/litehelpers/Cordova-sqlite-storage/issues"
+    "url": "https://github.com/xpbrew/cordova-sqlite-storage/issues"
   },
-  "homepage": "https://github.com/litehelpers/Cordova-sqlite-storage",
+  "homepage": "https://github.com/xpbrew/cordova-sqlite-storage",
   "dependencies": {
     "cordova-sqlite-storage-dependencies": "2.0.0"
   },
