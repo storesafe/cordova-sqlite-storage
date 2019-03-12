@@ -33,7 +33,7 @@
     "cordova-sqlite-storage-dependencies": "2.0.0"
   },
   "scripts": {
-    "start": "node scripts/prepareSpec.js"
+    "prepare-spec": "node scripts/prepareSpec.js"
   },
   "devDependencies": {
     "cross-spawn": "^6.0.5",
