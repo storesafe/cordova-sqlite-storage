@@ -8,6 +8,15 @@
 #
 # N.B. if you functionally change this script you _must_ change .\bin\test.sh too.
 #
+# STATUS: UNSUPPORTED
+#
+# A known issue is that this script needs old coffeescript@1 or coffee-script@1
+# to be installed globally while the package script is using locally installed
+# version of coffeescript@1.
+#
+# It is recommended to use the package scripts with npm or yarn tool instead
+# of this script.
+#
 
 platform=$1
 
