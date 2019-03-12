@@ -36,6 +36,7 @@
     "start": "node scripts/prepareSpec.js"
   },
   "devDependencies": {
-    "shelljs": "^0.8.3"
+    "cross-spawn": "^6.0.5",
+    "fs-extra": "^7.0.1"
   }
 }
