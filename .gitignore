@@ -7,3 +7,4 @@ package-lock.json
 spec/myplugin
 spec/plugins
 spec/platforms
+yarn.lock
