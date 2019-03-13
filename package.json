@@ -23,19 +23,24 @@
     "cordova-osx",
     "cordova-windows"
   ],
-  "author": "various",
-  "license": "MIT",
+  "author": {
+    "name": "various contributors",
+    "email": "sales@xpbrew.consulting"
+  },
   "bugs": {
     "url": "https://github.com/xpbrew/cordova-sqlite-storage/issues"
   },
   "homepage": "https://github.com/xpbrew/cordova-sqlite-storage",
-  "dependencies": {
-    "cordova-sqlite-storage-dependencies": "2.0.0"
-  },
+  "license": "MIT",
   "scripts": {
     "clean-spec": "rm -rf spec/[mnp]* && git cl spec/config.xml && git st",
     "prepare-js": "coffee -p SQLitePlugin.coffee.md > www/SQLitePlugin.js",
-    "prepare-spec": "node scripts/prepareSpec.js"
+    "prepare-spec": "node scripts/prepareSpec.js",
+    "spec-help": "echo 'do `npm run prepare-spec` then build & run test app in `spec`'",
+    "test": "echo 'npm test is not supported' && npm run spec-help && exit 1"
+  },
+  "dependencies": {
+    "cordova-sqlite-storage-dependencies": "2.0.0"
   },
   "devDependencies": {
     "coffeescript": "1",
