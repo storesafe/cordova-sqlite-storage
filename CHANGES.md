@@ -1,5 +1,7 @@
 # Changes
 
+##### cordova-sqlite-storage-ext-commoncore 2.0.0-dev
+
 ##### cordova-sqlite-storage-ext-commoncore 1.0.0
 
 - Some CoffeeScript / JavaScript updates
