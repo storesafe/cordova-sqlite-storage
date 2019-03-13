@@ -1,6 +1,6 @@
 # Changes
 
-##### cordova-sqlite-storage-ext-commoncore 1.0.0-dev
+##### cordova-sqlite-storage-ext-commoncore 1.0.0
 
 - Some CoffeeScript / JavaScript updates
   - SQLite native access utility object, using more unique method names
