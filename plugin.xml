@@ -29,9 +29,9 @@
             </feature>
         </config-file>
 
-        <source-file src="src/android/io/sqlc/SQLitePlugin.java" target-dir="src/io/sqlc"/>
-        <source-file src="src/android/io/sqlc/SQLiteAndroidDatabase.java" target-dir="src/io/sqlc"/>
-        <source-file src="src/android/io/sqlc/SQLiteConnectorDatabase.java" target-dir="src/io/sqlc"/>
+        <source-file src="android/src/main/java/io/sqlc/SQLitePlugin.java" target-dir="src/io/sqlc"/>
+        <source-file src="android/src/main/java/io/sqlc/SQLiteAndroidDatabase.java" target-dir="src/io/sqlc"/>
+        <source-file src="android/src/main/java/io/sqlc/SQLiteConnectorDatabase.java" target-dir="src/io/sqlc"/>
 
         <!-- Android-sqlite-connector [jar]: -->
         <lib-file src="node_modules/cordova-sqlite-storage-dependencies/libs/sqlite-connector.jar" />
@@ -47,12 +47,12 @@
             </feature>
         </config-file>
 
-        <!-- Note: the iOS src is based off src/ios implicitly -->
-        <header-file src="src/ios/SQLitePlugin.h" />
-        <source-file src="src/ios/SQLitePlugin.m" />
+        <!-- Note: the iOS src is based off ios implicitly -->
+        <header-file src="ios/SQLitePlugin.h" />
+        <source-file src="ios/SQLitePlugin.m" />
 
-        <header-file src="src/ios/PSPDFThreadSafeMutableDictionary.h" />
-        <source-file src="src/ios/PSPDFThreadSafeMutableDictionary.m"
+        <header-file src="ios/PSPDFThreadSafeMutableDictionary.h" />
+        <source-file src="ios/PSPDFThreadSafeMutableDictionary.m"
                 compiler-flags="-w" />
 
         <header-file src="node_modules/cordova-sqlite-storage-dependencies/sqlite3.h" />
@@ -68,12 +68,12 @@
             </feature>
         </config-file>
 
-        <!-- Note: the macOS (osx) src is based off src/ios implicitly -->
-        <header-file src="src/ios/SQLitePlugin.h" />
-        <source-file src="src/ios/SQLitePlugin.m" />
+        <!-- Note: the macOS (osx) src is based off ios implicitly -->
+        <header-file src="ios/SQLitePlugin.h" />
+        <source-file src="ios/SQLitePlugin.m" />
 
-        <header-file src="src/ios/PSPDFThreadSafeMutableDictionary.h" />
-        <source-file src="src/ios/PSPDFThreadSafeMutableDictionary.m"
+        <header-file src="ios/PSPDFThreadSafeMutableDictionary.h" />
+        <source-file src="ios/PSPDFThreadSafeMutableDictionary.m"
                 compiler-flags="-w" />
 
         <header-file src="node_modules/cordova-sqlite-storage-dependencies/sqlite3.h" />

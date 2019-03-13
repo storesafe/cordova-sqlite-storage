@@ -21,7 +21,7 @@ fs.ensureDirSync(myplugin);
   fs.copySync(src, dest);
 });
 
-['scripts', 'src', 'www'].forEach((src) => {
+['android', 'ios', 'scripts', 'src', 'www'].forEach((src) => {
   const dest = path.join(myplugin, src);
   fs.ensureDirSync(dest);
   fs.copySync(src, dest);

@@ -2,6 +2,7 @@
 
 ##### cordova-sqlite-storage-ext-commoncore 1.0.0-dev
 
+- move sources for Android & ios
 - drop Apache license option for Android & Windows
 
 #### cordova-sqlite-storage 3.2.0

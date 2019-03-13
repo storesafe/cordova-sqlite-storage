@@ -54,7 +54,7 @@ echo "compiled coffeescript to javascript"
 # move everything to a temp folder to avoid infinite recursion errors
 rm -fr myplugin
 mkdir -p myplugin
-cp -r ../scripts ../src ../plugin.xml ../package.json ../www myplugin
+cp -r ../android ../ios ../scripts ../src ../plugin.xml ../package.json ../www myplugin
 
 # cleanup old test
 rm -fr plugins platforms
