@@ -116,14 +116,19 @@
 
     NSString *dbname = [self getDBPath:dbfilename at:dblocation];
 
-    if (dbname == NULL) {
+    if (!sqlite3_threadsafe()) {
+        // INTERNAL PLUGIN ERROR:
+        NSLog(@"INTERNAL PLUGIN ERROR: sqlite3_threadsafe() returns false value");
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString: @"INTERNAL PLUGIN ERROR: sqlite3_threadsafe() returns false value"];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
+        return;
+    } else if (dbname == NULL) {
         // INTERNAL PLUGIN ERROR - NOT EXPECTED:
         NSLog(@"INTERNAL PLUGIN ERROR (NOT EXPECTED): open with database name missing");
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString: @"INTERNAL PLUGIN ERROR: open with database name missing"];
         [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
         return;
-    }
-    else {
+    } else {
         NSValue *dbPointer = [openDBs objectForKey:dbfilename];
 
         if (dbPointer != NULL) {
@@ -165,13 +170,6 @@
                 }
             }
         }
-    }
-
-    if (sqlite3_threadsafe()) {
-        DLog(@"Good news: SQLite is thread safe!");
-    }
-    else {
-        DLog(@"Warning: SQLite is not thread safe.");
     }
 
     [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];

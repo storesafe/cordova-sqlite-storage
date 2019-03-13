@@ -2,6 +2,8 @@
 
 #### cordova-sqlite-storage 3.1.1-dev
 
+- sqlite3_threadsafe() error handling on iOS/macOS
+
 #### cordova-sqlite-storage 3.1.0
 
 - no SQLITE_DEFAULT_CACHE_SIZE compile-time setting on iOS/macOS/Windows
