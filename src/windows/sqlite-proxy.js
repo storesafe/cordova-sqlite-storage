@@ -26,7 +26,7 @@ module.exports = {
 	    var options = args[0];
 		win(options.value);
 	},
-	open: function(win, fail, args) {
+	openSQLiteDatabase: function(win, fail, args) {
 	    var options = args[0];
 	    var res;
 
@@ -61,7 +61,7 @@ module.exports = {
 		}
 		//handle(res, win, fail);
 	},
-	close: function(win, fail, args) {
+	closeSQLiteDatabase: function(win, fail, args) {
 	    var options = args[0];
 	    var res;
 		try {
@@ -84,7 +84,7 @@ module.exports = {
 			fail(ex);
 		}
 	},
-	backgroundExecuteSqlBatch: function(win, fail, args) {
+	executeSQLiteBatch: function(win, fail, args) {
 	    var options = args[0];
 	    var dbname = options.dbargs.dbname;
 		var executes = options.executes;
@@ -125,7 +125,7 @@ module.exports = {
 			win(results);
 		});
 	},
-	"delete": function(win, fail, args) {
+	deleteSQLiteDatabase: function(win, fail, args) {
 	    var options = args[0];
 	    var res;
 		try {

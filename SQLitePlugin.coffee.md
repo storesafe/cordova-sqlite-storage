@@ -82,16 +82,16 @@
         cordova.exec successCallback, errorCallback, 'SQLitePlugin', 'echoStringValue', argsArray
 
       openSQLiteDatabase: (argsArray, successCallback, errorCallback) =>
-        cordova.exec successCallback, errorCallback, 'SQLitePlugin', 'open', argsArray
+        cordova.exec successCallback, errorCallback, 'SQLitePlugin', 'openSQLiteDatabase', argsArray
 
       closeSQLiteDatabase: (argsArray, successCallback, errorCallback) =>
-        cordova.exec successCallback, errorCallback, 'SQLitePlugin', 'close', argsArray
+        cordova.exec successCallback, errorCallback, 'SQLitePlugin', 'closeSQLiteDatabase', argsArray
 
       deleteSQLiteDatabase: (argsArray, successCallback, errorCallback) =>
-        cordova.exec successCallback, errorCallback, 'SQLitePlugin', 'delete', argsArray
+        cordova.exec successCallback, errorCallback, 'SQLitePlugin', 'deleteSQLiteDatabase', argsArray
 
       executeSQLiteBatch: (argsArray, successCallback, errorCallback) =>
-        cordova.exec successCallback, errorCallback, 'SQLitePlugin', 'backgroundExecuteSqlBatch', argsArray
+        cordova.exec successCallback, errorCallback, 'SQLitePlugin', 'executeSQLiteBatch', argsArray
 
 ## SQLite plugin db-connection handle
 

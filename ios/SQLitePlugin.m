@@ -96,7 +96,7 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
 }
 
--(void)open: (CDVInvokedUrlCommand*)command
+-(void)openSQLiteDatabase: (CDVInvokedUrlCommand*)command
 {
     [self.commandDelegate runInBackground:^{
         [self openNow: command];
@@ -177,7 +177,7 @@
     // DLog(@"open cb finished ok");
 }
 
--(void) close: (CDVInvokedUrlCommand*)command
+-(void) closeSQLiteDatabase: (CDVInvokedUrlCommand*)command
 {
     [self.commandDelegate runInBackground:^{
         [self closeNow: command];
@@ -215,7 +215,7 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
 }
 
--(void) delete: (CDVInvokedUrlCommand*)command
+-(void) deleteSQLiteDatabase: (CDVInvokedUrlCommand*)command
 {
     [self.commandDelegate runInBackground:^{
         [self deleteNow: command];
@@ -253,7 +253,7 @@
 }
 
 
--(void) backgroundExecuteSqlBatch: (CDVInvokedUrlCommand*)command
+-(void) executeSQLiteBatch: (CDVInvokedUrlCommand*)command
 {
     [self.commandDelegate runInBackground:^{
         [self executeSqlBatchNow: command];

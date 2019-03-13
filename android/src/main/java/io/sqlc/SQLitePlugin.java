@@ -92,21 +92,21 @@ public class SQLitePlugin extends CordovaPlugin {
                 cbc.success(echo_value);
                 break;
 
-            case open:
+            case openSQLiteDatabase:
                 o = args.getJSONObject(0);
                 dbname = o.getString("name");
                 // open database and start reading its queue
                 this.startDatabase(dbname, o, cbc);
                 break;
 
-            case close:
+            case closeSQLiteDatabase:
                 o = args.getJSONObject(0);
                 dbname = o.getString("path");
                 // put request in the q to close the db
                 this.closeDatabase(dbname, cbc);
                 break;
 
-            case delete:
+            case deleteSQLiteDatabase:
                 o = args.getJSONObject(0);
                 dbname = o.getString("path");
 
@@ -114,8 +114,7 @@ public class SQLitePlugin extends CordovaPlugin {
 
                 break;
 
-            case executeSqlBatch:
-            case backgroundExecuteSqlBatch:
+            case executeSQLiteBatch:
                 JSONObject allargs = args.getJSONObject(0);
                 JSONObject dbargs = allargs.getJSONObject("dbargs");
                 dbname = dbargs.getString("dbname");
@@ -420,11 +419,10 @@ public class SQLitePlugin extends CordovaPlugin {
 
     private static enum Action {
         echoStringValue,
-        open,
-        close,
-        delete,
-        executeSqlBatch,
-        backgroundExecuteSqlBatch,
+        openSQLiteDatabase,
+        closeSQLiteDatabase,
+        deleteSQLiteDatabase,
+        executeSQLiteBatch,
     }
 }
 

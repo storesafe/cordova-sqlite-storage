@@ -70,22 +70,22 @@
     })(this),
     openSQLiteDatabase: (function(_this) {
       return function(argsArray, successCallback, errorCallback) {
-        return cordova.exec(successCallback, errorCallback, 'SQLitePlugin', 'open', argsArray);
+        return cordova.exec(successCallback, errorCallback, 'SQLitePlugin', 'openSQLiteDatabase', argsArray);
       };
     })(this),
     closeSQLiteDatabase: (function(_this) {
       return function(argsArray, successCallback, errorCallback) {
-        return cordova.exec(successCallback, errorCallback, 'SQLitePlugin', 'close', argsArray);
+        return cordova.exec(successCallback, errorCallback, 'SQLitePlugin', 'closeSQLiteDatabase', argsArray);
       };
     })(this),
     deleteSQLiteDatabase: (function(_this) {
       return function(argsArray, successCallback, errorCallback) {
-        return cordova.exec(successCallback, errorCallback, 'SQLitePlugin', 'delete', argsArray);
+        return cordova.exec(successCallback, errorCallback, 'SQLitePlugin', 'deleteSQLiteDatabase', argsArray);
       };
     })(this),
     executeSQLiteBatch: (function(_this) {
       return function(argsArray, successCallback, errorCallback) {
-        return cordova.exec(successCallback, errorCallback, 'SQLitePlugin', 'backgroundExecuteSqlBatch', argsArray);
+        return cordova.exec(successCallback, errorCallback, 'SQLitePlugin', 'executeSQLiteBatch', argsArray);
       };
     })(this)
   };

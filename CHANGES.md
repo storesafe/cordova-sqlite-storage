@@ -2,6 +2,8 @@
 
 ##### cordova-sqlite-storage-ext-commoncore 2.0.0-dev
 
+- Update method names between JavaScript and native
+
 ##### cordova-sqlite-storage-ext-commoncore 1.0.0
 
 - Some CoffeeScript / JavaScript updates
