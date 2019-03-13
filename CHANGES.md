@@ -1,6 +1,6 @@
 # Changes
 
-#### cordova-sqlite-storage 3.2.1-dev
+##### cordova-sqlite-storage-ext-commoncore 1.0.0-dev
 
 #### cordova-sqlite-storage 3.2.0
 
