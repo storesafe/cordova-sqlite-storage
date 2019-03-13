@@ -8,7 +8,7 @@ Native SQLite component with API based on HTML5/[Web SQL (DRAFT) API](http://www
 
 Browser platform is currently supported with some limitations as described in [browser platform usage notes](#browser-platform-usage-notes) section below, will be supported with more features such as numbered parameters and SQL batch API in the near future.
 
-**LICENSE:** MIT, with Apache 2.0 option for Android and Windows platforms (see [LICENSE.md](./LICENSE.md) for details, including third-party components used by this plugin)
+**LICENSE:** MIT (see [LICENSE.md](./LICENSE.md) for details, including third-party components used by this plugin)
 
 __WARNING: Multiple SQLite problem on all platforms__ _with possible corruption risk in case of sqlite access from multiple plugins (see below)_
 

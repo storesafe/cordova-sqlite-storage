@@ -2,13 +2,13 @@
 
 ## Common Javascript
 
-MIT or Apache 2.0
+MIT
 
-## Android version
+## Android platform
 
-MIT or Apache 2.0
+MIT
 
-## iOS/macOS version
+## iOS and macOS platforms
 
 MIT only
 
@@ -16,9 +16,9 @@ based on Phonegap-SQLitePlugin by @davibe (Davide Bertola <dade@dadeb.it>) and @
 
 includes and uses PSPDFThreadSafeMutableDictionary (PSPDFThreadSafeMutableDictionary.m <https://gist.github.com/steipete/5928916>) MIT license by @steipete (<https://gist.github.com/steipete>)
 
-## Windows version
+## Windows platform
 
-MIT or Apache 2.0
+MIT
 
 ### SQLite3-WinRT
 

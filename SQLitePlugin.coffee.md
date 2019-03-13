@@ -2,7 +2,7 @@
 
 #### Use coffee compiler to compile this directly into Javascript
 
-#### License for common script: MIT or Apache
+#### License for common script: MIT
 
 # Top-level SQLite plugin objects
 

@@ -2,6 +2,8 @@
 
 ##### cordova-sqlite-storage-ext-commoncore 1.0.0-dev
 
+- drop Apache license option for Android & Windows
+
 #### cordova-sqlite-storage 3.2.0
 
 - sqlite3_threadsafe() error handling on iOS/macOS
