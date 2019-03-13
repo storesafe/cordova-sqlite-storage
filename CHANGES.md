@@ -2,6 +2,11 @@
 
 ##### cordova-sqlite-storage-ext-commoncore 1.0.0-dev
 
+- Some CoffeeScript / JavaScript updates
+  - SQLite native access utility object, using more unique method names
+  - renamed SQLitePluginObject object
+  - exported API object with a local variable
+  - fix a couple return statements
 - move sources for Android & ios
 - drop Apache license option for Android & Windows
 
