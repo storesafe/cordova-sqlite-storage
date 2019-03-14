@@ -2,9 +2,14 @@
 .metadata/*
 *.swp
 *~
+
 node_modules
 package-lock.json
+yarn.lock
+
+
 spec/myplugin
 spec/plugins
 spec/platforms
-yarn.lock
+
+*.xcworkspace
