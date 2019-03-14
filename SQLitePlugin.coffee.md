@@ -75,18 +75,31 @@
         else
           return fun.call this, []
 
+## Native SQLite proxy utility object
+
+    getProxyFunction = (methodName) ->
+      (argsArray, successCallback, errorCallback) ->
+        cordova.exec successCallback, errorCallback, 'SQLitePlugin', methodName, argsArray
+
+    SQLiteProxy =
+      echoStringValue: getProxyFunction 'echoStringValue'
+      open: getProxyFunction 'open'
+      close: getProxyFunction 'close'
+      delete: getProxyFunction 'delete'
+      backgroundExecuteSqlBatch: getProxyFunction 'backgroundExecuteSqlBatch'
+
 ## SQLite plugin db-connection handle
 
 #### NOTE: there can be multipe SQLitePlugin db-connection handles per open db.
 
 #### SQLite plugin db connection handle object is defined by a constructor function and prototype member functions:
 
-    SQLitePlugin = (openargs, openSuccess, openError) ->
-      # console.log "SQLitePlugin openargs: #{JSON.stringify openargs}"
+    SQLitePluginObject = (openargs, openSuccess, openError) ->
+      # console.log "new SQLitePluginObject openargs: #{JSON.stringify openargs}"
 
       # SHOULD already be checked by openDatabase:
       if !(openargs and openargs['name'])
-        throw newSQLError "Cannot create a SQLitePlugin db instance without a db name"
+        throw newSQLError "Cannot create a SQLitePlugin database access instance object without a db name"
 
       dbname = openargs.name
 
@@ -112,15 +125,15 @@
       @open @openSuccess, @openError
       return
 
-    SQLitePlugin::databaseFeatures = isSQLitePluginDatabase: true
+    SQLitePluginObject::databaseFeatures = isSQLitePluginObjectDatabase: true
 
     # Keep track of state of open db connections
     # XXX FUTURE TBD this *may* be moved and renamed,
     # or even combined with txLocks if possible.
     # NOTE: In case txLocks is renamed or replaced the selfTest has to be adapted as well.
-    SQLitePlugin::openDBs = {}
+    SQLitePluginObject::openDBs = {}
 
-    SQLitePlugin::addTransaction = (t) ->
+    SQLitePluginObject::addTransaction = (t) ->
       if !txLocks[@dbname]
         txLocks[@dbname] = {
           queue: []
@@ -142,7 +155,7 @@
           console.log 'database is closed, new transaction is [stuck] waiting until db is opened again!'
       return
 
-    SQLitePlugin::transaction = (fn, error, success) ->
+    SQLitePluginObject::transaction = (fn, error, success) ->
       # FUTURE TBD check for valid fn here
       if !@openDBs[@dbname]
         error newSQLError 'database not open'
@@ -151,7 +164,7 @@
       @addTransaction new SQLitePluginTransaction(this, fn, error, success, true, false)
       return
 
-    SQLitePlugin::readTransaction = (fn, error, success) ->
+    SQLitePluginObject::readTransaction = (fn, error, success) ->
       # FUTURE TBD check for valid fn here (and add test for this)
       if !@openDBs[@dbname]
         error newSQLError 'database not open'
@@ -160,7 +173,7 @@
       @addTransaction new SQLitePluginTransaction(this, fn, error, success, false, true)
       return
 
-    SQLitePlugin::startNextTransaction = ->
+    SQLitePluginObject::startNextTransaction = ->
       self = @
 
       nextTick =>
@@ -183,7 +196,7 @@
 
       return
 
-    SQLitePlugin::abortAllPendingTransactions = ->
+    SQLitePluginObject::abortAllPendingTransactions = ->
       # extra debug info:
       # if txLocks[@dbname] then console.log 'abortAllPendingTransactions with transaction queue length: ' + txLocks[@dbname].queue.length
       # else console.log 'abortAllPendingTransactions with no transaction lock state'
@@ -202,7 +215,7 @@
 
       return
 
-    SQLitePlugin::open = (success, error) ->
+    SQLitePluginObject::open = (success, error) ->
       if @dbname of @openDBs
         console.log 'database already open: ' + @dbname
 
@@ -257,14 +270,14 @@
         # Wait for callback before opening the database
         # (ignore close error).
         step2 = =>
-          cordova.exec opensuccesscb, openerrorcb, "SQLitePlugin", "open", [ @openargs ]
+          SQLiteProxy.open [ @openargs ], opensuccesscb, openerrorcb
           return
 
-        cordova.exec step2, step2, 'SQLitePlugin', 'close', [ { path: @dbname } ]
+        SQLiteProxy.close [ { path: @dbname } ], step2, step2
 
       return
 
-    SQLitePlugin::close = (success, error) ->
+    SQLitePluginObject::close = (success, error) ->
       if @dbname of @openDBs
         if txLocks[@dbname] && txLocks[@dbname].inProgress
           # FUTURE TBD TODO ref BUG litehelpers/Cordova-sqlite-storage#210:
@@ -292,7 +305,7 @@
         # when closing a database (needs testing!!)
         # (and cleanup any other internal resources)
 
-        cordova.exec success, error, "SQLitePlugin", "close", [ { path: @dbname } ]
+        SQLiteProxy.close [ { path: @dbname } ], success, error
 
       else
         console.log 'cannot close: database is not open'
@@ -300,7 +313,7 @@
 
       return
 
-    SQLitePlugin::executeSql = (statement, params, success, error) ->
+    SQLitePluginObject::executeSql = (statement, params, success, error) ->
       # XXX TODO: better to capture the result, and report it once
       # the transaction has completely finished.
       # This would fix BUG #204 (cannot close db in db.executeSql() callback).
@@ -314,7 +327,7 @@
       @addTransaction new SQLitePluginTransaction(this, myfn, null, null, false, false)
       return
 
-    SQLitePlugin::sqlBatch = (sqlStatements, success, error) ->
+    SQLitePluginObject::sqlBatch = (sqlStatements, success, error) ->
       if !sqlStatements || sqlStatements.constructor isnt Array
         throw newSQLError 'sqlBatch expects an array'
 
@@ -527,7 +540,7 @@
 
         return
 
-      cordova.exec mycb, null, "SQLitePlugin", "backgroundExecuteSqlBatch", [{dbargs: {dbname: @db.dbname}, executes: tropts}]
+      SQLiteProxy.backgroundExecuteSqlBatch [{dbargs: {dbname: @db.dbname}, executes: tropts}], mycb, null
 
       return
 
@@ -691,7 +704,7 @@
           okcb = args[1]
           if args.length > 2 then errorcb = args[2]
 
-        new SQLitePlugin openargs, okcb, errorcb
+        new SQLitePluginObject openargs, okcb, errorcb
 
       deleteDatabase: (first, success, error) ->
         # XXX TODO BUG litehelpers/Cordova-sqlite-storage#367:
@@ -743,8 +756,9 @@
         # abort all pending transactions (with error callback)
         # when deleting a database
         # (and cleanup any other internal resources)
-        delete SQLitePlugin::openDBs[args.path]
-        cordova.exec success, error, "SQLitePlugin", "delete", [ args ]
+        delete SQLitePluginObject::openDBs[args.path]
+        SQLiteProxy.delete [ args ], success, error
+        return
 
 ## Self test:
 
@@ -1007,7 +1021,7 @@
 
 ## Exported API:
 
-    root.sqlitePlugin =
+    sqlitePlugin =
       sqliteFeatures:
         isSQLitePlugin: true
 
@@ -1021,12 +1035,15 @@
         error = (e) ->
           errorcb e
 
-        cordova.exec ok, error, "SQLitePlugin", "echoStringValue", [{value:'test-string'}]
+        SQLiteProxy.echoStringValue [{value:'test-string'}], ok, error
+        return
 
       selfTest: SelfTest.start
 
       openDatabase: SQLiteFactory.openDatabase
       deleteDatabase: SQLiteFactory.deleteDatabase
+
+    root.sqlitePlugin = sqlitePlugin
 
 ## vim directives
 

@@ -1,5 +1,5 @@
 (function() {
-  var DB_STATE_INIT, DB_STATE_OPEN, READ_ONLY_REGEX, SQLiteFactory, SQLitePlugin, SQLitePluginTransaction, SelfTest, argsArray, dblocations, iosLocationMap, newSQLError, nextTick, root, txLocks;
+  var DB_STATE_INIT, DB_STATE_OPEN, READ_ONLY_REGEX, SQLiteFactory, SQLitePluginObject, SQLitePluginTransaction, SQLiteProxy, SelfTest, argsArray, dblocations, getProxyFunction, iosLocationMap, newSQLError, nextTick, root, sqlitePlugin, txLocks;
 
   root = this;
 
@@ -62,10 +62,24 @@
     };
   };
 
-  SQLitePlugin = function(openargs, openSuccess, openError) {
+  getProxyFunction = function(methodName) {
+    return function(argsArray, successCallback, errorCallback) {
+      return cordova.exec(successCallback, errorCallback, 'SQLitePlugin', methodName, argsArray);
+    };
+  };
+
+  SQLiteProxy = {
+    echoStringValue: getProxyFunction('echoStringValue'),
+    open: getProxyFunction('open'),
+    close: getProxyFunction('close'),
+    "delete": getProxyFunction('delete'),
+    backgroundExecuteSqlBatch: getProxyFunction('backgroundExecuteSqlBatch')
+  };
+
+  SQLitePluginObject = function(openargs, openSuccess, openError) {
     var dbname;
     if (!(openargs && openargs['name'])) {
-      throw newSQLError("Cannot create a SQLitePlugin db instance without a db name");
+      throw newSQLError("Cannot create a SQLitePlugin database access instance object without a db name");
     }
     dbname = openargs.name;
     if (typeof dbname !== 'string') {
@@ -84,13 +98,13 @@
     this.open(this.openSuccess, this.openError);
   };
 
-  SQLitePlugin.prototype.databaseFeatures = {
-    isSQLitePluginDatabase: true
+  SQLitePluginObject.prototype.databaseFeatures = {
+    isSQLitePluginObjectDatabase: true
   };
 
-  SQLitePlugin.prototype.openDBs = {};
+  SQLitePluginObject.prototype.openDBs = {};
 
-  SQLitePlugin.prototype.addTransaction = function(t) {
+  SQLitePluginObject.prototype.addTransaction = function(t) {
     if (!txLocks[this.dbname]) {
       txLocks[this.dbname] = {
         queue: [],
@@ -109,7 +123,7 @@
     }
   };
 
-  SQLitePlugin.prototype.transaction = function(fn, error, success) {
+  SQLitePluginObject.prototype.transaction = function(fn, error, success) {
     if (!this.openDBs[this.dbname]) {
       error(newSQLError('database not open'));
       return;
@@ -117,7 +131,7 @@
     this.addTransaction(new SQLitePluginTransaction(this, fn, error, success, true, false));
   };
 
-  SQLitePlugin.prototype.readTransaction = function(fn, error, success) {
+  SQLitePluginObject.prototype.readTransaction = function(fn, error, success) {
     if (!this.openDBs[this.dbname]) {
       error(newSQLError('database not open'));
       return;
@@ -125,7 +139,7 @@
     this.addTransaction(new SQLitePluginTransaction(this, fn, error, success, false, true));
   };
 
-  SQLitePlugin.prototype.startNextTransaction = function() {
+  SQLitePluginObject.prototype.startNextTransaction = function() {
     var self;
     self = this;
     nextTick((function(_this) {
@@ -147,7 +161,7 @@
     })(this));
   };
 
-  SQLitePlugin.prototype.abortAllPendingTransactions = function() {
+  SQLitePluginObject.prototype.abortAllPendingTransactions = function() {
     var j, len1, ref, tx, txLock;
     txLock = txLocks[this.dbname];
     if (!!txLock && txLock.queue.length > 0) {
@@ -161,7 +175,7 @@
     }
   };
 
-  SQLitePlugin.prototype.open = function(success, error) {
+  SQLitePluginObject.prototype.open = function(success, error) {
     var openerrorcb, opensuccesscb, step2;
     if (this.dbname in this.openDBs) {
       console.log('database already open: ' + this.dbname);
@@ -204,18 +218,18 @@
       this.openDBs[this.dbname] = DB_STATE_INIT;
       step2 = (function(_this) {
         return function() {
-          cordova.exec(opensuccesscb, openerrorcb, "SQLitePlugin", "open", [_this.openargs]);
+          SQLiteProxy.open([_this.openargs], opensuccesscb, openerrorcb);
         };
       })(this);
-      cordova.exec(step2, step2, 'SQLitePlugin', 'close', [
+      SQLiteProxy.close([
         {
           path: this.dbname
         }
-      ]);
+      ], step2, step2);
     }
   };
 
-  SQLitePlugin.prototype.close = function(success, error) {
+  SQLitePluginObject.prototype.close = function(success, error) {
     if (this.dbname in this.openDBs) {
       if (txLocks[this.dbname] && txLocks[this.dbname].inProgress) {
         console.log('cannot close: transaction is in progress');
@@ -229,11 +243,11 @@
       } else {
         console.log('closing db with no transaction lock state');
       }
-      cordova.exec(success, error, "SQLitePlugin", "close", [
+      SQLiteProxy.close([
         {
           path: this.dbname
         }
-      ]);
+      ], success, error);
     } else {
       console.log('cannot close: database is not open');
       if (error) {
@@ -244,7 +258,7 @@
     }
   };
 
-  SQLitePlugin.prototype.executeSql = function(statement, params, success, error) {
+  SQLitePluginObject.prototype.executeSql = function(statement, params, success, error) {
     var myerror, myfn, mysuccess;
     mysuccess = function(t, r) {
       if (!!success) {
@@ -262,7 +276,7 @@
     this.addTransaction(new SQLitePluginTransaction(this, myfn, null, null, false, false));
   };
 
-  SQLitePlugin.prototype.sqlBatch = function(sqlStatements, success, error) {
+  SQLitePluginObject.prototype.sqlBatch = function(sqlStatements, success, error) {
     var batchList, j, len1, myfn, st;
     if (!sqlStatements || sqlStatements.constructor !== Array) {
       throw newSQLError('sqlBatch expects an array');
@@ -466,14 +480,14 @@
         }
       }
     };
-    cordova.exec(mycb, null, "SQLitePlugin", "backgroundExecuteSqlBatch", [
+    SQLiteProxy.backgroundExecuteSqlBatch([
       {
         dbargs: {
           dbname: this.db.dbname
         },
         executes: tropts
       }
-    ]);
+    ], mycb, null);
   };
 
   SQLitePluginTransaction.prototype.abort = function(txFailure) {
@@ -605,7 +619,7 @@
           errorcb = args[2];
         }
       }
-      return new SQLitePlugin(openargs, okcb, errorcb);
+      return new SQLitePluginObject(openargs, okcb, errorcb);
     }),
     deleteDatabase: function(first, success, error) {
       var args, dblocation, dbname;
@@ -633,8 +647,8 @@
         throw newSQLError('Valid iOS database location could not be determined in deleteDatabase call');
       }
       args.dblocation = dblocation;
-      delete SQLitePlugin.prototype.openDBs[args.path];
-      return cordova.exec(success, error, "SQLitePlugin", "delete", [args]);
+      delete SQLitePluginObject.prototype.openDBs[args.path];
+      SQLiteProxy["delete"]([args], success, error);
     }
   };
 
@@ -886,7 +900,7 @@
     }
   };
 
-  root.sqlitePlugin = {
+  sqlitePlugin = {
     sqliteFeatures: {
       isSQLitePlugin: true
     },
@@ -902,15 +916,17 @@
       error = function(e) {
         return errorcb(e);
       };
-      return cordova.exec(ok, error, "SQLitePlugin", "echoStringValue", [
+      SQLiteProxy.echoStringValue([
         {
           value: 'test-string'
         }
-      ]);
+      ], ok, error);
     },
     selfTest: SelfTest.start,
     openDatabase: SQLiteFactory.openDatabase,
     deleteDatabase: SQLiteFactory.deleteDatabase
   };
+
+  root.sqlitePlugin = sqlitePlugin;
 
 }).call(this);
