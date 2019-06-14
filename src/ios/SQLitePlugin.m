@@ -83,6 +83,15 @@
     return dbPath;
 }
 
+-(id) getDBPath:(NSString *)dbFile inDirectory:(NSString *)directory {
+    if (dbFile == NULL || directory == NULL) {
+        return NULL;
+    }
+
+    NSString *dbPath = [directory stringByAppendingPathComponent: dbFile];
+    return dbPath;
+}
+
 -(void)echoStringValue: (CDVInvokedUrlCommand*)command
 {
     CDVPluginResult * pluginResult = nil;
@@ -115,6 +124,10 @@
     // DLog(@"using db location: %@", dblocation);
 
     NSString *dbname = [self getDBPath:dbfilename at:dblocation];
+    NSString *directoryURL = [options objectForKey:@"iosDirectoryURL"];
+    if (directoryURL != NULL) {
+        dbname = [self getDBPath:dbfilename inDirectory:directoryURL];
+    }
 
     if (!sqlite3_threadsafe()) {
         // INTERNAL PLUGIN ERROR:
@@ -238,6 +251,10 @@
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"INTERNAL PLUGIN ERROR: You must specify database path"];
     } else {
         NSString *dbPath = [self getDBPath:dbFileName at:dblocation];
+        NSString *directoryURL = [options objectForKey:@"iosDirectoryURL"];
+        if (directoryURL != NULL) {
+            dbPath = [self getDBPath:dbFileName inDirectory:directoryURL];
+        }
 
         if ([[NSFileManager defaultManager]fileExistsAtPath:dbPath]) {
             DLog(@"delete full db path: %@", dbPath);
