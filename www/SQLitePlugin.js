@@ -637,7 +637,7 @@
         }
         args.dblocation = dblocation;
       } else {
-        args.iosDirectoryURL = iosDirectoryURL;
+        args.iosDirectoryURL = first.iosDirectoryURL;
       }
       delete SQLitePlugin.prototype.openDBs[args.path];
       return cordova.exec(success, error, "SQLitePlugin", "delete", [args]);
