@@ -2,6 +2,8 @@
 
 #### cordova-sqlite-storage 3.2.1-dev
 
+- cordova-sqlite-storage-dependencies@2.0.1 with SQLite 3.28.0 update for all supported platforms Android/iOS/macOS/Windows
+
 #### cordova-sqlite-storage 3.2.0
 
 - sqlite3_threadsafe() error handling on iOS/macOS
