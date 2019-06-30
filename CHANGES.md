@@ -1,6 +1,6 @@
 # Changes
 
-#### cordova-sqlite-storage 3.2.1-dev
+#### cordova-sqlite-storage 3.2.1
 
 - cordova-sqlite-storage-dependencies@2.0.1 with SQLite 3.28.0 update for all supported platforms Android/iOS/macOS/Windows
 
