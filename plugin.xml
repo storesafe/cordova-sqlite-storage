@@ -52,6 +52,8 @@
 
         <source-file src="src/android/native/armeabi-v7a/libjsqlite.so" target-dir="libs/armeabi-v7a/" />
         <source-file src="src/android/native/x86/libjsqlite.so" target-dir="libs/x86/" />
+        <source-file src="src/android/native/x86_64/libjsqlite.so" target-dir="libs/x86_64/" />
+        <source-file src="src/android/native/arm64-v8a/libjsqlite.so" target-dir="libs/arm64-v8a/" />
 
     </platform>
 
