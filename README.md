@@ -1,4 +1,4 @@
-# Cross-platform SQLite storage plugin for Cordova/PhoneGap
+# Cross-platform SQLite storage plugin for Cordova/PhoneGap - cordova-sqlite-storage-commoncore version branch
 
 Native SQLite component with API based on HTML5/[Web SQL (DRAFT) API](http://www.w3.org/TR/webdatabase/) for the following platforms:
 - Android
