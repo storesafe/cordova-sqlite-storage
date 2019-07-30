@@ -1,6 +1,6 @@
 # Changes
 
-### cordova-sqlite-storage-commoncore 1.0.0-pre1
+### cordova-sqlite-storage-commoncore 1.0.0
 
 - additional EU string manipulation test cases
 
