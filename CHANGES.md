@@ -2,6 +2,8 @@
 
 ### cordova-sqlite-storage-commoncore 1.0.0-pre1
 
+- additional EU string manipulation test cases
+
 ### cordova-sqlite-storage 2.5.1
 
 - fix internal plugin cleanup error log on Android
