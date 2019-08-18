@@ -2,6 +2,8 @@
 
 #### cordova-sqlite-storage 3.2.2-dev
 
+- new default page & cache sizes with cordova-sqlite-storage-dependencies@2.1.0
+
 ##### cordova-sqlite-storage-commoncore 1.0.0
 
 - additional EU string manipulation test cases
