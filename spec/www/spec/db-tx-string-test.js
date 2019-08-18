@@ -1039,7 +1039,10 @@ var mytests = function() {
               var resultRow1 = rs1.rows.item(0);
               expect(resultRow1).toBeDefined();
               expect(resultRow1.myresult).toBeDefined();
-              // SQLite3 with ICU-UNICODE for builtin android.database on Android 4.4 and greater
+              // SQLite3 with ICU-UNICODE for:
+              // - Web SQL on Chrome desktop browser
+              // - plugin with androidDatabaseImplementation: 2 on
+              //   Android 4.4 & newer
               if ((isWebSql && isChromeBrowser) ||
                   (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
                 expect(resultRow1.myresult).toBe('AÉ');
@@ -1054,12 +1057,127 @@ var mytests = function() {
                 var resultRow2 = rs2.rows.item(0);
                 expect(resultRow2).toBeDefined();
                 expect(resultRow2.myresult).toBeDefined();
-                // SQLite3 with ICU-UNICODE for builtin android.database on Android 4.4 and greater
+                // SQLite3 with ICU-UNICODE for:
+                // - Web SQL on Chrome desktop browser
+                // - plugin with androidDatabaseImplementation: 2 on
+                //   Android 4.4 & newer
                 if ((isWebSql && isChromeBrowser) ||
                     (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
                   expect(resultRow2.myresult).toBe('BÉ');
                 else
                   expect(resultRow2.myresult).toBe('Bé');
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'string LOWER test with UTF-8 2-byte accented character É', function(done) {
+          var db = openDatabase('UTF8-2-byte-accented-character-lower-value-string-test.db');
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql('SELECT LOWER(?) AS myresult', ['AÉ'], function(ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+
+              var resultRow1 = rs1.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.myresult).toBeDefined();
+              // SQLite3 with ICU-UNICODE for:
+              // - Web SQL on Chrome desktop browser
+              // - plugin with androidDatabaseImplementation: 2 on
+              //   Android 4.4 & newer
+              if ((isWebSql && isChromeBrowser) ||
+                  (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
+                expect(resultRow1.myresult).toBe('aé');
+              else
+                expect(resultRow1.myresult).toBe('aÉ');
+
+              tx.executeSql("SELECT LOWER('BÉ') AS myresult", [], function(ignored, rs2) {
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+
+                var resultRow2 = rs2.rows.item(0);
+                expect(resultRow2).toBeDefined();
+                expect(resultRow2.myresult).toBeDefined();
+                // SQLite3 with ICU-UNICODE for:
+                // - Web SQL on Chrome desktop browser
+                // - plugin with androidDatabaseImplementation: 2 on
+                //   Android 4.4 & newer
+                if ((isWebSql && isChromeBrowser) ||
+                    (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
+                  expect(resultRow2.myresult).toBe('bé');
+                else
+                  expect(resultRow2.myresult).toBe('bÉ');
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'string UPPER test with UTF-8 2-byte German character ß', function(done) {
+          var db = openDatabase('UTF8-2-byte-de-character-upper-value-string-test.db');
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql('SELECT UPPER(?) AS myresult', ['straße'], function(ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+
+              var resultRow1 = rs1.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.myresult).toBeDefined();
+              // SQLite3 with ICU-UNICODE for:
+              // - Web SQL on Chrome desktop browser
+              // - plugin with androidDatabaseImplementation: 2 on
+              //   Android 4.4 & newer
+              if ((isWebSql && isChromeBrowser) ||
+                  (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
+                expect(resultRow1.myresult).toBe('STRASSE');
+              else
+                expect(resultRow1.myresult).toBe('STRAßE');
+
+              tx.executeSql("SELECT UPPER('straße') AS myresult", [], function(ignored, rs2) {
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+
+                var resultRow2 = rs2.rows.item(0);
+                expect(resultRow2).toBeDefined();
+                expect(resultRow2.myresult).toBeDefined();
+                // SQLite3 with ICU-UNICODE for:
+                // - Web SQL on Chrome desktop browser
+                // - plugin with androidDatabaseImplementation: 2 on
+                //   Android 4.4 & newer
+                if ((isWebSql && isChromeBrowser) ||
+                    (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
+                  expect(resultRow2.myresult).toBe('STRASSE');
+                else
+                  expect(resultRow2.myresult).toBe('STRAßE');
 
                 // Close (plugin only) & finish:
                 (isWebSql) ? done() : db.close(done, done);
@@ -1232,6 +1350,62 @@ var mytests = function() {
                 expect(resultRow2).toBeDefined();
                 expect(resultRow2.myresult).toBeDefined();
                 expect(resultRow2.myresult).toBe('Bࠁ.');
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        it(suiteName + 'string LOWER test with UTF8 3-byte German character ẞ', function(done) {
+          var db = openDatabase('UTF8-3-byte-de-LOWER-string-value-test.db');
+
+          db.transaction(function(tx) {
+
+            tx.executeSql('SELECT LOWER(?) AS myresult', ['STRAẞE'], function(ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+
+              var resultRow1 = rs1.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.myresult).toBeDefined();
+              // SQLite3 with ICU-UNICODE for:
+              // - Web SQL on Chrome desktop browser
+              // - plugin with androidDatabaseImplementation: 2 on
+              //   Android 4.4 & newer
+              if ((isWebSql && isChromeBrowser) ||
+                  (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
+                expect(resultRow1.myresult).toBe('straße');
+              else
+                expect(resultRow1.myresult).toBe('straẞe');
+
+              tx.executeSql("SELECT LOWER('STRAẞE') AS myresult", [], function(ignored, rs2) {
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+                var resultRow2 = rs2.rows.item(0);
+
+                expect(resultRow2).toBeDefined();
+                expect(resultRow2.myresult).toBeDefined();
+                // SQLite3 with ICU-UNICODE for:
+                // - Web SQL on Chrome desktop browser
+                // - plugin with androidDatabaseImplementation: 2 on
+                //   Android 4.4 & newer
+                if ((isWebSql && isChromeBrowser) ||
+                    (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
+                  expect(resultRow2.myresult).toBe('straße');
+                else
+                  expect(resultRow2.myresult).toBe('straẞe');
+
 
                 // Close (plugin only) & finish:
                 (isWebSql) ? done() : db.close(done, done);
@@ -1757,6 +1931,10 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
+              // SQLite3 with ICU-UNICODE for:
+              // - Web SQL on Chrome desktop browser
+              // - plugin with androidDatabaseImplementation: 2 on
+              //   Android 4.4 & newer
               if ((isWebSql && isChromeBrowser) ||
                   (isAndroid && ((isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
                 expect(rs.rows.item(0).upper_result).toBe('TEST ¢ É €');
@@ -1784,6 +1962,10 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
+              // SQLite3 with ICU-UNICODE for:
+              // - Web SQL on Chrome desktop browser
+              // - plugin with androidDatabaseImplementation: 2 on
+              //   Android 4.4 & newer
               if ((isWebSql && isChromeBrowser) ||
                   (isAndroid && ((isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
                 expect(rs.rows.item(0).upper_result).toBe('TEST ¢ É €');
