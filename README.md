@@ -12,10 +12,6 @@ Browser platform is currently supported with some limitations as described in [b
 
 __WARNING: Multiple SQLite problem on all platforms__ _with possible corruption risk in case of sqlite access from multiple plugins (see below)_
 
-# FREE CONSULTING SPECIAL
-
-The primary author and maintainer [@brodybits (Chris Brody)](https://github.com/brodybits) is happy to offer free consulting for a limited time period - please see <https://xpbrew.consulting> for more information.
-
 ## NEW MAJOR RELEASE Coming with BREAKING CHANGES
 
 A new major release is planned as discussed in ([xpbrew/cordova-sqlite-storage#773](https://github.com/xpbrew/cordova-sqlite-storage/issues/773)).
@@ -67,27 +63,6 @@ var db = window.sqlitePlugin.openDatabase({
 This plugin version also uses a fixed version of sqlite3 on iOS, macOS, and Windows. In case the application accesses the SAME database using multiple plugins there is a risk of data corruption as described in <https://www.sqlite.org/howtocorrupt.html> (similar to the multiple sqlite problem for Android as described in <http://ericsink.com/entries/multiple_sqlite_problem.html>).
 
 <!-- END WARNING: Multiple SQLite problem -->
-
-## Available for hire
-
-The primary author and maintainer [@brodybits (Christopher J. Brody aka Chris Brody)](https://github.com/brodybits) is available for part-time contract assignments. Services available for this project include:
-
-- Priority issue support
-- Help with application code such as debugging, optimization, etc.
-- Warranty and support retainers
-- Priority fixes and enhancements
-- Custom feature development
-
-Other services available include:
-
-- Front-end/back-end development
-- Mentoring and training services
-
-For more information:
-- <https://xpbrew.consulting>
-- <sales@xpbrew.consulting>
-
-<!-- END Services available -->
 
 ## A quick tour
 
