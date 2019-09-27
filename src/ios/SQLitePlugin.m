@@ -517,7 +517,7 @@
     // the websql error code
     switch(code) {
         case SQLITE_ERROR:
-            return SYNTAX_ERR;
+            return SYNTAX_ERR_;
         case SQLITE_FULL:
             return QUOTA_ERR;
         case SQLITE_CONSTRAINT:
