@@ -131,6 +131,32 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        it(suiteName + 'Inline US-ASCII String manipulation test with double-quotes in result key', function(done) {
+          var db = openDatabase('Inline-US-ASCII-string-test-with-null-parameter-list.db');
+
+          expect(db).toBeDefined();
+
+          db.transaction(function(tx) {
+            expect(tx).toBeDefined();
+
+            tx.executeSql('SELECT UPPER("Some US-ASCII text")', null, function(tx_ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              expect(rs.rows.item(0)).toEqual({ 'UPPER("Some US-ASCII text")' : 'SOME US-ASCII TEXT' });
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
         it(suiteName + 'Inline US-ASCII String manipulation test with undefined parameter list', function(done) {
           var db = openDatabase('Inline-US-ASCII-string-test-with-undefined-parameter-list.db');
 
