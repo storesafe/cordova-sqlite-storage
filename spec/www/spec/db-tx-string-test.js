@@ -132,7 +132,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'Inline US-ASCII String manipulation test with double-quotes in result key', function(done) {
-          var db = openDatabase('Inline-US-ASCII-string-test-with-null-parameter-list.db');
+          // ref: brodysoft/cordova-sqlite-evcore-extbuild-free#51
+          var db = openDatabase('Inline-US-ASCII-string-test-with-double-quotes-in-result-key.db');
 
           expect(db).toBeDefined();
 
