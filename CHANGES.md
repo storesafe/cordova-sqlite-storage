@@ -2,6 +2,10 @@
 
 #### cordova-sqlite-storage 3.4.1-dev
 
+TBD
+
+#### cordova-sqlite-storage 3.4.0
+
 - quick workaround for `SYNTAX_ERR` redefinition
 
 #### cordova-sqlite-storage 3.3.0
