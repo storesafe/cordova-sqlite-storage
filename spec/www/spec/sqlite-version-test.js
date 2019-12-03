@@ -104,7 +104,7 @@ var mytests = function() {
               expect(rs).toBeDefined();
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
-              expect(rs.rows.item(0).myResult).toBe('3.28.0');
+              expect(rs.rows.item(0).myResult).toBe('3.30.1');
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
