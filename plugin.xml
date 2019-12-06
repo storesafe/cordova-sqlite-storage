@@ -2,7 +2,7 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-sqlite-storage"
-    version="3.4.2-dev">
+    version="4.0.0-pre1">
 
     <name>Cordova sqlite storage plugin - cordova-sqlite-storage plugin version</name>
 
@@ -51,8 +51,7 @@
         <header-file src="src/ios/SQLitePlugin.h" />
         <source-file src="src/ios/SQLitePlugin.m" />
 
-        <header-file src="src/ios/PSPDFThreadSafeMutableDictionary.h" />
-        <source-file src="src/ios/PSPDFThreadSafeMutableDictionary.m"
+        <source-file src="src/ios/CustomPSPDFThreadSafeMutableDictionary.m"
                 compiler-flags="-w" />
 
         <header-file src="node_modules/cordova-sqlite-storage-dependencies/sqlite3.h" />
@@ -72,8 +71,7 @@
         <header-file src="src/ios/SQLitePlugin.h" />
         <source-file src="src/ios/SQLitePlugin.m" />
 
-        <header-file src="src/ios/PSPDFThreadSafeMutableDictionary.h" />
-        <source-file src="src/ios/PSPDFThreadSafeMutableDictionary.m"
+        <source-file src="src/ios/CustomPSPDFThreadSafeMutableDictionary.m"
                 compiler-flags="-w" />
 
         <header-file src="node_modules/cordova-sqlite-storage-dependencies/sqlite3.h" />

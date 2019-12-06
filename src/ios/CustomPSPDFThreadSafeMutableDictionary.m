@@ -1,5 +1,9 @@
 //
-// PSPDFThreadSafeMutableDictionary.m
+// CustomPSPDFThreadSafeMutableDictionary.m
+//
+// renamed from PSPDFThreadSafeMutableDictionary.m
+//
+// Copyright (c) 2019-present Christopher J. Brody (aka Chris Brody)
 //
 // Copyright (c) 2013 Peter Steinberger, PSPDFKit GmbH. All rights reserved.
 //
@@ -23,29 +27,31 @@
 
 #import <Foundation/Foundation.h>
 
-/* ** ALREADY INCLUDED BY #import "PSPDFThreadSafeMutableDictionary.h"
 // Dictionary-Subclasss whose primitive operations are thread safe.
-@interface PSPDFThreadSafeMutableDictionary : NSMutableDictionary
+@interface CustomPSPDFThreadSafeMutableDictionary : NSMutableDictionary
 @end
-// */
 
 // ----------------------------------------------------------------
 
 //
-//  PSPDFThreadSafeMutableDictionary.m
+//  CustomPSPDFThreadSafeMutableDictionary.m
+//
+//  renamed from PSPDFThreadSafeMutableDictionary.m
+//
 //  PSPDFKit
 //
 //  Copyright (c) 2013 PSPDFKit GmbH. All rights reserved.
 //
 
-#import "PSPDFThreadSafeMutableDictionary.h"
+// #import "PSPDFThreadSafeMutableDictionary.h"
+
 #import <libkern/OSAtomic.h>
 
 #define LOCKED(...) OSSpinLockLock(&_lock); \
 __VA_ARGS__; \
 OSSpinLockUnlock(&_lock);
 
-@implementation PSPDFThreadSafeMutableDictionary {
+@implementation CustomPSPDFThreadSafeMutableDictionary {
     OSSpinLock _lock;
     NSMutableDictionary *_dictionary; // Class Cluster!
 }
@@ -145,8 +151,8 @@ OSSpinLockUnlock(&_lock);
 - (BOOL)isEqual:(id)object {
     if (object == self) return YES;
 
-    if ([object isKindOfClass:PSPDFThreadSafeMutableDictionary.class]) {
-        PSPDFThreadSafeMutableDictionary *other = object;
+    if ([object isKindOfClass:CustomPSPDFThreadSafeMutableDictionary.class]) {
+        CustomPSPDFThreadSafeMutableDictionary *other = object;
         __block BOOL isEqual = NO;
         [other performLockedWithDictionary:^(NSDictionary *dictionary) {
             [self performLockedWithDictionary:^(NSDictionary *otherDictionary) {

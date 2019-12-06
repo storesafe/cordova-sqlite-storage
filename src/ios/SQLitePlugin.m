@@ -10,8 +10,6 @@
 
 #import "sqlite3.h"
 
-#import "PSPDFThreadSafeMutableDictionary.h"
-
 // Defines Macro to only log lines when in DEBUG mode
 #ifdef DEBUG
 #   define DLog(fmt, ...) NSLog((@"%s [Line %d] " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__);
@@ -23,6 +21,13 @@
 #   error "Missing objc_arc feature"
 #endif
 
+// CustomPSPDFThreadSafeMutableDictionary interface copied from
+// CustomPSPDFThreadSafeMutableDictionary.m:
+//
+// Dictionary-Subclasss whose primitive operations are thread safe.
+@interface CustomPSPDFThreadSafeMutableDictionary : NSMutableDictionary
+@end
+
 @implementation SQLitePlugin
 
 @synthesize openDBs;
@@ -33,7 +38,7 @@
     DLog(@"Initializing SQLitePlugin");
 
     {
-        openDBs = [PSPDFThreadSafeMutableDictionary dictionaryWithCapacity:0];
+        openDBs = [CustomPSPDFThreadSafeMutableDictionary dictionaryWithCapacity:0];
         appDBPaths = [NSMutableDictionary dictionaryWithCapacity:0];
 
         NSString *docs = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex: 0];

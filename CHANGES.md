@@ -1,8 +1,8 @@
 # Changes
 
-#### cordova-sqlite-storage 3.4.2-dev
+#### cordova-sqlite-storage 4.0.0-pre1
 
-TBD
+- rename PSPDFThreadSafeMutableDictionary to CustomPSPDFThreadSafeMutableDictionary and completely remove PSPDFThreadSafeMutableDictionary.h
 
 #### cordova-sqlite-storage 3.4.1
 
