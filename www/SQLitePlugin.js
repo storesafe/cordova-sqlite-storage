@@ -11,27 +11,19 @@
 
   txLocks = {};
 
-  newSQLError = function(error, code) {
+  newSQLError = function(error) {
     var sqlError;
     sqlError = error;
-    if (!code) {
-      code = 0;
-    }
     if (!sqlError) {
       sqlError = new Error("a plugin had an error but provided no response");
-      sqlError.code = code;
     }
     if (typeof sqlError === "string") {
       sqlError = new Error(error);
-      sqlError.code = code;
     }
-    if (!sqlError.code && sqlError.message) {
-      sqlError.code = code;
-    }
-    if (!sqlError.code && !sqlError.message) {
+    if (!sqlError.message) {
       sqlError = new Error("an unknown error was returned: " + JSON.stringify(sqlError));
-      sqlError.code = code;
     }
+    sqlError.code = 0;
     return sqlError;
   };
 
@@ -317,7 +309,7 @@
     this.executes = [];
     if (txlock) {
       this.addStatement("BEGIN", [], null, function(tx, err) {
-        throw newSQLError("unable to begin transaction: " + err.message, err.code);
+        throw newSQLError("unable to begin transaction: " + err.message);
       });
     } else {
       this.addStatement("SELECT 1", [], null, null);
@@ -341,10 +333,7 @@
 
   SQLitePluginTransaction.prototype.executeSql = function(sql, values, success, error) {
     if (this.finalized) {
-      throw {
-        message: 'InvalidStateError: DOM Exception 11: This transaction is already finalized. Transactions are committed after its success or failure handlers are called. If you are using a Promise to handle callbacks, be aware that implementations following the A+ standard adhere to run-to-completion semantics and so Promise resolution occurs on a subsequent tick and therefore after the transaction commits.',
-        code: 11
-      };
+      throw newSQLError('InvalidStateError: This transaction is already finalized. Transactions are committed after its success or failure handlers are called. If you are using a Promise to handle callbacks, be aware that implementations following the A+ standard adhere to run-to-completion semantics and so Promise resolution occurs on a subsequent tick and therefore after the transaction commits.');
       return;
     }
     if (this.readOnly && READ_ONLY_REGEX.test(sql)) {
@@ -396,10 +385,10 @@
 
   SQLitePluginTransaction.prototype.handleStatementFailure = function(handler, response) {
     if (!handler) {
-      throw newSQLError("a statement with no error handler failed: " + response.message, response.code);
+      throw newSQLError("a statement with no error handler failed: " + response.message);
     }
     if (handler(this, response) !== false) {
-      throw newSQLError("a statement error callback did not return false: " + response.message, response.code);
+      throw newSQLError("a statement error callback did not return false: " + response.message);
     }
   };
 
@@ -493,7 +482,7 @@
       txLocks[tx.db.dbname].inProgress = false;
       tx.db.startNextTransaction();
       if (tx.error && typeof tx.error === 'function') {
-        tx.error(newSQLError('error while trying to roll back: ' + err.message, err.code));
+        tx.error(newSQLError('error while trying to roll back: ' + err.message));
       }
     };
     this.finalized = true;
@@ -522,7 +511,7 @@
       txLocks[tx.db.dbname].inProgress = false;
       tx.db.startNextTransaction();
       if (tx.error && typeof tx.error === 'function') {
-        tx.error(newSQLError('error while trying to commit: ' + err.message, err.code));
+        tx.error(newSQLError('error while trying to commit: ' + err.message));
       }
     };
     this.finalized = true;

@@ -481,10 +481,7 @@ var mytests = function() {
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
 
-            if (isWindows || (isAndroid && isImpl2))
-              expect(error.code).toBe(0);
-            else
-              expect(error.code).toBe(5);
+            expect(error.code).toBe(0);
 
             if (isWindows)
               expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);
@@ -516,10 +513,7 @@ var mytests = function() {
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
 
-            if (isWindows)
-              expect(error.code).toBe(0);
-            else
-              expect(error.code).toBe(6);
+            expect(error.code).toBe(0);
 
             if (isWindows)
               expect(error.message).toMatch(/a statement with no error handler failed: SQLite3 step error result code: 1/);

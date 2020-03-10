@@ -123,7 +123,7 @@ var mytests = function() {
               if (!isWebSql || isWindows || (isAndroid && (/Android 4/.test(navigator.userAgent))))
                 expect(error.hasOwnProperty('message')).toBe(true);
 
-              if (isWindows || (isAndroid && isImpl2))
+              if (!isWebSql) // is plugin
                 expect(error.code).toBe(0);
               else
                 expect(error.code).toBe(5);
@@ -154,10 +154,7 @@ var mytests = function() {
             if (!isWebSql || isWindows || (isAndroid && (/Android 4/.test(navigator.userAgent))))
               expect(error.hasOwnProperty('message')).toBe(true);
 
-            if (isWindows || isWebSql || (isAndroid && isImpl2))
-              expect(error.code).toBe(0);
-            else
-              expect(error.code).toBe(5);
+            expect(error.code).toBe(0);
 
             if (isWebSql)
               expect(error.message).toMatch(/callback raised an exception.*or.*error callback did not return false/);
@@ -199,7 +196,7 @@ var mytests = function() {
               if (!isWebSql || isWindows || (isAndroid && (/Android 4/.test(navigator.userAgent))))
                 expect(error.hasOwnProperty('message')).toBe(true);
 
-              if (isWindows || (isAndroid && isImpl2))
+              if (!isWebSql) // is plugin
                 expect(error.code).toBe(0);
               else
                 expect(error.code).toBe(5);
@@ -226,10 +223,7 @@ var mytests = function() {
             if (!isWebSql || isWindows || (isAndroid && (/Android 4/.test(navigator.userAgent))))
               expect(error.hasOwnProperty('message')).toBe(true);
 
-            if (isWindows || isWebSql || (isAndroid && isImpl2))
-              expect(error.code).toBe(0);
-            else
-              expect(error.code).toBe(5);
+            expect(error.code).toBe(0);
 
             if (isWebSql)
               expect(error.message).toMatch(/callback raised an exception.*or.*error callback did not return false/);
@@ -274,7 +268,7 @@ var mytests = function() {
               if (!isWebSql || isWindows || (isAndroid && (/Android 4/.test(navigator.userAgent))))
                 expect(error.hasOwnProperty('message')).toBe(true);
 
-              if (isWindows || (isAndroid && isImpl2))
+              if (!isWebSql) // is plugin
                 expect(error.code).toBe(0);
               else
                 expect(error.code).toBe(5);
@@ -312,10 +306,7 @@ var mytests = function() {
             if (!isWebSql || isWindows || (isAndroid && (/Android 4/.test(navigator.userAgent))))
               expect(error.hasOwnProperty('message')).toBe(true);
 
-            if (isWindows || isWebSql || (isAndroid && isImpl2))
-              expect(error.code).toBe(0);
-            else
-              expect(error.code).toBe(5);
+            expect(error.code).toBe(0);
 
             if (isWebSql)
               expect(error.message).toMatch(/callback raised an exception.*or.*error callback did not return false/);
@@ -372,7 +363,7 @@ var mytests = function() {
 
               if (isWebSql && (!isAndroid || /Android 4.[1-3]/.test(navigator.userAgent)))
                 expect(true).toBe(true); // SKIP for iOS (WebKit) & Android 4.1-4.3 (WebKit) Web SQL
-              else if (isWindows)
+              else if (!isWebSql) // is plugin
                 expect(error.code).toBe(0);
               else
                 expect(error.code).toBe(6);
@@ -408,10 +399,7 @@ var mytests = function() {
             if (!isWebSql || isWindows || (isAndroid && (/Android 4/.test(navigator.userAgent))))
               expect(error.hasOwnProperty('message')).toBe(true);
 
-            if (isWindows || isWebSql)
-              expect(error.code).toBe(0);
-            else
-              expect(error.code).toBe(6);
+            expect(error.code).toBe(0);
 
             if (isWebSql)
               expect(error.message).toMatch(/callback raised an exception.*or.*error callback did not return false/);
@@ -453,7 +441,7 @@ var mytests = function() {
               if (!isWebSql || isWindows || (isAndroid && (/Android 4/.test(navigator.userAgent))))
                 expect(error.hasOwnProperty('message')).toBe(true);
 
-              if (isWindows || (isAndroid && isImpl2))
+              if (!isWebSql) // is plugin
                 expect(error.code).toBe(0);
               else
                 expect(error.code).toBe(5);
@@ -485,10 +473,7 @@ var mytests = function() {
             if (!isWebSql || isWindows || (isAndroid && (/Android 4/.test(navigator.userAgent))))
               expect(error.hasOwnProperty('message')).toBe(true);
 
-            if (isWebSql || isWindows || (isAndroid && isImpl2))
-              expect(error.code).toBe(0);
-            else
-              expect(error.code).toBe(5);
+            expect(error.code).toBe(0);
 
             if (isWebSql)
               expect(error.message).toMatch(/callback raised an exception.*or.*error callback did not return false/);
@@ -531,7 +516,7 @@ var mytests = function() {
               if (!isWebSql || isWindows || (isAndroid && (/Android 4/.test(navigator.userAgent))))
                 expect(error.hasOwnProperty('message')).toBe(true);
 
-              if (isWindows || (isAndroid && isImpl2))
+              if (!isWebSql) // is plugin
                 expect(error.code).toBe(0);
               else
                 expect(error.code).toBe(5);
@@ -561,10 +546,7 @@ var mytests = function() {
             if (!isWebSql || isWindows || (isAndroid && (/Android 4/.test(navigator.userAgent))))
               expect(error.hasOwnProperty('message')).toBe(true);
 
-            if (isWebSql || isWindows || (isAndroid && isImpl2))
-              expect(error.code).toBe(0);
-            else
-              expect(error.code).toBe(5);
+            expect(error.code).toBe(0);
 
             if (isWebSql)
               expect(error.message).toMatch(/callback raised an exception.*or.*error callback did not return false/);
@@ -608,7 +590,7 @@ var mytests = function() {
               if (!isWebSql || isWindows || (isAndroid && (/Android 4/.test(navigator.userAgent))))
                 expect(error.hasOwnProperty('message')).toBe(true);
 
-              if (isWindows || (isAndroid && isImpl2))
+              if (!isWebSql) // is plugin
                 expect(error.code).toBe(0);
               else
                 expect(error.code).toBe(5);
@@ -639,10 +621,7 @@ var mytests = function() {
             if (!isWebSql || isWindows || (isAndroid && (/Android 4/.test(navigator.userAgent))))
               expect(error.hasOwnProperty('message')).toBe(true);
 
-            if (isWebSql || isWindows || (isAndroid && isImpl2))
-              expect(error.code).toBe(0);
-            else
-              expect(error.code).toBe(5);
+            expect(error.code).toBe(0);
 
             if (isWebSql)
               expect(error.message).toMatch(/callback raised an exception.*or.*error callback did not return false/);
@@ -686,7 +665,7 @@ var mytests = function() {
               if (!isWebSql || isWindows || (isAndroid && (/Android 4/.test(navigator.userAgent))))
                 expect(error.hasOwnProperty('message')).toBe(true);
 
-              if (isWindows || (isAndroid && isImpl2))
+              if (!isWebSql) // is plugin
                 expect(error.code).toBe(0);
               else
                 expect(error.code).toBe(5);
@@ -717,10 +696,7 @@ var mytests = function() {
             if (!isWebSql || isWindows || (isAndroid && (/Android 4/.test(navigator.userAgent))))
               expect(error.hasOwnProperty('message')).toBe(true);
 
-            if (isWebSql || isWindows || (isAndroid && isImpl2))
-              expect(error.code).toBe(0);
-            else
-              expect(error.code).toBe(5);
+            expect(error.code).toBe(0);
 
             if (isWebSql)
               expect(error.message).toMatch(/callback raised an exception.*or.*error callback did not return false/);
@@ -766,7 +742,7 @@ var mytests = function() {
               if (!isWebSql || isWindows || (isAndroid && (/Android 4/.test(navigator.userAgent))))
                 expect(error.hasOwnProperty('message')).toBe(true);
 
-              if (isWindows || (!isWebSql && isAndroid && isImpl2))
+              if (!isWebSql) // is plugin
                 expect(error.code).toBe(0);
               else
                 expect(error.code).toBe(5);
@@ -802,10 +778,7 @@ var mytests = function() {
             if (!isWebSql || isWindows || (isAndroid && (/Android 4/.test(navigator.userAgent))))
               expect(error.hasOwnProperty('message')).toBe(true);
 
-            if (isWebSql || isWindows || (isAndroid && isImpl2))
-              expect(error.code).toBe(0);
-            else
-              expect(error.code).toBe(5);
+            expect(error.code).toBe(0);
 
             if (isWebSql)
               expect(error.message).toMatch(/callback raised an exception.*or.*error callback did not return false/);
@@ -839,7 +812,7 @@ var mytests = function() {
             if (!isWebSql || isWindows || (isAndroid && (/Android 4/.test(navigator.userAgent))))
               expect(error.hasOwnProperty('message')).toBe(true);
 
-            if (isWindows || (isAndroid && isImpl2))
+            if (!isWebSql) // is plugin
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -888,7 +861,7 @@ var mytests = function() {
 
             if (isWebSql && (!isAndroid || /Android 4.[1-3]/.test(navigator.userAgent)))
               expect(true).toBe(true); // SKIP for iOS (WebKit) & Android 4.1-4.3 (WebKit) Web SQL
-            else if (isWindows)
+            else if (!isWebSql) // is plugin
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(6);

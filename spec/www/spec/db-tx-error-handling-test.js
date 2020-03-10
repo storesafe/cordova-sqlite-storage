@@ -97,12 +97,12 @@ var mytests = function() {
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
 
-            if (isWindows || (isAndroid && isImpl2))
-              expect(error.code).toBe(0);
-            else if (isWebSql && isAndroid)
+            if (isWebSql && isAndroid)
               expect(true).toBe(true); // SKIP for now
-            else
+            else if (isWebSql)
               expect(error.code).toBe(5);
+            else
+              expect(error.code).toBe(0);
 
             // Close (plugin only) & finish:
             (isWebSql) ? done() : db.close(done, done);
@@ -2058,7 +2058,7 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWindows || (isAndroid && isImpl2))
+            if (!isWebSql) // is plugin
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -2122,7 +2122,7 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWindows || (isAndroid && isImpl2))
+            if (!isWebSql) // is plugin
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -2186,7 +2186,7 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWindows || (isAndroid && isImpl2))
+            if (!isWebSql) // is plugin
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -2246,7 +2246,7 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWindows || (isAndroid && isImpl2))
+            if (!isWebSql) // is plugin
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -2307,7 +2307,7 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWindows || (isAndroid && isImpl2))
+            if (!isWebSql) // is plugin
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -2498,7 +2498,7 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWindows || (isAndroid && isImpl2))
+            if (!isWebSql) // is plugin
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -2558,7 +2558,7 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWindows || (isAndroid && isImpl2))
+            if (!isWebSql) // is plugin
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -2618,7 +2618,7 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWindows || (isAndroid && isImpl2))
+            if (!isWebSql) // is plugin
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -2677,7 +2677,7 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWindows || (isAndroid && isImpl2))
+            if (!isWebSql) // is plugin
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -2736,7 +2736,7 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWindows || (isAndroid && isImpl2))
+            if (!isWebSql) // is plugin
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -2795,7 +2795,7 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (isWindows || (isAndroid && isImpl2))
+            if (!isWebSql) // is plugin
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -3619,10 +3619,7 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (!isWebSql && !isWindows && !(isAndroid && isImpl2))
-              expect(error.code).toBe(5);
-            else
-              expect(error.code).toBe(0);
+            expect(error.code).toBe(0);
 
             if (isWindows)
               expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);
@@ -3673,10 +3670,7 @@ var mytests = function() {
             expect(error.code).toBeDefined()
             expect(error.message).toBeDefined();
 
-            if (!isWebSql && !isWindows && !(isAndroid && isImpl2))
-              expect(error.code).toBe(5);
-            else
-              expect(error.code).toBe(0);
+            expect(error.code).toBe(0);
 
             if (isWindows)
               expect(error.message).toMatch(/a statement with no error handler failed: Error preparing an SQLite statement/);

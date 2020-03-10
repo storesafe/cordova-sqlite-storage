@@ -2,7 +2,7 @@
 
 #### cordova-sqlite-storage 4.0.1-dev
 
-TBD
+- plugin now signals error with `code: 0` member (major, breaking change)
 
 #### cordova-sqlite-storage 4.0.0
 

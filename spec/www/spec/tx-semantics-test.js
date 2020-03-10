@@ -477,10 +477,7 @@ var mytests = function() {
               expect(error.code).toBeDefined();
               expect(error.message).toBeDefined();
 
-              if (isWebSql)
-                expect(error.code).toBe(0);
-              else
-                expect(error.code).toBe(3);
+              expect(error.code).toBe(0);
 
               if (isWebSql)
                 expect(error.message).toMatch(/the SQLTransactionCallback was null or threw an exception/);

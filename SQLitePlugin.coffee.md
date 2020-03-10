@@ -32,26 +32,23 @@
 
 ## utility functions:
 
-    # Errors returned to callbacks must conform to `SqlError` with a code and message.
+    # Errors returned to callbacks matching standard `SQLError` with
+    # code = 0 (`SQLError.UNKNOWN_ERR`) and message members.
     # Some errors are of type `Error` or `string` and must be converted.
-    newSQLError = (error, code) ->
+    newSQLError = (error) ->
       sqlError = error
-      code = 0 if !code # unknown by default
 
       if !sqlError
         sqlError = new Error "a plugin had an error but provided no response"
-        sqlError.code = code
 
       if typeof sqlError is "string"
         sqlError = new Error error
-        sqlError.code = code
 
-      if !sqlError.code && sqlError.message
-        sqlError.code = code
-
-      if !sqlError.code && !sqlError.message
+      if !sqlError.message
         sqlError = new Error "an unknown error was returned: " + JSON.stringify(sqlError)
-        sqlError.code = code
+
+      # * ALWAYS *
+      sqlError.code = 0
 
       return sqlError
 
@@ -364,7 +361,7 @@
 
       if txlock
         @addStatement "BEGIN", [], null, (tx, err) ->
-          throw newSQLError "unable to begin transaction: " + err.message, err.code
+          throw newSQLError "unable to begin transaction: " + err.message
 
       # Workaround for litehelpers/Cordova-sqlite-storage#409
       # extra statement in case user function does not add any SQL statements
@@ -392,7 +389,7 @@
     SQLitePluginTransaction::executeSql = (sql, values, success, error) ->
 
       if @finalized
-        throw {message: 'InvalidStateError: DOM Exception 11: This transaction is already finalized. Transactions are committed after its success or failure handlers are called. If you are using a Promise to handle callbacks, be aware that implementations following the A+ standard adhere to run-to-completion semantics and so Promise resolution occurs on a subsequent tick and therefore after the transaction commits.', code: 11}
+        throw newSQLError 'InvalidStateError: This transaction is already finalized. Transactions are committed after its success or failure handlers are called. If you are using a Promise to handle callbacks, be aware that implementations following the A+ standard adhere to run-to-completion semantics and so Promise resolution occurs on a subsequent tick and therefore after the transaction commits.'
         return
 
       if @readOnly && READ_ONLY_REGEX.test(sql)
@@ -451,9 +448,9 @@
 
     SQLitePluginTransaction::handleStatementFailure = (handler, response) ->
       if !handler
-        throw newSQLError "a statement with no error handler failed: " + response.message, response.code
+        throw newSQLError "a statement with no error handler failed: " + response.message
       if handler(this, response) isnt false
-        throw newSQLError "a statement error callback did not return false: " + response.message, response.code
+        throw newSQLError "a statement error callback did not return false: " + response.message
       return
 
     SQLitePluginTransaction::run = ->
@@ -546,7 +543,7 @@
         txLocks[tx.db.dbname].inProgress = false
         tx.db.startNextTransaction()
         if tx.error and typeof tx.error is 'function'
-          tx.error newSQLError 'error while trying to roll back: ' + err.message, err.code
+          tx.error newSQLError 'error while trying to roll back: ' + err.message
         return
 
       @finalized = true
@@ -574,7 +571,7 @@
         txLocks[tx.db.dbname].inProgress = false
         tx.db.startNextTransaction()
         if tx.error and typeof tx.error is 'function'
-          tx.error newSQLError 'error while trying to commit: ' + err.message, err.code
+          tx.error newSQLError 'error while trying to commit: ' + err.message
         return
 
       @finalized = true
