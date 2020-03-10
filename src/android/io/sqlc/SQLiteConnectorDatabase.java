@@ -102,8 +102,9 @@ class SQLiteConnectorDatabase extends SQLiteAndroidDatabase
             JSONObject queryResult = null;
 
             String errorMessage = "unknown";
-            int sqliteErrorCode = -1;
-            int code = 0; // SQLException.UNKNOWN_ERR
+
+            // int sqliteErrorCode = -1;
+            // int code = 0; // SQLException.UNKNOWN_ERR
 
             try {
                 String query = queryarr[i];
@@ -122,10 +123,11 @@ class SQLiteConnectorDatabase extends SQLiteAndroidDatabase
                 }
             } catch (SQLException ex) {
                 ex.printStackTrace();
-                sqliteErrorCode = ex.getErrorCode();
+                // sqliteErrorCode = ex.getErrorCode();
                 errorMessage = ex.getMessage();
-                Log.v("executeSqlBatch", "SQLitePlugin.executeSql[Batch](): SQL Error code = " + sqliteErrorCode + " message = " + errorMessage);
+                Log.v("executeSqlBatch", "SQLitePlugin.executeSql[Batch](): SQL Error message = " + errorMessage);
 
+                /* **
                 switch(sqliteErrorCode) {
                 case SQLCode.ERROR:
                     code = 5; // SQLException.SYNTAX_ERR
@@ -138,12 +140,12 @@ class SQLiteConnectorDatabase extends SQLiteAndroidDatabase
                     break;
                 default:
                     /* do nothing */
-                }
+                /* } */
             } catch (JSONException ex) {
                 // NOT expected:
                 ex.printStackTrace();
                 errorMessage = ex.getMessage();
-                code = 0; // SQLException.UNKNOWN_ERR
+                // code = 0; // SQLException.UNKNOWN_ERR
                 Log.e("executeSqlBatch", "SQLitePlugin.executeSql[Batch](): UNEXPECTED JSON Error=" + errorMessage);
             }
 
@@ -161,7 +163,7 @@ class SQLiteConnectorDatabase extends SQLiteAndroidDatabase
 
                     JSONObject er = new JSONObject();
                     er.put("message", errorMessage);
-                    er.put("code", code);
+                    // er.put("code", code);
                     r.put("result", er);
 
                     batchResults.put(r);

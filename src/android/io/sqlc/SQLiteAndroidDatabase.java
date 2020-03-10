@@ -144,7 +144,8 @@ class SQLiteAndroidDatabase
             JSONObject queryResult = null;
 
             String errorMessage = "unknown";
-            int code = 0; // SQLException.UNKNOWN_ERR
+
+            // int code = 0; // SQLException.UNKNOWN_ERR
 
             try {
                 boolean needRawQuery = true;
@@ -173,7 +174,7 @@ class SQLiteAndroidDatabase
                             // Indicate problem & stop this query:
                             ex.printStackTrace();
                             errorMessage = "constraint failure: " + ex.getMessage();
-                            code = 6; // SQLException.CONSTRAINT_ERR
+                            // code = 6; // SQLException.CONSTRAINT_ERR
                             Log.v("executeSqlBatch", "SQLiteStatement.executeUpdateDelete(): Error=" + errorMessage);
                             needRawQuery = false;
                         } catch (SQLiteException ex) {
@@ -232,7 +233,7 @@ class SQLiteAndroidDatabase
                         // report constraint violation error result with the error message
                         ex.printStackTrace();
                         errorMessage = "constraint failure: " + ex.getMessage();
-                        code = 6; // SQLException.CONSTRAINT_ERR
+                        // code = 6; // SQLException.CONSTRAINT_ERR
                         Log.v("executeSqlBatch", "SQLiteDatabase.executeInsert(): Error=" + errorMessage);
                     } catch (SQLiteException ex) {
                         // report some other error result with the error message
@@ -300,7 +301,7 @@ class SQLiteAndroidDatabase
                         // report constraint violation error result with the error message
                         ex.printStackTrace();
                         errorMessage = "constraint failure: " + ex.getMessage();
-                        code = 6; // SQLException.CONSTRAINT_ERR
+                        // code = 6; // SQLException.CONSTRAINT_ERR
                         Log.v("executeSqlBatch", "Raw query error=" + errorMessage);
                     } catch (SQLiteException ex) {
                         // report some other error result with the error message
@@ -333,7 +334,7 @@ class SQLiteAndroidDatabase
 
                     JSONObject er = new JSONObject();
                     er.put("message", errorMessage);
-                    er.put("code", code);
+                    // er.put("code", code);
                     r.put("result", er);
 
                     batchResults.put(r);
