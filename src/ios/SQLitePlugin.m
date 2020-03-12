@@ -495,16 +495,20 @@
 
 +(NSDictionary *)captureSQLiteErrorFromDb:(struct sqlite3 *)db
 {
+#ifdef KEEP_SQLITE_ERROR_CODES
     int code = sqlite3_errcode(db);
     int webSQLCode = [SQLitePlugin mapSQLiteErrorCode:code];
 #if INCLUDE_SQLITE_ERROR_INFO
     int extendedCode = sqlite3_extended_errcode(db);
 #endif
+#endif
     const char *message = sqlite3_errmsg(db);
 
     NSMutableDictionary *error = [NSMutableDictionary dictionaryWithCapacity:4];
 
+#ifdef KEEP_SQLITE_ERROR_CODES
     [error setObject:[NSNumber numberWithInt:webSQLCode] forKey:@"code"];
+#endif
     [error setObject:[NSString stringWithUTF8String:message] forKey:@"message"];
 
 #if INCLUDE_SQLITE_ERROR_INFO
@@ -516,6 +520,7 @@
     return error;
 }
 
+#ifdef KEEP_SQLITE_ERROR_CODES
 +(int)mapSQLiteErrorCode:(int)code
 {
     // map the sqlite error code to
@@ -531,5 +536,6 @@
             return UNKNOWN_ERR;
     }
 }
+#endif
 
 @end /* vim: set expandtab : */

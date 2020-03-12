@@ -11,6 +11,7 @@
 // Used to remove dependency on sqlite3.h in this header:
 struct sqlite3;
 
+#ifdef KEEP_SQLITE_ERROR_CODES
 enum WebSQLError {
     UNKNOWN_ERR = 0,
     DATABASE_ERR = 1,
@@ -22,6 +23,7 @@ enum WebSQLError {
     TIMEOUT_ERR = 7
 };
 typedef int WebSQLError;
+#endif
 
 @interface SQLitePlugin : CDVPlugin {
     NSMutableDictionary *openDBs;
