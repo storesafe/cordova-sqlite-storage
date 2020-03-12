@@ -2,7 +2,9 @@
 
 #### cordova-sqlite-storage 5.0.0-dev
 
-TBD
+- avoid incorrect default directory on iOS/macOS - to be extra safe (see <https://github.com/xpbrew/cordova-sqlite-storage/issues/907>)
+  - ensure that default "nosync" directory *always* has resource value set for `NSURLIsExcludedFromBackupKey`
+  - add more checks for missing database directory
 
 #### cordova-sqlite-storage 4.0.0
 
