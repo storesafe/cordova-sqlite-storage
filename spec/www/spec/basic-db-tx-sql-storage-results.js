@@ -1079,10 +1079,10 @@ var mytests = function() {
           }
         }, MYTIMEOUT);
 
-        // TBD December 2019 SQLite crash report ref:
+        // From December 2019 SQLite crash report - fixed in 2020 ref:
         // - http://sqlite.1065341.n5.nabble.com/Crash-Bug-Report-tc109903.html
         // - https://github.com/xpbrew/cordova-sqlite-storage/issues/904
-        xit(suiteName + 'RENAME table with view test [SQLite crash bug report December 2019]', function(done) {
+        it(suiteName + 'RENAME table with view test [SQLite crash bug report December 2019]', function(done) {
           if (isWebSql) pending('[TBD] NOT WORKING on (WebKit) Web SQL');
           if (!isWebSql && isAndroid && isImpl2) pending('[TBD] NOT WORKING on Android system android.database provider');
 
