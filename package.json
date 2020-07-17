@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/xpbrew/cordova-sqlite-storage",
   "dependencies": {
-    "cordova-sqlite-storage-dependencies": "2.1.1"
+    "cordova-sqlite-storage-dependencies": "2.1.2"
   },
   "scripts": {
     "clean-spec": "rm -rf spec/[mnp]* && git cl spec/config.xml && git status --ignored",
