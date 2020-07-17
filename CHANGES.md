@@ -1,6 +1,6 @@
 # Changes
 
-#### cordova-sqlite-storage 5.0.1-dev
+#### cordova-sqlite-storage 5.0.1
 
 - enable RENAME table with view test - from December 2019 SQLite crash report, fixed in 2020 ref:
   - http://sqlite.1065341.n5.nabble.com/Crash-Bug-Report-tc109903.html
