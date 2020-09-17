@@ -1024,6 +1024,8 @@ var mytests = function() {
         }, MYTIMEOUT);
 
         it(suiteName + 'ALTER TABLE RENAME test', function(done) {
+          if (isWebSql && isAppleMobileOS) pending('TBD SKIP for (WebKit) Web SQL on iOS');
+
           var dbname = 'ALTER-TABLE-RENAME-test.db';
           var createdb = openDatabase(dbname, '1.0', 'Test', DEFAULT_SIZE);
 

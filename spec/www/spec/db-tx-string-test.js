@@ -524,7 +524,8 @@ var mytests = function() {
                   (!isWebSql && isWindows) ||
                   (!isWebSql && !isWindows && isAndroid && isImpl2 &&
                     !(/Android 4/.test(navigator.userAgent)) &&
-                    !(/Android [8-9]/.test(navigator.userAgent))))
+                    !(/Android [8-9]/.test(navigator.userAgent)) &&
+                    !(/Android 1/.test(navigator.userAgent))))
                 expect(rs.rows.item(0).uppertext).toBe('A');
               else
                 expect(rs.rows.item(0).uppertext).toBe('A\0CD');
@@ -1071,7 +1072,7 @@ var mytests = function() {
               // - plugin with androidDatabaseImplementation: 2 on
               //   Android 4.4 & newer
               if ((isWebSql && isChromeBrowser) ||
-                  (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
+                  (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && !/Android [2-3]/.test(navigator.userAgent)))))
                 expect(resultRow1.myresult).toBe('AÉ');
               else
                 expect(resultRow1.myresult).toBe('Aé');
@@ -1089,7 +1090,7 @@ var mytests = function() {
                 // - plugin with androidDatabaseImplementation: 2 on
                 //   Android 4.4 & newer
                 if ((isWebSql && isChromeBrowser) ||
-                    (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
+                    (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && !/Android [2-3]/.test(navigator.userAgent)))))
                   expect(resultRow2.myresult).toBe('BÉ');
                 else
                   expect(resultRow2.myresult).toBe('Bé');
@@ -1127,7 +1128,7 @@ var mytests = function() {
               // - plugin with androidDatabaseImplementation: 2 on
               //   Android 4.4 & newer
               if ((isWebSql && isChromeBrowser) ||
-                  (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
+                  (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && !/Android [2-3]/.test(navigator.userAgent)))))
                 expect(resultRow1.myresult).toBe('aé');
               else
                 expect(resultRow1.myresult).toBe('aÉ');
@@ -1145,7 +1146,7 @@ var mytests = function() {
                 // - plugin with androidDatabaseImplementation: 2 on
                 //   Android 4.4 & newer
                 if ((isWebSql && isChromeBrowser) ||
-                    (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
+                    (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && !/Android [2-3]/.test(navigator.userAgent)))))
                   expect(resultRow2.myresult).toBe('bé');
                 else
                   expect(resultRow2.myresult).toBe('bÉ');
@@ -1183,7 +1184,7 @@ var mytests = function() {
               // - plugin with androidDatabaseImplementation: 2 on
               //   Android 4.4 & newer
               if ((isWebSql && isChromeBrowser) ||
-                  (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
+                  (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && !/Android [2-3]/.test(navigator.userAgent)))))
                 expect(resultRow1.myresult).toBe('STRASSE');
               else
                 expect(resultRow1.myresult).toBe('STRAßE');
@@ -1201,7 +1202,7 @@ var mytests = function() {
                 // - plugin with androidDatabaseImplementation: 2 on
                 //   Android 4.4 & newer
                 if ((isWebSql && isChromeBrowser) ||
-                    (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
+                    (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && !/Android [2-3]/.test(navigator.userAgent)))))
                   expect(resultRow2.myresult).toBe('STRASSE');
                 else
                   expect(resultRow2.myresult).toBe('STRAßE');
@@ -1410,7 +1411,7 @@ var mytests = function() {
               // - plugin with androidDatabaseImplementation: 2 on
               //   Android 4.4 & newer
               if ((isWebSql && isChromeBrowser) ||
-                  (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
+                  (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && !/Android [2-3]/.test(navigator.userAgent)))))
                 expect(resultRow1.myresult).toBe('straße');
               else
                 expect(resultRow1.myresult).toBe('straẞe');
@@ -1428,7 +1429,7 @@ var mytests = function() {
                 // - plugin with androidDatabaseImplementation: 2 on
                 //   Android 4.4 & newer
                 if ((isWebSql && isChromeBrowser) ||
-                    (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
+                    (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && !/Android [2-3]/.test(navigator.userAgent)))))
                   expect(resultRow2.myresult).toBe('straße');
                 else
                   expect(resultRow2.myresult).toBe('straẞe');
@@ -1963,7 +1964,7 @@ var mytests = function() {
               // - plugin with androidDatabaseImplementation: 2 on
               //   Android 4.4 & newer
               if ((isWebSql && isChromeBrowser) ||
-                  (isAndroid && ((isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
+                  (isAndroid && ((isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && !/Android [2-3]/.test(navigator.userAgent)))))
                 expect(rs.rows.item(0).upper_result).toBe('TEST ¢ É €');
               else
                 expect(rs.rows.item(0).upper_result).toBe('TEST ¢ é €');
@@ -1994,7 +1995,7 @@ var mytests = function() {
               // - plugin with androidDatabaseImplementation: 2 on
               //   Android 4.4 & newer
               if ((isWebSql && isChromeBrowser) ||
-                  (isAndroid && ((isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
+                  (isAndroid && ((isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && !/Android [2-3]/.test(navigator.userAgent)))))
                 expect(rs.rows.item(0).upper_result).toBe('TEST ¢ É €');
               else
                 expect(rs.rows.item(0).upper_result).toBe('TEST ¢ é €');

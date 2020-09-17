@@ -223,6 +223,7 @@ var mytests = function() {
             // DIFFERENT for builtin android.database implementation:
             if (!isWindows && isAndroid && isImpl2)
               expect(rs.rows.item(0).journal_mode).toBe(
+                (/Android 1/.test(navigator.userAgent)) ? 'truncate' :
                 (/Android 9/.test(navigator.userAgent)) ? 'wal' :
                 (/Android 8.1.99/.test(navigator.userAgent)) ? 'wal' :
                 (/Android 8/.test(navigator.userAgent)) ? 'truncate' :
