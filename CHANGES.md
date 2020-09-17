@@ -1,6 +1,6 @@
 # Changes
 
-#### cordova-sqlite-storage 5.0.2-dev
+#### cordova-sqlite-storage 5.1.0
 
 - Add browser platform support using sql-asm-memory-growth.js from sql.js, with some limitations as documented
 
