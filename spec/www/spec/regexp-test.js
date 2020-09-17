@@ -28,8 +28,6 @@ var scenarioCount = (!!window.hasWebKitWebSQL) ? (isAndroid ? 3 : 2) : 1;
 var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
-    // TBD skip plugin test on browser platform (not yet supported):
-    if (isBrowser && (i === 0)) continue;
 
     describe(scenarioList[i] + ': REGEX test(s)', function() {
       var scenarioName = scenarioList[i];
@@ -56,6 +54,7 @@ var mytests = function() {
           if (isWebSql && isBrowser && !isChromeBrowser) pending('SKIP on (WebKit) Web SQL on non-Chrome desktop browser');
           if (isWebSql && /Android 4.[1-3]/.test(navigator.userAgent)) pending('SKIP for Android 4.1-4.3 (WebKit) Web SQL');
           if (isWebSql && isAppleMobileOS) pending('SKIP on iOS (WebKit) Web SQL');
+          if (!isWebSql && isBrowser) pending('SKIP on plugin on browser - NOT IMPLEMENTED');
           if (!isWebSql && isWindows) pending('SKIP on Windows plugin - NOT IMPLEMENTED');
           if (!isWebSql && isAndroid && isImpl2 && /Android [2-4]/.test(navigator.userAgent)) pending('TBD SKIP for system android.database provider on Android 2.x-4.x');
           // TBD REMOVE the following conditions for plugin versions such as cordova-sqlite-ext:

@@ -2,6 +2,8 @@
 
 #### cordova-sqlite-storage 5.0.2-dev
 
+- Add browser platform support using sql-asm-memory-growth.js from sql.js, with some limitations as documented
+
 #### cordova-sqlite-storage 5.0.1
 
 - enable RENAME table with view test - from December 2019 SQLite crash report, fixed in 2020 ref:

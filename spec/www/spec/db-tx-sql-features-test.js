@@ -35,8 +35,6 @@ var scenarioCount = (!!window.hasWebKitWebSQL) ? (isAndroid ? 3 : 2) : 1;
 var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
-    // TBD skip plugin test on browser platform (not yet supported):
-    if (isBrowser && (i === 0)) continue;
 
     describe(scenarioList[i] + ': db tx sql features test(s)', function() {
       var scenarioName = scenarioList[i];
@@ -289,6 +287,7 @@ var mytests = function() {
         it(suiteName + 'create virtual table using R-Tree', function(done) {
           if (isWebSql) pending('SKIP for Web SQL');
           if (isAndroid && isImpl2) pending('NOT IMPLEMENTED for all versions of android.database'); // NOT IMPLEMENTED for all versions of Android database (failed in Circle CI)
+          if (!isWebSql && isBrowser) pending('NOT IMPLEMENTED on plugin for browser platform'); // FUTURE TODO
 
           var db = openDatabase('virtual-table-using-r-tree.db', '1.0', 'Test', DEFAULT_SIZE);
 

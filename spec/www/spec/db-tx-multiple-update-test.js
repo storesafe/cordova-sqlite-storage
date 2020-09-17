@@ -32,8 +32,6 @@ var scenarioCount = (!!window.hasWebKitWebSQL) ? (isAndroid ? 3 : 2) : 1;
 var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
-    // TBD skip plugin test on browser platform (not yet supported):
-    if (isBrowser && (i === 0)) continue;
 
     describe(scenarioList[i] + ': db tx multiple update test(s)', function() {
       var scenarioName = scenarioList[i];
@@ -67,6 +65,7 @@ var mytests = function() {
         // @brodybits noticed similar issue possible with Android-sqlite-connector
         // if the Android-sqlite-native-driver part is not built correctly.
         it(suiteName + 'Multiple updates with key (evidently needs temporary transaction files to work)', function (done) {
+          // if (!isWebSql && isBrowser) pending('NOT WORKING on browser plugin'); // XXX TBD
           var db = openDatabase("MultipleUpdatesWithKey", "1.0",
 "Demo", DEFAULT_SIZE);
 

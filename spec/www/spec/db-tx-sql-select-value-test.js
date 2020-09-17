@@ -35,8 +35,6 @@ var scenarioCount = (!!window.hasWebKitWebSQL) ? (isAndroid ? 3 : 2) : 1;
 var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
-    // TBD skip plugin test on browser platform (not yet supported):
-    if (isBrowser && (i === 0)) continue;
 
     describe(scenarioList[i] + ': tx sql select value results test(s)', function() {
       var scenarioName = scenarioList[i];
@@ -1794,7 +1792,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "SELECT X'40414243' [ERROR REPRODUCED on androidDatabaseProvider: 'system' & Windows; follows default sqlite encoding: UTF-16le on Android 4.1-4.4 (WebKit) Web SQL, UTF-8 otherwise]", function(done) {
+        it(suiteName + "SELECT X'40414243' [ERROR REPRODUCED on androidDatabaseProvider: 'system' & Windows; nonsense result ignored on browser; follows default sqlite encoding: UTF-16le on Android 4.1-4.4 (WebKit) Web SQL, UTF-8 otherwise]", function(done) {
           var db = openDatabase('INLINE-BLOB-SELECT-40414243-test.db');
 
           db.transaction(function(tx) {
@@ -1806,6 +1804,8 @@ var mytests = function() {
               expect(rs.rows.length).toBe(1);
               if (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent))
                 expect(rs.rows.item(0).myresult).toBe('䅀䍂');
+              else if (!isWebSql && isBrowser)
+                expect(rs.rows.item(0).myresult).toBeDefined();
               else
                 expect(rs.rows.item(0).myresult).toBe('@ABC');
 

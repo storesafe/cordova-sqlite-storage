@@ -39,8 +39,6 @@ var scenarioCount = (!!window.hasWebKitWebSQL) ? (isAndroid ? 3 : 2) : 1;
 var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
-    // TBD skip plugin test on browser platform (not yet supported):
-    if (isBrowser && (i === 0)) continue;
 
     describe(scenarioList[i] + ': tx string test(s)', function() {
       var scenarioName = scenarioList[i];
@@ -521,6 +519,7 @@ var mytests = function() {
                     (/Android 5.1/.test(navigator.userAgent) && !(/Chrome.6/.test(navigator.userAgent))) ||
                     (/Android 6/.test(navigator.userAgent) && (/Chrome.[3-4]/.test(navigator.userAgent))))) ||
                   (isWebSql && !isAndroid && !isChromeBrowser) ||
+                  (!isWebSql && isBrowser) ||
                   (!isWebSql && isWindows) ||
                   (!isWebSql && !isWindows && isAndroid && isImpl2 &&
                     !(/Android 4/.test(navigator.userAgent)) &&
@@ -1554,7 +1553,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "SELECT LOWER(X'41EDA080EDBCB1') - result column value is '\\uED41\u80A0\\uBCED' ('\uED41\u80A0\uBCED') on Android 4.1-4.3 (WebKit) Web SQL & Windows (UTF-16le), 'a\uD800\uDF31' (non-standard encoding) on Android with default Android NDK provider on all Android versions & androidDatabaseProvider: 'system' on Android 4.x, MISSING on iOS/macOS plugin, 'a\\uFFFD\\uFFFD' ('a\uFFFD\uFFFD') on Android with androidDatabaseProvider: 'system' on Android post-4.x & (WebKit) Web SQL (Android post-4.3/iOS/Browser)", function(done) {
+        it(suiteName + "SELECT LOWER(X'41EDA080EDBCB1') - result column value is '\\uED41\u80A0\\uBCED' ('\uED41\u80A0\uBCED') on Android 4.1-4.3 (WebKit) Web SQL & Windows (UTF-16le), 'a\uD800\uDF31' (non-standard encoding) on browser & on Android with default Android NDK provider on all Android versions & androidDatabaseProvider: 'system' on Android 4.x, MISSING on iOS/macOS plugin, 'a\\uFFFD\\uFFFD' ('a\uFFFD\uFFFD') on Android with androidDatabaseProvider: 'system' on Android post-4.x & (WebKit) Web SQL (Android post-4.3/iOS/Browser)", function(done) {
           // ref: litehelpers/Cordova-sqlite-storage#564
           var db = openDatabase('SELECT-LOWER-X-41EDA080EDBCB1-test.db');
 
@@ -1567,7 +1566,7 @@ var mytests = function() {
                 expect(rs.rows.item(0).lowertext).toBe('\uED41\u80A0\uBCED');
               else if (isMac || (!isWebSql && isAppleMobileOS))
                 expect(rs.rows.item(0).lowertext).not.toBeDefined();
-              else if (!isWebSql && isAndroid && (!isImpl2 || (/Android 4/.test(navigator.userAgent))))
+              else if (!isWebSql && (isBrowser || isAndroid && (!isImpl2 || (/Android 4/.test(navigator.userAgent)))))
                 expect(rs.rows.item(0).lowertext).toBe('a\uD800\uDF31'); // 'a𐌱' (non-standard encoding)
               else
                 expect(rs.rows.item(0).lowertext).toBe('a\uFFFD\uFFFD'); // 'a��'
@@ -1716,7 +1715,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + "SELECT LOWER(X'41EDA0BDEDB88321') - result column value is '\\uED41\\uBDA0\\uB8ED\\u2183' ('\uED41\uBDA0\uB8ED\u2183') on Android 4.1-4.3 (WebKit) Web SQL & Windows (UTF-16le), 'a\\uD83D\\uDE03!' ('a\uD83D\uDE03!') [non-standard encoding] on Android with default Android NDK provider on all Android versions & androidDatabaseProvider: 'system' on Android 4.x, MISSING on iOS/macOS plugin, '\\uED41\\uBDA0\\uB8ED\\u2183' ('\uED41\uBDA0\uB8ED\u2183') on Android with androidDatabaseProvider: 'system' on Android post-4.x & (WebKit) Web SQL (Android post-4.3/iOS/Browser)", function(done) {
+        it(suiteName + "SELECT LOWER(X'41EDA0BDEDB88321') - result column value is '\\uED41\\uBDA0\\uB8ED\\u2183' ('\uED41\uBDA0\uB8ED\u2183') on Android 4.1-4.3 (WebKit) Web SQL & Windows (UTF-16le), 'a\\uD83D\\uDE03!' ('a\uD83D\uDE03!') [non-standard encoding] on browser & on Android with default Android NDK provider on all Android versions & androidDatabaseProvider: 'system' on Android 4.x, MISSING on iOS/macOS plugin, '\\uED41\\uBDA0\\uB8ED\\u2183' ('\uED41\uBDA0\uB8ED\u2183') on Android with androidDatabaseProvider: 'system' on Android post-4.x & (WebKit) Web SQL (Android post-4.3/iOS/Browser)", function(done) {
           // ref: litehelpers/Cordova-sqlite-storage#564
           var db = openDatabase('SELECT-LOWER-X-41EDA0BDEDB88321-test.db');
           expect(db).toBeDefined();
@@ -1741,7 +1740,7 @@ var mytests = function() {
                        (isAndroid &&
                         (isImpl2 && !(/Android 4/.test(navigator.userAgent)))))
                 expect(rs.rows.item(0).lowertext).toBe('a\uFFFD\uFFFD!'); // 'a��!'
-              else if (!isWebSql && isAndroid) // (other conditions checked above)
+              else if (!isWebSql && (isBrowser || isAndroid)) // (other conditions checked above for Android)
                 expect(rs.rows.item(0).lowertext).toBe('a\uD83D\uDE03!');
               else if (!isWebSql && (isAppleMobileOS || isMac))
                 expect(rs.rows.item(0).lowertext).not.toBeDefined();

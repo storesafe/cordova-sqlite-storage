@@ -28,8 +28,6 @@ var mytests = function() {
   for (var i=0; i<pluginScenarioCount; ++i) {
 
     describe(pluginScenarioList[i] + ': sqlBatch test(s)', function() {
-      // TBD skip plugin test on browser platform (not yet supported):
-      if (isBrowser) return;
 
       var scenarioName = pluginScenarioList[i];
       var suiteName = scenarioName + ': ';
@@ -147,22 +145,22 @@ var mytests = function() {
               expect(rs.rows.item(3).a1).toBe(123.456);
               expect(rs.rows.item(3).u1).toBe('-123.456');
               expect(rs.rows.item(4).d1).toBe(1234567890123);
-              if (isMac || hasMobileWKWebView)
+              if (isBrowser || isMac || hasMobileWKWebView)
                 expect(rs.rows.item(4).t1).toBe('real');
               else
                 expect(rs.rows.item(4).t1).toBe('integer');
               expect(rs.rows.item(4).a1).toBe(1234567890123);
-              if (isMac || hasMobileWKWebView)
+              if (isBrowser || isMac || hasMobileWKWebView)
                 expect(rs.rows.item(4).u1).toBe('1234567890123.0');
               else
                 expect(rs.rows.item(4).u1).toBe('1234567890123');
               expect(rs.rows.item(5).d1).toBe(-1234567890123);
-              if (isMac || hasMobileWKWebView)
+              if (isBrowser || isMac || hasMobileWKWebView)
                 expect(rs.rows.item(5).t1).toBe('real');
               else
                 expect(rs.rows.item(5).t1).toBe('integer');
               expect(rs.rows.item(5).a1).toBe(1234567890123);
-              if (isMac || hasMobileWKWebView)
+              if (isBrowser || isMac || hasMobileWKWebView)
                 expect(rs.rows.item(5).u1).toBe('-1234567890123.0');
               else
                 expect(rs.rows.item(5).u1).toBe('-1234567890123');
@@ -233,7 +231,7 @@ var mytests = function() {
             db.executeSql('SELECT data AS d1, TYPEOF(data) AS t1, ABS(data) AS a1, UPPER(data) as u1 FROM MyTable', [], function (rs) {
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(3);
-              if (isWindows) {
+              if (isBrowser || isWindows) {
                 expect(rs.rows.item(0).d1).toBe(Infinity);
                 expect(rs.rows.item(0).t1).toBe('real');
                 expect(rs.rows.item(0).a1).toBe(Infinity);
@@ -481,7 +479,7 @@ var mytests = function() {
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
 
-            if (isWindows || (isAndroid && isImpl2))
+            if (isBrowser || isWindows || (isAndroid && isImpl2))
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(5);
@@ -516,7 +514,7 @@ var mytests = function() {
             expect(error.code).toBeDefined();
             expect(error.message).toBeDefined();
 
-            if (isWindows)
+            if (isBrowser || isWindows)
               expect(error.code).toBe(0);
             else
               expect(error.code).toBe(6);

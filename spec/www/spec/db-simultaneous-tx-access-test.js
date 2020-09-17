@@ -35,8 +35,6 @@ function logError(message) { console.log('FAILED - ' + message); }
 var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
-    // TBD skip plugin test on browser platform (not yet supported):
-    if (isBrowser && (i === 0)) continue;
 
     describe(scenarioList[i] + ': simultaneous tx access test(s)', function() {
       var scenarioName = scenarioList[i];

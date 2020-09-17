@@ -8,6 +8,10 @@
 - API changes by @brodybits (Chris Brody)
 - Transaction timing fixes to support PouchDB by @nolanlawson
 
+## browser platform
+
+- Using sql-asm-memory-growth.js built from sql.js by @kripken (Alon Zakai)
+
 ## Android version
 
 - Extracted from DroidGap by @brodybits (Chris Brody)

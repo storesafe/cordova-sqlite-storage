@@ -40,8 +40,6 @@ var scenarioCount = (!!window.hasWebKitWebSQL) ? (isAndroid ? 3 : 2) : 1;
 var mytests = function() {
 
   for (var i=0; i<scenarioCount; ++i) {
-    // TBD skip plugin test on browser platform (not yet supported):
-    if (isBrowser && (i === 0)) continue;
 
     describe(scenarioList[i] + ': tx value bindings (stored value bindings) test(s)', function() {
       var scenarioName = scenarioList[i];
@@ -400,7 +398,7 @@ var mytests = function() {
                   var row = rs.rows.item(0);
                   expect(row).toBeDefined();
 
-                  if (!isWebSql && /* !isBrowser && */ !isWindows) {
+                  if (!isWebSql && !isBrowser && !isWindows) {
                     // Android/iOS plugin issue
                     expect(row.data).toBe(null);
                     expect(row.data_num).toBe(null);
@@ -454,7 +452,7 @@ var mytests = function() {
                   var row = rs.rows.item(0);
                   expect(row).toBeDefined();
 
-                  if (!isWebSql && /* !isBrowser && */ !isWindows) {
+                  if (!isWebSql && !isBrowser && !isWindows) {
                     // Android/iOS plugin issue
                     expect(row.data).toBe(null);
                     expect(row.data_num).toBe(null);
@@ -1079,7 +1077,7 @@ var mytests = function() {
 
       describe(suiteName + 'INLINE BLOB value storage tests', function() {
 
-        it(suiteName + "INSERT inline BLOB value (X'40414243') and check stored data [TBD SELECT BLOB value ERROR EXPECTED on Windows and Android with androidDatabaseImplementation: 2 setting; with default sqlite HEX encoding: UTF-6le on Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]", function(done) {
+        it(suiteName + "INSERT inline BLOB value (X'40414243') and check stored data [TBD SELECT BLOB value ERROR EXPECTED on Windows and Android with androidDatabaseImplementation: 2 setting; nonsense result ignored on browser; with default sqlite HEX encoding: UTF-6le on Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]", function(done) {
           var db = openDatabase('INSERT-inline-BLOB-value-40414243-and-check-stored-data.db');
 
           db.transaction(function(tx) {
@@ -1111,8 +1109,8 @@ var mytests = function() {
                     expect(item).toBeDefined();
                     if (isWebSql && isAndroid && /Android 4.[1-3]/.test(navigator.userAgent))
                       expect(item.data).toBe('䅀䍂'); // (UTF-16le)
-                    /** else if (!isWebSql && isBrowser) // FUTURE TBD ??? (plugin on browser platform)
-                      expect(item.data).toBeDefined(); // XXX */
+                    else if (!isWebSql && isBrowser)
+                      expect(item.data).toBeDefined();
                     else
                       expect(item.data).toBe('@ABC'); // (UTF-8)
 
@@ -1427,7 +1425,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'executeSql with too many parameters [extra NULL value]', function(done) {
+        it(suiteName + 'executeSql with too many parameters [extra NULL value] (XXX excess parameters IGNORED by plugin on browser platform)', function(done) {
           var db = openDatabase("too-many-parameters-extra-null-value.db", "1.0", "Demo", DEFAULT_SIZE);
 
           db.transaction(function(tx) {
@@ -1443,14 +1441,17 @@ var mytests = function() {
 
           }, function() {
             db.transaction(function(tx) {
-              tx.executeSql("INSERT INTO test_table (data1, data2) VALUES (?,?)", ['first', 'second', null], function(ignored1, ignored2) {
-                // NOT EXPECTED:
-                expect(false).toBe(true);
+              tx.executeSql("INSERT INTO test_table (data1, data2) VALUES (?,?)", ['first', 'second', null], function(ignored1, rs) {
+                // NOT EXPECTED, except on browser plugin:
+                if (isWebSql || !isBrowser) done.fail();
+                // CHECK result set on browser:
+                expect(rs).toBeDefined();
                 // Close (plugin only) & finish:
                 (isWebSql) ? done() : db.close(done, done);
 
               }, function(ignored, error) {
-                // EXPECTED RESULT:
+                // EXPECTED RESULT (except for browser platform where the plugin still does not check for too many parameters):
+                if (!isWebSql && isBrowser) expect('PLUGIN ISSUE RESOLVED on browser platform please update this test').toBe('--');
                 expect(error).toBeDefined();
                 expect(error.code).toBeDefined();
                 expect(error.message).toBeDefined();
@@ -1545,7 +1546,7 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        it(suiteName + 'store and retrieve string with U+0000 (same as \\0) correctly [XXX HEX ENCODING ISSUE REPRODUCED on default Android NDK access implementation (Android-sqlite-connector with Android-sqlite-native-driver); TRUNCATION ISSUE REPRODUCED on iOS (WebKit) Web SQL, older versions of Android (WebKit) Web SQL, and Windows plugin; default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function (done) {
+        it(suiteName + 'store and retrieve string with U+0000 (same as \\0) correctly [XXX HEX ENCODING ISSUE REPRODUCED on default Android NDK access implementation (Android-sqlite-connector with Android-sqlite-native-driver); TRUNCATION ISSUE REPRODUCED on iOS (WebKit) Web SQL, older versions of Android (WebKit) Web SQL, and browser & Windows plugin; default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function (done) {
           var db = openDatabase('Store-and-retrieve-U+0000-string-test.db');
 
           db.transaction(function (tx) {
@@ -1593,7 +1594,7 @@ var mytests = function() {
                           (/Android 5.1/.test(navigator.userAgent) && !(/Chrome.6/.test(navigator.userAgent))) ||
                           (/Android 6/.test(navigator.userAgent) && (/Chrome.[3-4]/.test(navigator.userAgent))))) ||
                         (isWebSql && !isAndroid && !isChromeBrowser) ||
-                        /* (!isWebSql && isBrowser) || // FUTURE TBD ??? */
+                        (!isWebSql && isBrowser) ||
                         (!isWebSql && isWindows)) {
                       expect(name.length).toBe(1);
                       expect(name).toBe('a');
