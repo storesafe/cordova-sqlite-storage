@@ -69,15 +69,37 @@ function backgroundExecuteSqlBatch(success, error, options) {
     var rr = []
 
     if (isSqlite3) {
-      var isInsertQuery = sql.substr(0, 11) === 'INSERT INTO';
-      if (isInsertQuery) {
-        db.run(sql, params, function (e, r) {
-          console.log('db.run', e, r);
-        });
+      var handler = function (e, r) {
+        console.log('db.run', e, r, this);
+        if (e) {
+          resultList.push({
+            type: 'error',
+            result: {
+              code: 0,
+              message: e.toString(),
+            },
+          });
+        } else {
+          resultList.push({
+            type: 'success',
+            result:
+              this['changes'] !== 0
+                ? {
+                    rows: r,
+                    insertId: this['lastID'],
+                    rowsAffected: this['changes'],
+                  }
+                : {
+                    rows: r,
+                    rowsAffected: 0,
+                  },
+          });
+        }
+      };
+      if (sql.substr(0, 11) === 'INSERT INTO') {
+        db.run(sql, params, handler);
       } else {
-        db.all(sql, params, function (e, r) {
-          console.log('db.all', e, r);
-        });
+        db.all(sql, params, handler);
       }
     } else {
       var prevTotalChanges = (db.exec('SELECT total_changes()'))[0].values[0][0];
