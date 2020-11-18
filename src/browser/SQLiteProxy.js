@@ -8,7 +8,21 @@ function echoStringValue(success, error, options) {
 
 var SQL = null;
 
-window.initSqlJs().then(sql => { SQL = sql })
+var isSqlite3 = false;
+
+if (window.require) {
+  var sqlite3 = window.require('sqlite3');
+  if (sqlite3) {
+    SQL = sqlite3.verbose();
+    isSqlite3 = true;
+  } else {
+    return error('INTERNAL ERROR: sqlite3 not installed');
+  }
+} else {
+  window.initSqlJs().then((sql) => {
+    SQL = sql;
+  });
+}
 
 function openDatabase(success, error, options) {
   var name = options[0].name;
@@ -54,36 +68,40 @@ function backgroundExecuteSqlBatch(success, error, options) {
 
     var rr = []
 
-    var prevTotalChanges = (db.exec('SELECT total_changes()'))[0].values[0][0];
+    if (isSqlite3) {
+      console.log('sqlite3', 'backgroundExecuteSqlBatch', success, error, options);
+    } else {
+      var prevTotalChanges = (db.exec('SELECT total_changes()'))[0].values[0][0];
 
-    try {
-      db.each(sql, params, function(r) {
-        rr.push(r);
-      }, function() {
-        var insertId = (db.exec('SELECT last_insert_rowid()'))[0].values[0][0];
-        var totalChanges = (db.exec('SELECT total_changes()'))[0].values[0][0];
-        var rowsAffected = totalChanges - prevTotalChanges;
+      try {
+        db.each(sql, params, function(r) {
+          rr.push(r);
+        }, function() {
+          var insertId = (db.exec('SELECT last_insert_rowid()'))[0].values[0][0];
+          var totalChanges = (db.exec('SELECT total_changes()'))[0].values[0][0];
+          var rowsAffected = totalChanges - prevTotalChanges;
+          resultList.push({
+            type: 'success',
+            result: (rowsAffected !== 0) ? {
+              rows: rr,
+              insertId: insertId,
+              rowsAffected: rowsAffected
+            } : {
+              rows: rr,
+              rowsAffected: 0
+            }
+          });
+        });
+      } catch(e) {
+        // FUTURE TODO: report correct error code according to Web SQL
         resultList.push({
-          type: 'success',
-          result: (rowsAffected !== 0) ? {
-            rows: rr,
-            insertId: insertId,
-            rowsAffected: rowsAffected
-          } : {
-            rows: rr,
-            rowsAffected: 0
+          type: 'error',
+          result: {
+            code: 0,
+            message: e.toString()
           }
         });
-      });
-    } catch(e) {
-      // FUTURE TODO: report correct error code according to Web SQL
-      resultList.push({
-        type: 'error',
-        result: {
-          code: 0,
-          message: e.toString()
-        }
-      });
+      }
     }
   }
 
