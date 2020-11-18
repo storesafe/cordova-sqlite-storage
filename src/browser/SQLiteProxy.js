@@ -42,7 +42,7 @@ function openDatabase(success, error, options) {
   }
 
   try {
-    dbmap[name] = new SQL.Database();
+    dbmap[name] = new SQL.Database(isSqlite3 ? './' + name + '.db' : undefined);
   } catch(e) {
     // INTERNAL OPEN ERROR
     return error(e);
