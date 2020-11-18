@@ -81,7 +81,7 @@ function backgroundExecuteSqlBatch(success, error, options) {
           resultList.push({
             type: 'success',
             result:
-              this['changes'] !== 0
+              this['changes'] && this['changes'] !== 0
                 ? {
                     rows: r,
                     insertId: this['lastID'],
