@@ -69,7 +69,16 @@ function backgroundExecuteSqlBatch(success, error, options) {
     var rr = []
 
     if (isSqlite3) {
-      console.log('sqlite3', 'backgroundExecuteSqlBatch', success, error, options);
+      var isInsertQuery = sql.substr(0, 11) === 'INSERT INTO';
+      if (isInsertQuery) {
+        db.run(sql, params, function (e, r) {
+          console.log('db.run', e, r);
+        });
+      } else {
+        db.all(sql, params, function (e, r) {
+          console.log('db.all', e, r);
+        });
+      }
     } else {
       var prevTotalChanges = (db.exec('SELECT total_changes()'))[0].values[0][0];
 
