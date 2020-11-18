@@ -66,8 +66,6 @@ function backgroundExecuteSqlBatch(success, error, options) {
     var sql = e[i].sql;
     var params = e[i].params;
 
-    var rr = []
-
     if (isSqlite3) {
       var handler = function (e, r) {
         console.log('db.run', e, r, this);
@@ -95,6 +93,10 @@ function backgroundExecuteSqlBatch(success, error, options) {
                   },
           });
         }
+
+        setTimeout(function () {
+          success(resultList);
+        }, 0);
       };
       if (sql.substr(0, 11) === 'INSERT INTO') {
         db.run(sql, params, handler);
@@ -102,6 +104,8 @@ function backgroundExecuteSqlBatch(success, error, options) {
         db.all(sql, params, handler);
       }
     } else {
+      var rr = []
+  
       var prevTotalChanges = (db.exec('SELECT total_changes()'))[0].values[0][0];
 
       try {
@@ -134,11 +138,11 @@ function backgroundExecuteSqlBatch(success, error, options) {
         });
       }
     }
-  }
 
-  setTimeout(function() {
-    success(resultList);
-  }, 0);
+    setTimeout(function() {
+      success(resultList);
+    }, 0);
+  }
 }
 
 function closeDatabase(success, error, options) {
