@@ -31,6 +31,13 @@
         </js-module>
     </platform>
 
+    <!-- electron -->
+    <platform name="electron">
+        <js-module src="src/electron/SQLiteProxy.js" name="SQLiteProxy">
+          <runs />
+        </js-module>
+    </platform>
+
     <!-- android -->
     <platform name="android">
         <!-- Cordova >= 3.0.0 -->
