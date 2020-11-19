@@ -8,13 +8,12 @@ function echoStringValue(success, error, options) {
 
 var SQL = null;
 
-var isSqlite3 = false;
+var sqlite3 = null;
 
-if (window.require) {
+if (!!window.require) {
   var sqlite3 = window.require('sqlite3');
-  if (sqlite3) {
+  if (!!sqlite3) {
     SQL = sqlite3.verbose();
-    isSqlite3 = true;
   } else {
     return error('INTERNAL ERROR: sqlite3 not installed');
   }
@@ -42,7 +41,7 @@ function openDatabase(success, error, options) {
   }
 
   try {
-    dbmap[name] = new SQL.Database(isSqlite3 ? './' + name + '.db' : undefined);
+    dbmap[name] = new SQL.Database(!!sqlite3 ? './' + name + '.db' : undefined);
   } catch(e) {
     // INTERNAL OPEN ERROR
     return error(e);
@@ -66,8 +65,10 @@ function backgroundExecuteSqlBatch(success, error, options) {
     var sql = e[i].sql;
     var params = e[i].params;
 
-    if (isSqlite3) {
-      resultList.push(_sqlite3ExecuteSql(db, sql, params));
+    if (!!sqlite3) {
+      _sqlite3ExecuteSql(db, sql, params).then(function(r) {
+        resultList.push(r);
+      });
     } else {
       var rr = []
   
@@ -111,8 +112,8 @@ function backgroundExecuteSqlBatch(success, error, options) {
   }, 0);
 }
 
-async function _sqlite3ExecuteSql(db, sql, params) {
-  return await new Promise((resolve) => {
+function _sqlite3ExecuteSql(db, sql, params) {
+  return new Promise(function(resolve) {
     var _sqlite3Handler = function (e, r) {
       console.log('db.run', e, r, this);
       if (e) {
