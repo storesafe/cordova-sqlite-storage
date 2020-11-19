@@ -50,7 +50,7 @@ function openDatabase(success, error, options) {
   setTimeout(success, 0);
 }
 
-function backgroundExecuteSqlBatch(success, error, options) {
+async function backgroundExecuteSqlBatch(success, error, options) {
   var dbname = options[0].dbargs.dbname;
 
   if (!dbmap[dbname]) return error('INTERNAL ERROR: database not open');
@@ -66,9 +66,7 @@ function backgroundExecuteSqlBatch(success, error, options) {
     var params = e[i].params;
 
     if (!!sqlite3) {
-      _sqlite3ExecuteSql(db, sql, params).then(function(r) {
-        resultList.push(r);
-      });
+      resultList.push(await _sqlite3ExecuteSql(db, sql, params));
     } else {
       var rr = []
   
@@ -113,7 +111,7 @@ function backgroundExecuteSqlBatch(success, error, options) {
 }
 
 function _sqlite3ExecuteSql(db, sql, params) {
-  return new Promise(function(resolve) {
+  return new Promise(function (resolve) {
     var _sqlite3Handler = function (e, r) {
       console.log('db.run', e, r, this);
       if (e) {
