@@ -11,7 +11,7 @@ var SQL = null;
 var sqlite3 = null;
 
 if (!!window.require) {
-  var sqlite3 = window.require('sqlite3');
+  sqlite3 = window.require('sqlite3');
   if (!!sqlite3) {
     SQL = sqlite3.verbose();
   } else {
