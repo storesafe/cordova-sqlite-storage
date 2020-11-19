@@ -7,7 +7,6 @@
     "platforms": [
       "android",
       "browser",
-      "electron",
       "ios",
       "osx",
       "windows"
@@ -22,7 +21,6 @@
     "ecosystem:cordova",
     "cordova-android",
     "cordova-browser",
-    "cordova-electron",
     "cordova-ios",
     "cordova-osx",
     "cordova-windows"
