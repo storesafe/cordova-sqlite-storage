@@ -67,42 +67,7 @@ function backgroundExecuteSqlBatch(success, error, options) {
     var params = e[i].params;
 
     if (isSqlite3) {
-      var handler = function (e, r) {
-        console.log('db.run', e, r, this);
-        if (e) {
-          resultList.push({
-            type: 'error',
-            result: {
-              code: 0,
-              message: e.toString(),
-            },
-          });
-        } else {
-          resultList.push({
-            type: 'success',
-            result:
-              this['changes'] && this['changes'] !== 0
-                ? {
-                    rows: r,
-                    insertId: this['lastID'],
-                    rowsAffected: this['changes'],
-                  }
-                : {
-                    rows: r,
-                    rowsAffected: 0,
-                  },
-          });
-        }
-
-        setTimeout(function () {
-          success(resultList);
-        }, 0);
-      };
-      if (sql.substr(0, 11) === 'INSERT INTO') {
-        db.run(sql, params, handler);
-      } else {
-        db.all(sql, params, handler);
-      }
+      resultList.push(_sqlite3ExecuteSql(db, sql, params));
     } else {
       var rr = []
   
@@ -139,10 +104,48 @@ function backgroundExecuteSqlBatch(success, error, options) {
       }
     }
 
-    setTimeout(function() {
-      success(resultList);
-    }, 0);
   }
+
+  setTimeout(function() {
+    success(resultList);
+  }, 0);
+}
+
+async function _sqlite3ExecuteSql(db, sql, params) {
+  return await new Promise((resolve) => {
+    var _sqlite3Handler = function (e, r) {
+      console.log('db.run', e, r, this);
+      if (e) {
+        resolve({
+          type: 'error',
+          result: {
+            code: 0,
+            message: e.toString(),
+          },
+        });
+      } else {
+        resolve({
+          type: 'success',
+          result:
+            this['changes'] && this['changes'] !== 0
+              ? {
+                  rows: r,
+                  insertId: this['lastID'],
+                  rowsAffected: this['changes'],
+                }
+              : {
+                  rows: r,
+                  rowsAffected: 0,
+                },
+        });
+      }
+    };
+    if (sql.substr(0, 11) === 'INSERT INTO') {
+      db.run(sql, params, _sqlite3Handler);
+    } else {
+      db.all(sql, params, _sqlite3Handler);
+    }
+  });
 }
 
 function closeDatabase(success, error, options) {
