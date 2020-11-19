@@ -41,8 +41,7 @@ function openDatabase(success, error, options) {
   }
 
   try {
-    console.log('new Database', name);
-    dbmap[name] = new SQL.Database(!!sqlite3 ? './' + name + '.db' : undefined);
+    dbmap[name] = new SQL.Database(!!sqlite3 ? name : undefined);
   } catch(e) {
     // INTERNAL OPEN ERROR
     return error(e);
