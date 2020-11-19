@@ -41,6 +41,7 @@ function openDatabase(success, error, options) {
   }
 
   try {
+    console.log('new Database', name);
     dbmap[name] = new SQL.Database(!!sqlite3 ? './' + name + '.db' : undefined);
   } catch(e) {
     // INTERNAL OPEN ERROR
@@ -113,8 +114,8 @@ async function backgroundExecuteSqlBatch(success, error, options) {
 function _sqlite3ExecuteSql(db, sql, params) {
   return new Promise(function (resolve) {
     var _sqlite3Handler = function (e, r) {
-      console.log('db.run', e, r, this);
       if (e) {
+        // FUTURE TODO: report correct error code according to SQLite3
         resolve({
           type: 'error',
           result: {
