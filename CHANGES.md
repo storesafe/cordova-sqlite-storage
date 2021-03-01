@@ -1,6 +1,6 @@
 # Changes
 
-#### cordova-sqlite-storage 5.1.1-dev
+#### cordova-sqlite-storage 6.0.0-dev
 
 #### cordova-sqlite-storage 5.1.0
 
