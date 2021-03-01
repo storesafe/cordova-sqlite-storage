@@ -4,7 +4,7 @@
     id="cordova-sqlite-storage"
     version="6.0.0-dev">
 
-    <name>Cordova sqlite storage plugin - cordova-sqlite-storage plugin version</name>
+    <name>Cordova SQLite storage plugin - cordova-sqlite-storage plugin version</name>
 
     <license>MIT</license>
 
