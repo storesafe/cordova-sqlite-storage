@@ -2,6 +2,8 @@
 
 ### cordova-sqlite-storage-commoncore 2.0.0-dev
 
+- Drop support for Windows on ARM (Windows Mobile)
+
 #### cordova-sqlite-storage 5.0.1
 
 - enable RENAME table with view test - from December 2019 SQLite crash report, fixed in 2020 ref:
