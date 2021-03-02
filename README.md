@@ -6,7 +6,7 @@ Native SQLite component with API based on HTML5/[Web SQL (DRAFT) API](http://www
 - Android
 - iOS
 - macOS ("osx" platform)
-- Windows 10 (UWP) DESKTOP and MOBILE (see below for major limitations)
+- Windows 10 (UWP) DESKTOP ~~and MOBILE~~ (see below for major limitations)
 
 The browser platform is now supported with the following options:
 - This plugin now supports the browser platform using [`storesafe/sql.js`](https://github.com/storesafe/sql.js) (fork of [`sql-js/sql.js`](https://github.com/sql-js/sql.js)), with no persistence and other limitations described below.
@@ -247,13 +247,16 @@ See the [**Sample**](#sample) section below for a sample with a more detailed ex
   - This plugin version branch has dependency on platform toolset libraries included by Visual Studio 2017 ref: [`storesafe/cordova-sqlite-storage#580`](https://github.com/storesafe/cordova-sqlite-storage/issues/580). (Visual Studio 2019 is not supported with cordova-windows, see [`apache/cordova-windows#327`](https://github.com/apache/cordova-windows/issues/327).) Visual Studio 2015 is now supported by [`brodybits/cordova-sqlite-legacy`](https://github.com/brodybits/cordova-sqlite-legacy) (permissive license terms, no performance enhancements for Android) and [`brodybits/cordova-sqlite-evcore-legacy-ext-common-free`](https://github.com/brodybits/cordova-sqlite-evcore-legacy-ext-common-free) (GPL v3 or commercial license terms, with performance enhancements for Android). UNTESTED workaround for Visual Studio 2015: it *may* be possible to support this plugin version on Visual Studio 2015 Update 3 by installing platform toolset v141.)
   - Visual Studio components needed: Universal Windows Platform development, C++ Universal Windows Platform tools. A recent version of Visual Studio 2017 will offer to install any missing feature components.
   - It is **not** possible to use this plugin with the default "Any CPU" target. A specific target CPU type **must** be specified when building an app with this plugin.
+  - ARM target CPU for Windows Mobile is no longer supported.
   - The `SQLite3-WinRT` component in `src/windows/SQLite3-WinRT-sync` is based on [`doo/SQLite3-WinRT` commit `f4b06e6`](https://github.com/doo/SQLite3-WinRT/commit/f4b06e6a772a2688ee0575a8034b55401ea64049) from 2012, which is missing the asynchronous C++ API improvements. There is no background processing on the Windows platform.
   - Truncation issue with UNICODE `\u0000` character (same as `\0`)
   - INCONSISTENT error code (0) and INCORRECT error message (missing actual error info) in error callbacks ref: [`storesafe/cordova-sqlite-storage#539`](https://github.com/storesafe/cordova-sqlite-storage/issues/539)
   - Not possible to SELECT BLOB column values directly. It is recommended to use built-in HEX function to retrieve BLOB column values, which should work consistently across all platform implementations as well as (WebKit) Web SQL. Non-standard BASE64 function to SELECT BLOB column values in Base64 format is supported by [`brodybits/cordova-sqlite-ext`](https://github.com/brodybits/cordova-sqlite-ext) (permissive license terms) and [`storesafe/cordova-sqlite-evcore-extbuild-free`](https://github.com/storesafe/cordova-sqlite-evcore-extbuild-free) (GPL v3 or commercial license terms).
   - Windows platform version uses `UTF-16le` internal database encoding while the other platform versions use `UTF-8` internal encoding. (`UTF-8` internal encoding is preferred ref: [`storesafe/cordova-sqlite-storage#652`](https://github.com/storesafe/cordova-sqlite-storage/issues/652))
   - Known issue with database names that contain certain US-ASCII punctuation and control characters (see below)
-- The macOS platform version ("osx" platform) is not tested in a release build and should be considered pre-alpha.
+- The **macOS** platform version (**"osx" platform**) is not tested in a release build and should be considered pre-alpha with known issues:
+  - `cordova prepare osx` is needed before building and running from Xcode
+  - known issue between `cordova-osx` and Cordova CLI `10.0.0`: <https://github.com/apache/cordova-osx/issues/106>
 - Android platform versions supported: minimum: 4.0 (deprecated), recommended minimum: 5.1, see also: ref: <https://cordova.apache.org/docs/en/latest/guide/platforms/android/>
 - iOS platform versions supported: minimum 9.0 (see <https://cordova.apache.org/docs/en/latest/guide/platforms/ios/index.html>); see also [**deviations section**](#deviations) below for differences between WKWebView (cordova-ios 6.0(+)) and UIWebView (cordova-ios pre-6.0)
 - FTS3, FTS4, and R-Tree features are tested and supported on all target platforms in this plugin version branch.
@@ -268,7 +271,7 @@ See the [**Sample**](#sample) section below for a sample with a more detailed ex
 ## Announcements
 
 - The browser platform is now supported using [`storesafe/sql.js`](https://github.com/storesafe/sql.js) (fork of [`sql-js/sql.js`](https://github.com/sql-js/sql.js)), with no persistence and other limitations described below.
-- Using recent version of SQLite3 (see above) with some new features and some important security updates including:
+- _Using version of SQLite3 (...) with window functions and recent security updates:_
   - [`storesafe/cordova-sqlite-storage#895`](https://github.com/storesafe/cordova-sqlite-storage/issues/895)
   - [`storesafe/cordova-sqlite-storage#867`](https://github.com/storesafe/cordova-sqlite-storage/issues/867)
   - [`storesafe/cordova-sqlite-storage#837`](https://github.com/storesafe/cordova-sqlite-storage/issues/837)
@@ -340,8 +343,10 @@ More resources can be found by <https://www.google.com/search?q=cordova+tutorial
 
 In addition, this guide assumes a basic knowledge of some key JavaScript concepts such as variables, function calls, and callback functions. There is an excellent explanation of JavaScript callbacks at <http://cwbuecheler.com/web/tutorials/2013/javascript-callbacks/>.
 
-**MAJOR TIPS:** As described in the [**Installing**](#installing) section:
-- It is recommended to use the `--save` flag when installing plugins to track them in `config.xml` _in case of Cordova CLI pre-7.x_. If all plugins are tracked in `config.xml` then there is no need to commit the `plugins` subdirectory tree into the source repository.
+**MAJOR TIPS:** As described in the [Installing](#installing) section:
+
+- In case of extra-old Cordova CLI pre-7.0, it is recommended to use the `--save` flag when installing plugins to add them to `config.xml` / `package.json`. (This is automatic starting with Cordova CLI 7.0.)
+- Assuming that all plugins are added to `config.xml` or `package.json`, there is no need to commit the `plugins` subdirectory tree into the source repository.
 - In general it is *not* recommended to commit the `platforms` subdirectory tree into the source repository.
 
 **NOTICE:** This plugin is only supported with the Cordova CLI. This plugin is *not* supported with other Cordova/PhoneGap systems such as PhoneGap CLI, PhoneGap Build, Plugman, Intel XDK, Webstorm, etc.
@@ -867,7 +872,7 @@ where the `iosDatabaseLocation` option may be set to one of the following choice
 
 **WARNING:** Again, the new "default" iosDatabaseLocation value is *NOT* the same as the old default location and would break an upgrade for an app using the old default value (0) on iOS.
 
-DEPRECATED ALTERNATIVE to be removed in September 2018:
+DEPRECATED ALTERNATIVE to be removed in an upcoming release:
 - `var db = window.sqlitePlugin.openDatabase({name: "my.db", location: 1}, successcb, errorcb);`
 
 with the `location` option set to one the following choices (affects iOS *only*):
@@ -1443,9 +1448,10 @@ cordova prepare # OPTIONAL (MAY BE NEEDED cordova-ios pre-4.3.0 (Cordova CLI pre
 
 **Additional Cordova CLI NOTES:**
 
-- In case of Cordova CLI pre-7.0 it is recommended to add plugins including standard plugins such as `cordova-plugin-whitelist` with the `--save` flag to track these in `config.xml` (automatically saved in `config.xml` starting with Cordova CLI 7.0).
-- In general there is no need to keep the Cordova `platforms` subdirectory tree in source code control (such as git). In case ALL plugins are tracked in `config.xml` (automatic starting with Cordova CLI 7.0, `--save` flag needed for Cordova CLI pre-7.0) then there is no need to keep the `plugins` subdirectory tree in source code control either.
-- It may be necessary to use `cordova prepare` in case of cordova-ios older than `4.3.0` (Cordova CLI `6.4.0`).
+- As stated above:
+  - In case of Cordova CLI pre-7.0 it is recommended to add plugins including standard plugins such as `cordova-plugin-whitelist` with the `--save` flag to track these in `config.xml` (automatically saved in `config.xml` / `package.json` starting with Cordova CLI 7.0).
+  - In general there is no need to keep the Cordova `platforms` subdirectory tree in source code control (such as git). In case ALL plugins are tracked in `config.xml` or `package.json` (automatic starting with Cordova CLI 7.0, `--save` flag needed for Cordova CLI pre-7.0) then there is no need to keep the `plugins` subdirectory tree in source code control either.
+- It may be necessary to use `cordova prepare` in case of `cordova-ios` older than `4.3.0` (Cordova CLI `6.4.0`) or `cordova-osx`.
 - In case of problems with building and running it is recommended to try again after `cordova prepare`.
 - If you cannot build for a platform after `cordova prepare`, you may have to remove the platform and add it again, such as:
 

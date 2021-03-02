@@ -74,7 +74,7 @@
     <platform name="osx">
         <config-file target="config.xml" parent="/*">
             <feature name="SQLitePlugin">
-                <param name="ios-package" value="SQLitePlugin" />
+                <param name="osx-package" value="SQLitePlugin" />
             </feature>
         </config-file>
 
