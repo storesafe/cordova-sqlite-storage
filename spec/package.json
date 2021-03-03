@@ -1,4 +1,11 @@
 {
   "name": "cordova-sqlite-spec",
-  "cordova": {}
+  "cordova": {
+    "plugins": {
+      "cordova-plugin-file": {}
+    }
+  },
+  "devDependencies": {
+    "cordova-plugin-file": "^6.0.2"
+  }
 }
