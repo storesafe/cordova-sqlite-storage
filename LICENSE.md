@@ -16,11 +16,11 @@ MIT
 
 MIT or Apache 2.0
 
-### Android-sqlite-connector
+### android-sqlite-native-ndk-connector
 
 Unlicense (public domain)
 
-### Android-sqlite-ext-native-driver
+### android-sqlite-ndk-native-driver
 
 Unlicense (public domain)
 
