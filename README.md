@@ -41,7 +41,6 @@ in an upcoming major release - see [`storesafe/cordova-sqlite-storage#922`](http
 
 some highlights:
 
-- drop support for Android pre-5.1, which will also be dropped by `cordova-android`, including deprecated `armeabi` target (superseded by `armeabi-v7a`, seems to be not supported by Android 5.0) - more info in [`storesafe/cordova-sqlite-storage#922`](https://github.com/storesafe/cordova-sqlite-storage/issues/922)
 - error `code` will always be `0` (which is already the case on browser and Windows); actual SQLite3 error code will be part of the error `message` member whenever possible (see [`storesafe/cordova-sqlite-storage#821`](https://github.com/storesafe/cordova-sqlite-storage/issues/821))
 - drop support for location: 0-2 values in openDatabase call (please use `location: 'default'` or `iosDatabaseLocation` setting in openDatabase as documented below)
 - throw an exception in case of `androidDatabaseImplementation: 2` setting which is now superseded by `androidDatabaseProvider: 'system'` setting
@@ -257,7 +256,7 @@ See the [**Sample**](#sample) section below for a sample with a more detailed ex
 - The **macOS** platform version (**"osx" platform**) is not tested in a release build and should be considered pre-alpha with known issues:
   - `cordova prepare osx` is needed before building and running from Xcode
   - known issue between `cordova-osx` and Cordova CLI `10.0.0`: <https://github.com/apache/cordova-osx/issues/106>
-- Android platform versions supported: minimum: 4.0 (deprecated), recommended minimum: 5.1, see also: ref: <https://cordova.apache.org/docs/en/latest/guide/platforms/android/>
+- Android platform versions supported: minimum: 5.1, see also: ref: <https://cordova.apache.org/docs/en/latest/guide/platforms/android/>
 - iOS platform versions supported: minimum 9.0 (see <https://cordova.apache.org/docs/en/latest/guide/platforms/ios/index.html>); see also [**deviations section**](#deviations) below for differences between WKWebView (cordova-ios 6.0(+)) and UIWebView (cordova-ios pre-6.0)
 - FTS3, FTS4, and R-Tree features are tested and supported on all target platforms in this plugin version branch.
 - Default `PRAGMA journal_mode` setting (*tested*):
