@@ -195,6 +195,90 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        // ref:
+        // - https://en.wikipedia.org/wiki/Tamil_script
+        // - https://www.unicode.org/charts/PDF/U0B80.pdf
+        // - https://github.com/storesafe/cordova-sqlite-evcore-extbuild-free/issues/54
+        it(suiteName + 'INSERT TEXT string with Tamil எ (UTF-8 3 bytes), SELECT the data, check, and check HEX value [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
+          var db = openDatabase('INSERT-Tamil-UTF8-3-bytes-and-check.db');
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data)', [], function(ignored1, ignored2) {
+
+              tx.executeSql('INSERT INTO test_table VALUES (?)', ['எ'], function(tx, res) {
+                expect(res).toBeDefined();
+                expect(res.rowsAffected).toBe(1);
+
+                tx.executeSql('SELECT * FROM test_table', [], function(tx, rs2) {
+                  var row = rs2.rows.item(0);
+
+                  expect(row.data).toBe('\u0b8e');
+
+                  tx.executeSql('SELECT HEX(data) AS hexvalue FROM test_table', [], function(tx, res) {
+                    if (isWindows)
+                      expect(res.rows.item(0).hexvalue).toBe('????');
+                    else
+                      expect(res.rows.item(0).hexvalue).toBe('E0AE8E');
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  });
+
+                });
+              });
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        // ref:
+        // - https://en.wikipedia.org/wiki/Tamil_script
+        // - https://www.unicode.org/charts/PDF/U11FC0.pdf
+        // - https://github.com/storesafe/cordova-sqlite-evcore-extbuild-free/issues/54
+        it(suiteName + 'INSERT TEXT string with Tamil U+11FC0 - 𑿀  (UTF-8 4 bytes), SELECT the data, check, and check HEX value [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
+          var db = openDatabase('INSERT-Tamil-UTF8-4-bytes-and-check.db');
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS test_table');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS test_table (data)', [], function(ignored1, ignored2) {
+
+              tx.executeSql('INSERT INTO test_table VALUES (?)', ['\ud807\udfc0'], function(tx, res) {
+                expect(res).toBeDefined();
+                expect(res.rowsAffected).toBe(1);
+
+                tx.executeSql('SELECT * FROM test_table', [], function(tx, rs2) {
+                  var row = rs2.rows.item(0);
+
+                  expect(row.data).toBe('\ud807\udfc0');
+
+                  tx.executeSql('SELECT HEX(data) AS hexvalue FROM test_table', [], function(tx, res) {
+                    if (isWindows)
+                      expect(res.rows.item(0).hexvalue).toBe('????');
+                    else
+                      expect(res.rows.item(0).hexvalue).toBe('F091BF80');
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  });
+
+                });
+              });
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
         it(suiteName + 'INSERT with null parameter argument value and check stored data', function(done) {
           var db = openDatabase('INSERT-null-arg-value-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
 
