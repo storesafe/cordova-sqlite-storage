@@ -2,6 +2,7 @@
 
 #### cordova-sqlite-storage-core 1.0.0-dev
 
+- add support for Windows on ARM64 target CPU
 - update Windows minimum & target platform version - BREAKING CHANGE
 - Re-enable Windows on ARM target CPU
 
