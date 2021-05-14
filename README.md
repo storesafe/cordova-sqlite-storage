@@ -509,6 +509,7 @@ WANTED: simple, working CRUD tutorial sample ref: [`storesafe/cordova-sqlite-sto
 ### Some other Cordova resources
 
 - <http://www.tutorialspoint.com/cordova/cordova_file_system.htm>
+- [SQLite Tutorial](https://www.tutlane.com/tutorial/sqlite)
 
 <!-- END Getting started -->
 
