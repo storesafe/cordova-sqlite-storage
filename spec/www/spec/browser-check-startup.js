@@ -7,14 +7,17 @@ var isAndroid = !isWindows && /Android/.test(navigator.userAgent);
 var isFirefox = /Firefox/.test(navigator.userAgent);
 var isWebKitBrowser = !isWindows && !isAndroid && /Safari/.test(navigator.userAgent);
 var isBrowser = isWebKitBrowser || isFirefox;
+// [TBD] ONLY APPLIES for non-Chromium Edge:
 var isEdgeBrowser = isBrowser && (/Edge/.test(navigator.userAgent));
+// Applies for Google Chrome, Edge with Chromium, etc.
+var isChromeBrowser = isBrowser && !isEdgeBrowser && /Chrome/.test(navigator.userAgent);
 var isMac = !isBrowser && /Macintosh/.test(navigator.userAgent);
 var isAppleMobileOS = /iPhone/.test(navigator.userAgent) ||
       /iPad/.test(navigator.userAgent) || /iPod/.test(navigator.userAgent);
 var hasMobileWKWebView = isAppleMobileOS && !!window.webkit && !!window.webkit.messageHandlers;
 
 window.hasBrowser = true;
-window.hasWebKitWebSQL = isAndroid || (isAppleMobileOS && !hasMobileWKWebView) || (isWebKitBrowser && !isEdgeBrowser);
+window.hasWebKitWebSQL = isAndroid || isChromeBrowser;
 
 describe('Check startup for navigator.userAgent: ' + navigator.userAgent, function() {
   it('receives deviceready event', function(done) {
