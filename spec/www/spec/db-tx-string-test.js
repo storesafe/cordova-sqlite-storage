@@ -523,8 +523,7 @@ var mytests = function() {
                   (isWebSql && !isAndroid && !isChromeBrowser) ||
                   (!isWebSql && isWindows) ||
                   (!isWebSql && !isWindows && isAndroid && isImpl2 &&
-                    !(/Android 4/.test(navigator.userAgent)) &&
-                    !(/Android [8-9]/.test(navigator.userAgent))))
+                    (/Android [5-7]/.test(navigator.userAgent))))
                 expect(rs.rows.item(0).uppertext).toBe('A');
               else
                 expect(rs.rows.item(0).uppertext).toBe('A\0CD');
@@ -1067,11 +1066,10 @@ var mytests = function() {
               expect(resultRow1).toBeDefined();
               expect(resultRow1.myresult).toBeDefined();
               // SQLite3 with ICU-UNICODE for:
-              // - Web SQL on Chrome desktop browser
-              // - plugin with androidDatabaseImplementation: 2 on
-              //   Android 4.4 & newer
-              if ((isWebSql && isChromeBrowser) ||
-                  (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
+              // - Web SQL on Chrome desktop browser or Android (post-4.x) (WebKit) Web SQL
+              // - plugin with androidDatabaseProvider: 'system' on Android (post-4.x)
+              if ((isWebSql && (isChromeBrowser || isAndroid) ||
+                  (isAndroid && isImpl2))
                 expect(resultRow1.myresult).toBe('AÉ');
               else
                 expect(resultRow1.myresult).toBe('Aé');
@@ -1085,11 +1083,10 @@ var mytests = function() {
                 expect(resultRow2).toBeDefined();
                 expect(resultRow2.myresult).toBeDefined();
                 // SQLite3 with ICU-UNICODE for:
-                // - Web SQL on Chrome desktop browser
-                // - plugin with androidDatabaseImplementation: 2 on
-                //   Android 4.4 & newer
-                if ((isWebSql && isChromeBrowser) ||
-                    (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
+                // - Web SQL on Chrome desktop browser or Android (post-4.x) (WebKit) Web SQL
+                // - plugin with androidDatabaseProvider: 'system' on Android (post-4.x)
+                if ((isWebSql && (isChromeBrowser || isAndroid) ||
+                    (isAndroid && isImpl2))
                   expect(resultRow2.myresult).toBe('BÉ');
                 else
                   expect(resultRow2.myresult).toBe('Bé');
@@ -1123,11 +1120,10 @@ var mytests = function() {
               expect(resultRow1).toBeDefined();
               expect(resultRow1.myresult).toBeDefined();
               // SQLite3 with ICU-UNICODE for:
-              // - Web SQL on Chrome desktop browser
-              // - plugin with androidDatabaseImplementation: 2 on
-              //   Android 4.4 & newer
-              if ((isWebSql && isChromeBrowser) ||
-                  (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
+              // - Web SQL on Chrome desktop browser or Android (post-4.x) (WebKit) Web SQL
+              // - plugin with androidDatabaseProvider: 'system' on Android (post-4.x)
+              if ((isWebSql && (isChromeBrowser || isAndroid) ||
+                  (isAndroid && isImpl2))
                 expect(resultRow1.myresult).toBe('aé');
               else
                 expect(resultRow1.myresult).toBe('aÉ');
@@ -1141,11 +1137,10 @@ var mytests = function() {
                 expect(resultRow2).toBeDefined();
                 expect(resultRow2.myresult).toBeDefined();
                 // SQLite3 with ICU-UNICODE for:
-                // - Web SQL on Chrome desktop browser
-                // - plugin with androidDatabaseImplementation: 2 on
-                //   Android 4.4 & newer
-                if ((isWebSql && isChromeBrowser) ||
-                    (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
+                // - Web SQL on Chrome desktop browser or Android (post-4.x) (WebKit) Web SQL
+                // - plugin with androidDatabaseProvider: 'system' on Android (post-4.x)
+                if ((isWebSql && (isChromeBrowser || isAndroid) ||
+                    (isAndroid && isImpl2))
                   expect(resultRow2.myresult).toBe('bé');
                 else
                   expect(resultRow2.myresult).toBe('bÉ');
@@ -1179,11 +1174,10 @@ var mytests = function() {
               expect(resultRow1).toBeDefined();
               expect(resultRow1.myresult).toBeDefined();
               // SQLite3 with ICU-UNICODE for:
-              // - Web SQL on Chrome desktop browser
-              // - plugin with androidDatabaseImplementation: 2 on
-              //   Android 4.4 & newer
-              if ((isWebSql && isChromeBrowser) ||
-                  (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
+              // - Web SQL on Chrome desktop browser or Android (post-4.x) (WebKit) Web SQL
+              // - plugin with androidDatabaseProvider: 'system' on Android (post-4.x)
+              if ((isWebSql && (isChromeBrowser || isAndroid) ||
+                  (isAndroid && isImpl2))
                 expect(resultRow1.myresult).toBe('STRASSE');
               else
                 expect(resultRow1.myresult).toBe('STRAßE');
@@ -1197,11 +1191,10 @@ var mytests = function() {
                 expect(resultRow2).toBeDefined();
                 expect(resultRow2.myresult).toBeDefined();
                 // SQLite3 with ICU-UNICODE for:
-                // - Web SQL on Chrome desktop browser
-                // - plugin with androidDatabaseImplementation: 2 on
-                //   Android 4.4 & newer
-                if ((isWebSql && isChromeBrowser) ||
-                    (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
+                // - Web SQL on Chrome desktop browser or Android (post-4.x) (WebKit) Web SQL
+                // - plugin with androidDatabaseProvider: 'system' on Android (post-4.x)
+                if ((isWebSql && (isChromeBrowser || isAndroid) ||
+                    (isAndroid && isImpl2))
                   expect(resultRow2.myresult).toBe('STRASSE');
                 else
                   expect(resultRow2.myresult).toBe('STRAßE');
@@ -1406,9 +1399,8 @@ var mytests = function() {
               expect(resultRow1).toBeDefined();
               expect(resultRow1.myresult).toBeDefined();
               // SQLite3 with ICU-UNICODE for:
-              // - Web SQL on Chrome desktop browser
-              // - plugin with androidDatabaseImplementation: 2 on
-              //   Android 4.4 & newer
+              // - Web SQL on Chrome desktop browser or Android (post-4.x) (WebKit) Web SQL
+              // - plugin with androidDatabaseProvider: 'system' on Android (post-4.x)
               if ((isWebSql && isChromeBrowser) ||
                   (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
                 expect(resultRow1.myresult).toBe('straße');
@@ -1424,9 +1416,8 @@ var mytests = function() {
                 expect(resultRow2).toBeDefined();
                 expect(resultRow2.myresult).toBeDefined();
                 // SQLite3 with ICU-UNICODE for:
-                // - Web SQL on Chrome desktop browser
-                // - plugin with androidDatabaseImplementation: 2 on
-                //   Android 4.4 & newer
+                // - Web SQL on Chrome desktop browser or Android (post-4.x) (WebKit) Web SQL
+                // - plugin with androidDatabaseProvider: 'system' on Android (post-4.x)
                 if ((isWebSql && isChromeBrowser) ||
                     (isAndroid && ((isWebSql && isAndroid && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
                   expect(resultRow2.myresult).toBe('straße');
@@ -1959,9 +1950,8 @@ var mytests = function() {
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
               // SQLite3 with ICU-UNICODE for:
-              // - Web SQL on Chrome desktop browser
-              // - plugin with androidDatabaseImplementation: 2 on
-              //   Android 4.4 & newer
+              // - Web SQL on Chrome desktop browser or Android (post-4.x) (WebKit) Web SQL
+              // - plugin with androidDatabaseProvider: 'system' on Android (post-4.x)
               if ((isWebSql && isChromeBrowser) ||
                   (isAndroid && ((isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
                 expect(rs.rows.item(0).upper_result).toBe('TEST ¢ É €');
@@ -1990,9 +1980,8 @@ var mytests = function() {
               expect(rs.rows).toBeDefined();
               expect(rs.rows.length).toBe(1);
               // SQLite3 with ICU-UNICODE for:
-              // - Web SQL on Chrome desktop browser
-              // - plugin with androidDatabaseImplementation: 2 on
-              //   Android 4.4 & newer
+              // - Web SQL on Chrome desktop browser or Android (post-4.x) (WebKit) Web SQL
+              // - plugin with androidDatabaseProvider: 'system' on Android (post-4.x)
               if ((isWebSql && isChromeBrowser) ||
                   (isAndroid && ((isWebSql && !(/Android 4.[1-3]/.test(navigator.userAgent))) || (isImpl2 && /Android [5-9]/.test(navigator.userAgent)))))
                 expect(rs.rows.item(0).upper_result).toBe('TEST ¢ É €');
