@@ -2,6 +2,8 @@
 
 #### cordova-sqlite-storage-core 1.0.0-dev
 
+- update Windows minimum & target platform versions - BREAKING CHANGE
+
 #### cordova-sqlite-storage-core 0.9.0-dev
 
 - use cordova-sqlite-storage-dependencies@4.0.0 with Android JARs built from android-sqlite-native-ndk-connector and android-sqlite-ndk-native-driver in this plugin version branch, with enhancements by Luis Silva of OutSystems needed for some Android 11 devices, drops support for Android pre-5.1
