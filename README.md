@@ -239,6 +239,8 @@ See the [Sample section](#sample) for a sample with a more detailed explanation 
   - Visual Studio components needed: Universal Windows Platform development, C++ Universal Windows Platform tools. A recent version of Visual Studio 2017 will offer to install any missing feature components.
   - It is NOT possible to use this plugin with the default "Any CPU" target. A specific target CPU type MUST be specified when building an app with this plugin.
   - ARM target CPU for Windows Mobile is no longer supported.
+  - Target Windows version: `10.0.17763.0` (Windows 10 build 17763 aka October 2018 Update or version 1809) ref: <https://docs.microsoft.com/en-us/windows/uwp/whats-new/windows-10-build-17763>
+  - Minimum Windows version `10.0.15063.0` (Windows 10 build 15063 aka Creators Update or version 1703) ref: <https://docs.microsoft.com/en-us/windows/uwp/whats-new/windows-10-build-15063>
   - The `SQLite3-WinRT` component in `src/windows/SQLite3-WinRT-sync` is based on [doo/SQLite3-WinRT commit f4b06e6](https://github.com/doo/SQLite3-WinRT/commit/f4b06e6a772a2688ee0575a8034b55401ea64049) from 2012, which is missing the asynchronous C++ API improvements. There is no background processing on the Windows platform.
   - Truncation issue with UNICODE `\u0000` character (same as `\0`)
   - INCONSISTENT error code (0) and INCORRECT error message (missing actual error info) in error callbacks ref: [xpbrew/cordova-sqlite-storage#539](https://github.com/xpbrew/cordova-sqlite-storage/issues/539)
