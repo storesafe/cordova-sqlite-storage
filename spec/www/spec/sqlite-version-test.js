@@ -210,6 +210,9 @@ var mytests = function() {
 
         it(suiteName + 'Check default PRAGMA journal_mode setting (plugin ONLY)', function(done) {
           if (isWebSql) pending('SKIP: NOT SUPPORTED for (WebKit) Web SQL');
+          // TBD ???:
+          if (isAndroid && isImpl2 && /Android 9/.test(navigator.userAgent)) pending("SKIP for Android 9 with androidDatabaseProvider: 'system'")
+          if (isAndroid && isImpl2 && /Android 8.1.99/.test(navigator.userAgent)) pending("SKIP for Android 8 with androidDatabaseProvider: 'system'")
 
           var db = openDatabase("Check-sqlite-PRAGMA-encoding.db", "1.0", "Demo", DEFAULT_SIZE);
 
@@ -223,10 +226,11 @@ var mytests = function() {
             // DIFFERENT for builtin android.database implementation:
             if (!isWindows && isAndroid && isImpl2)
               expect(rs.rows.item(0).journal_mode).toBe(
-                (/Android 9/.test(navigator.userAgent)) ? 'wal' :
-                (/Android 8.1.99/.test(navigator.userAgent)) ? 'wal' :
-                (/Android 8/.test(navigator.userAgent)) ? 'truncate' :
-                'persist');
+                // (/Android 9/.test(navigator.userAgent)) ? 'wal' :
+                // (/Android 8.1.99/.test(navigator.userAgent)) ? 'wal' :
+                // (/Android 8/.test(navigator.userAgent)) ? 'truncate' :
+                (/Android [4-7]/.test(navigator.userAgent)) ? 'persist' :
+                'truncate');
             else
               expect(rs.rows.item(0).journal_mode).toBe('delete');
 
