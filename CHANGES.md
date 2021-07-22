@@ -1,5 +1,10 @@
 # Changes
 
+
+#### cordova-sqlite-storage 3.4.2
+
+- hotfix to add support for Android 11
+
 #### cordova-sqlite-storage 3.4.1
 
 - SQLite 3.31.1 update from cordova-sqlite-storage-dependencies@2.1.1

@@ -6,6 +6,7 @@
 
 package io.sqlc;
 
+import android.os.Build;
 import android.util.Log;
 
 import java.io.File;
@@ -321,6 +322,11 @@ public class SQLitePlugin extends CordovaPlugin {
 
             this.q = new LinkedBlockingQueue<DBQuery>();
             this.openCbc = cbc;
+
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+                Log.v(SQLitePlugin.class.getSimpleName(), "Applying hotfix for Android 11+");
+                this.oldImpl = true;
+            }
         }
 
         public void run() {
