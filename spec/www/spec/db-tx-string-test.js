@@ -1220,6 +1220,84 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        // XXX TODO XXX XXX
+        // check UTF-8 2-byte Balkan string character handling ref:
+        // -- https://github.com/mobilexag/cordova-sqlite-evplus-ext-free/issues/34
+        // -- https://github.com/brodybits/sqlite3-eu/pull/1
+        it(suiteName + 'string HEX value test with UTF-8 2-byte Balkan character đ', function(done) {
+          // XXX TODO:
+          var db = openDatabase('UTF8-Balkan-hex-value-test.db');
+          expect('XXX TODO XXX').toBe('---')
+
+          db.transaction(function(tx) {
+
+            tx.executeSql('SELECT HEX(?) AS hexValue', ['đ'], function(ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+              if (isWindows)
+                expect(rs1.rows.item(0).hexValue).toBe('???'); // (UTF-16le)
+              else
+                expect(rs1.rows.item(0).hexValue).toBe('C491'); // (UTF-8)
+
+              tx.executeSql("SELECT HEX('đ') AS hexValue", null, function(ignored, rs2) {
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+                if (isWindows)
+                  expect(rs2.rows.item(0).hexValue).toBe('???'); // (UTF-16le)
+                else
+                  expect(rs2.rows.item(0).hexValue).toBe('C491'); // (UTF-8)
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+
+              });
+
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        // check UTF-8 2-byte Balkan string character handling ref:
+        // -- https://github.com/mobilexag/cordova-sqlite-evplus-ext-free/issues/34
+        // -- https://github.com/brodybits/sqlite3-eu/pull/1
+        it(suiteName + 'string UPPER test with UTF-8 2-byte Balkan character đ', function(done) {
+          var db = openDatabase('UTF8-2-byte-Balkan-UPPER-string-value-test.db');
+
+          db.transaction(function(tx) {
+
+            tx.executeSql('SELECT UPPER(?) AS upperValue', ['ađ'], function(ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+              expect(rs1.rows.item(0).upperValue).toBe('Ađ');
+
+              tx.executeSql("SELECT UPPER('iđ') AS upperValue", null, function(ignored, rs2) {
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+                expect(rs2.rows.item(0).upperValue).toBe('Iđ');
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
         it(suiteName + 'string HEX value test with UTF-8 3-byte Euro character (€) [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           var db = openDatabase('UTF8-3-byte-euro-hex-value-test.db');
 
