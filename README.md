@@ -5,6 +5,9 @@ Native SQLite component with API based on HTML5/[Web SQL (DRAFT) API](http://www
 - browser
 - Android
 - iOS
+
+and *deprecated* desktop platforms:
+
 - macOS ("osx" platform)
 - Windows 10 (UWP) DESKTOP ~~and MOBILE~~ (see below for major limitations)
 
@@ -251,13 +254,15 @@ See the [**Sample**](#sample) section below for a sample with a more detailed ex
   - Truncation issue with UNICODE `\u0000` character (same as `\0`)
   - INCONSISTENT error code (0) and INCORRECT error message (missing actual error info) in error callbacks ref: [`storesafe/cordova-sqlite-storage#539`](https://github.com/storesafe/cordova-sqlite-storage/issues/539)
   - Not possible to SELECT BLOB column values directly. It is recommended to use built-in HEX function to retrieve BLOB column values, which should work consistently across all platform implementations as well as (WebKit) Web SQL. Non-standard BASE64 function to SELECT BLOB column values in Base64 format is supported by [`brodybits/cordova-sqlite-ext`](https://github.com/brodybits/cordova-sqlite-ext) (permissive license terms) and [`storesafe/cordova-sqlite-evcore-extbuild-free`](https://github.com/storesafe/cordova-sqlite-evcore-extbuild-free) (GPL v3 or commercial license terms).
+  - now deprecated ref: <https://github.com/apache/cordova-docs/pull/1118>; <https://lists.apache.org/thread/lqq2xoy3pjqcyl052gv0qom2f31zgg8k>
   - Windows platform version uses `UTF-16le` internal database encoding while the other platform versions use `UTF-8` internal encoding. (`UTF-8` internal encoding is preferred ref: [`storesafe/cordova-sqlite-storage#652`](https://github.com/storesafe/cordova-sqlite-storage/issues/652))
   - Known issue with database names that contain certain US-ASCII punctuation and control characters (see below)
-- The **macOS** platform version (**"osx" platform**) is not tested in a release build and should be considered pre-alpha with known issues:
+- The **macOS** platform version (**"osx" platform**) is supported with the following known limitations and issues:
+  - now deprecated ref: <https://github.com/apache/cordova-docs/pull/1117>; <https://lists.apache.org/thread/lqq2xoy3pjqcyl052gv0qom2f31zgg8k>
   - `cordova prepare osx` is needed before building and running from Xcode
-  - known issue between `cordova-osx` and Cordova CLI `10.0.0`: <https://github.com/apache/cordova-osx/issues/106>
-- Android platform versions supported: minimum: 5.1, see also: ref: <https://cordova.apache.org/docs/en/latest/guide/platforms/android/>
-- iOS platform versions supported: minimum 9.0 (see <https://cordova.apache.org/docs/en/latest/guide/platforms/ios/index.html>); see also [**deviations section**](#deviations) below for differences between WKWebView (cordova-ios 6.0(+)) and UIWebView (cordova-ios pre-6.0)
+  - known issue between `cordova-osx` and Cordova CLI 10.0.0(+): <https://github.com/apache/cordova-osx/issues/106>
+- Android platform versions supported: minimum: 5.1; see also: <https://cordova.apache.org/docs/en/latest/guide/platforms/android/>
+- iOS platform versions supported: see <https://cordova.apache.org/docs/en/latest/guide/platforms/ios/index.html>; see also [**deviations section**](#deviations) below for differences between WKWebView (cordova-ios 6.0(+)) and UIWebView (cordova-ios pre-6.0)
 - FTS3, FTS4, and R-Tree features are tested and supported on all target platforms in this plugin version branch.
 - Default `PRAGMA journal_mode` setting (*tested*):
   - Android use of the `androidDatabaseProvider: 'system'` setting: `persist` (pre-8.0) / `truncate` (Android 8.0, 8.1, 10(+)) / `wal` (Android 9.0 Pie)
