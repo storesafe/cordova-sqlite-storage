@@ -193,6 +193,66 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        // XXX TODO XXX XXX
+        // check Tamil string character handling - UTF-8 3-byte & 4-byte ref:
+        // - https://en.wikipedia.org/wiki/Tamil_script
+        // - https://www.unicode.org/charts/PDF/U0B80.pdf
+        // - https://www.unicode.org/charts/PDF/U11FC0.pdf
+        // - https://github.com/storesafe/cordova-sqlite-evcore-extbuild-free/issues/54
+        it(suiteName + 'INSERT Tamil TEXT string with UTF-8 3-byte & 4-byte characters; SELECT the data; check; and check HEX value [TBD Android 5 vs Windows vs ...]', function(done) {
+          // XXX TODO XXX XXX
+          var db = openDatabase('INSERT-Tamil-characters-and-check.db');
+          expect('XXX TODO XXX').toBe('---')
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS tt');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (data)', [], function(ignored1, ignored2) {
+
+              tx.executeSql('INSERT INTO tt VALUES (?)', ['ABC எ 𑿀 !'], function(tx, res) {
+
+                expect(res).toBeDefined();
+                expect(res.rowsAffected).toBe(1);
+
+                tx.executeSql('SELECT * FROM tt', [], function(tx, res) {
+                  var row = res.rows.item(0);
+
+                  expect(row.data).toBe('ABC எ 𑿀 !');
+
+                  tx.executeSql('SELECT HEX(data) AS hexvalue FROM tt', [], function(tx, res) {
+                          // console.log('*********')
+                          // console.log('*********')
+                          // console.log('*********')
+                          // console.log('*********')
+                          // console.log('*********')
+                          // console.log('*********')
+                          // console.log('*********')
+                          // console.log('*********')
+                          // console.log('*********')
+                          // console.log('*********')
+                      // console.log(res.rows.item(0).hexvalue)
+                    if (isWindows)
+                      expect(res.rows.item(0).hexvalue).toBe('???');
+                    else if (!isWebSql && isAndroid && !isImpl2 && (/Android 5/.test(navigator.userAgent)))
+                      expect(res.rows.item(0).hexvalue).toBe('41424320E0AE8E20EDA087EDBF802021');
+                    else
+                      expect(res.rows.item(0).hexvalue).toBe('41424320E0AE8E20F091BF802021');
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  });
+
+                });
+              });
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
         it(suiteName + 'INSERT with null parameter argument value and check stored data', function(done) {
           var db = openDatabase('INSERT-null-arg-value-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
 

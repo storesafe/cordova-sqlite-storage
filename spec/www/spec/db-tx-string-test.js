@@ -1448,6 +1448,94 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        // XXX TODO XXX XXX
+        // check Tamil string character handling - UTF-8 3-byte ref:
+        // - https://en.wikipedia.org/wiki/Tamil_script
+        // - https://www.unicode.org/charts/PDF/U0B80.pdf
+        // - https://github.com/storesafe/cordova-sqlite-evcore-extbuild-free/issues/54
+        it(suiteName + 'string HEX value test with UTF-8 3-byte Tamil எ (0x0B8E) - [TBD vs Windows vs ...]', function(done) {
+          // XXX TODO:
+          var db = openDatabase('UTF8-Tamil-0B8E-hex-value-test.db');
+          expect('XXX TODO XXX').toBe('---')
+
+          db.transaction(function(tx) {
+
+            tx.executeSql('SELECT HEX(?) AS hexValue', ['எ'], function(ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+              if (isWindows)
+                expect(rs1.rows.item(0).hexValue).toBe('???'); // (UTF-16le)
+              else
+                expect(rs1.rows.item(0).hexValue).toBe('E0AE8E'); // (UTF-8)
+
+              tx.executeSql("SELECT HEX('எ') AS hexValue", null, function(ignored, rs2) {
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+                if (isWindows)
+                  expect(rs2.rows.item(0).hexValue).toBe('???'); // (UTF-16le)
+                else
+                  expect(rs2.rows.item(0).hexValue).toBe('E0AE8E'); // (UTF-8)
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+
+              });
+
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        // check Tamil string character handling - UTF-8 3-byte ref:
+        // - https://en.wikipedia.org/wiki/Tamil_script
+        // - https://www.unicode.org/charts/PDF/U0B80.pdf
+        // - https://github.com/storesafe/cordova-sqlite-evcore-extbuild-free/issues/54
+        it(suiteName + 'string UPPER test with UTF-8 3-byte Tamil எ (0x0B8E)', function(done) {
+          var db = openDatabase('UTF8-3-byte-Tamil-UPPER-string-value-test.db');
+
+          db.transaction(function(tx) {
+
+            tx.executeSql('SELECT UPPER(?) AS upperValue', ['aஎ'], function(ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+
+              var resultRow1 = rs1.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.upperValue).toBeDefined();
+              expect(rs1.rows.item(0).upperValue).toBe('Aஎ');
+
+              tx.executeSql("SELECT UPPER('iஎ') AS upperValue", null, function(ignored, rs2) {
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+                var resultRow2 = rs2.rows.item(0);
+
+                expect(resultRow2).toBeDefined();
+                expect(resultRow2.upperValue).toBeDefined();
+                expect(rs2.rows.item(0).upperValue).toBe('Iஎ');
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
         it(suiteName + 'string HEX value test with UTF-8 4-byte Gothic bairkan 𐌱 (U+10331) [XXX ENCODING BUG REPRODUCED on default Android SQLite3 NDK build (using Android-sqlite-connector with Android-sqlite-ext-native-driver) on Android 4.x/5.x; default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           // ENCODING BUG REPRODUCED for 4-byte UTF-8 characters
           // on default Android database access implementation
@@ -1543,6 +1631,98 @@ var mytests = function() {
 
               // Close (plugin only) & finish:
               (isWebSql) ? done() : db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        // XXX TODO XXX XXX
+        // check Tamil string character handling - UTF-8 4-byte ref:
+        // - https://en.wikipedia.org/wiki/Tamil_script
+        // - https://www.unicode.org/charts/PDF/U11FC0.pdf
+        // - https://github.com/storesafe/cordova-sqlite-evcore-extbuild-free/issues/54
+        it(suiteName + 'string HEX value test with UTF-8 4-byte Tamil 𑿀  (U+11FC0) - [TBD Android 5 vs Windows vs ...]', function(done) {
+          // XXX TODO:
+          var db = openDatabase('UTF8-4-byte-Tamil-hex-value-test.db');
+          expect('XXX TODO XXX').toBe('---')
+
+          db.transaction(function(tx) {
+
+            tx.executeSql('SELECT HEX(?) AS hexValue', ['\ud807\udfc0'], function(ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+              if (isWindows)
+                expect(rs1.rows.item(0).hexValue).toBe('???'); // (UTF-16le)
+              else if (!isWebSql && isAndroid && !isImpl2 && (/Android 5/.test(navigator.userAgent)))
+                expect(rs1.rows.item(0).hexValue).toBe('EDA087EDBF80'); // [TBD] encoding on Android 5 with default NDK native driver
+              else
+                expect(rs1.rows.item(0).hexValue).toBe('F091BF80'); // (UTF-8)
+
+              tx.executeSql("SELECT HEX('\ud807\udfc0') AS hexValue", null, function(ignored, rs2) {
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+                if (isWindows)
+                  expect(rs2.rows.item(0).hexValue).toBe('???'); // (UTF-16le)
+                else if (!isWebSql && isAndroid && !isImpl2 && (/Android 5/.test(navigator.userAgent)))
+                  expect(rs2.rows.item(0).hexValue).toBe('EDA087EDBF80'); // [TBD] encoding on Android 5 with default NDK native driver
+                else
+                  expect(rs2.rows.item(0).hexValue).toBe('F091BF80'); // (UTF-8)
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+
+              });
+
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        // check Tamil string character handling - UTF-8 4-byte ref:
+        // - https://en.wikipedia.org/wiki/Tamil_script
+        // - https://www.unicode.org/charts/PDF/U11FC0.pdf
+        // - https://github.com/storesafe/cordova-sqlite-evcore-extbuild-free/issues/54
+        it(suiteName + 'string UPPER test with UTF-8 4-byte Tamil 𑿀  (U+11FC0)', function(done) {
+          var db = openDatabase('UTF8-4-byte-Tamil-UPPER-string-value-test.db');
+
+          db.transaction(function(tx) {
+
+            tx.executeSql('SELECT UPPER(?) AS upperValue', ['a\ud807\udfc0'], function(ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+
+              var resultRow1 = rs1.rows.item(0);
+              expect(resultRow1).toBeDefined();
+              expect(resultRow1.upperValue).toBeDefined();
+              expect(rs1.rows.item(0).upperValue).toBe('A𑿀');
+
+              tx.executeSql("SELECT UPPER('i\ud807\udfc0') AS upperValue", null, function(ignored, rs2) {
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+                var resultRow2 = rs2.rows.item(0);
+
+                expect(resultRow2).toBeDefined();
+                expect(resultRow2.upperValue).toBeDefined();
+                expect(rs2.rows.item(0).upperValue).toBe('I𑿀');
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+
             });
           }, function(error) {
             // NOT EXPECTED:
