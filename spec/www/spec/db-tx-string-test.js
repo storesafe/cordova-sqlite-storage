@@ -1220,6 +1220,87 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        // check UTF-8 2-byte EU-stroke string character handling ref:
+        // - https://github.com/mobilexag/cordova-sqlite-evplus-ext-free/issues/34
+        // - https://github.com/brodybits/sqlite3-eu/pull/1
+        it(suiteName + 'string HEX value test with UTF-8 2-byte EU-stroke character đ [Windows vs ...]', function(done) {
+          var db = openDatabase('UTF8-EU-stroke-hex-value-test.db');
+
+          db.transaction(function(tx) {
+
+            tx.executeSql('SELECT HEX(?) AS hexValue', ['đ'], function(ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+              if (isWindows)
+                expect(rs1.rows.item(0).hexValue).toBe('1101'); // (UTF-16le)
+              else
+                expect(rs1.rows.item(0).hexValue).toBe('C491'); // (UTF-8)
+
+              tx.executeSql("SELECT HEX('đ') AS hexValue", null, function(ignored, rs2) {
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+                if (isWindows)
+                  expect(rs2.rows.item(0).hexValue).toBe('1101'); // (UTF-16le)
+                else
+                  expect(rs2.rows.item(0).hexValue).toBe('C491'); // (UTF-8)
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+
+              });
+
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
+        // check UTF-8 2-byte EU-stroke string character handling ref:
+        // - https://github.com/mobilexag/cordova-sqlite-evplus-ext-free/issues/34
+        // - https://github.com/brodybits/sqlite3-eu/pull/1
+        it(suiteName + 'string UPPER test with UTF-8 2-byte EU-stroke character đ [Windows vs (WebKit) Web SQL vs ...]', function(done) {
+          var db = openDatabase('UTF8-2-byte-EU-stroke-UPPER-string-value-test.db');
+
+          db.transaction(function(tx) {
+
+            tx.executeSql('SELECT UPPER(?) AS upperValue', ['ađ'], function(ignored, rs1) {
+              expect(rs1).toBeDefined();
+              expect(rs1.rows).toBeDefined();
+              expect(rs1.rows.length).toBe(1);
+              if (isWebSql || (isAndroid && isImpl2))
+                expect(rs1.rows.item(0).upperValue).toBe('AĐ');
+              else
+                expect(rs1.rows.item(0).upperValue).toBe('Ađ');
+
+              tx.executeSql("SELECT UPPER('iđ') AS upperValue", null, function(ignored, rs2) {
+                expect(rs2).toBeDefined();
+                expect(rs2.rows).toBeDefined();
+                expect(rs2.rows.length).toBe(1);
+                if (isWebSql || (isAndroid && isImpl2))
+                  expect(rs2.rows.item(0).upperValue).toBe('IĐ');
+                else
+                  expect(rs2.rows.item(0).upperValue).toBe('Iđ');
+
+                // Close (plugin only) & finish:
+                (isWebSql) ? done() : db.close(done, done);
+              });
+
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
         it(suiteName + 'string HEX value test with UTF-8 3-byte Euro character (€) [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           var db = openDatabase('UTF8-3-byte-euro-hex-value-test.db');
 
@@ -2122,6 +2203,35 @@ var mytests = function() {
       });
 
       describe(suiteName + 'additional (extra) multi-byte UTF-8 character string binding & manipulation tests', function() {
+
+        // check multiple UTF-8 2-byte EU-stroke string character handling ref:
+        // - https://github.com/mobilexag/cordova-sqlite-evplus-ext-free/issues/34
+        // - https://github.com/brodybits/sqlite3-eu/pull/1
+        it(suiteName + 'string parameter manipulation test with a multiple UTF-8 2-byte EU-stroke characters [(WebKit) Web SQL vs ...]', function(done) {
+          var db = openDatabase('Multi-UTF-8-EU-stroke-UPPER-test.db');
+
+          db.transaction(function(tx) {
+
+            tx.executeSql('SELECT UPPER(?) AS upperValue', ['Test đ ď ð'], function(ignored, rs) {
+              expect(rs).toBeDefined();
+              expect(rs.rows).toBeDefined();
+              expect(rs.rows.length).toBe(1);
+              if (isWebSql || (isAndroid && isImpl2))
+                expect(rs.rows.item(0).upperValue).toBe('TEST Đ Ď Ð');
+              else
+                expect(rs.rows.item(0).upperValue).toBe('TEST đ ď ð');
+
+              // Close (plugin only) & finish:
+              (isWebSql) ? done() : db.close(done, done);
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('--');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
 
         it(suiteName + 'Inline string manipulation test with a combination of UTF-8 2-byte & 3-byte characters', function(done) {
           var db = openDatabase('Inline-UTF8-combo-string-manipulation-test.db');

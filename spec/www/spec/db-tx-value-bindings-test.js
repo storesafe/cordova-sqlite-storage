@@ -154,6 +154,48 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
+        // check multiple UTF-8 2-byte EU-stroke string character handling ref:
+        // - https://github.com/mobilexag/cordova-sqlite-evplus-ext-free/issues/34
+        // - https://github.com/brodybits/sqlite3-eu/pull/1
+        it(suiteName + 'INSERT EU-stroke TEXT string with UTF-8 2-byte EU-stroke characters; SELECT the data; check; and check HEX value [Windows vs ...]', function(done) {
+          var db = openDatabase('INSERT-EU-stroke-characters-and-check.db');
+
+          db.transaction(function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS tt');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS tt (data)', [], function(ignored1, ignored2) {
+
+              tx.executeSql('INSERT INTO tt VALUES (?)', ['abc đ ď ð'], function(tx, res) {
+
+                expect(res).toBeDefined();
+                expect(res.rowsAffected).toBe(1);
+
+                tx.executeSql('SELECT * FROM tt', [], function(tx, res) {
+                  var row = res.rows.item(0);
+
+                  expect(row.data).toBe('abc đ ď ð');
+
+                  tx.executeSql('SELECT HEX(data) AS hexvalue FROM tt', [], function(tx, res) {
+                    if (isWindows)
+                      expect(res.rows.item(0).hexvalue).toBe('6100620063002000110120000F012000F000');
+                    else
+                      expect(res.rows.item(0).hexvalue).toBe('61626320C49120C48F20C3B0');
+
+                    // Close (plugin only) & finish:
+                    (isWebSql) ? done() : db.close(done, done);
+                  });
+
+                });
+              });
+            });
+          }, function(error) {
+            // NOT EXPECTED:
+            expect(false).toBe(true);
+            expect(error.message).toBe('---');
+            // Close (plugin only) & finish:
+            (isWebSql) ? done() : db.close(done, done);
+          });
+        }, MYTIMEOUT);
+
         it(suiteName + 'INSERT TEXT string with € (UTF-8 3 octets), SELECT the data, check, and check HEX value [default sqlite HEX encoding: UTF-6le on Windows & Android 4.1-4.3 (WebKit) Web SQL, UTF-8 otherwise]', function(done) {
           var db = openDatabase('INSERT-UTF8-3-octets-and-check.db', '1.0', 'Demo', DEFAULT_SIZE);
 
