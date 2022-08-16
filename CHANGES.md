@@ -1,4 +1,6 @@
 # Changes
+## 1.3.0
+- added method to determine websql path
 
 ## 0.7.10
 

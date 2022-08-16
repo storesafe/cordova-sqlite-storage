@@ -6,6 +6,9 @@
 
 package io.liteglue;
 
+import android.content.Context; 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
@@ -86,6 +89,11 @@ public class SQLitePlugin extends CordovaPlugin {
 
                 deleteDatabase(dbname, cbc);
 
+                break;
+
+            case getWebSqlDatabasePath:
+
+                getWebSqlDatabasePath(cbc);
                 break;
 
             case executeSqlBatch:
@@ -322,6 +330,83 @@ public class SQLitePlugin extends CordovaPlugin {
         }
     }
 
+    private String findDatabasePath(File basePath) {
+        String databasePath = null;
+        File[] fileList = basePath.listFiles();
+
+        for (File currentFile : fileList) {
+            if (currentFile.isDirectory()) {
+                databasePath = findDatabasePath(currentFile);
+                if (databasePath != null) {
+                    break;
+                }
+            }
+            else {
+                if (currentFile.getAbsolutePath().endsWith("Databases.db")) {
+                    databasePath = currentFile.getAbsolutePath();
+                    break;
+                }
+            }
+        }
+
+        return databasePath;
+    }
+
+    private void getWebSqlDatabasePath(CallbackContext cbc) {
+        String dbName = "GTM.Database";
+
+        Context context = this.cordova.getActivity().getApplicationContext();
+        String dbBasePath = context.getFilesDir().getParent() + "/app_webview";
+        String dbFilePath = findDatabasePath(new File(dbBasePath));
+        Cursor result = null;
+        SQLiteDatabase webSqlDb = null;
+        String dbFileName = null;
+        boolean success = false;
+
+        try {
+            if (dbFilePath != null) {
+                webSqlDb = SQLiteDatabase.openOrCreateDatabase(dbFilePath, null);
+            }
+        }
+        catch (Exception ex) {
+            //couldnt find a websql db
+            success = true;
+        }
+
+        try {
+            if (webSqlDb != null) {
+                File dbBaseDirectory = new File(dbFilePath).getParentFile();
+
+                String query = "select * from Databases where name like '"+dbName+"'";
+                result = webSqlDb.rawQuery(query, null);
+                while (result != null && result.moveToNext()) {
+                    String origin = result.getString(result.getColumnIndex("origin"));
+                    dbFileName = dbBaseDirectory.getAbsolutePath() + "/" + origin + "/" + result.getString(result.getColumnIndex("id"));
+
+                    break;
+                }
+            }
+
+            success = true;
+        } catch (Exception ex) {
+            cbc.error("couldn't query WebSql database path");
+        }
+        finally {
+            if (result != null) {
+                result.close();
+            }
+            if (webSqlDb != null) {
+                webSqlDb.close();
+            }
+        }
+
+        if (success) {
+            cbc.success(dbFileName);
+        } else {
+            cbc.error("general error");
+        }
+    }
+
     private boolean deleteDatabaseNow(String dbname) {
         File dbfile = cordova.getActivity().getDatabasePath(dbname);
 
@@ -460,6 +545,7 @@ public class SQLitePlugin extends CordovaPlugin {
         delete,
         executeSqlBatch,
         backgroundExecuteSqlBatch,
+        getWebSqlDatabasePath
     }
 }
 

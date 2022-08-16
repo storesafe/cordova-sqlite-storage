@@ -263,6 +263,40 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+- (void) getWebSqlDatabasePath: (CDVInvokedUrlCommand*)command {
+    CDVPluginResult* pluginResult = nil;
+
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"general error."];
+    
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    NSString *cacheDirectory = [paths objectAtIndex:0];
+    NSString *databasePath = [NSString stringWithFormat:@"%@/Databases.db", cacheDirectory];
+
+    sqlite3 *_database;
+    if (sqlite3_open([databasePath UTF8String], &_database) != SQLITE_OK) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Failed to open database!"];
+    } else {
+        NSString *query = @"SELECT * FROM Databases where name = 'GTM.Database'";
+        sqlite3_stmt *statement;
+        if (sqlite3_prepare_v2(_database, [query UTF8String], -1, &statement, nil)
+            == SQLITE_OK) {
+            while (sqlite3_step(statement) == SQLITE_ROW) {
+                char *originChars = (char *) sqlite3_column_text(statement, 1);
+                char *pathChars = (char *) sqlite3_column_text(statement, 5);
+                NSString *origin = [[NSString alloc] initWithUTF8String:originChars];
+                NSString *path = [[NSString alloc] initWithUTF8String:pathChars];
+                NSString *userDatabasePath = [NSString stringWithFormat:@"%@/%@/%@", cacheDirectory, origin, path];
+
+                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:userDatabasePath];
+            }
+            sqlite3_finalize(statement);
+        }
+
+        sqlite3_close(_database);
+    }
+
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 
 -(void) backgroundExecuteSqlBatch: (CDVInvokedUrlCommand*)command
 {

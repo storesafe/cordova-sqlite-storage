@@ -1,6 +1,6 @@
 {
   "name": "cordova-spatialite-storage",
-  "version": "0.7.11",
+  "version": "1.3.0",
   "description": "Native interface to SQLite for PhoneGap/Cordova",
   "cordova": {
     "id": "cordova-spatialite-storage",
