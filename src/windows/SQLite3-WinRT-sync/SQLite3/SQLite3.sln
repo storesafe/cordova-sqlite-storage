@@ -7,10 +7,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQLite3", "SQLite3", "{F0B5
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SQLite3.Shared", "SQLite3.Shared.vcxitems", "{DB84AE51-4B93-44F5-BE22-1EAE1833ECEC}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SQLite3.Windows", "SQLite3.Windows\SQLite3.Windows.vcxproj", "{D1848FEE-6A8E-4EF1-8BFB-8652E5A9CD4A}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SQLite3.WindowsPhone", "SQLite3.WindowsPhone\SQLite3.WindowsPhone.vcxproj", "{6435C2E4-4FD2-405A-9EE2-5312AE852782}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SQLite3.UWP", "SQLite3.UWP\SQLite3.UWP.vcxproj", "{76E68196-B7DC-4393-A070-D32FC33BC489}"
 EndProject
 Global
