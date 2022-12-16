@@ -203,7 +203,7 @@ See the [**Sample**](#sample) section below for a sample with a more detailed ex
 - A recent version of the Cordova CLI is recommended.
 - This plugin version uses a `before_plugin_install` hook to install sqlite3 library dependencies from [`cordova-sqlite-storage-dependencies`](https://www.npmjs.com/package/cordova-sqlite-storage-dependencies) via npm.
 - Use of other systems such as Cordova Plugman, PhoneGap CLI, PhoneGap Build, and Intel XDK is no longer supported by this plugin version since they do not honor the `before_plugin_install` hook. The supported solution is to use [`storesafe/cordova-sqlite-evcore-extbuild-free`](https://github.com/storesafe/cordova-sqlite-evcore-extbuild-free) (GPL v3 or commercial license terms); deprecated alternative with permissive license terms is available at: [`brodybits/cordova-sqlite-legacy-build-support`](https://github.com/brodybits/cordova-sqlite-legacy-build-support) (very limited testing, very limited updates).
-- SQLite `3.32.3` included when building (all platforms), with the following compile-time definitions:
+- SQLite `3.40.0` included when building (all platforms), with the following compile-time definitions:
   - `SQLITE_THREADSAFE=1` (`SQLITE_THREADSAFE=0` for sql.js on browser platform)
   - `SQLITE_DEFAULT_SYNCHRONOUS=3` (EXTRA DURABLE build setting) ref: [`storesafe/cordova-sqlite-storage#736`](https://github.com/storesafe/cordova-sqlite-storage/issues/736) (except for sql.js on browser platform)
   - `SQLITE_DEFAULT_MEMSTATUS=0` (except for sql.js on browser platform)
@@ -227,7 +227,7 @@ See the [**Sample**](#sample) section below for a sample with a more detailed ex
   - <https://www.sqlite.org/releaselog/3_26_0.html>
 - The iOS database location is now mandatory, as documented below.
 - This version branch supports the use of two (2) possible Android sqlite database implementations:
-  - default: lightweight [`android-sqlite-native-ndk-connector`](https://github.com/brodybits/android-sqlite-native-ndk-connector), using SQLite3 NDK component built from [`android-sqlite-ndk-native-driver`](https://github.com/brodybits/android-sqlite-ndk-native-driver)
+  - default: lightweight [`android-sqlite-native-ndk-connector`](https://github.com/brodybits/android-sqlite-native-ndk-connector), using SQLite3 NDK component built from [`github:brodybits/android-sqlite-ndk-native-driver` - `sqlite-storage-ndk-native-driver` branch](https://github.com/brodybits/android-sqlite-ndk-native-driver/tree/sqlite-storage-ndk-native-driver) and [`brodybits/android-sqlite-native-ndk-connector`](https://github.com/brodybits/android-sqlite-native-ndk-connector)
   - optional: Android system database implementation, using the `androidDatabaseProvider: 'system'` setting in `sqlitePlugin.openDatabase()` call as described in the [**Android database provider**](#android-database-provider) section below.
 - Support for WP8 along with Windows 8.1/Windows Phone 8.1/Windows 10 using Visual Studio 2015 is available in: [`brodybits/cordova-sqlite-legacy-build-support`](https://github.com/brodybits/cordova-sqlite-legacy-build-support)
 - The following features are available in [`brodybits/cordova-sqlite-ext`](https://github.com/brodybits/cordova-sqlite-ext):
