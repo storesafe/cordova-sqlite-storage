@@ -407,7 +407,13 @@
 
                 while (i < count) {
                     columnValue = nil;
-                    columnName = [NSString stringWithFormat:@"%s", sqlite3_column_name(statement, i)];
+                    //columnName = [NSString stringWithFormat:@"%s", sqlite3_column_name(statement, i)];
+                    columnName = [[NSString alloc] initWithBytes:(char *)sqlite3_column_name(statement, i)
+                                                          length:strlen(sqlite3_column_name(statement, i))
+                                                        encoding:NSUTF8StringEncoding];
+#if !__has_feature(objc_arc)
+                    [columnName autorelease];
+#endif
 
                     column_type = sqlite3_column_type(statement, i);
                     switch (column_type) {
