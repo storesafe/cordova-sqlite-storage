@@ -53,6 +53,15 @@
         sqlError = new Error "an unknown error was returned: " + JSON.stringify(sqlError)
         sqlError.code = code
 
+      sqlError.UNKNOWN_ERR = 0
+      sqlError.DATABASE_ERR = 1
+      sqlError.VERSION_ERR = 2
+      sqlError.TOO_LARGE_ERR = 3
+      sqlError.QUOTA_ERR = 4
+      sqlError.SYNTAX_ERR = 5
+      sqlError.CONSTRAINT_ERR = 6
+      sqlError.TIMEOUT_ERR = 7
+
       return sqlError
 
     nextTick = window.setImmediate || (fun) ->
