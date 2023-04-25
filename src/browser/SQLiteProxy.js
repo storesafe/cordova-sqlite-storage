@@ -8,7 +8,20 @@ function echoStringValue(success, error, options) {
 
 var SQL = null;
 
-window.initSqlJs().then(sql => { SQL = sql })
+var sqlite3 = null;
+
+if (!!window.require) {
+  sqlite3 = window.require('sqlite3');
+  if (!!sqlite3) {
+    SQL = sqlite3.verbose();
+  } else {
+    return error('INTERNAL ERROR: sqlite3 not installed');
+  }
+} else {
+  window.initSqlJs().then((sql) => {
+    SQL = sql;
+  });
+}
 
 function openDatabase(success, error, options) {
   var name = options[0].name;
@@ -28,7 +41,7 @@ function openDatabase(success, error, options) {
   }
 
   try {
-    dbmap[name] = new SQL.Database();
+    dbmap[name] = new SQL.Database(!!sqlite3 ? name : undefined);
   } catch(e) {
     // INTERNAL OPEN ERROR
     return error(e);
@@ -37,7 +50,7 @@ function openDatabase(success, error, options) {
   setTimeout(success, 0);
 }
 
-function backgroundExecuteSqlBatch(success, error, options) {
+async function backgroundExecuteSqlBatch(success, error, options) {
   var dbname = options[0].dbargs.dbname;
 
   if (!dbmap[dbname]) return error('INTERNAL ERROR: database not open');
@@ -52,44 +65,86 @@ function backgroundExecuteSqlBatch(success, error, options) {
     var sql = e[i].sql;
     var params = e[i].params;
 
-    var rr = []
+    if (!!sqlite3) {
+      resultList.push(await _sqlite3ExecuteSql(db, sql, params));
+    } else {
+      var rr = []
+  
+      var prevTotalChanges = (db.exec('SELECT total_changes()'))[0].values[0][0];
 
-    var prevTotalChanges = (db.exec('SELECT total_changes()'))[0].values[0][0];
-
-    try {
-      db.each(sql, params, function(r) {
-        rr.push(r);
-      }, function() {
-        var insertId = (db.exec('SELECT last_insert_rowid()'))[0].values[0][0];
-        var totalChanges = (db.exec('SELECT total_changes()'))[0].values[0][0];
-        var rowsAffected = totalChanges - prevTotalChanges;
+      try {
+        db.each(sql, params, function(r) {
+          rr.push(r);
+        }, function() {
+          var insertId = (db.exec('SELECT last_insert_rowid()'))[0].values[0][0];
+          var totalChanges = (db.exec('SELECT total_changes()'))[0].values[0][0];
+          var rowsAffected = totalChanges - prevTotalChanges;
+          resultList.push({
+            type: 'success',
+            result: (rowsAffected !== 0) ? {
+              rows: rr,
+              insertId: insertId,
+              rowsAffected: rowsAffected
+            } : {
+              rows: rr,
+              rowsAffected: 0
+            }
+          });
+        });
+      } catch(e) {
+        // FUTURE TODO: report correct error code according to Web SQL
         resultList.push({
-          type: 'success',
-          result: (rowsAffected !== 0) ? {
-            rows: rr,
-            insertId: insertId,
-            rowsAffected: rowsAffected
-          } : {
-            rows: rr,
-            rowsAffected: 0
+          type: 'error',
+          result: {
+            code: 0,
+            message: e.toString()
           }
         });
-      });
-    } catch(e) {
-      // FUTURE TODO: report correct error code according to Web SQL
-      resultList.push({
-        type: 'error',
-        result: {
-          code: 0,
-          message: e.toString()
-        }
-      });
+      }
     }
+
   }
 
   setTimeout(function() {
     success(resultList);
   }, 0);
+}
+
+function _sqlite3ExecuteSql(db, sql, params) {
+  return new Promise(function (resolve) {
+    var _sqlite3Handler = function (e, r) {
+      if (e) {
+        // FUTURE TODO: report correct error code according to SQLite3
+        resolve({
+          type: 'error',
+          result: {
+            code: 0,
+            message: e.toString(),
+          },
+        });
+      } else {
+        resolve({
+          type: 'success',
+          result:
+            this['changes'] && this['changes'] !== 0
+              ? {
+                  rows: r,
+                  insertId: this['lastID'],
+                  rowsAffected: this['changes'],
+                }
+              : {
+                  rows: r,
+                  rowsAffected: 0,
+                },
+        });
+      }
+    };
+    if (sql.substr(0, 11) === 'INSERT INTO') {
+      db.run(sql, params, _sqlite3Handler);
+    } else {
+      db.all(sql, params, _sqlite3Handler);
+    }
+  });
 }
 
 function closeDatabase(success, error, options) {
