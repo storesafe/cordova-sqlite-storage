@@ -11,9 +11,9 @@ import android.util.Log;
 import java.io.File;
 
 import java.lang.IllegalArgumentException;
-import java.lang.Number;
 
 import java.util.Map;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;

@@ -10,7 +10,8 @@ import android.database.Cursor;
 import android.database.CursorWindow;
 
 import android.database.sqlite.SQLiteConstraintException;
-import android.database.sqlite.SQLiteCursor;
+// no longer needed - for pre-Honeycomb NO LONGER SUPPORTED:
+// import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteStatement;
