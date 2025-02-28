@@ -341,11 +341,10 @@
 
   SQLitePluginTransaction.prototype.executeSql = function(sql, values, success, error) {
     if (this.finalized) {
-      throw {
-        message: 'InvalidStateError: DOM Exception 11: This transaction is already finalized. Transactions are committed after its success or failure handlers are called. If you are using a Promise to handle callbacks, be aware that implementations following the A+ standard adhere to run-to-completion semantics and so Promise resolution occurs on a subsequent tick and therefore after the transaction commits.',
-        code: 11
-      };
-      return;
+      throw newSQLError(
+        'InvalidStateError: DOM Exception 11: This transaction is already finalized. Transactions are committed after its success or failure handlers are called. If you are using a Promise to handle callbacks, be aware that implementations following the A+ standard adhere to run-to-completion semantics and so Promise resolution occurs on a subsequent tick and therefore after the transaction commits.',
+        11
+      );
     }
     if (this.readOnly && READ_ONLY_REGEX.test(sql)) {
       this.handleStatementFailure(error, {
