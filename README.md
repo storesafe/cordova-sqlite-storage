@@ -874,6 +874,14 @@ where the `iosDatabaseLocation` option may be set to one of the following choice
 - `Library`: `Library` subdirectory - backed up by iCloud, *NOT* visible to iTunes
 - `Documents`: `Documents` subdirectory - visible to iTunes and backed up by iCloud
 
+Another option for **iOS** is this:
+
+```js
+var db = window.sqlitePlugin.openDatabase({name: 'my.db', iosDirectoryURL: 'Library'}, successcb, errorcb);
+```
+
+where `iosDirectoryURL` is a directory path for shared app groups like `/private/var/mobile/Containers/Shared/AppGroup/XXX-ZZZ...`.
+
 **WARNING:** Again, the new "default" iosDatabaseLocation value is *NOT* the same as the old default location and would break an upgrade for an app using the old default value (0) on iOS.
 
 DEPRECATED ALTERNATIVE to be removed in an upcoming release:

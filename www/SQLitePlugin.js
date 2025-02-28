@@ -568,19 +568,21 @@
       if (!openargs.name) {
         throw newSQLError('Database name value is missing in openDatabase call');
       }
-      if (!openargs.iosDatabaseLocation && !openargs.location && openargs.location !== 0) {
-        throw newSQLError('Database location or iosDatabaseLocation setting is now mandatory in openDatabase call.');
+      if (!openargs.iosDatabaseLocation && !openargs.location && openargs.location !== 0 && !openargs.iosDirectoryURL) {
+        throw newSQLError('Database location, iosDatabaseLocation or iosDirectoryURL setting is now mandatory in openDatabase call.');
       }
       if (!!openargs.location && !!openargs.iosDatabaseLocation) {
         throw newSQLError('AMBIGUOUS: both location and iosDatabaseLocation settings are present in openDatabase call. Please use either setting, not both.');
       }
-      dblocation = !!openargs.location && openargs.location === 'default' ? iosLocationMap['default'] : !!openargs.iosDatabaseLocation ? iosLocationMap[openargs.iosDatabaseLocation] : dblocations[openargs.location];
-      if (!dblocation) {
-        throw newSQLError('Valid iOS database location could not be determined in openDatabase call');
-      }
-      openargs.dblocation = dblocation;
-      if (!!openargs.createFromLocation && openargs.createFromLocation === 1) {
-        openargs.createFromResource = "1";
+      if (!openargs.iosDirectoryURL) {
+        dblocation = !!openargs.location && openargs.location === 'default' ? iosLocationMap['default'] : !!openargs.iosDatabaseLocation ? iosLocationMap[openargs.iosDatabaseLocation] : dblocations[openargs.location];
+        if (!dblocation) {
+            throw newSQLError('Valid iOS database location could not be determined in openDatabase call');
+        }
+        openargs.dblocation = dblocation;
+        if (!!openargs.createFromLocation && openargs.createFromLocation === 1) {
+            openargs.createFromResource = "1";
+        }
       }
       if (!!openargs.androidDatabaseProvider && !!openargs.androidDatabaseImplementation) {
         throw newSQLError('AMBIGUOUS: both androidDatabaseProvider and deprecated androidDatabaseImplementation settings are present in openDatabase call. Please drop androidDatabaseImplementation in favor of androidDatabaseProvider.');
@@ -622,17 +624,21 @@
         }
         args.path = dbname;
       }
-      if (!first.iosDatabaseLocation && !first.location && first.location !== 0) {
-        throw newSQLError('Database location or iosDatabaseLocation setting is now mandatory in deleteDatabase call.');
+      if (!first.iosDatabaseLocation && !first.location && first.location !== 0 && !first.iosDirectoryURL) {
+        throw newSQLError('Database location, iosDatabaseLocation or iosDirectoryURL setting is now mandatory in deleteDatabase call.');
       }
       if (!!first.location && !!first.iosDatabaseLocation) {
         throw newSQLError('AMBIGUOUS: both location and iosDatabaseLocation settings are present in deleteDatabase call. Please use either setting value, not both.');
       }
-      dblocation = !!first.location && first.location === 'default' ? iosLocationMap['default'] : !!first.iosDatabaseLocation ? iosLocationMap[first.iosDatabaseLocation] : dblocations[first.location];
-      if (!dblocation) {
-        throw newSQLError('Valid iOS database location could not be determined in deleteDatabase call');
+      if (!first.iosDirectoryURL) {
+        dblocation = !!first.location && first.location === 'default' ? iosLocationMap['default'] : !!first.iosDatabaseLocation ? iosLocationMap[first.iosDatabaseLocation] : dblocations[first.location];
+        if (!dblocation) {
+            throw newSQLError('Valid iOS database location could not be determined in deleteDatabase call');
+        }
+        args.dblocation = dblocation;
+      } else {
+        args.iosDirectoryURL = first.iosDirectoryURL;
       }
-      args.dblocation = dblocation;
       delete SQLitePlugin.prototype.openDBs[args.path];
       return cordova.exec(success, error, "SQLitePlugin", "delete", [args]);
     }
