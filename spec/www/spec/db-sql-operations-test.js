@@ -1545,6 +1545,9 @@ var mytests = function() {
               var resultRow3 = resultSet.rows.item(2);
               expect(resultRow3).toBeDefined();
               expect(resultRow3.name).toBe('data_num');
+
+              // (in case this transaction runs last)
+              if (checkCount === expectedCheckCount) done();
             });
           });
 

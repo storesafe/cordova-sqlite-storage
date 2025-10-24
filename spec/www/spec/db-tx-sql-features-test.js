@@ -179,10 +179,10 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        // Test for Cordova-sqlcipher-adapter version (SQLCipher 3.4.0 based on SQLite 3.11.0)
+        // now enabled by default in recent SQLite versions
+        // as spotted in sql.js update history
         it(suiteName + 'Basic JSON1 json test', function(done) {
-          //if (isWebSql) pending('SKIP for Web SQL (not implemented)');
-          pending('SKIP: NOT IMPLEMENTED for this version');
+          if (isWebSql || isImpl2) pending('SKIP ...'); // XXX TBD ...
 
           var db = openDatabase('basic-json1-json-test.db', '1.0', 'Test', DEFAULT_SIZE);
 
@@ -209,10 +209,10 @@ var mytests = function() {
           });
         }, MYTIMEOUT);
 
-        // Test for Cordova-sqlcipher-adapter version (SQLCipher 3.4.0 based on SQLite 3.11.0)
+        // now enabled by default in recent SQLite versions
+        // as spotted in sql.js update history
         it(suiteName + 'JSON1 json_object test', function(done) {
-          //if (isWebSql) pending('SKIP for Web SQL (not implemented)');
-          pending('SKIP: NOT IMPLEMENTED for this version');
+          if (isWebSql || isImpl2) pending('SKIP ...'); // XXX TBD ...
 
           var db = openDatabase('json1-json-object-test.db', '1.0', 'Test', DEFAULT_SIZE);
 

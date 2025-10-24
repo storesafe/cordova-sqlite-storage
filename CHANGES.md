@@ -1,5 +1,13 @@
 # Changes
 
+#### cordova-sqlite-storage 7.0.0
+
+- minimum Android API -> 24 (Android 7.0), with 16 KB page alignment update, from cordova-sqlite-storage-dependencies@5.0.0
+
+#### cordova-sqlite-storage 6.1.0
+
+- SQLite 3.40.0 update from cordova-sqlite-storage-dependencies@4.1.0
+
 #### cordova-sqlite-storage 6.0.0
 
 - use cordova-sqlite-storage-dependencies@4.0.0 with Android JARs built from android-sqlite-native-ndk-connector and android-sqlite-ndk-native-driver, with enhancements by Luis Silva of OutSystems needed for some Android 11 devices, drops support for Android pre-5.1

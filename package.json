@@ -1,6 +1,6 @@
 {
   "name": "cordova-sqlite-storage",
-  "version": "6.0.0",
+  "version": "7.0.0",
   "description": "Native interface to SQLite for PhoneGap / Cordova - cordova-sqlite-storage plugin version",
   "cordova": {
     "id": "cordova-sqlite-storage",
@@ -32,16 +32,17 @@
   },
   "homepage": "https://github.com/xpbrew/cordova-sqlite-storage",
   "dependencies": {
-    "cordova-sqlite-storage-dependencies": "4.0.0"
+    "cordova-sqlite-storage-dependencies": "5.0.0"
   },
   "scripts": {
-    "clean-spec": "rm -rf spec/[mnp]* && git cl spec/config.xml spec/package.json && git status --ignored",
+    "clean-spec": "rimraf spec/[mnp]* && git checkout -- spec/config.xml spec/package.json && git status --ignored",
     "prepare-js": "coffee -p SQLitePlugin.coffee.md > www/SQLitePlugin.js",
     "prepare-spec": "node scripts/prepareSpec.js"
   },
   "devDependencies": {
     "coffeescript": "1",
     "cross-spawn": "^6.0.5",
-    "fs-extra": "^8.1.0"
+    "fs-extra": "^8.1.0",
+    "rimraf": "^3.0.2"
   }
 }

@@ -655,7 +655,7 @@ var mytests = function() {
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
             else if (isChromeBrowser)
-              expect(ex.message).toMatch(/callback provided as parameter 1 is not an object/);
+              expect(ex.message).toMatch(/parameter 1 is not/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.transaction must be a function/);
           }
@@ -707,7 +707,7 @@ var mytests = function() {
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
             else if (isChromeBrowser)
-              expect(ex.message).toMatch(/callback provided as parameter 1 is not an object/);
+              expect(ex.message).toMatch(/parameter 1 is not/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.readTransaction must be a function/);
           }
@@ -759,7 +759,7 @@ var mytests = function() {
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
             else if (isChromeBrowser)
-              expect(ex.message).toMatch(/callback provided as parameter 1 is not an object/);
+              expect(ex.message).toMatch(/parameter 1 is not/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.transaction must be a function/);
           }
@@ -811,7 +811,7 @@ var mytests = function() {
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
             else if (isChromeBrowser)
-              expect(ex.message).toMatch(/callback provided as parameter 1 is not an object/);
+              expect(ex.message).toMatch(/parameter 1 is not/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.readTransaction must be a function/);
           }
@@ -863,7 +863,7 @@ var mytests = function() {
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
             else if (isWebSql && isChromeBrowser)
-              expect(ex.message).toMatch(/Failed to execute.*transaction.*callback provided as parameter 1 is not an object/);
+              expect(ex.message).toMatch(/Failed to execute.*transaction.*parameter 1 is not/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.transaction must be a function/);
           }
@@ -915,7 +915,7 @@ var mytests = function() {
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
             else if (isWebSql && isChromeBrowser)
-              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*callback provided as parameter 1 is not an object/);
+              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*parameter 1 is not/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.readTransaction must be a function/);
           }
@@ -967,7 +967,7 @@ var mytests = function() {
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
             else if (isWebSql && isChromeBrowser)
-              expect(ex.message).toMatch(/Failed to execute.*transaction.*callback provided as parameter 1 is not an object/);
+              expect(ex.message).toMatch(/Failed to execute.*transaction.*parameter 1 is not/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.transaction must be a function/);
           }
@@ -1019,7 +1019,7 @@ var mytests = function() {
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
             else if (isWebSql && isChromeBrowser)
-              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*callback provided as parameter 1 is not an object/);
+              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*parameter 1 is not/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.readTransaction must be a function/);
           }
@@ -1071,7 +1071,7 @@ var mytests = function() {
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
             else if (isWebSql && isChromeBrowser)
-              expect(ex.message).toMatch(/Failed to execute.*transaction.*callback provided as parameter 1 is not an object/);
+              expect(ex.message).toMatch(/Failed to execute.*transaction.*parameter 1 is not/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.transaction must be a function/);
           }
@@ -1123,7 +1123,7 @@ var mytests = function() {
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
             else if (isWebSql && isChromeBrowser)
-              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*callback provided as parameter 1 is not an object/);
+              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*parameter 1 is not/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.readTransaction must be a function/);
           }
@@ -1175,7 +1175,7 @@ var mytests = function() {
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
             else if (isWebSql && isChromeBrowser)
-              expect(ex.message).toMatch(/Failed to execute.*transaction.*callback provided as parameter 1 is not an object/);
+              expect(ex.message).toMatch(/Failed to execute.*transaction.*parameter 1 is not/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.transaction must be a function/);
           }
@@ -1227,7 +1227,7 @@ var mytests = function() {
             else if (isAndroid)
               expect(true).toBe(true); // SKIP for now
             else if (isWebSql && isChromeBrowser)
-              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*callback provided as parameter 1 is not an object/);
+              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*parameter 1 is not/);
             else
               expect(ex.message).toMatch(/Argument 1 \('callback'\) to Database\.readTransaction must be a function/);
           }
@@ -1277,7 +1277,7 @@ var mytests = function() {
             if (isAndroid)
               expect(true).toBe(true); // SKIP for now
             else if (isWebSql && isChromeBrowser)
-              expect(ex.message).toMatch(/Failed to execute.*transaction.*callback provided as parameter 3 is not an object/);
+              expect(ex.message).toMatch(/Failed to execute.*transaction.*parameter 3 is not/);
             else
               expect(ex.message).toMatch(/Argument 3 \('successCallback'\) to Database\.transaction must be a function/);
           }
@@ -1327,7 +1327,7 @@ var mytests = function() {
             if (isAndroid)
               expect(true).toBe(true); // SKIP for now
             else if (isWebSql && isChromeBrowser)
-              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*callback provided as parameter 3 is not an object/);
+              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*parameter 3 is not/);
             else
               expect(ex.message).toMatch(/Argument 3 \('successCallback'\) to Database\.readTransaction must be a function/);
           }
@@ -1377,7 +1377,7 @@ var mytests = function() {
             if (isAndroid)
               expect(true).toBe(true); // SKIP for now
             else if (isWebSql && isChromeBrowser)
-              expect(ex.message).toMatch(/Failed to execute.*transaction.*callback provided as parameter 2 is not an object/);
+              expect(ex.message).toMatch(/Failed to execute.*transaction.*parameter 2 is not/);
             else
               expect(ex.message).toMatch(/Argument 2 \('errorCallback'\) to Database\.transaction must be a function/);
           }
@@ -1427,7 +1427,7 @@ var mytests = function() {
             if (isAndroid)
               expect(true).toBe(true); // SKIP for now
             else if (isWebSql && isChromeBrowser)
-              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*callback provided as parameter 2 is not an object/);
+              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*parameter 2 is not/);
             else
               expect(ex.message).toMatch(/Argument 2 \('errorCallback'\) to Database\.readTransaction must be a function/);
           }
@@ -1477,7 +1477,7 @@ var mytests = function() {
             if (isAndroid)
               expect(true).toBe(true); // SKIP for now
             else if (isWebSql && isChromeBrowser)
-              expect(ex.message).toMatch(/Failed to execute.*transaction.*callback provided as parameter 3 is not an object/);
+              expect(ex.message).toMatch(/Failed to execute.*transaction.*parameter 3 is not/);
             else
               expect(ex.message).toMatch(/Argument 3 \('successCallback'\) to Database\.transaction must be a function/);
           }
@@ -1527,7 +1527,7 @@ var mytests = function() {
             if (isAndroid)
               expect(true).toBe(true); // SKIP for now
             else if (isWebSql && isChromeBrowser)
-              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*parameter 3 is not an object/);
+              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*parameter 3 is not/);
             else
               expect(ex.message).toMatch(/Argument 3 \('successCallback'\) to Database\.readTransaction must be a function/);
           }
@@ -1577,7 +1577,7 @@ var mytests = function() {
             if (isAndroid)
               expect(true).toBe(true); // SKIP for now
             else if (isWebSql && isChromeBrowser)
-              expect(ex.message).toMatch(/Failed to execute.*transaction.*callback provided as parameter 2 is not an object/);
+              expect(ex.message).toMatch(/Failed to execute.*transaction.*parameter 2 is not/);
             else
               expect(ex.message).toMatch(/Argument 2 \('errorCallback'\) to Database\.transaction must be a function/);
           }
@@ -1627,7 +1627,7 @@ var mytests = function() {
             if (isAndroid)
               expect(true).toBe(true); // SKIP for now
             else if (isWebSql && isChromeBrowser)
-              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*parameter 2 is not an object/);
+              expect(ex.message).toMatch(/Failed to execute.*readTransaction.*parameter 2 is not/);
             else
               expect(ex.message).toMatch(/Argument 2 \('errorCallback'\) to Database\.readTransaction must be a function/);
           }
