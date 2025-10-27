@@ -1,7 +1,5 @@
 # Changes
 
-#### cordova-sqlite-storage 7.0.1-dev
-
 #### cordova-sqlite-storage 7.0.0
 
 - minimum Android API -> 24 (Android 7.0), with 16 KB page alignment update, from cordova-sqlite-storage-dependencies@5.0.0
